@@ -2748,11 +2748,11 @@ static WindowDesc _station_rating_tooltip_desc(__FILE__, __LINE__,
 	);
 
 bool GetNewGrfRating(const Station *st, const CargoSpec *cs, const GoodsEntry *ge, int *new_grf_rating);
-int GetSpeedRating(const GoodsEntry *ge);
+int GetSpeedRating(const GoodsEntry *ge, const CargoSpec *cs);
 int GetWaitTimeRating(const CargoSpec *cs, const GoodsEntry *ge);
 int GetWaitingCargoRating(const Station *st, const GoodsEntry *ge);
 int GetStatueRating(const Station *st);
-int GetVehicleAgeRating(const GoodsEntry *ge);
+int GetVehicleAgeRating(const GoodsEntry *ge, const CargoSpec *cs);
 
 static const TextColour _rate_colours[] = { TC_ORANGE, TC_GOLD, TC_YELLOW, TC_GREEN };
 
@@ -2873,7 +2873,7 @@ public:
 		if (!skip) {
 			/* Speed */
 			{
-				const auto speed_rating = GetSpeedRating(ge);
+				const auto speed_rating = GetSpeedRating(ge, cs);
 				const auto rounded_speed_rating = RoundRating(speed_rating);
 
 				TextColour colour;
@@ -2882,11 +2882,13 @@ public:
 				} else if (rounded_speed_rating == 0) {
 					colour = TC_RED;
 				} else {
-					colour = _rate_colours[std::min(3, speed_rating / 42)];
+					const int divisor = (_settings_game.station.penalise_old_slow_vehicles_less && !cs->classes.Any({CargoClass::Passengers, CargoClass::Express})) ? 96 : 42; // 42 is default max rating points, 96 is max rating points with adjusted old/slow vehicle calculation (station_cmd.cpp L4169)
+					colour = _rate_colours[std::min(3, speed_rating / divisor)];
 				}
+				const int max_percentage = (_settings_game.station.penalise_old_slow_vehicles_less && !cs->classes.Any({CargoClass::Passengers, CargoClass::Express})) ? 38 : 17; // 17 is default max rating %, 38 is max rating % with adjusted old/slow vehicle calculation (station_cmd.cpp L4169)
 				this->data[line_nr] = GetString(STR_STATION_RATING_TOOLTIP_SPEED,
 						detailed ? STR_STATION_RATING_MAX_PERCENTAGE : STR_EMPTY,
-						17,
+						max_percentage,
 						colour,
 						ge->last_speed == 0xFF ? STR_STATION_RATING_TOOLTIP_AT_LEAST_VELOCITY : STR_JUST_VELOCITY,
 						to_display_speed(ge->last_speed),
@@ -2973,7 +2975,7 @@ public:
 
 			/* Vehicle age */
 			{
-				const auto age_rating = GetVehicleAgeRating(ge);
+				const auto age_rating = GetVehicleAgeRating(ge, cs);
 
 				TextColour age_stage = TC_ORANGE;
 
@@ -2984,10 +2986,10 @@ public:
 				} else if (age_rating >= 10) {
 					age_stage = TC_GOLD;
 				}
-
+				const int max_percentage = (_settings_game.station.penalise_old_slow_vehicles_less && !cs->classes.Any({CargoClass::Passengers, CargoClass::Express})) ? 0 : 13; // 13 is default max rating %, 0 is max rating % with adjusted old/slow vehicle calculation
 				this->data[line_nr] = GetString(STR_STATION_RATING_TOOLTIP_AGE,
 						detailed ? STR_STATION_RATING_MAX_PERCENTAGE : STR_EMPTY,
-						13,
+						max_percentage,
 						age_stage,
 						ge->last_age,
 						detailed ? STR_STATION_RATING_PERCENTAGE_COMMA : STR_EMPTY,
