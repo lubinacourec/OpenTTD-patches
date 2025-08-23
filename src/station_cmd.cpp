@@ -4217,11 +4217,18 @@ bool GetNewGrfRating(const Station *st, const CargoSpec *cs, const GoodsEntry *g
 	return is_using_newgrf_rating;
 }
 
-int GetSpeedRating(const GoodsEntry *ge)
+int GetSpeedRating(const GoodsEntry *ge, const CargoSpec *cs)
 {
-	const int b = ge->last_speed - 85;
-
-	return (b >= 0) ? (b >> 2) : 0;
+	if (_settings_game.station.penalise_old_slow_vehicles_less && !cs->classes.Any({CargoClass::Passengers, CargoClass::Express})) {
+		const int last_speed = ge->last_speed;
+		const int br =	((Clamp(last_speed, 0, 80) * 36) / 80)				// 0-80 km/h, 0-36 rating points, 0-14%
+									+ ((Clamp(last_speed - 80, 0, 48) * 36) / 48)		// 81-128 km/h, 37-72 rating points, 15-28%
+									+ ((Clamp(last_speed - 128, 0, 47) * 24) / 47); // 129-175 km/h, 73-96 rating points, 29-38%
+		return (br >= 0) ? br : 0;							//redundant, should never be negative
+	} else {
+		const int b = ge->last_speed - 85;
+		return (b >= 0) ? (b >> 2) : 0;
+	}
 }
 
 int GetWaitTimeRating(const CargoSpec *cs, const GoodsEntry *ge)
@@ -4276,15 +4283,17 @@ int GetStatueRating(const Station *st)
 	return Company::IsValidID(st->owner) && st->town->statues.Test(st->owner) ? 26 : 0;
 }
 
-int GetVehicleAgeRating(const GoodsEntry *ge)
+int GetVehicleAgeRating(const GoodsEntry *ge, const CargoSpec *cs)
 {
 	int rating = 0;
 
 	const uint8_t age = ge->last_age;
 
-	if (age < 30) rating += 10;
-	if (age < 20) rating += 10;
-	if (age < 10) rating += 13;
+	if ((!_settings_game.station.penalise_old_slow_vehicles_less) || (_settings_game.station.penalise_old_slow_vehicles_less && cs->classes.Any({CargoClass::Passengers, CargoClass::Express}))) {
+		if (age < 30) rating += 10;
+		if (age < 20) rating += 10;
+		if (age < 10) rating += 13;
+	}
 
 	return rating;
 }
@@ -4307,13 +4316,13 @@ int GetTargetRating(const Station *st, const CargoSpec *cs, const GoodsEntry *ge
 	}
 
 	if (!skip) {
-		rating += GetSpeedRating(ge);
+		rating += GetSpeedRating(ge, cs);
 		rating += GetWaitTimeRating(cs, ge);
 		rating += GetWaitingCargoRating(st, ge);
 	}
 
 	rating += GetStatueRating(st);
-	rating += GetVehicleAgeRating(ge);
+	rating += GetVehicleAgeRating(ge, cs);
 
 	return ClampTo<uint8_t>(rating);
 }
