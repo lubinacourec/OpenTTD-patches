@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file network_server.cpp Server part of the network protocol. */
@@ -86,7 +86,7 @@ struct PacketWriter : SaveFilter {
 	}
 
 	/** Make sure everything is cleaned up. */
-	~PacketWriter()
+	~PacketWriter() override
 	{
 		std::unique_lock<std::mutex> lock(this->mutex);
 
@@ -193,9 +193,11 @@ struct PacketWriter : SaveFilter {
 
 /**
  * Create a new socket for the server side of the game connection.
+ * @param index The index into the client pool.
  * @param s The socket to connect with.
  */
-ServerNetworkGameSocketHandler::ServerNetworkGameSocketHandler(SOCKET s) : NetworkGameSocketHandler(s)
+ServerNetworkGameSocketHandler::ServerNetworkGameSocketHandler(ClientPoolID index, SOCKET s) :
+	PoolItemBase(index), NetworkGameSocketHandler(s)
 {
 	this->client_id = _network_client_id++;
 	this->receive_limit = _settings_client.network.bytes_per_frame_burst;
@@ -1030,7 +1032,7 @@ NetworkRecvStatus ServerNetworkGameSocketHandler::Receive_CLIENT_IDENTIFY(Packet
 	}
 
 	assert(NetworkClientInfo::CanAllocateItem());
-	NetworkClientInfo *ci = new NetworkClientInfo(this->client_id);
+	NetworkClientInfo *ci = NetworkClientInfo::Create(this->client_id);
 	this->SetInfo(ci);
 	ci->join_date = EconTime::CurDate();
 	ci->join_date_fract = EconTime::CurDateFract();

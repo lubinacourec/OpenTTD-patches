@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file newgrf_industries.cpp Handling of NewGRF industries. */
@@ -488,7 +488,7 @@ uint32_t IndustriesScopeResolver::GetCountAndDistanceOfClosestInstance(uint8_t p
 		/* Create storage on first modification. */
 		const IndustrySpec *indsp = GetIndustrySpec(this->industry->type);
 		assert(PersistentStorage::CanAllocateItem());
-		this->industry->psa = new PersistentStorage(indsp->grf_prop.grfid, GSF_INDUSTRIES, this->industry->location.tile);
+		this->industry->psa = PersistentStorage::Create(indsp->grf_prop.grfid, GSF_INDUSTRIES, this->industry->location.tile);
 	}
 
 	this->industry->psa->StoreValue(pos, value);
@@ -585,8 +585,7 @@ CommandCost CheckIfCallBackAllowsCreation(TileIndex tile, IndustryType type, siz
 {
 	const IndustrySpec *indspec = GetIndustrySpec(type);
 
-	Industry ind;
-	ind.index = IndustryID::Invalid();
+	Industry ind(IndustryID::Invalid());
 	ind.location.tile = tile;
 	ind.location.w = 0; // important to mark the industry invalid
 	ind.type = type;

@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file departures.cpp Scheduled departures from a station. */
@@ -185,8 +185,12 @@ static DeparturesConditionalJumpResult GetNonScheduleDepartureConditionalOrderMo
 	return _settings_client.gui.departure_conditionals;
 }
 
-static DeparturesConditionalJumpResult GetDepartureConditionalOrderMode(const Order *order, const Vehicle *v, StateTicks eval_tick, const ScheduledDispatchVehicleRecords &records)
+static DeparturesConditionalJumpResult GetDepartureConditionalOrderMode(const Order *order, const Vehicle *v, StateTicks eval_tick, const ScheduledDispatchVehicleRecords &records, Ticks current_lateness)
 {
+	if (order->GetConditionVariable() == OCV_TIMETABLE) {
+		return EvaluateTimetableStateConditionalOrder(order, current_lateness) ? DCJD_TAKEN : DCJD_NOT_TAKEN;
+	}
+
 	if (order->GetConditionVariable() == OCV_DISPATCH_SLOT) {
 		auto get_vehicle_records = [&](uint16_t schedule_index) -> const LastDispatchRecord * {
 			auto record = records.find(schedule_index);
@@ -589,7 +593,7 @@ static ProcessLiveDepartureCandidateVehicleResult ProcessLiveDepartureCandidateV
 
 		/* If the order is a conditional branch, handle it. */
 		if (order->IsType(OT_CONDITIONAL)) {
-			switch (GetDepartureConditionalOrderMode(order, v, state_ticks_base + start_ticks, candidate.dispatch_records)) {
+			switch (GetDepartureConditionalOrderMode(order, v, state_ticks_base + start_ticks, candidate.dispatch_records, current_lateness)) {
 					case DCJD_GIVE_UP: {
 						/* Give up */
 						break;
@@ -927,7 +931,7 @@ static void AdvanceLiveDepartureOrderToNextCandidate(LiveQueueItem queue_item, O
 		/* If the order is a conditional branch, handle it. */
 		if (order->IsType(OT_CONDITIONAL)) {
 			HandleLatenessPostAdjustment(lod);
-			switch (GetDepartureConditionalOrderMode(order, lod.v, state_ticks_base + lod.expected_tick, lod.dispatch_records)) {
+			switch (GetDepartureConditionalOrderMode(order, lod.v, state_ticks_base + lod.expected_tick, lod.dispatch_records, lod.lateness)) {
 					case DCJD_GIVE_UP: {
 						/* Give up */
 						break;
@@ -1152,7 +1156,7 @@ static DepartureList MakeDepartureListLiveMode(DepartureOrderDestinationDetector
 
 				/* If the order is a conditional branch, handle it. */
 				if (order->IsType(OT_CONDITIONAL)) {
-					switch (GetDepartureConditionalOrderMode(order, lod.v, departure_tick, dispatch_records)) {
+					switch (GetDepartureConditionalOrderMode(order, lod.v, departure_tick, dispatch_records, lod.lateness)) {
 							case DCJD_GIVE_UP: {
 								/* Give up */
 								break;
@@ -1410,6 +1414,12 @@ DeparturesConditionalJumpResult DepartureListScheduleModeSlotEvaluator::Evaluate
 			return DCJD_GIVE_UP;
 		}
 	}
+
+	if (order->GetConditionVariable() == OCV_TIMETABLE) {
+		/* In schedule/slot evaluation mode, take lateness/earliness to always be 0. */
+		return EvaluateTimetableStateConditionalOrder(order, 0) ? DCJD_TAKEN : DCJD_NOT_TAKEN;
+	}
+
 	if (order->GetConditionVariable() == OCV_DISPATCH_SLOT) {
 		LastDispatchRecord record{};
 
@@ -1442,8 +1452,10 @@ std::pair<const Order *, StateTicks> DepartureListScheduleModeSlotEvaluator::Eva
 	d.type = D_DEPARTURE;
 	d.show_as = this->calling_settings.GetShowAsType(source_order, D_DEPARTURE);
 	d.order = source_order;
+	d.dispatch_order = this->start_order;
 	d.scheduled_waiting_time = source_order->IsScheduledDispatchOrder(true) ? Departure::MISSING_WAIT_TICKS : Departure::INVALID_WAIT_TICKS;
-	if (this->calling_settings.VehicleCycleTrackingEnabled() && source_order == this->start_order) {
+	d.dispatch_offset = (departure_tick - this->slot).AsTicks();
+	if (this->calling_settings.VehicleCycleTrackingEnabled() && (source_order == this->start_order || this->source.OrderMatches(source_order))) {
 		d.sequence_id = this->sequence_id_handler.last_sequence_id;
 	}
 
@@ -1637,11 +1649,11 @@ void DepartureListScheduleModeSlotEvaluator::EvaluateSlotIndexForType(uint slot_
 		if (order->IsType(OT_CONDITIONAL)) {
 			if (this->IsDepartureDependantConditionVariable(order->GetConditionVariable())) this->departure_dependant_condition_found = true;
 			switch (this->EvaluateConditionalOrder(order, departure_tick)) {
-				case 0: {
+				case DCJD_GIVE_UP: {
 					/* Give up */
 					break;
 				}
-				case 1: {
+				case DCJD_TAKEN: {
 					/* Take the branch */
 					const Order *target = this->v->GetOrder(order->GetConditionSkipToOrder());
 					if (target == nullptr) {
@@ -1655,7 +1667,7 @@ void DepartureListScheduleModeSlotEvaluator::EvaluateSlotIndexForType(uint slot_
 					require_travel_time = false;
 					continue;
 				}
-				case 2: {
+				case DCJD_NOT_TAKEN: {
 					/* Do not take the branch */
 					departure_tick -= order->GetWaitTime(); /* Added previously above */
 					order = this->v->orders->GetNext(order);
@@ -1882,8 +1894,13 @@ static DepartureList MakeDepartureListScheduleMode(DepartureOrderDestinationDete
 					for (size_t i = initial_result_size; i < result.size(); i++) {
 						Departure *d = result[i].get();
 						if (d->type == D_DEPARTURE && d->scheduled_waiting_time == Departure::MISSING_WAIT_TICKS && d->order == start_order) {
+							/* Calculate arrival time for departure from dispatch order and optionally handle vehicle cycle tracking. */
 							pending_departures.push_back(d);
 							if (calling_settings.VehicleCycleTrackingEnabled()) pending_departure_ticks.insert(d->scheduled_tick);
+						} else if (d->type == D_DEPARTURE && d->scheduled_waiting_time != Departure::MISSING_WAIT_TICKS && d->dispatch_order == start_order && calling_settings.VehicleCycleTrackingEnabled()) {
+							/* For departures starting after the dispatch order, handle vehicle cycle tracking if enabled. */
+							pending_departures.push_back(d);
+							pending_departure_ticks.insert(d->scheduled_tick - d->dispatch_offset);
 						}
 					}
 					if (calling_settings.VehicleCycleTrackingEnabled()) {
@@ -1915,7 +1932,7 @@ static DepartureList MakeDepartureListScheduleMode(DepartureOrderDestinationDete
 						for (size_t i = 0; i < pending_departures.size(); i++) {
 							const Departure *d = pending_departures[i];
 
-							StateTicks tick = d->scheduled_tick;
+							StateTicks tick = d->scheduled_tick - d->dispatch_offset; // Tick of departure from dispatch order
 							bool is_wrapped = false;
 							if (arrival_tick <= tick - start_order->GetWaitTime()) {
 								/* Found a usable departure */
@@ -1954,7 +1971,9 @@ static DepartureList MakeDepartureListScheduleMode(DepartureOrderDestinationDete
 							pending_departures[best_idx] = pending_departures.back();
 							pending_departures.pop_back();
 
-							d->scheduled_waiting_time = (best_tick - arrival_tick).AsTicks();
+							if (d->scheduled_waiting_time == Departure::MISSING_WAIT_TICKS) {
+								d->scheduled_waiting_time = (best_tick - arrival_tick).AsTicks();
+							}
 
 							if (!best_wrapped && d->sequence_id > 0 && it.sequence_id > 0) {
 								/* Vehicle cycle tracking is active, record a match to be resolved later. */

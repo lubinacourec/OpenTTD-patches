@@ -15,7 +15,7 @@
 # This file is part of OpenTTD.
 # OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
 # OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
 
 
 ##id 0x0000
@@ -2593,6 +2593,7 @@ STR_PICKER_MODE_SAVED_TOOLTIP                                   :החלף הצג
 
 
 STR_HOUSE_PICKER_CAPTION                                        :בחירת בית
+STR_HOUSE_PICKER_CARGO_PRODUCED                                 :{BLACK}מטען שיוצר: {GOLD}{CARGO_LIST}
 
 STR_HOUSE_PICKER_CLASS_ZONE1                                    :קצה
 
@@ -2848,7 +2849,7 @@ STR_LAND_AREA_INFORMATION_AIRPORT_CLASS                         :{BLACK}אופי
 STR_LAND_AREA_INFORMATION_AIRPORT_NAME                          :{BLACK}שם נמל התעופה: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_AIRPORTTILE_NAME                      :{BLACK}שם משבצת נמל תעופה: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_NEWGRF_NAME                           :{BLACK}{LTBLUE}{STRING}: שדרוג גראפי
-STR_LAND_AREA_INFORMATION_CARGO_ACCEPTED                        :{BLACK} :מקבל {LTBLUE}
+STR_LAND_AREA_INFORMATION_CARGO_ACCEPTED                        :{BLACK} :מקבל {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_CARGO_EIGHTS                          :({1:STRING} {0:COMMA}/8 )
 STR_LANG_AREA_INFORMATION_RAIL_TYPE                             :{BLACK}סוג מסילה: {LTBLUE}{STRING}
 STR_LANG_AREA_INFORMATION_TRAM_TYPE                             :{BLACK}סוג רכבת קלה: {LTBLUE}{STRING}
@@ -3515,14 +3516,12 @@ STR_CARGO_RATING_EXCELLENT                                      :מצויין
 STR_CARGO_RATING_OUTSTANDING                                    :מדהים
 
 STR_STATION_VIEW_CENTER_TOOLTIP                                 :{BLACK}מרכז תצוגה ראשית על מיקום תחנה. Ctrl+לחיצה פותח חלונית תצוגה חדשה על מיקום תחנה
-STR_STATION_VIEW_RENAME_TOOLTIP                                 :{BLACK}שנה שם של תחנה
 
 STR_STATION_VIEW_SCHEDULED_TRAINS_TOOLTIP                       :{BLACK}הצג את כל הרכבות העוברות דרך תחנה זו
 STR_STATION_VIEW_SCHEDULED_ROAD_VEHICLES_TOOLTIP                :{BLACK}הצג את כל הרכבים העוברים דרך תחנה זו
 STR_STATION_VIEW_SCHEDULED_AIRCRAFT_TOOLTIP                     :{BLACK}הצג את כל כלי הטייס העוברים דרך תחנה זו
 STR_STATION_VIEW_SCHEDULED_SHIPS_TOOLTIP                        :{BLACK}הצג את כל כלי השייט העוברים דרך תחנה זו
 
-STR_STATION_VIEW_RENAME_STATION_CAPTION                         :שנה שם של תחנה/אזור טעינה
 
 STR_STATION_VIEW_CLOSE_AIRPORT                                  :{BLACK}סגור נמל תעופה
 STR_STATION_VIEW_CLOSE_AIRPORT_TOOLTIP                          :{BLACK}מנע ממטוסים לנחות בנמל תעופה זה
@@ -3530,11 +3529,9 @@ STR_STATION_VIEW_CLOSE_AIRPORT_TOOLTIP                          :{BLACK}מנע �
 # Waypoint/buoy view window
 STR_WAYPOINT_VIEW_CAPTION                                       :{WHITE}{WAYPOINT}
 STR_WAYPOINT_VIEW_CENTER_TOOLTIP                                :{BLACK}מרכז תצוגה ראשית על מיקום ציון הדרך. Ctrl+לחיצה פותח תצוגה חדשה על מיקום ציון הדרך
-STR_WAYPOINT_VIEW_CHANGE_WAYPOINT_NAME                          :{BLACK}שנה שם נקודת ציון
 STR_BUOY_VIEW_CENTER_TOOLTIP                                    :{BLACK}מרכז תצוגה ראשית על מיקום מצוף. Ctrl+לחיצה פותח חלון תצוגה חדש על מיקום מצוף
 STR_BUOY_VIEW_RENAME_TOOLTIP                                    :{BLACK}שנה שם מצוף
 
-STR_EDIT_WAYPOINT_NAME                                          :{WHITE}ערוך שם נקודת ציון
 
 # Finances window
 STR_FINANCES_CAPTION                                            :{WHITE}{COMPANY} נתונים כלכליים {BLACK}{COMPANY_NUM}
@@ -3655,8 +3652,8 @@ STR_INDUSTRY_VIEW_LOCATION_TOOLTIP                              :{BLACK}מקד �
 STR_INDUSTRY_VIEW_PRODUCTION_LEVEL                              :{BLACK}רמת הפקה: {YELLOW}{COMMA}%
 STR_INDUSTRY_VIEW_INDUSTRY_ANNOUNCED_CLOSURE                    :{YELLOW}התעשייה הכריזה על סגירה מתקרבת!
 
-STR_INDUSTRY_VIEW_REQUIRES_N_CARGO                              :{BLACK}דורש: {YELLOW}{STRING}{STRING}
-STR_INDUSTRY_VIEW_CARGO_LIST_EXTENSION                          :, {STRING}{STRING}
+STR_INDUSTRY_VIEW_REQUIRES_N_CARGO                              :{BLACK}דורש: {YELLOW}{STRING}
+STR_INDUSTRY_VIEW_CARGO_LIST_EXTENSION                          :{STRING}{STRING}
 
 STR_INDUSTRY_VIEW_REQUIRES                                      :{BLACK}דורש:
 STR_INDUSTRY_VIEW_ACCEPT_CARGO_SUFFIX                           :{YELLOW}{0:STRING}{BLACK}{3:STRING}
@@ -4136,7 +4133,7 @@ STR_VEHICLE_DETAILS_TRAIN_CAPACITIES_TOOLTIP                    :{BLACK}הצג �
 STR_VEHICLE_DETAIL_TAB_TOTAL_CARGO                              :{BLACK}סה"כ סחורה
 STR_VEHICLE_DETAILS_TRAIN_TOTAL_CARGO_TOOLTIP                   :{BLACK}הצג את הקיבולת הכללית של הרכבת בפיצול לסוגי מטען
 
-STR_VEHICLE_DETAILS_TRAIN_ARTICULATED_RV_CAPACITY               :{BLACK} :קיבולת {LTBLUE}
+STR_VEHICLE_DETAILS_TRAIN_ARTICULATED_RV_CAPACITY               :{BLACK} :קיבולת {LTBLUE}{STRING}
 
 # Vehicle refit
 STR_REFIT_CAPTION                                               :{WHITE}(התאם) {VEHICLE}

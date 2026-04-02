@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file station_sl.cpp Code handling saving and loading of stations. */
@@ -21,6 +21,12 @@
 #include "table/strings.h"
 
 #include "../safeguards.h"
+
+/* Helper for constexpr cpp_offsetof for BaseStation, which is abstract. */
+template <>
+struct CppOffsetConstruct<BaseStation> {
+	using type = Station;
+};
 
 static uint8_t _old_last_vehicle_type;
 static uint8_t _num_specs;
@@ -85,7 +91,7 @@ void MoveBuoysToWaypoints()
 		/* Stations and waypoints are in the same pool, so if a station
 		 * is deleted there must be place for a Waypoint. */
 		assert(Waypoint::CanAllocateItem());
-		Waypoint *wp   = new (index) Waypoint(xy);
+		Waypoint *wp   = Waypoint::CreateAtIndex(index, xy);
 		wp->town       = town;
 		wp->string_id  = train ? STR_SV_STNAME_WAYPOINT : STR_SV_STNAME_BUOY;
 		wp->name       = std::move(name);
@@ -487,7 +493,7 @@ static void Load_STNS()
 	uint num_cargo = IsSavegameVersionBefore(SLV_55) ? 12 : IsSavegameVersionBefore(SLV_EXTEND_CARGOTYPES) ? 32 : NUM_CARGO;
 	int index;
 	while ((index = SlIterateArray()) != -1) {
-		Station *st = new (StationID(index)) Station();
+		Station *st = Station::CreateAtIndex(StationID(index));
 
 		SlObject(st, _old_station_desc);
 
@@ -511,7 +517,7 @@ static void Load_STNS()
 					assert(CargoPacket::CanAllocateItem());
 
 					/* Don't construct the packet with station here, because that'll fail with old savegames */
-					CargoPacket *cp = new CargoPacket(GB(_waiting_acceptance, 0, 12), _cargo_periods, source, TileIndex{_cargo_source_xy}, _cargo_feeder_share);
+					CargoPacket *cp = CargoPacket::Create(GB(_waiting_acceptance, 0, 12), _cargo_periods, source, TileIndex{_cargo_source_xy}, _cargo_feeder_share);
 					ge->CreateData().cargo.Append(cp, StationID::Invalid());
 					ge->status.Set(GoodsEntry::State::Rating);
 				}
@@ -932,7 +938,7 @@ static void Load_STNN_table()
 	while ((index = SlIterateArray()) != -1) {
 		bool waypoint = static_cast<StationFacilities>(SlReadByte()).Test(StationFacility::Waypoint);
 
-		BaseStation *bst = waypoint ? (BaseStation *)new (StationID(index)) Waypoint() : new (StationID(index)) Station();
+		BaseStation *bst = waypoint ? (BaseStation *)Waypoint::CreateAtIndex(StationID(index)) : Station::CreateAtIndex(StationID(index));
 		SlObjectLoadFiltered(bst, slt);
 		PostLoadStation_STNN(bst);
 	}
@@ -970,7 +976,7 @@ static void Load_STNN()
 	while ((index = SlIterateArray()) != -1) {
 		bool waypoint = static_cast<StationFacilities>(SlReadByte()).Test(StationFacility::Waypoint);
 
-		BaseStation *bst = waypoint ? (BaseStation *)new (StationID(index)) Waypoint() : new (StationID(index)) Station();
+		BaseStation *bst = waypoint ? (BaseStation *)Waypoint::CreateAtIndex(StationID(index)) : Station::CreateAtIndex(StationID(index));
 		SlObjectLoadFiltered(bst, waypoint ? SaveLoadTable(filtered_waypoint_desc) : SaveLoadTable(filtered_station_desc));
 
 		if (!waypoint) {
@@ -980,7 +986,7 @@ static void Load_STNN()
 			if (IsSavegameVersionBefore(SLV_161) && !IsSavegameVersionBefore(SLV_145) && st->facilities.Test(StationFacility::Airport)) {
 				/* Store the old persistent storage. The GRFID will be added later. */
 				assert(PersistentStorage::CanAllocateItem());
-				st->airport.psa = new PersistentStorage(0, GSF_INVALID, TileIndex{});
+				st->airport.psa = PersistentStorage::Create(0, GSF_INVALID, TileIndex{});
 				std::copy(std::begin(_old_st_persistent_storage.storage), std::end(_old_st_persistent_storage.storage), std::begin(st->airport.psa->storage));
 			}
 

@@ -2,10 +2,10 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
-/** @file window_type.h Types related to windows */
+/** @file window_type.h Types related to windows. */
 
 #ifndef WINDOW_TYPE_H
 #define WINDOW_TYPE_H
@@ -655,7 +655,7 @@ enum WindowClass : uint16_t {
 
 	/**
 	 * Engine preview window; %Window numbers:
-	 *   - #EngineID = #EnginePreviewWidgets
+	 *   - 0 = #EnginePreviewWidgets
 	 */
 	WC_ENGINE_PREVIEW,
 
@@ -876,6 +876,7 @@ public:
 	operator int32_t() const { return value; }
 
 	constexpr int32_t base() const noexcept { return this->value; }
+	constexpr const int32_t &base_ref() const noexcept { return this->value; }
 
 	/* Automatically convert to any other type that might be requested. */
 	template <typename T> requires (std::is_enum_v<T> || std::is_class_v<T>)

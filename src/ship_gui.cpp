@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file ship_gui.cpp GUI for ships. */
@@ -84,25 +84,29 @@ void DrawShipDetails(const Vehicle *v, const Rect &r)
 			}
 		}
 
-		format_buffer capacity;
-		AppendStringInPlace(capacity, STR_VEHICLE_DETAILS_TRAIN_ARTICULATED_RV_CAPACITY);
+		{
+			format_buffer capacity;
+			std::string_view list_separator = GetListSeparator();
 
-		bool first = true;
-		for (CargoType i = 0; i < NUM_CARGO; i++) {
-			if (max_cargo[i] > 0) {
-				if (!first) capacity.append(", ");
-				AppendStringInPlace(capacity, STR_JUST_CARGO, i, max_cargo[i]);
+			bool first = true;
+			for (CargoType i = 0; i < NUM_CARGO; i++) {
+				if (max_cargo[i] > 0) {
+					if (!first) capacity.append(list_separator);
+					AppendStringInPlace(capacity, STR_JUST_CARGO, i, max_cargo[i]);
 
-				if (subtype_text[i] != 0) {
-					AppendStringInPlace(capacity, subtype_text[i]);
+					if (subtype_text[i] != 0) {
+						AppendStringInPlace(capacity, subtype_text[i]);
+					}
+
+					first = false;
 				}
-
-				first = false;
 			}
-		}
 
-		DrawString(r.left, r.right, y, capacity, TC_BLUE);
-		y += GetCharacterHeight(FS_NORMAL) + WidgetDimensions::scaled.vsep_normal;
+			format_buffer capacity_str;
+			AppendStringInPlace(capacity_str, STR_VEHICLE_DETAILS_TRAIN_ARTICULATED_RV_CAPACITY, capacity);
+			DrawString(r.left, r.right, y, capacity_str, TC_BLUE);
+			y += GetCharacterHeight(FS_NORMAL) + WidgetDimensions::scaled.vsep_normal;
+		}
 
 		for (const Vehicle *u = v; u != nullptr; u = u->Next()) {
 			if (u->cargo_cap == 0) continue;

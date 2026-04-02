@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file station_sl.cpp Code handling saving and loading of stations. */
@@ -22,6 +22,12 @@
 #include "table/strings.h"
 
 #include "../safeguards.h"
+
+/* Helper for constexpr cpp_offsetof for BaseStation, which is abstract. */
+template <>
+struct CppOffsetConstruct<BaseStation> {
+	using type = Station;
+};
 
 namespace upstream_sl {
 
@@ -71,8 +77,9 @@ static void SwapPackets(GoodsEntry *ge)
 			it->second.swap(_packets);
 		}
 	} else {
-		assert(ge_packets[StationID::Invalid()].empty());
-		ge_packets[StationID::Invalid()].swap(_packets);
+		CargoPacketList &cplist = ge_packets[StationID::Invalid()];
+		assert(cplist.empty());
+		cplist.swap(_packets);
 	}
 }
 
@@ -225,7 +232,7 @@ public:
 		if (IsSavegameVersionBefore(SLV_161) && !IsSavegameVersionBefore(SLV_145) && st->facilities.Test(StationFacility::Airport)) {
 			/* Store the old persistent storage. The GRFID will be added later. */
 			assert(PersistentStorage::CanAllocateItem());
-			st->airport.psa = new PersistentStorage(0, GSF_INVALID, TileIndex{});
+			st->airport.psa = PersistentStorage::Create(0, GSF_INVALID, TileIndex{});
 			std::copy(std::begin(_old_st_persistent_storage.storage), std::end(_old_st_persistent_storage.storage), std::begin(st->airport.psa->storage));
 		}
 
@@ -257,7 +264,7 @@ public:
 					assert(CargoPacket::CanAllocateItem());
 
 					/* Don't construct the packet with station here, because that'll fail with old savegames */
-					CargoPacket *cp = new CargoPacket(GB(_waiting_acceptance, 0, 12), _cargo_periods, source, TileIndex{_cargo_source_xy}, _cargo_feeder_share);
+					CargoPacket *cp = CargoPacket::Create(GB(_waiting_acceptance, 0, 12), _cargo_periods, source, TileIndex{_cargo_source_xy}, _cargo_feeder_share);
 					ge.data->cargo.Append(cp, StationID::Invalid());
 					ge.status.Set(GoodsEntry::State::Rating);
 				}
@@ -472,7 +479,7 @@ struct STNNChunkHandler : ChunkHandler {
 		while ((index = SlIterateArray()) != -1) {
 			bool waypoint = static_cast<StationFacilities>(SlReadByte()).Test(StationFacility::Waypoint);
 
-			BaseStation *bst = waypoint ? (BaseStation *)new (StationID(index)) Waypoint() : new (StationID(index)) Station();
+			BaseStation *bst = waypoint ? (BaseStation *)Waypoint::CreateAtIndex(StationID(index)) : Station::CreateAtIndex(StationID(index));
 			SlObject(bst, slt);
 		}
 	}
@@ -510,7 +517,7 @@ struct ROADChunkHandler : ChunkHandler {
 		int index;
 
 		while ((index = SlIterateArray()) != -1) {
-			RoadStop *rs = new (RoadStopID(index)) RoadStop(INVALID_TILE);
+			RoadStop *rs = RoadStop::CreateAtIndex(RoadStopID(index), INVALID_TILE);
 
 			SlObject(rs, slt);
 		}

@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file vehicle_cmd.cpp Commands for vehicles. */
@@ -112,9 +112,6 @@ CommandCost CmdBuildVehicle(DoCommandFlags flags, TileIndex tile, EngineID eid, 
 	VehicleType type = GetDepotVehicleType(tile);
 	if (!IsTileOwner(tile, _current_company)) {
 		if (!_settings_game.economy.infrastructure_sharing[type]) return CommandCost(STR_ERROR_CANT_PURCHASE_OTHER_COMPANY_DEPOT);
-
-		const Company *c = Company::GetIfValid(GetTileOwner(tile));
-		if (c == nullptr || !c->settings.infra_others_buy_in_depot[type]) return CommandCost(STR_ERROR_CANT_PURCHASE_OTHER_COMPANY_DEPOT);
 	}
 
 	/* Validate the engine type. */
@@ -132,16 +129,19 @@ CommandCost CmdBuildVehicle(DoCommandFlags flags, TileIndex tile, EngineID eid, 
 
 	bool refitting = cargo != INVALID_CARGO && cargo != default_cargo;
 
-	/* Check whether the number of vehicles we need to build can be built according to pool space. */
-	uint num_vehicles;
-	switch (type) {
-		case VEH_TRAIN:    num_vehicles = (e->VehInfo<RailVehicleInfo>().railveh_type == RAILVEH_MULTIHEAD ? 2 : 1) + CountArticulatedParts(eid, false); break;
-		case VEH_ROAD:     num_vehicles = 1 + CountArticulatedParts(eid, false); break;
-		case VEH_SHIP:     num_vehicles = 1 + CountArticulatedParts(eid, false); break;
-		case VEH_AIRCRAFT: num_vehicles = e->VehInfo<AircraftVehicleInfo>().subtype & AIR_CTOL ? 2 : 3; break;
-		default: NOT_REACHED(); // Safe due to IsDepotTile()
+	/* Check whether the number of vehicles we need to build can be built according to pool space.
+	 * If 2 + MAX_ARTICULATED_PARTS are available, then there's no need to call CountArticulatedParts, which is potentially expensive. */
+	if (!Vehicle::CanAllocateItem(2 + MAX_ARTICULATED_PARTS)) {
+		uint num_vehicles;
+		switch (type) {
+			case VEH_TRAIN:    num_vehicles = (e->VehInfo<RailVehicleInfo>().railveh_type == RAILVEH_MULTIHEAD ? 2 : 1) + CountArticulatedParts(eid); break;
+			case VEH_ROAD:     num_vehicles = 1 + CountArticulatedParts(eid); break;
+			case VEH_SHIP:     num_vehicles = 1 + CountArticulatedParts(eid); break;
+			case VEH_AIRCRAFT: num_vehicles = e->VehInfo<AircraftVehicleInfo>().subtype & AIR_CTOL ? 2 : 3; break;
+			default: NOT_REACHED(); // Safe due to IsDepotTile()
+		}
+		if (!Vehicle::CanAllocateItem(num_vehicles)) return CommandCost(STR_ERROR_TOO_MANY_VEHICLES_IN_GAME);
 	}
-	if (!Vehicle::CanAllocateItem(num_vehicles)) return CommandCost(STR_ERROR_TOO_MANY_VEHICLES_IN_GAME);
 
 	/* Check whether we can allocate a unit number. Autoreplace does not allocate
 	 * an unit number as it will (always) reuse the one of the replaced vehicle
@@ -1253,7 +1253,7 @@ CommandCost CmdTemplateVehicleFromTrain(DoCommandFlags flags, VehicleID veh_id)
 		TemplateVehicle *tmp = nullptr;
 		TemplateVehicle *prev = nullptr;
 		for (; clicked != nullptr; clicked = clicked->Next()) {
-			tmp = new TemplateVehicle(clicked->engine_type);
+			tmp = TemplateVehicle::Create(clicked->engine_type);
 			SetupTemplateVehicleFromVirtual(tmp, prev, clicked);
 			tmp->owner = _current_company;
 			prev = tmp;

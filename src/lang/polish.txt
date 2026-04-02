@@ -15,7 +15,7 @@
 # This file is part of OpenTTD.
 # OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
 # OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
 
 
 ##id 0x0000
@@ -691,6 +691,7 @@ STR_SHOW_HIDDEN_ENGINES_VEHICLE_AIRCRAFT_TOOLTIP                :{BLACK}Włącze
 STR_BUTTON_DEFAULT                                              :{BLACK}Domyślna
 STR_BUTTON_CANCEL                                               :{BLACK}Anuluj
 STR_BUTTON_OK                                                   :{BLACK}OK
+STR_BUTTON_MOVE                                                 :{BLACK}Przenieś
 
 # On screen keyboard window
 STR_OSK_KEYBOARD_LAYOUT                                         :`1234567890-=\qwertyuiop[]asdfghjkl;'  zxcvbnm,./
@@ -1183,7 +1184,7 @@ STR_SMALLMAP_LEGENDA_FOREST                                     :{G=m}{TINY_FONT
 STR_SMALLMAP_LEGENDA_FOREST.d                                   :{TINY_FONT}{BLACK}Lasu
 STR_SMALLMAP_LEGENDA_RAILROAD_STATION                           :{TINY_FONT}{BLACK}Stacja kolejowa
 STR_SMALLMAP_LEGENDA_TRUCK_LOADING_BAY                          :{TINY_FONT}{BLACK}Stacja ciężarówek
-STR_SMALLMAP_LEGENDA_BUS_STATION                                :{TINY_FONT}{BLACK}Przystanek
+STR_SMALLMAP_LEGENDA_BUS_STATION                                :{TINY_FONT}{BLACK}Przystanek autobusowy
 STR_SMALLMAP_LEGENDA_AIRPORT_HELIPORT                           :{TINY_FONT}{BLACK}Lotnisko
 STR_SMALLMAP_LEGENDA_DOCK                                       :{TINY_FONT}{BLACK}Port
 STR_SMALLMAP_LEGENDA_ROUGH_LAND                                 :{TINY_FONT}{BLACK}Wyboisty teren
@@ -1494,7 +1495,7 @@ STR_GAME_OPTIONS_BASE_GRF_TOOLTIP                               :Wybierz podstaw
 STR_GAME_OPTIONS_BASE_GRF_DESCRIPTION_TOOLTIP                   :Dodatkowe informacje o podstawowym zestawie grafik
 
 STR_GAME_OPTIONS_BASE_SFX                                       :Podstawowy zestaw dźwięków
-STR_GAME_OPTIONS_BASE_SFX_TOOLTIP                               :Wybierz podstawowy zestaw dźwięków (nie można tego zmienić w trakcie gry, jedynie w menu głównym)
+STR_GAME_OPTIONS_BASE_SFX_TOOLTIP                               :Wybierz podstawowy zestaw dźwięków
 STR_GAME_OPTIONS_BASE_SFX_DESCRIPTION_TOOLTIP                   :Dodatkowe informacje o podstawowym zestawie dźwięków
 
 STR_GAME_OPTIONS_BASE_MUSIC                                     :Podstawowy zestaw muzyki
@@ -1627,7 +1628,7 @@ STR_CONFIG_SETTING_EXPAND_ALL                                   :Rozwiń wszystk
 STR_CONFIG_SETTING_COLLAPSE_ALL                                 :Zwiń wszystkie
 STR_CONFIG_SETTING_RESET_ALL                                    :Przywróć wszystkie ustawienia
 STR_CONFIG_SETTING_NO_EXPLANATION_AVAILABLE_HELPTEXT            :(wyjaśnienie niedostępne)
-STR_CONFIG_SETTING_VALUE                                        :{PUSH_COLOUR}{ORANGE}{STRING}{POP_COLOUR}
+STR_CONFIG_SETTING_VALUE                                        :{ORANGE}{STRING}
 STR_CONFIG_SETTING_DEFAULT_VALUE                                :{LTBLUE}Domyślna wartość: {ORANGE}{STRING}
 STR_CONFIG_SETTING_TYPE                                         :{LTBLUE}Typ ustawienia: {ORANGE}{STRING}
 STR_CONFIG_SETTING_TYPE_CLIENT                                  :Ustawienie klienta (nie przechowywane w plikach zapisu; ma wpływ na wszystkie rozgrywki)
@@ -2470,6 +2471,8 @@ STR_CONFIG_SETTING_LARGER_TOWNS_VALUE                           :1 z {COMMA}
 STR_CONFIG_SETTING_LARGER_TOWNS_DISABLED                        :Żadne
 STR_CONFIG_SETTING_CITY_SIZE_MULTIPLIER                         :Początkowy mnożnik rozmiarów metropolii: {STRING}
 STR_CONFIG_SETTING_CITY_SIZE_MULTIPLIER_HELPTEXT                :Średni rozmiar metropolii w porównaniu do normalnych miast na początku gry
+STR_CONFIG_SETTING_TOWN_MIN_DISTANCE                            :Minimalna odległość między miastami: {STRING}
+STR_CONFIG_SETTING_TOWN_MIN_DISTANCE_HELPTEXT                   :Ustaw minimalną liczbę pól pomiędzy miastami przy tworzeniu mapy lub generowaniu wielu losowych miast
 
 STR_CONFIG_SETTING_LINKGRAPH_RECALC_INTERVAL                    :Aktualizuj graf dystrybucji co {STRING}
 STR_CONFIG_SETTING_LINKGRAPH_RECALC_INTERVAL_HELPTEXT           :Czas pomiędzy kolejnymi przeliczeniami grafu połączeń. Każde przeliczenie oblicza plany dla jednego komponentu grafu. Wartość X dla tego ustawienia nie oznacza, że cały graf będzie aktualizowany co X sekund. Aktualizowane będą tylko niektóre komponenty. Im mniejszą wartość ustawisz, tym więcej czasu będzie potrzebował procesor, aby wykonać obliczenia. Im większą wartość ustawisz, tym więcej czasu upłynie, zanim rozpocznie się dystrybucja ładunków po nowych trasach
@@ -3200,7 +3203,7 @@ STR_RAIL_NAME_MAGLEV                                            :Kolej magnetycz
 
 # Rail depot construction window
 STR_BUILD_DEPOT_TRAIN_ORIENTATION_CAPTION                       :{WHITE}Ukierunkowanie hali warsztatów
-STR_BUILD_DEPOT_TRAIN_ORIENTATION_TOOLTIP                       :{BLACK}Wybierz ukierunkowanie warsztatów
+STR_BUILD_DEPOT_TRAIN_ORIENTATION_TOOLTIP                       :{BLACK}Wybierz ukierunkowanie hali warsztatów
 
 # Rail waypoint construction window
 STR_WAYPOINT_CAPTION                                            :{WHITE}Posterunek
@@ -3262,15 +3265,15 @@ STR_PICKER_HOUSE_TYPE_TOOLTIP                                   :Wybierz typ bud
 STR_PICKER_HOUSE_COLLECTION_TOOLTIP                             :Wybierz kolekcję budynków do wyświetlenia
 
 STR_HOUSE_PICKER_CAPTION                                        :Wybór Budynków
-STR_HOUSE_PICKER_NAME                                           :{BLACK}Nazwa: {ORANGE}{STRING}
-STR_HOUSE_PICKER_POPULATION                                     :{BLACK}Populacja: {ORANGE}{NUM}
-STR_HOUSE_PICKER_YEARS                                          :{BLACK}Lata: {ORANGE}{NUM}-{NUM}
-STR_HOUSE_PICKER_YEARS_ANY                                      :{BLACK}Lata: {ORANGE}Kiedykolwiek
-STR_HOUSE_PICKER_YEARS_FROM                                     :{BLACK}Lata: {ORANGE}Od {NUM}
-STR_HOUSE_PICKER_YEARS_UNTIL                                    :{BLACK}Lata: {ORANGE}Do {NUM}
-STR_HOUSE_PICKER_SIZE                                           :{BLACK}Rozmiar: {ORANGE}{NUM}x{NUM} p{P ole ola ól}
-STR_HOUSE_PICKER_CARGO_ACCEPTED                                 :{BLACK}Akceptowany ładunek: {ORANGE}
-STR_HOUSE_PICKER_CARGO_PRODUCED                                 :{BLACK}Produkowany ładunek: {ORANGE}{CARGO_LIST}
+STR_HOUSE_PICKER_NAME                                           :{BLACK}Nazwa: {GOLD}{STRING}
+STR_HOUSE_PICKER_POPULATION                                     :{BLACK}Populacja: {GOLD}{NUM}
+STR_HOUSE_PICKER_YEARS                                          :{BLACK}Lata: {GOLD}{NUM}-{NUM}
+STR_HOUSE_PICKER_YEARS_ANY                                      :{BLACK}Lata: {GOLD}Kiedykolwiek
+STR_HOUSE_PICKER_YEARS_FROM                                     :{BLACK}Lata: {GOLD}Od {NUM}
+STR_HOUSE_PICKER_YEARS_UNTIL                                    :{BLACK}Lata: {GOLD}Do {NUM}
+STR_HOUSE_PICKER_SIZE                                           :{BLACK}Rozmiar: {GOLD}{NUM}x{NUM} p{P ole ola ól}
+STR_HOUSE_PICKER_CARGO_ACCEPTED                                 :{BLACK}Akceptowany ładunek: {GOLD}{STRING}
+STR_HOUSE_PICKER_CARGO_PRODUCED                                 :{BLACK}Produkowany ładunek: {GOLD}{CARGO_LIST}
 
 STR_HOUSE_PICKER_CLASS_ZONE1                                    :Obrzeża
 STR_HOUSE_PICKER_CLASS_ZONE2                                    :Peryferia
@@ -3291,7 +3294,7 @@ STR_STATION_CLASS_WAYP                                          :Posterunki
 STR_STATION_CLASS_WAYP_WAYPOINT                                 :Standardowy posterunek
 
 # Signal window
-STR_BUILD_SIGNAL_CAPTION                                        :{WHITE}Wybór sygnałów
+STR_BUILD_SIGNAL_CAPTION                                        :{WHITE}Wybór Sygnalizatorów
 STR_BUILD_SIGNAL_TOGGLE_ADVANCED_SIGNAL_TOOLTIP                 :{BLACK}Przełącz wyświetlanie zaawansowanych typów sygnałów
 STR_BUILD_SIGNAL_SEMAPHORE_NORM_TOOLTIP                         :{BLACK}Sygnalizator bloku (semafor){}Najprostszy typ sygnału pozwalający na przebywanie w jednym bloku wyłącznie jednemu pociągowi naraz
 STR_BUILD_SIGNAL_SEMAPHORE_ENTRY_TOOLTIP                        :{BLACK}Sygnalizator wejściowy (semafor){}Zielony, póki choć jeden sygnalizator wyjściowy dla kolejnego odcinka trasy jest zielony. W przeciwnym wypadku czerwony.
@@ -3365,7 +3368,7 @@ STR_BUILD_DEPOT_TRAM_ORIENTATION_SELECT_TOOLTIP                 :{BLACK}Wybierz 
 # Road vehicle station construction window
 STR_STATION_BUILD_BUS_ORIENTATION                               :{WHITE}Ukierunkowanie przystanku
 STR_STATION_BUILD_BUS_ORIENTATION_TOOLTIP                       :{BLACK}Wybierz ukierunkowanie przystanku
-STR_STATION_BUILD_TRUCK_ORIENTATION                             :{WHITE}Ukierunkowanie stacji załadunku ciężarówek
+STR_STATION_BUILD_TRUCK_ORIENTATION                             :{WHITE}Ukierunkowanie stacji ciężarówek
 STR_STATION_BUILD_TRUCK_ORIENTATION_TOOLTIP                     :{BLACK}Wybierz ukierunkowanie stacji ciężarówek
 STR_STATION_BUILD_PASSENGER_TRAM_ORIENTATION                    :{WHITE}Ukierunkowanie przystanku tramwajowego
 STR_STATION_BUILD_PASSENGER_TRAM_ORIENTATION_TOOLTIP            :{BLACK}Wybierz ukierunkowanie przystanku tramwajowego
@@ -3558,7 +3561,7 @@ STR_LAND_AREA_INFORMATION_AIRPORT_CLASS                         :{BLACK}Rodzaj l
 STR_LAND_AREA_INFORMATION_AIRPORT_NAME                          :{BLACK}Nazwa lotniska: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_AIRPORTTILE_NAME                      :{BLACK}Nazwa pola lotniska: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_NEWGRF_NAME                           :{BLACK}NewGRF: {LTBLUE}{STRING}
-STR_LAND_AREA_INFORMATION_CARGO_ACCEPTED                        :{BLACK}Akceptowany ładunek: {LTBLUE}
+STR_LAND_AREA_INFORMATION_CARGO_ACCEPTED                        :{BLACK}Akceptowany ładunek: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_CARGO_EIGHTS                          :({COMMA}/8 {STRING})
 STR_LANG_AREA_INFORMATION_RAIL_TYPE                             :{BLACK}Typ torów: {LTBLUE}{STRING}
 STR_LANG_AREA_INFORMATION_ROAD_TYPE                             :{BLACK}Rodzaj drogi: {LTBLUE}{STRING}
@@ -3622,7 +3625,7 @@ STR_LAI_STATION_DESCRIPTION_RAILROAD_STATION                    :Stacja kolejowa
 STR_LAI_STATION_DESCRIPTION_AIRCRAFT_HANGAR                     :Hangar
 STR_LAI_STATION_DESCRIPTION_AIRPORT                             :Lotnisko
 STR_LAI_STATION_DESCRIPTION_TRUCK_LOADING_AREA                  :Stacja ciężarówek
-STR_LAI_STATION_DESCRIPTION_BUS_STATION                         :Przystanek
+STR_LAI_STATION_DESCRIPTION_BUS_STATION                         :Przystanek autobusowy
 STR_LAI_STATION_DESCRIPTION_SHIP_DOCK                           :Port
 STR_LAI_STATION_DESCRIPTION_BUOY                                :Boja
 STR_LAI_STATION_DESCRIPTION_WAYPOINT                            :Posterunek
@@ -4021,7 +4024,7 @@ STR_NEWGRF_ERROR_INVALID_PARAMETER                              :Niewłaściwy p
 STR_NEWGRF_ERROR_LOAD_BEFORE                                    :{1:STRING} musi być wczytany przed {2:STRING}
 STR_NEWGRF_ERROR_LOAD_AFTER                                     :{1:STRING} musi być wczytany po {2:STRING}
 STR_NEWGRF_ERROR_OTTD_VERSION_NUMBER                            :{1:STRING} wymaga OpenTTD w wersji {2:STRING} lub nowszej
-STR_NEWGRF_ERROR_AFTER_TRANSLATED_FILE                          :pliku GRF który miał być tłumaczony
+STR_NEWGRF_ERROR_AFTER_TRANSLATED_FILE                          :pliku NewGRF, który miał zostać przetłumaczony
 STR_NEWGRF_ERROR_TOO_MANY_NEWGRFS_LOADED                        :Wczytano zbyt wiele NewGRF
 STR_NEWGRF_ERROR_STATIC_GRF_CAUSES_DESYNC                       :Ładowanie {1:STRING} jako statyczne NewGRF z {2:STRING} może spowodować desynchronizacje
 STR_NEWGRF_ERROR_UNEXPECTED_SPRITE                              :Nieoczekiwany sprite (sprite {3:NUM})
@@ -4030,7 +4033,7 @@ STR_NEWGRF_ERROR_INVALID_ID                                     :Próba użycia 
 STR_NEWGRF_ERROR_CORRUPT_SPRITE                                 :{YELLOW}{STRING} zawiera uszkodzoną teksturę. Wszystkie uszkodzone tekstury będą pokazane jako czerwony znak zapytania (?)
 STR_NEWGRF_ERROR_MULTIPLE_ACTION_8                              :Zawiera wiele wpisów Action 8 (sprite {3:NUM})
 STR_NEWGRF_ERROR_READ_BOUNDS                                    :Odczyt poza obszar pseudo-sprite'u (sprite {3:NUM})
-STR_NEWGRF_ERROR_GRM_FAILED                                     :Potrzebne źródło GRF nie jest dostępne (sprite {3:NUM})
+STR_NEWGRF_ERROR_GRM_FAILED                                     :Żądane zasoby NewGRF są niedostępne (sprite {3:NUM})
 STR_NEWGRF_ERROR_FORCEFULLY_DISABLED                            :{1:STRING} został wyłączony przez {STRING}
 STR_NEWGRF_ERROR_INVALID_SPRITE_LAYOUT                          :Nieprawidłowy/nieznany format układu sprite'a (sprite {3:NUM})
 STR_NEWGRF_ERROR_LIST_PROPERTY_TOO_LONG                         :Zbyt wiele elementów na liście wartości właściwości (sprite {3:NUM}, właściwość {4:HEX})
@@ -4041,12 +4044,12 @@ STR_NEWGRF_POPUP_CAUTION_CAPTION                                :{WHITE}Uwaga!
 STR_NEWGRF_CONFIRMATION_TEXT                                    :{YELLOW}Zamierzasz wprowadzić zmiany do uruchomionej gry; to może zawiesić OpenTTD lub uszkodzić stan gry. W takim przypadku nie wysyłaj raportów o błędach.{}Czy jesteś całkowicie pewien?
 
 STR_NEWGRF_DUPLICATE_GRFID                                      :{WHITE}Nie można dodać pliku: taki sam GRF ID
-STR_NEWGRF_COMPATIBLE_LOADED                                    :{ORANGE}Nie znaleziono pasującego pliku (wczytano kompatybilny GRF)
+STR_NEWGRF_COMPATIBLE_LOADED                                    :{ORANGE}Nie znaleziono pasującego pliku (wczytano kompatybilny NewGRF)
 STR_NEWGRF_TOO_MANY_NEWGRFS                                     :{WHITE}Nie można dodać pliku: osiągnięto limit plików NewGRF
 
 STR_NEWGRF_COMPATIBLE_LOAD_WARNING                              :{WHITE}Wczytano kompatybilne GRF dla brakujących plików
 STR_NEWGRF_DISABLED_WARNING                                     :{WHITE}Brakujące pliki GRF zostały wyłączone
-STR_NEWGRF_UNPAUSE_WARNING_TITLE                                :{YELLOW}Brakujące pliki GRF
+STR_NEWGRF_UNPAUSE_WARNING_TITLE                                :{YELLOW}Brakujące pliki NewGRF
 STR_NEWGRF_UNPAUSE_WARNING                                      :{WHITE}Wyłączenie pauzy może zawiesić OpenTTD. Nie zgłaszaj błędów o powtarzających się zawieszeniach.{}Czy na pewno chcesz wyłączyć pauzę?
 
 # NewGRF status
@@ -4090,7 +4093,7 @@ STR_SIGN_LIST_MATCH_CASE                                        :{BLACK}Wielkoś
 STR_SIGN_LIST_MATCH_CASE_TOOLTIP                                :{BLACK}Przełącz uwzględnianie wielkości liter przy porównywaniu tekstu napisu z filtrem
 
 # Sign window
-STR_EDIT_SIGN_CAPTION                                           :{WHITE}Edycja treści napisu
+STR_EDIT_SIGN_CAPTION                                           :{WHITE}Edytuj napis
 STR_EDIT_SIGN_LOCATION_TOOLTIP                                  :{BLACK}Wyśrodkuj widok główny na lokalizacji napisu. Użyj Ctrl, aby otworzyć nowy podgląd na jego lokalizację
 STR_EDIT_SIGN_NEXT_SIGN_TOOLTIP                                 :{BLACK}Idź do następnego napisu
 STR_EDIT_SIGN_PREVIOUS_SIGN_TOOLTIP                             :{BLACK}Idź do poprzedniego napisu
@@ -4135,8 +4138,8 @@ STR_TOWN_VIEW_EXPAND_BUILDINGS_BUTTON                           :{BLACK}Dodaj bu
 STR_TOWN_VIEW_EXPAND_BUILDINGS_TOOLTIP                          :{BLACK}Zwiększ liczbę budynków w mieście
 STR_TOWN_VIEW_EXPAND_ROADS_BUTTON                               :{BLACK}Dodaj drogi
 STR_TOWN_VIEW_EXPAND_ROADS_TOOLTIP                              :{BLACK}Rozbuduj drogi w mieście
-STR_TOWN_VIEW_DELETE_BUTTON                                     :{BLACK}Skasuj
-STR_TOWN_VIEW_DELETE_TOOLTIP                                    :{BLACK}Skasuj to miasto
+STR_TOWN_VIEW_DELETE_BUTTON                                     :{BLACK}Usuń
+STR_TOWN_VIEW_DELETE_TOOLTIP                                    :{BLACK}Usuń całkowicie to miasto
 
 STR_TOWN_VIEW_RENAME_TOWN_BUTTON                                :Zmień nazwę miasta
 
@@ -4308,14 +4311,14 @@ STR_CARGO_RATING_EXCELLENT                                      :Wspaniałe
 STR_CARGO_RATING_OUTSTANDING                                    :Niezwykłe
 
 STR_STATION_VIEW_CENTER_TOOLTIP                                 :{BLACK}Wyśrodkuj widok główny na lokalizacji stacji. Użyj Ctrl, aby otworzyć nowy podgląd na jej lokalizację
-STR_STATION_VIEW_RENAME_TOOLTIP                                 :{BLACK}Zmień nazwę stacji
+STR_STATION_VIEW_EDIT_TOOLTIP                                   :{BLACK}Zmień lub przenieś nazwę stacji
 
 STR_STATION_VIEW_SCHEDULED_TRAINS_TOOLTIP                       :{BLACK}Pokaż wszystkie pociągi, które mają tę stację w swoim rozkładzie
 STR_STATION_VIEW_SCHEDULED_ROAD_VEHICLES_TOOLTIP                :{BLACK}Pokaż wszystkie pojazdy, które mają tę stację w swoim rozkładzie
 STR_STATION_VIEW_SCHEDULED_AIRCRAFT_TOOLTIP                     :{BLACK}Pokaż wszystkie samoloty, które mają tę stację w swoim rozkładzie
 STR_STATION_VIEW_SCHEDULED_SHIPS_TOOLTIP                        :{BLACK}Pokaż wszystkie statki, które mają tę stację w swoim rozkładzie
 
-STR_STATION_VIEW_RENAME_STATION_CAPTION                         :Zmień nazwę stacji
+STR_STATION_VIEW_EDIT_STATION_SIGN                              :{WHITE}Edytuj nazwę stacji
 
 STR_STATION_VIEW_CLOSE_AIRPORT                                  :{BLACK}Zamknij lotnisko
 STR_STATION_VIEW_CLOSE_AIRPORT_TOOLTIP                          :{BLACK}Nie zezwalaj maszynie lądować na tym lotnisku
@@ -4323,11 +4326,11 @@ STR_STATION_VIEW_CLOSE_AIRPORT_TOOLTIP                          :{BLACK}Nie zezw
 # Waypoint/buoy view window
 STR_WAYPOINT_VIEW_CAPTION                                       :{WHITE}{WAYPOINT}
 STR_WAYPOINT_VIEW_CENTER_TOOLTIP                                :{BLACK}Wyśrodkuj widok główny na lokalizacji posterunku. Użyj Ctrl, aby otworzyć nowy podgląd na jego lokalizację
-STR_WAYPOINT_VIEW_CHANGE_WAYPOINT_NAME                          :{BLACK}Zmień nazwę posterunku
+STR_WAYPOINT_VIEW_EDIT_TOOLTIP                                  :{BLACK}Zmień lub przenieś nazwę posterunku
 STR_BUOY_VIEW_CENTER_TOOLTIP                                    :{BLACK}Wyśrodkuj widok główny na lokalizacji boi. Użyj Ctrl, aby otworzyć nowy podgląd na jej lokalizację
 STR_BUOY_VIEW_RENAME_TOOLTIP                                    :{BLACK}Zmień nazwę boi
 
-STR_EDIT_WAYPOINT_NAME                                          :{WHITE}Edytuj nazwę posterunku
+STR_WAYPOINT_VIEW_EDIT_WAYPOINT_SIGN                            :{WHITE}Edytuj nazwę posterunku
 
 # Finances window
 STR_FINANCES_CAPTION                                            :{WHITE}Finanse {COMPANY} {BLACK}{COMPANY_NUM}
@@ -4442,7 +4445,7 @@ STR_COMPANY_INFRASTRUCTURE_VIEW_TOTAL_PERIOD                    :{WHITE}{CURRENC
 # Industry directory
 STR_INDUSTRY_DIRECTORY_CAPTION                                  :{WHITE}Przedsiębiorstwa ({COMMA} z {COMMA})
 STR_INDUSTRY_DIRECTORY_NONE                                     :{ORANGE}- Żaden -
-STR_INDUSTRY_DIRECTORY_ITEM_INFO                                :{BLACK}{CARGO_LONG}{STRING}{YELLOW} ({COMMA}% przetransportowano){BLACK}
+STR_INDUSTRY_DIRECTORY_ITEM_INFO                                :{BLACK}{CARGO_LONG}{STRING}{YELLOW} ({COMMA}% przetransportowano)
 STR_INDUSTRY_DIRECTORY_ITEM_NOPROD                              :{ORANGE}{INDUSTRY}
 STR_INDUSTRY_DIRECTORY_ITEM_PROD1                               :{ORANGE}{INDUSTRY} {STRING}
 STR_INDUSTRY_DIRECTORY_ITEM_PROD2                               :{ORANGE}{INDUSTRY} {STRING}, {STRING}
@@ -4465,9 +4468,9 @@ STR_INDUSTRY_VIEW_CARGO_GRAPH_TOOLTIP                           :{BLACK}Wyświet
 STR_INDUSTRY_VIEW_PRODUCTION_LEVEL                              :{BLACK}Poziom produkcji: {YELLOW}{COMMA}%
 STR_INDUSTRY_VIEW_INDUSTRY_ANNOUNCED_CLOSURE                    :{YELLOW}Przedsiębiorstwo ogłosiło likwidację!
 
-STR_INDUSTRY_VIEW_REQUIRES_N_CARGO                              :{BLACK}Potrzebuje: {YELLOW}{STRING}{STRING}
-STR_INDUSTRY_VIEW_PRODUCES_N_CARGO                              :{BLACK}Wytwarza: {YELLOW}{STRING}{STRING}
-STR_INDUSTRY_VIEW_CARGO_LIST_EXTENSION                          :, {STRING}{STRING}
+STR_INDUSTRY_VIEW_REQUIRES_N_CARGO                              :{BLACK}Potrzebuje: {YELLOW}{STRING}
+STR_INDUSTRY_VIEW_PRODUCES_N_CARGO                              :{BLACK}Wytwarza: {YELLOW}{STRING}
+STR_INDUSTRY_VIEW_CARGO_LIST_EXTENSION                          :{STRING}{STRING}
 
 STR_INDUSTRY_VIEW_REQUIRES                                      :{BLACK}Potrzebuje:
 STR_INDUSTRY_VIEW_ACCEPT_CARGO_SUFFIX                           :{YELLOW}{0:STRING}{BLACK}{3:STRING}
@@ -4690,16 +4693,16 @@ STR_DEPOT_SHIP_LIST_TOOLTIP                                     :{BLACK}Statki -
 STR_DEPOT_AIRCRAFT_LIST_TOOLTIP                                 :{BLACK}Samolot - prawy klik na samolocie pozwala uzyskać informacje
 
 ###length VEHICLE_TYPES
-STR_DEPOT_TRAIN_SELL_TOOLTIP                                    :{BLACK}Przeciągnij tutaj pociąg, aby go sprzedać
+STR_DEPOT_TRAIN_SELL_TOOLTIP                                    :{BLACK}Przeciągnij tutaj pojazd kolejowy, aby go sprzedać
 STR_DEPOT_ROAD_VEHICLE_SELL_TOOLTIP                             :{BLACK}Przeciągnij tutaj pojazd, aby go sprzedać
 STR_DEPOT_SHIP_SELL_TOOLTIP                                     :{BLACK}Przeciągnij tutaj statek, aby go sprzedać
 STR_DEPOT_AIRCRAFT_SELL_TOOLTIP                                 :{BLACK}Przeciągnij tutaj samolot, aby go sprzedać
 
 ###length VEHICLE_TYPES
-STR_DEPOT_SELL_ALL_BUTTON_TRAIN_TOOLTIP                         :{BLACK}Sprzedaj wszystkie pociągi z hali warsztatów
+STR_DEPOT_SELL_ALL_BUTTON_TRAIN_TOOLTIP                         :{BLACK}Sprzedaj wszystkie pociągi z tej hali warsztatów
 STR_DEPOT_SELL_ALL_BUTTON_ROAD_VEHICLE_TOOLTIP                  :{BLACK}Sprzedaj wszystkie pojazdy z tej zajezdni
-STR_DEPOT_SELL_ALL_BUTTON_SHIP_TOOLTIP                          :{BLACK}Sprzedaj wszystkie statki ze stoczni
-STR_DEPOT_SELL_ALL_BUTTON_AIRCRAFT_TOOLTIP                      :{BLACK}Sprzedaj wszystkie samoloty z hangaru
+STR_DEPOT_SELL_ALL_BUTTON_SHIP_TOOLTIP                          :{BLACK}Sprzedaj wszystkie statki z tej stoczni
+STR_DEPOT_SELL_ALL_BUTTON_AIRCRAFT_TOOLTIP                      :{BLACK}Sprzedaj wszystkie samoloty z tego hangaru
 
 ###length VEHICLE_TYPES
 STR_DEPOT_AUTOREPLACE_TRAIN_TOOLTIP                             :{BLACK}Automatyczne odnowienie wszystkich pociągów stojących w hali warsztatów
@@ -4871,7 +4874,7 @@ STR_VEHICLE_VIEW_CLONE_ROAD_VEHICLE_INFO                        :{BLACK}Kup kopi
 STR_VEHICLE_VIEW_CLONE_SHIP_INFO                                :{BLACK}Kup kopię statku. Użyj Ctrl, aby współdzielić polecenia. Użyj Shift, aby tylko wyświetlić szacunkowy koszt
 STR_VEHICLE_VIEW_CLONE_AIRCRAFT_INFO                            :{BLACK}Kup kopię samolotu. Użyj Ctrl, aby współdzielić polecenia. Użyj Shift, aby tylko wyświetlić szacunkowy koszt
 
-STR_VEHICLE_VIEW_TRAIN_IGNORE_SIGNAL_TOOLTIP                    :{BLACK}Wymuszony start pociągu bez czekania na sygnał
+STR_VEHICLE_VIEW_TRAIN_IGNORE_SIGNAL_TOOLTIP                    :{BLACK}Pozwól pociągowi na przejazd bez czekania na sygnał zezwalający
 STR_VEHICLE_VIEW_TRAIN_REVERSE_TOOLTIP                          :{BLACK}Odwróć kierunek jazdy pociągu
 STR_VEHICLE_VIEW_ROAD_VEHICLE_REVERSE_TOOLTIP                   :{BLACK}Zmuś pojazd do zawrócenia
 STR_VEHICLE_VIEW_ORDER_LOCATION_TOOLTIP                         :{BLACK}Wyśrodkuj widok główny na miejscu docelowym polecenia. Użyj Ctrl, aby otworzyć nowy podgląd na jego lokalizację
@@ -5007,7 +5010,7 @@ STR_VEHICLE_DETAILS_TRAIN_CAPACITIES_TOOLTIP                    :{BLACK}Pokaż �
 STR_VEHICLE_DETAIL_TAB_TOTAL_CARGO                              :{BLACK}Całkowita ładowność
 STR_VEHICLE_DETAILS_TRAIN_TOTAL_CARGO_TOOLTIP                   :{BLACK}Pokaż całkowitą ładowność pociągu, według typu ładunku
 
-STR_VEHICLE_DETAILS_TRAIN_ARTICULATED_RV_CAPACITY               :{BLACK}Ładowność: {LTBLUE}
+STR_VEHICLE_DETAILS_TRAIN_ARTICULATED_RV_CAPACITY               :{BLACK}Ładowność: {LTBLUE}{STRING}
 
 # Vehicle refit
 STR_REFIT_CAPTION                                               :{WHITE}{VEHICLE} (Przebudowa)
@@ -5120,6 +5123,7 @@ STR_ORDERS_SKIP_BUTTON                                          :{BLACK}Pomiń
 STR_ORDERS_SKIP_TOOLTIP                                         :{BLACK}Pomiń obecne polecenie i rozpocznij kolejne. Użyj Ctrl, aby pominąć aż do zaznaczonego polecenia
 
 STR_ORDERS_DELETE_BUTTON                                        :{BLACK}Usuń
+STR_ORDERS_DELETE_ALL_BUTTON                                    :{BLACK}Usuń wszystkie
 STR_ORDERS_DELETE_TOOLTIP                                       :{BLACK}Usuń zaznaczone polecenie
 STR_ORDERS_DELETE_ALL_TOOLTIP                                   :{BLACK}Usuń wszystkie polecenia
 STR_ORDERS_STOP_SHARING_BUTTON                                  :{BLACK}Przestań dzielić
@@ -5555,6 +5559,7 @@ STR_ERROR_TOO_MANY_TRUCK_STOPS                                  :{WHITE}Zbyt wie
 STR_ERROR_TOO_CLOSE_TO_ANOTHER_DOCK                             :{WHITE}Zbyt blisko innego portu
 STR_ERROR_TOO_CLOSE_TO_ANOTHER_AIRPORT                          :{WHITE}Zbyt blisko innego lotniska
 STR_ERROR_CAN_T_RENAME_STATION                                  :{WHITE}Nie można zmienić nazwy stacji...
+STR_ERROR_CAN_T_MOVE_STATION_NAME                               :{WHITE}Nie można przenieść nazwy stacji...
 STR_ERROR_DRIVE_THROUGH_ON_TOWN_ROAD                            :{WHITE}... droga należąca do miasta
 STR_ERROR_DRIVE_THROUGH_DIRECTION                               :{WHITE}... droga jest zorientowana w złym kierunku
 STR_ERROR_DRIVE_THROUGH_CORNER                                  :{WHITE}... przystanki przelotowe nie mogą mieć zakrętów
@@ -5586,6 +5591,7 @@ STR_ERROR_CAN_T_BUILD_RAIL_WAYPOINT                             :{WHITE}Nie moż
 STR_ERROR_CAN_T_BUILD_ROAD_WAYPOINT                             :{WHITE}Nie można tutaj zbudować posterunku drogowego...
 STR_ERROR_CAN_T_POSITION_BUOY_HERE                              :{WHITE}Nie można tutaj ustawić boi...
 STR_ERROR_CAN_T_CHANGE_WAYPOINT_NAME                            :{WHITE}Nie można zmienić nazwy posterunku...
+STR_ERROR_CAN_T_MOVE_WAYPOINT_NAME                              :{WHITE}Nie można przenieść nazwy posterunku...
 
 STR_ERROR_CAN_T_REMOVE_RAIL_WAYPOINT                            :{WHITE}Nie można stąd usunąć posterunku kolejowego...
 STR_ERROR_CAN_T_REMOVE_ROAD_WAYPOINT                            :{WHITE}Nie można stąd usunąć posterunku drogowego...
@@ -6434,7 +6440,8 @@ STR_LORRY                                                       :{BLACK}{LORRY}
 STR_PLANE                                                       :{BLACK}{PLANE}
 STR_SHIP                                                        :{BLACK}{SHIP}
 
-STR_TOOLBAR_RAILTYPE_VELOCITY                                   :{STRING} ({VELOCITY})
+STR_TOOLBAR_RAILTYPE_VELOCITY                                   :{STRING} {YELLOW}({VELOCITY})
+STR_TOOLBAR_ROADTYPE_VELOCITY                                   :{STRING} {YELLOW}({VELOCITY})
 
 STR_BADGE_NAME_LIST                                             :{STRING}: {GOLD}{STRING}
 STR_BADGE_CONFIG_MENU_TOOLTIP                                   :Otwórz ustawienia znaczników

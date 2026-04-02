@@ -14,7 +14,7 @@
 # This file is part of OpenTTD.
 # OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
 # OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
 
 
 ##id 0x0000
@@ -3116,7 +3116,7 @@ STR_LAND_AREA_INFORMATION_AIRPORT_CLASS                         :{BLACK}Lennuvä
 STR_LAND_AREA_INFORMATION_AIRPORT_NAME                          :{BLACK}Lennujaama nimi: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_AIRPORTTILE_NAME                      :{BLACK}Lennujaama osa nimi: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_NEWGRF_NAME                           :{BLACK}NewGRF: {LTBLUE}{STRING}
-STR_LAND_AREA_INFORMATION_CARGO_ACCEPTED                        :{BLACK}Vastuvõetavad veosed: {LTBLUE}
+STR_LAND_AREA_INFORMATION_CARGO_ACCEPTED                        :{BLACK}Vastuvõetavad veosed: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_CARGO_EIGHTS                          :({COMMA}/8 {STRING})
 STR_LANG_AREA_INFORMATION_RAIL_TYPE                             :{BLACK}Rööpa liik: {LTBLUE}{STRING}
 STR_LANG_AREA_INFORMATION_ROAD_TYPE                             :{BLACK}Teeliik: {LTBLUE}{STRING}
@@ -3833,14 +3833,12 @@ STR_CARGO_RATING_EXCELLENT                                      :Suurepärane
 STR_CARGO_RATING_OUTSTANDING                                    :Suurepärane
 
 STR_STATION_VIEW_CENTER_TOOLTIP                                 :{BLACK}Vaate viimine jaama juurde
-STR_STATION_VIEW_RENAME_TOOLTIP                                 :{BLACK}Muuda jaama nime
 
 STR_STATION_VIEW_SCHEDULED_TRAINS_TOOLTIP                       :{BLACK}Näita kõiki ronge, mille sõidugraafik sisaldab seda rongijaama
 STR_STATION_VIEW_SCHEDULED_ROAD_VEHICLES_TOOLTIP                :{BLACK}Näita kõiki mootorsõidukeid, mille sõidugraafik sisaldab seda jaama
 STR_STATION_VIEW_SCHEDULED_AIRCRAFT_TOOLTIP                     :{BLACK}Näita kõiki õhusõidukeid, mille graafik sisaldab seda jaama
 STR_STATION_VIEW_SCHEDULED_SHIPS_TOOLTIP                        :{BLACK}Näita kõiki laevu, mille sõidugraafik sisaldab seda sadamat
 
-STR_STATION_VIEW_RENAME_STATION_CAPTION                         :Ümbernimeta jaam/laadimisala
 
 STR_STATION_VIEW_CLOSE_AIRPORT                                  :{BLACK}Sulge lennujaam
 STR_STATION_VIEW_CLOSE_AIRPORT_TOOLTIP                          :{BLACK}Keela õhusõidukite maandumine selles lennujaamas
@@ -3848,11 +3846,9 @@ STR_STATION_VIEW_CLOSE_AIRPORT_TOOLTIP                          :{BLACK}Keela õ
 # Waypoint/buoy view window
 STR_WAYPOINT_VIEW_CAPTION                                       :{WHITE}{WAYPOINT}
 STR_WAYPOINT_VIEW_CENTER_TOOLTIP                                :{BLACK}Keskenda vaade teemärgisel. Ctrl+klõps avab teemärgisel uue vaate
-STR_WAYPOINT_VIEW_CHANGE_WAYPOINT_NAME                          :{BLACK}Muuda meldepunkti nime
 STR_BUOY_VIEW_CENTER_TOOLTIP                                    :{BLACK}Keskenda vaade poi kohale. Ctrl+klõps avab poi kohal uue vaateakna
 STR_BUOY_VIEW_RENAME_TOOLTIP                                    :{BLACK}Muuda poi nime
 
-STR_EDIT_WAYPOINT_NAME                                          :{WHITE}Muuda meldepunkti nime
 
 # Finances window
 STR_FINANCES_CAPTION                                            :{WHITE}{COMPANY} rahavoogude aruanne {BLACK}{COMPANY_NUM}
@@ -3965,7 +3961,7 @@ STR_COMPANY_INFRASTRUCTURE_VIEW_TOTAL_PERIOD                    :{WHITE}{CURRENC
 
 # Industry directory
 STR_INDUSTRY_DIRECTORY_NONE                                     :{ORANGE}- Puudub -
-STR_INDUSTRY_DIRECTORY_ITEM_INFO                                :{BLACK}{CARGO_LONG}{STRING}{YELLOW} ({COMMA}% äraveetud){BLACK}
+STR_INDUSTRY_DIRECTORY_ITEM_INFO                                :{BLACK}{CARGO_LONG}{STRING}{YELLOW} ({COMMA}% äraveetud)
 STR_INDUSTRY_DIRECTORY_ITEM_NOPROD                              :{ORANGE}{INDUSTRY}
 STR_INDUSTRY_DIRECTORY_ITEM_PROD1                               :{ORANGE}{INDUSTRY} {STRING}
 STR_INDUSTRY_DIRECTORY_ITEM_PROD2                               :{ORANGE}{INDUSTRY} {STRING}, {STRING}
@@ -3986,9 +3982,9 @@ STR_INDUSTRY_VIEW_LOCATION_TOOLTIP                              :{BLACK}Vaate ke
 STR_INDUSTRY_VIEW_PRODUCTION_LEVEL                              :{BLACK}Tootlikkuse tase: {YELLOW}{COMMA}%
 STR_INDUSTRY_VIEW_INDUSTRY_ANNOUNCED_CLOSURE                    :{YELLOW}Tööstus teatab kohesest sulgemisest!
 
-STR_INDUSTRY_VIEW_REQUIRES_N_CARGO                              :{BLACK}Vajab: {YELLOW}{STRING}{STRING}
-STR_INDUSTRY_VIEW_PRODUCES_N_CARGO                              :{BLACK}Toodab: {YELLOW}{STRING}{STRING}
-STR_INDUSTRY_VIEW_CARGO_LIST_EXTENSION                          :, {STRING}{STRING}
+STR_INDUSTRY_VIEW_REQUIRES_N_CARGO                              :{BLACK}Vajab: {YELLOW}{STRING}
+STR_INDUSTRY_VIEW_PRODUCES_N_CARGO                              :{BLACK}Toodab: {YELLOW}{STRING}
+STR_INDUSTRY_VIEW_CARGO_LIST_EXTENSION                          :{STRING}{STRING}
 
 STR_INDUSTRY_VIEW_REQUIRES                                      :{BLACK}Nõuab:
 
@@ -4509,7 +4505,7 @@ STR_VEHICLE_DETAILS_TRAIN_CAPACITIES_TOOLTIP                    :{BLACK}Näita i
 STR_VEHICLE_DETAIL_TAB_TOTAL_CARGO                              :{BLACK}Veoste üldarv
 STR_VEHICLE_DETAILS_TRAIN_TOTAL_CARGO_TOOLTIP                   :{BLACK}Näita kogu rongi mahtu, jagatud veoseliigi järgi
 
-STR_VEHICLE_DETAILS_TRAIN_ARTICULATED_RV_CAPACITY               :{BLACK}Kandevõime: {LTBLUE}
+STR_VEHICLE_DETAILS_TRAIN_ARTICULATED_RV_CAPACITY               :{BLACK}Kandevõime: {LTBLUE}{STRING}
 
 # Vehicle refit
 STR_REFIT_CAPTION                                               :{WHITE}{VEHICLE} (Ümberseadista)

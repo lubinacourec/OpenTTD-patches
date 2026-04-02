@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file timetable_gui.cpp GUI for time tabling. */
@@ -191,6 +191,12 @@ static void FillTimetableArrivalDepartureTable(const Vehicle *v, VehicleOrderID 
 				case OCV_REQUIRES_SERVICE: {
 					bool requires_service = reached_depot ? false : v->NeedsServicing();
 					jump = OrderConditionCompare(order->GetConditionComparator(), requires_service, order->GetConditionValue());
+					break;
+				}
+
+				case OCV_TIMETABLE: {
+					predicted = true;
+					jump = EvaluateTimetableStateConditionalOrder(order, no_offset ? 0 : v->lateness_counter);
 					break;
 				}
 
@@ -631,8 +637,16 @@ struct TimetableWindow : GeneralVehicleWindow {
 							disable_time = false;
 							clearable_when_wait_locked = true;
 						} else {
-							disable = (!(order->IsType(OT_GOTO_STATION) || (order->IsType(OT_GOTO_DEPOT) && !(order->GetDepotActionType() & ODATFB_HALT))) ||
-									(order->GetNonStopType() & ONSF_NO_STOP_AT_DESTINATION_STATION));
+							if (order->GetNonStopType() & ONSF_NO_STOP_AT_DESTINATION_STATION) {
+								disable = true;
+							} else if (order->IsType(OT_GOTO_STATION)) {
+								disable = false;
+							} else if (order->IsType(OT_GOTO_DEPOT) && !(order->GetDepotActionType() & ODATFB_HALT)) {
+								disable = false;
+								clearable_when_wait_locked = true;
+							} else {
+								disable = true;
+							}
 							disable_time = disable;
 						}
 						wait_lockable = !disable_time;
@@ -1158,7 +1172,7 @@ struct TimetableWindow : GeneralVehicleWindow {
 				list.emplace_back(MakeDropDownListCheckedItem(current == OLT_LEAVE_EARLY, STR_TIMETABLE_LEAVE_EARLY, OLT_LEAVE_EARLY, leave_type_disabled));
 				list.emplace_back(MakeDropDownListCheckedItem(current == OLT_LEAVE_EARLY_FULL_ANY, STR_TIMETABLE_LEAVE_EARLY_FULL_ANY, OLT_LEAVE_EARLY_FULL_ANY, leave_type_disabled || !order->IsType(OT_GOTO_STATION)));
 				list.emplace_back(MakeDropDownListCheckedItem(current == OLT_LEAVE_EARLY_FULL_ALL, STR_TIMETABLE_LEAVE_EARLY_FULL_ALL, OLT_LEAVE_EARLY_FULL_ALL, leave_type_disabled || !order->IsType(OT_GOTO_STATION)));
-				ShowDropDownList(this, std::move(list), -1, widget, 0, DDMF_NONE, DDSF_SHARED);
+				ShowDropDownList(this, std::move(list), -1, widget, 0, DropDownOptions{}, DDSF_SHARED);
 				break;
 			}
 
@@ -1177,7 +1191,7 @@ struct TimetableWindow : GeneralVehicleWindow {
 						list.push_back(MakeDropDownListStringItem(std::string{ds.ScheduleName()}, i, false));
 					}
 				}
-				ShowDropDownList(this, std::move(list), order->GetDispatchScheduleIndex(), WID_VT_ASSIGN_SCHEDULE, 0, DDMF_NONE, DDSF_SHARED);
+				ShowDropDownList(this, std::move(list), order->GetDispatchScheduleIndex(), WID_VT_ASSIGN_SCHEDULE, 0, DropDownOptions{}, DDSF_SHARED);
 				break;
 			}
 		}

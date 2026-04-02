@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file order_backup.cpp Handling of order backups. */
@@ -39,10 +39,12 @@ OrderBackup::~OrderBackup()
 
 /**
  * Create an order backup for the given vehicle.
+ * @param index The index of the order backup pool.
  * @param v    The vehicle to make a backup of.
  * @param user The user that is requesting the backup.
  */
-OrderBackup::OrderBackup(const Vehicle *v, uint32_t user) : user(user), tile(v->tile), group(v->group_id)
+OrderBackup::OrderBackup(OrderBackupID index, const Vehicle *v, uint32_t user) :
+	PoolItemBase(index), user(user), tile(v->tile), group(v->group_id)
 {
 	this->CopyConsistPropertiesFrom(v);
 
@@ -73,7 +75,7 @@ void OrderBackup::DoRestore(Vehicle *v)
 	if (this->clone != nullptr) {
 		Command<CMD_CLONE_ORDER>::Do(DoCommandFlag::Execute, CO_SHARE, v->index, this->clone->index);
 	} else if (!this->orders.empty() && OrderList::CanAllocateItem()) {
-		v->orders = new OrderList(std::move(this->orders), v);
+		v->orders = OrderList::Create(std::move(this->orders), v);
 		this->orders.clear();
 
 		v->orders->GetScheduledDispatchScheduleSet() = std::move(this->dispatch_schedules);
@@ -110,7 +112,7 @@ void OrderBackup::DoRestore(Vehicle *v)
 		if (ob->user == user) delete ob;
 	}
 	if (OrderBackup::CanAllocateItem()) {
-		new OrderBackup(v, user);
+		OrderBackup::Create(v, user);
 	}
 }
 

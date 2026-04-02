@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file story.cpp Handling of stories. */
@@ -40,10 +40,10 @@ INSTANTIATE_POOL_METHODS(StoryPage)
 
 StoryPage::~StoryPage()
 {
-	if (!this->CleaningPool()) {
-		for (StoryPageElement *spe : StoryPageElement::Iterate()) {
-			if (spe->page == this->index) delete spe;
-		}
+	if (CleaningPool()) return;
+
+	for (StoryPageElement *spe : StoryPageElement::Iterate()) {
+		if (spe->page == this->index) delete spe;
 	}
 }
 
@@ -229,7 +229,7 @@ CommandCost CmdCreateStoryPage(DoCommandFlags flags, CompanyID company, const En
 			_story_page_next_sort_value = 0;
 		}
 
-		StoryPage *s = new StoryPage(_story_page_next_sort_value, CalTime::CurDate(), company, text);
+		StoryPage *s = StoryPage::Create(_story_page_next_sort_value, CalTime::CurDate(), company, text);
 
 		InvalidateWindowClassesData(WC_STORY_BOOK, -1);
 		if (StoryPage::GetNumItems() == 1) InvalidateWindowData(WC_MAIN_TOOLBAR, 0);
@@ -276,7 +276,7 @@ CommandCost CmdCreateStoryPageElement(DoCommandFlags flags, TileIndex tile, Stor
 			_story_page_element_next_sort_value = 0;
 		}
 
-		StoryPageElement *pe = new StoryPageElement(_story_page_element_next_sort_value, type, page_id);
+		StoryPageElement *pe = StoryPageElement::Create(_story_page_element_next_sort_value, type, page_id);
 		UpdateElement(*pe, tile, reference, text);
 
 		InvalidateWindowClassesData(WC_STORY_BOOK, page_id);

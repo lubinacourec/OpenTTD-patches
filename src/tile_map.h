@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file tile_map.h Map writing/reading functions for tiles. */
@@ -26,7 +26,7 @@
  * @return the height of the tile
  * @pre tile < Map::Size()
  */
-debug_inline static uint TileHeight(TileIndex tile)
+[[debug_inline]] inline static uint TileHeight(TileIndex tile)
 {
 	/* this method is inlined in many places and is performance-critical, drop assertion in non-debug builds */
 #ifdef _DEBUG
@@ -96,7 +96,7 @@ inline uint TilePixelHeightOutsideMap(int x, int y)
  * @return The tiletype of the tile
  * @pre tile < Map::Size()
  */
-debug_inline static TileType GetTileType(TileIndex tile)
+[[debug_inline]] inline static TileType GetTileType(TileIndex tile)
 {
 	/* this method is inlined in many places and is performance-critical, drop assertion in non-debug builds */
 #ifdef _DEBUG
@@ -153,7 +153,7 @@ inline void SetTileType(TileIndex tile, TileType type)
  * @param type The type to check against
  * @return true If the type matches against the type of the tile
  */
-debug_inline static bool IsTileType(TileIndex tile, TileType type)
+[[debug_inline]] inline static bool IsTileType(TileIndex tile, TileType type)
 {
 	return GetTileType(tile) == type;
 }
@@ -269,7 +269,7 @@ inline void SetAnimationFrame(TileIndex t, uint8_t frame)
 	_me[t].m7 = frame;
 }
 
-std::tuple<Slope, int> GetTileSlopeZ(TileIndex tile);
+std::pair<Slope, int> GetTileSlopeZ(TileIndex tile);
 int GetTileZ(TileIndex tile);
 int GetTileMaxZ(TileIndex tile);
 
@@ -333,13 +333,13 @@ inline Slope GetTileSlope(TileIndex tile)
  * @param tile Tile to compute slope of
  * @return Slope of the tile, except for the HALFTILE part, and the z height.
  */
-inline std::tuple<Slope, int> GetTilePixelSlope(TileIndex tile)
+inline std::pair<Slope, int> GetTilePixelSlope(TileIndex tile)
 {
 	auto [s, h] = GetTileSlopeZ(tile);
 	return {s, h * TILE_HEIGHT};
 }
 
-std::tuple<Slope, int> GetTilePixelSlopeOutsideMap(int x, int y);
+std::pair<Slope, int> GetTilePixelSlopeOutsideMap(int x, int y);
 
 /**
  * Get bottom height of the tile

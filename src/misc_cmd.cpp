@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file misc_cmd.cpp Some misc functions that are better fitted in other files, but never got moved there... */
@@ -350,9 +350,7 @@ CommandCost CmdChangeBankBalance(DoCommandFlags flags, TileIndex tile, Money del
 
 	if (flags.Test(DoCommandFlag::Execute)) {
 		/* Change company bank balance of company. */
-		Backup<CompanyID> cur_company(_current_company, company, FILE_LINE);
-		SubtractMoneyFromCompany(CommandCost(expenses_type, -delta));
-		cur_company.Restore();
+		SubtractMoneyFromCompany(company, CommandCost(expenses_type, -delta));
 
 		if (tile != 0) {
 			ShowCostOrIncomeAnimation(TileX(tile) * TILE_SIZE, TileY(tile) * TILE_SIZE, GetTilePixelZ(tile), -delta);
@@ -387,9 +385,7 @@ CommandCost CmdGiveMoney(DoCommandFlags flags, Money money, CompanyID dest_compa
 
 	if (flags.Test(DoCommandFlag::Execute)) {
 		/* Add money to company */
-		Backup<CompanyID> cur_company(_current_company, dest_company, FILE_LINE);
-		SubtractMoneyFromCompany(CommandCost(EXPENSES_OTHER, -amount.GetCost()));
-		cur_company.Restore();
+		SubtractMoneyFromCompany(dest_company, CommandCost(EXPENSES_OTHER, -amount.GetCost()));
 	}
 
 	/* Subtract money from local-company */

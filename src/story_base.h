@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file story_base.h %StoryPage base class. */
@@ -150,12 +150,9 @@ struct StoryPageElement : StoryPageElementPool::PoolItem<&_story_page_element_po
 	uint32_t referenced_id = 0;  ///< Id of referenced object (location, goal etc.)
 	EncodedString text{};        ///< Static content text of page element
 
-	/**
-	 * We need an (empty) constructor so struct isn't zeroed (as C++ standard states)
-	 */
-	StoryPageElement() { }
-	StoryPageElement(uint32_t sort_value, StoryPageElementType type, StoryPageID page) :
-		sort_value(sort_value), page(page), type(type) { }
+	StoryPageElement(StoryPageElementID index) : PoolItemBase(index) {}
+	StoryPageElement(StoryPageElementID index, uint32_t sort_value, StoryPageElementType type, StoryPageID page) :
+		PoolItemBase(index), sort_value(sort_value), page(page), type(type) {}
 
 	/**
 	 * (Empty) destructor has to be defined else operator delete might be called with nullptr parameter
@@ -174,9 +171,9 @@ struct StoryPage : StoryPagePool::PoolItem<&_story_page_pool> {
 	/**
 	 * We need an (empty) constructor so struct isn't zeroed (as C++ standard states)
 	 */
-	StoryPage() { }
-	StoryPage(uint32_t sort_value, CalTime::Date date, CompanyID company, const EncodedString &title) :
-		sort_value(sort_value), date(date), company(company), title(title) {}
+	StoryPage(StoryPageID index) : PoolItemBase(index) {}
+	StoryPage(StoryPageID index, uint32_t sort_value, CalTime::Date date, CompanyID company, const EncodedString &title) :
+		PoolItemBase(index), sort_value(sort_value), date(date), company(company), title(title) {}
 
 	~StoryPage();
 };

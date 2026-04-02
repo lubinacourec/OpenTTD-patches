@@ -2,6 +2,44 @@
 
 * * *
 
+### v0.71.1 (2026-03-21)
+* Fix text/colour for vehicle lifetime profit and capcities of multi-cargo ships.
+* Fix not being able to change the else if/or if type of some routing restriction conditionals.
+* Engine dates:
+  * Allow changing engine date/lifetime settings in network games.
+  * Remove need to use reset_engines console command after changing engine date/lifetime settings.
+  * Add setting to disable vehicle introduction date randomisation.
+* Bump trunk base from commit 27c5f9a5cdee5c2586a9688a7eca23975008abf4 to commit b41e23270d5fb4386e44193139d41d5955f866cf.
+
+### v0.71.0 (2026-03-13)
+* Fix undrawn gap between vertical half-tile foundations of different railtypes.
+* Fix map edge selectors not being enabled in the map generation window for some setting values.
+* Show "Delete All" in the order window delete button when this would delete all orders.
+* Follow timetable early/late conditional orders in the timetable window departure/arrival estimates.
+* Departure boards:
+  * Follow timetable early/late conditional orders.
+  * Support schedule mode vehicle cycle tracking when the departure order is separate from (but the same location as) the dispatch order.
+* Routing restrictions:
+  * Show instruction remove count in button when removing a conditional item block.
+  * Maintain per-company backups of recently deleted routing restriction programs. Allow restoring programs from these backups.
+  * Change category of wait at path signal and penalty control to non-advanced.
+* Template-based train replacement:
+  * Fix incorrect cost overlay when template replacement fails.
+  * Disallow replacing to a free wagon chain. Fixes crash when replacing to a free wagon chain with wagons already in depot.
+* Fix various windows not being refreshed on vehicle group changes.
+* Fix multiplayer desync which could occur after a train crash with some combinations of platforms/build types.
+* Fix not being able to clear depot wait times when the lock flag was set and timetable automation enabled.
+* Bump trunk base from commit c1d37d86999ec391d5830f16887024b719f9cd18 to commit 27c5f9a5cdee5c2586a9688a7eca23975008abf4.
+
+### v0.70.2 (2026-02-21)
+* Fix road/tram types for some NewGRFs not being initialised correctly.
+* Fix incorrect transfer credits total in train details window.
+* Fix crash which could occur when an aircraft crashed outside of the map.
+* Add setting for linear infrastructure maintenance costs.
+* Move empty/full performance statistics to a separate tab in the train details window.
+* Remove company settings for other companies buying/renewing vehicles in this company's depots, this is now allowed whenever infrastructure sharing is enabled.
+* Bump trunk base from commit e8ba7d0a08c1f8c7536a828bd0e906c9357bbb7b to commit c1d37d86999ec391d5830f16887024b719f9cd18.
+
 ### v0.70.1 (2026-02-14)
 * Fix multiplayer desync when placing single houses.
 * Fix company faces not being shown in ownership error messages.

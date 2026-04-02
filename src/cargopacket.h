@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file cargopacket.h Base class for cargo packets. */
@@ -92,10 +92,10 @@ public:
 	/** Maximum number of items in a single cargo packet. */
 	static const uint16_t MAX_COUNT = UINT16_MAX;
 
-	CargoPacket();
-	CargoPacket(StationID first_station, uint16_t count, Source source);
-	CargoPacket(uint16_t count, uint16_t periods_in_transit, StationID first_station, TileIndex source_xy, Money feeder_share);
-	CargoPacket(uint16_t count, Money feeder_share, const CargoPacket &original);
+	CargoPacket(CargoPacketID index);
+	CargoPacket(CargoPacketID index, StationID first_station, uint16_t count, Source source);
+	CargoPacket(CargoPacketID index, uint16_t count, uint16_t periods_in_transit, StationID first_station, TileIndex source_xy, Money feeder_share);
+	CargoPacket(CargoPacketID index, uint16_t count, Money feeder_share, const CargoPacket &original);
 	~CargoPacket();
 
 	CargoPacket *Split(uint new_size);

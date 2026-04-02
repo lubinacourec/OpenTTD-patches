@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file company_gui.cpp %Company related GUIs. */
@@ -744,6 +744,7 @@ public:
 	SelectCompanyLiveryWindow(WindowDesc &desc, CompanyID company, GroupID group) : Window(desc)
 	{
 		this->CreateNestedTree();
+		this->GetWidget<NWidgetStacked>(WID_SCL_SEC_COL_DROP_SEL)->SetDisplayedPlane(_loaded_newgrf_features.has_2CC ? 0 : SZSP_NONE);
 		this->vscroll = this->GetScrollbar(WID_SCL_MATRIX_SCROLLBAR);
 
 		if (group == GroupID::Invalid()) {
@@ -814,10 +815,7 @@ public:
 			}
 
 			case WID_SCL_SEC_COL_DROPDOWN:
-				if (!_loaded_newgrf_features.has_2CC) {
-					size.width = 0;
-					break;
-				}
+				if (!_loaded_newgrf_features.has_2CC) break;
 				[[fallthrough]];
 
 			case WID_SCL_PRI_COL_DROPDOWN: {
@@ -1136,13 +1134,15 @@ static constexpr std::initializer_list<NWidgetPart> _nested_select_company_liver
 	NWidget(NWID_HORIZONTAL),
 		NWidget(WWT_PANEL, COLOUR_GREY, WID_SCL_SPACER_DROPDOWN), SetFill(1, 1), SetResize(1, 0), EndContainer(),
 		NWidget(WWT_DROPDOWN, COLOUR_GREY, WID_SCL_PRI_COL_DROPDOWN), SetFill(0, 1), SetToolTip(STR_LIVERY_PRIMARY_TOOLTIP),
-		NWidget(WWT_DROPDOWN, COLOUR_GREY, WID_SCL_SEC_COL_DROPDOWN), SetFill(0, 1), SetToolTip(STR_LIVERY_SECONDARY_TOOLTIP),
+		NWidget(NWID_SELECTION, INVALID_COLOUR, WID_SCL_SEC_COL_DROP_SEL),
+			NWidget(WWT_DROPDOWN, COLOUR_GREY, WID_SCL_SEC_COL_DROPDOWN), SetFill(0, 1), SetToolTip(STR_LIVERY_SECONDARY_TOOLTIP),
+		EndContainer(),
 		NWidget(WWT_RESIZEBOX, COLOUR_GREY),
 	EndContainer(),
 };
 
 static WindowDesc _select_company_livery_desc(__FILE__, __LINE__,
-	WDP_AUTO, "company_color_scheme", 0, 0,
+	WDP_AUTO, "company_colour_scheme", 0, 0,
 	WC_COMPANY_COLOUR, WC_NONE,
 	{},
 	_nested_select_company_livery_widgets

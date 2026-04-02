@@ -500,11 +500,6 @@ STR_CONFIG_SETTING_SHARING_PAYMENT_IN_DEBT                      :Разреши�
 STR_CONFIG_SETTING_SHARING_USED_BY_VEHICLES                     :Невозможно изменить этот параметр - транспортные средства используют инфраструктуру чужих компаний.
 STR_CONFIG_SETTING_SHARING_ORDERS_TO_OTHERS                     :Невозможно изменить этот параметр - у транспортных средств есть задания с пунктами назначения в инфраструктуре чужих компаний.
 
-STR_CONFIG_SETTING_INFRA_OTHERS_BUY_IN_DEPOT_RAIL               :Конкуренты могут покупать и обновлять поезда в депо: {STRING}
-STR_CONFIG_SETTING_INFRA_OTHERS_BUY_IN_DEPOT_ROAD               :Конкуренты могут покупать и обновлять автотранспорт в депо: {STRING}
-STR_CONFIG_SETTING_INFRA_OTHERS_BUY_IN_DEPOT_WATER              :Конкуренты могут покупать и обновлять корабли в депо: {STRING}
-STR_CONFIG_SETTING_INFRA_OTHERS_BUY_IN_DEPOT_AIR                :Конкуренты могут покупать и обновлять авиатранспорт в ангарах: {STRING}
-
 STR_CONFIG_SETTING_TRAIN_SPEED_ADAPTATION                       :Включить адаптацию скорости поезда: {STRING}
 STR_CONFIG_SETTING_TRAIN_SPEED_ADAPTATION_HELPTEXT              :Если включено, то более быстрые поезда будут регулировать свою скорость при прохождении сигналов, пытаясь сравняться с более медленными поездами впереди.{}Это может быть неприемлемо для некоторых типов сигнализации или схем, и может быть отключено и снова включено для каждого поезда с помощью ограничений маршрутизации сигналов.
 
@@ -621,9 +616,6 @@ STR_CONFIG_SETTING_CARGO_PAYMENT_ALGORITHM                      :Алгорит�
 STR_CONFIG_SETTING_CARGO_PAYMENT_ALGORITHM_HELPTEXT             :Алгоритм, по которому рассчитывается, сколько денег нужно заплатить за доставку груза к месту назначения.
 STR_CONFIG_SETTING_CARGO_PAYMENT_ALGORITHM_TRADITIONAL          :Традиционный
 STR_CONFIG_SETTING_CARGO_PAYMENT_ALGORITHM_MODERN               :Современный
-
-STR_CONFIG_SETTING_TOWN_MIN_DISTANCE                            :Минимальное расстояние между городами: {STRING}
-STR_CONFIG_SETTING_TOWN_MIN_DISTANCE_HELPTEXT                   :Устанавливает минимальное расстояние между городами (в клетках) при генерации карты и случайном основании.
 
 STR_CONFIG_SETTING_DISTRIBUTION_PER_CARGO                       :Переопределение режима распределения для этого груза: {STRING}
 STR_CONFIG_SETTING_DISTRIBUTION_PER_CARGO_PARAM                 :Переопределение режима распределения для {STRING}: {STRING}
@@ -912,8 +904,7 @@ STR_TRACE_RESTRICT_SLOT_PBS_RES_END_TRY_ACQUIRE_ITEM            :Резерви�
 STR_TRACE_RESTRICT_SLOT_PBS_RES_END_RELEASE_ITEM                :Резервирование маршрута заканчивается здесь: Освободить слот: {PUSH_COLOUR}{STRING}{POP_COLOUR}
 STR_TRACE_RESTRICT_SLOT_NAME                                    :{TRSLOT}
 STR_TRACE_RESTRICT_SLOT_NAME_PREFIXED                           :[{STRING}] {TRSLOT}
-STR_TRACE_RESTRICT_SLOT_LIST_HEADER                             :{BLACK}Слот{CONSUME_ARG}{P а ы ""}: {LTBLUE}
-STR_TRACE_RESTRICT_SLOT_LIST_SEPARATOR                          :{BLACK}, {LTBLUE}
+STR_TRACE_RESTRICT_SLOT_LIST_HEADER                             :{BLACK}Слот{CONSUME_ARG}{P а ы ""}:{SPACE}
 STR_TRACE_RESTRICT_COUNTER_NAME                                 :{TRCOUNTER}
 STR_TRACE_RESTRICT_COUNTER_INCREASE                             :Увеличить
 STR_TRACE_RESTRICT_COUNTER_DECREASE                             :Уменьшить
@@ -1209,7 +1200,7 @@ STR_SAVELOAD_DIFFERENT_ID                                       :{YELLOW}Это�
 STR_SAVELOAD_OVERWRITE_TITLE_DIFFERENT_ID                       :{WHITE}Перезаписать файл (другая игра)
 STR_SAVELOAD_OVERWRITE_TITLE_DIFFERENT_VERSION_SUFFIX           :{STRING} (Другая версия)
 STR_SAVELOAD_OVERWRITE_WARNING_DIFFERENT_ID                     :{YELLOW}Вы уверены, что хотите перезаписать существующий файл?{}{}Этот файл из другой игры.
-STR_SAVELOAD_OVERWRITE_WARNING_DIFFERENT_VERSION_SUFFIX         :{STRING}{}{}Файл из другой версии{STRING}.{}Если файл будет перезаписан, он больше не будет читаться оригинальной версией.
+STR_SAVELOAD_OVERWRITE_WARNING_DIFFERENT_VERSION_SUFFIX         :{YELLOW}{STRING}{}{}Файл из другой версии{STRING}.{}Если файл будет перезаписан, он больше не будет читаться оригинальной версией.
 STR_SAVELOAD_OVERWRITE_WARNING_VERSION_NAME                     : ({STRING})
 
 STR_MAPGEN_SNOW_LINE_HEIGHT                                     :{BLACK}Высота снеговой линии:
@@ -1480,7 +1471,7 @@ STR_VEHICLE_VIEW_SHOW_ORDERS_TOOLTIP_EXTRA                      :{STRING}{BLACK}
 
 STR_VEHICLE_VIEW_ORDER_NUMBER                                   :{COMMA}:{SPACE}
 
-STR_VEHICLE_STATUS_LOADING_UNLOADING_ADVANCE                    :{STRING}, {VELOCITY}
+STR_VEHICLE_STATUS_LOADING_UNLOADING_ADVANCE                    :{LTBLUE}{STRING}, {VELOCITY}
 STR_VEHICLE_STATUS_BROKEN_DOWN_VEL                              :{RED}Сломано - {STRING}, {LTBLUE} {VELOCITY}
 STR_VEHICLE_STATUS_BROKEN_DOWN_VEL_SHORT                        :{RED}Сломано - {STRING}
 STR_VEHICLE_STATUS_TRAIN_STUCK_WAIT_RESTRICTION                 :{ORANGE}Ожидание из-за ограничения маршрутизации
@@ -1542,7 +1533,7 @@ STR_VEHICLE_INFO_MAX_SPEED_LOADED                               :{BLACK}Макс
 
 STR_VEHICLE_INFO_AGE_RUNNING_COST_ORIG_YR                       :{BLACK}Возраст: {LTBLUE}{STRING}{BLACK}   Эксплуатационные расходы: {LTBLUE}{CURRENCY_LONG}/исходный год
 
-STR_VEHICLE_INFO_PROFIT_THIS_YEAR_LAST_YEAR_LIFETIME            :{STRING} (срок службы: {CURRENCY_LONG})
+STR_VEHICLE_INFO_PROFIT_THIS_YEAR_LAST_YEAR_LIFETIME            :{STRING} {LTBLUE}(срок службы: {CURRENCY_LONG})
 
 STR_VEHICLE_INFO_GROUP                                          :{BLACK}Группа: {LTBLUE}{GROUP}
 

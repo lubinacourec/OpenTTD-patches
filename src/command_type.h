@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file command_type.h Types related to commands. */
@@ -16,6 +16,7 @@
 #include "strings_type.h"
 #include "tile_type.h"
 #include "core/serialisation.hpp"
+#include "core/type_util.hpp"
 #include <optional>
 #include <string>
 #include <tuple>
@@ -33,7 +34,7 @@ enum CommandCostIntlFlags : uint8_t {
 };
 DECLARE_ENUM_AS_BIT_SET(CommandCostIntlFlags)
 
-using CommandCostAllowedResultTypes = std::tuple<uint32_t, struct PlanIDTag, struct VehicleIDTag, struct SignIDTag, struct GroupIDTag, struct GoalIDTag, struct TownIDTag,
+using CommandCostAllowedResultTypes = TypeList<uint32_t, struct PlanIDTag, struct VehicleIDTag, struct SignIDTag, struct GroupIDTag, struct GoalIDTag, struct TownIDTag,
 		struct StoryPageIDTag, struct StoryPageElementIDTag, struct LeagueTableElementIDTag, struct LeagueTableIDTag,
 		struct TraceRestrictSlotIDTag, struct TraceRestrictSlotGroupIDTag, struct TraceRestrictCounterIDTag>;
 using CommandCostResultTypeIndex = uint8_t;
@@ -46,8 +47,8 @@ constexpr CommandCostResultTypeIndex GetCommandCostResultDataTypeID()
 	} else if constexpr (std::is_same_v<uint16_t, T>) {
 		return GetCommandCostResultDataTypeID<uint32_t>();
 	} else {
-		constexpr size_t idx = GetTupleIndexIgnoreCvRef<T, CommandCostAllowedResultTypes>();
-		static_assert(idx < std::tuple_size_v<CommandCostAllowedResultTypes>,
+		constexpr size_t idx = GetTypeListIndexIgnoreCvRef<T, CommandCostAllowedResultTypes>();
+		static_assert(idx < CommandCostAllowedResultTypes::Size,
 				"Could not find CommandCost result type in CommandCostAllowedResultTypes");
 		static_assert(idx < std::numeric_limits<CommandCostResultTypeIndex>::max());
 		return static_cast<CommandCostResultTypeIndex>(idx) + 1;
@@ -114,7 +115,7 @@ class CommandCost {
 		AdditionalCash,
 	};
 
-	CommandCostInlineType GetInlineType() const { return static_cast<CommandCostInlineType>(this->flags >> 4); }
+	constexpr CommandCostInlineType GetInlineType() const { return static_cast<CommandCostInlineType>(this->flags >> 4); }
 
 	void SetInlineType(CommandCostInlineType inl_type)
 	{
@@ -142,40 +143,76 @@ class CommandCost {
 	void AllocAuxData();
 	bool AddInlineData(CommandCostInlineType inl_type);
 
-public:
-	/**
-	 * Creates a command cost return with no cost and no error
-	 */
-	CommandCost() : cost(0), expense_type(INVALID_EXPENSES), flags(CCIF_SUCCESS), message(INVALID_STRING_ID) {}
-
-	/**
-	 * Creates a command return value the is failed with the given message
-	 */
-	explicit CommandCost(StringID msg) : cost(0), expense_type(INVALID_EXPENSES), flags(CCIF_NONE), message(msg) {}
-
-	CommandCost(const CommandCost &other);
-	CommandCost &operator=(const CommandCost &other);
-
-	CommandCost(CommandCost &&other) noexcept
+	constexpr void ReleaseAuxiliary()
 	{
-		*this = std::move(other);
+		if (this->GetInlineType() == CommandCostInlineType::AuxiliaryData) delete this->inl.aux_data;
 	}
 
-	CommandCost &operator=(CommandCost &&other) noexcept
+	constexpr void CopyMainFields(const CommandCost &other) noexcept
 	{
 		this->cost = other.cost;
 		this->expense_type = other.expense_type;
 		this->flags = other.flags;
 		this->owner = other.owner;
 		this->message = other.message;
+	}
+
+	constexpr void MoveFrom(CommandCost &&other) noexcept
+	{
+		this->CopyMainFields(other);
 		this->inl = other.inl;
 		other.flags = CCIF_NONE; // Clear any ownership of other.inl.aux_data
+	}
+
+	void CopyFromHandleAuxiliary();
+
+	void CopyFrom(const CommandCost &other)
+	{
+		this->CopyMainFields(other);
+		this->inl = other.inl;
+		if (this->GetInlineType() == CommandCostInlineType::AuxiliaryData) {
+			this->CopyFromHandleAuxiliary();
+		}
+	}
+
+public:
+	/**
+	 * Creates a command cost return with no cost and no error
+	 */
+	constexpr CommandCost() : cost(0), expense_type(INVALID_EXPENSES), flags(CCIF_SUCCESS), message(INVALID_STRING_ID) {}
+
+	/**
+	 * Creates a command return value the is failed with the given message
+	 */
+	explicit constexpr CommandCost(StringID msg) : cost(0), expense_type(INVALID_EXPENSES), flags(CCIF_NONE), message(msg) {}
+
+	CommandCost(const CommandCost &other)
+	{
+		this->CopyFrom(other);
+	}
+
+	CommandCost &operator=(const CommandCost &other)
+	{
+		this->ReleaseAuxiliary();
+		this->CopyFrom(other);
 		return *this;
 	}
 
-	~CommandCost()
+	constexpr CommandCost(CommandCost &&other) noexcept
 	{
-		if (this->GetInlineType() == CommandCostInlineType::AuxiliaryData) delete this->inl.aux_data;
+		this->MoveFrom(std::move(other));
+	}
+
+	constexpr CommandCost &operator=(CommandCost &&other) noexcept
+	{
+		this->ReleaseAuxiliary();
+		this->MoveFrom(std::move(other));
+		return *this;
+	}
+
+	constexpr ~CommandCost()
+	{
+		this->ReleaseAuxiliary();
 	}
 
 	/**
@@ -200,7 +237,7 @@ public:
 	 * @param ex_t the expense type
 	 * @param cst the initial cost of this command
 	 */
-	CommandCost(ExpensesType ex_t, const Money &cst) : cost(cst), expense_type(ex_t), flags(CCIF_SUCCESS), message(INVALID_STRING_ID) {}
+	constexpr CommandCost(ExpensesType ex_t, const Money &cst) : cost(cst), expense_type(ex_t), flags(CCIF_SUCCESS), message(INVALID_STRING_ID) {}
 
 	/**
 	 * Set the 'owner' (the originator) of this error message. This is used to show a company owner's face if you
@@ -440,7 +477,7 @@ CommandCost CommandCostWithParam(StringID str, StringParameterAsBase auto value)
  * Other functions just need to return this error if there is an error,
  * which doesn't need to specific by a StringID.
  */
-static const CommandCost CMD_ERROR = CommandCost(INVALID_STRING_ID);
+static constexpr CommandCost CMD_ERROR = CommandCost(INVALID_STRING_ID);
 
 /**
  * List of commands.
@@ -475,6 +512,7 @@ enum Commands : uint8_t {
 
 	CMD_BUILD_RAIL_WAYPOINT,          ///< build a waypoint
 	CMD_RENAME_WAYPOINT,              ///< rename a waypoint
+	CMD_MOVE_WAYPOINT_NAME,           ///< move a waypoint name
 	CMD_REMOVE_FROM_RAIL_WAYPOINT,    ///< remove a (rectangle of) tiles from a rail waypoint
 
 	CMD_BUILD_ROAD_WAYPOINT,          ///< build a road waypoint
@@ -545,12 +583,14 @@ enum Commands : uint8_t {
 	CMD_RENAME_COMPANY,               ///< change the company name
 	CMD_RENAME_PRESIDENT,             ///< change the president name
 	CMD_RENAME_STATION,               ///< rename a station
+	CMD_MOVE_STATION_NAME,            ///< move a station name
 	CMD_RENAME_DEPOT,                 ///< rename a depot
 	CMD_EXCHANGE_STATION_NAMES,       ///< exchange station names
 	CMD_SET_STATION_CARGO_ALLOWED_SUPPLY, ///< set station cargo allowed supply
 
 	CMD_PLACE_SIGN,                   ///< place a sign
 	CMD_RENAME_SIGN,                  ///< rename a sign
+	CMD_MOVE_SIGN,                    ///< move a sign
 
 	CMD_TURN_ROADVEH,                 ///< turn a road vehicle around
 
@@ -680,6 +720,7 @@ enum Commands : uint8_t {
 
 	CMD_PROGRAM_TRACERESTRICT_SIGNAL, ///< modify a signal tracerestrict program
 	CMD_MANAGE_TRACERESTRICT_SIGNAL,  ///< modify a signal tracerestrict program (management)
+	CMD_RESTORE_TRACERESTRICT_SIGNAL, ///< modify a signal tracerestrict program (restore from backup)
 	CMD_CREATE_TRACERESTRICT_SLOT,    ///< create a tracerestrict slot
 	CMD_ALTER_TRACERESTRICT_SLOT,     ///< alter a tracerestrict slot
 	CMD_DELETE_TRACERESTRICT_SLOT,    ///< delete a tracerestrict slot
@@ -796,6 +837,12 @@ enum class CommandCallback : uint8_t {
 	/* vehicle_gui.cpp */
 	BuildPrimaryVehicle,
 	StartStopVehicle,
+
+	/* station_gui.cpp */
+	MoveStationName,
+
+	/* waypoint_gui.cpp */
+	MoveWaypointName,
 
 	/* tbtr_template_gui_create.cpp */
 	SetVirtualTrain,
@@ -929,34 +976,99 @@ enum class CommandType : uint8_t {
  * - Have a `ClientID &GetClientIDField()` function if used by commands with CMD_CLIENT_ID/CommandFlag::ClientID.
  */
 struct CommandPayloadBase {
-	virtual ~CommandPayloadBase() {}
+	struct Deleter {
+		void operator()(CommandPayloadBase *ptr) const;
+	};
+	using CommandPayloadBaseUniquePtr = std::unique_ptr<CommandPayloadBase, CommandPayloadBase::Deleter>;
 
-	virtual std::unique_ptr<CommandPayloadBase> Clone() const = 0;
+	using CloneFn = CommandPayloadBaseUniquePtr (*)(const CommandPayloadBase *);
+	using DeleterFn = void (*)(CommandPayloadBase *);
+	using SerialiseFn = void (*)(const CommandPayloadBase *, struct BufferSerialisationRef);
+	using SanitiseStringsFn = void (*)(CommandPayloadBase *, StringValidationSettings);
+	using FormatDebugSummaryFn = void (*)(const CommandPayloadBase *, struct format_target &);
 
-	virtual void Serialise(struct BufferSerialisationRef buffer) const = 0;
+	struct Operations {
+		CloneFn clone;
+		DeleterFn deleter;
+		SerialiseFn serialise;
+		SanitiseStringsFn sanitise_strings;
+		FormatDebugSummaryFn format_debug_summary;
+		const uint16_t *descriptor;
+	};
 
-	virtual void SanitiseStrings(StringValidationSettings settings) {}
+	const Operations &ops;
 
-	/* FormatDebugSummary may be called when populating the crash log so should not allocate */
-	virtual void FormatDebugSummary(struct format_target &) const {}
+	inline CommandPayloadBaseUniquePtr Clone() const
+	{
+		return this->ops.clone(this);
+	}
 
+	inline void Serialise(struct BufferSerialisationRef buffer) const
+	{
+		this->ops.serialise(this, buffer);
+	}
+
+	inline void SanitiseStrings(StringValidationSettings settings)
+	{
+		if (this->ops.sanitise_strings != nullptr) this->ops.sanitise_strings(this, settings);
+	}
+
+	/* fmt_format_value may be called when populating the crash log so should not allocate */
 	inline void fmt_format_value(struct format_target &output) const
 	{
-		this->FormatDebugSummary(output);
+		this->ops.format_debug_summary(this, output);
 	}
-};
 
+	const Operations &GetOperations() const { return this->ops; }
+
+	template <typename T>
+	bool IsType() const
+	{
+		static_assert(std::is_base_of_v<CommandPayloadBase, T>);
+		return &this->ops == &T::operations;
+	}
+
+	template <typename T>
+	T *AsType()
+	{
+		return this->IsType<T>() ? static_cast<T *>(this) : nullptr;
+	}
+
+	template <typename T>
+	const T *AsType() const
+	{
+		return this->IsType<T>() ? static_cast<const T *>(this) : nullptr;
+	}
+
+protected:
+	CommandPayloadBase(const Operations &ops) : ops(ops) {}
+	CommandPayloadBase(const CommandPayloadBase &) = default;
+	CommandPayloadBase(CommandPayloadBase &&) = default;
+	~CommandPayloadBase() = default;
+	CommandPayloadBase& operator=(const CommandPayloadBase &) { return *this; };
+	CommandPayloadBase& operator=(CommandPayloadBase &&) { return *this; };
+};
+using CommandPayloadBaseUniquePtr = CommandPayloadBase::CommandPayloadBaseUniquePtr;
+
+inline void CommandPayloadBase::Deleter::operator()(CommandPayloadBase *ptr) const
+{
+	if (ptr != nullptr) ptr->ops.deleter(ptr);
+}
+
+/**
+ * Helper for defining custom command payload types.
+ *
+ * Types which do not have strings to sanitise and DO NOT define a string sanitiser method should override the HasStringSanitiser type constant.
+ */
 template <typename T>
 struct CommandPayloadSerialisable : public CommandPayloadBase {
-	std::unique_ptr<CommandPayloadBase> Clone() const override;
-};
+	static constexpr bool HasStringSanitiser = true; ///< Implementing types can override this to false if they don't require/implement string sanitising.
+	static constexpr bool HasFormatDebugSummary = true;
 
-template <typename T>
-std::unique_ptr<CommandPayloadBase> CommandPayloadSerialisable<T>::Clone() const
-{
-	static_assert(std::is_final_v<T>);
-	return std::make_unique<T>(*static_cast<const T *>(this));
-}
+	static const CommandPayloadBase::Operations operations;
+
+	CommandPayloadSerialisable() : CommandPayloadBase(CommandPayloadSerialisable<T>::operations) {}
+};
 
 struct CommandPayloadSerialised final {
 	std::vector<uint8_t> serialised_data;
@@ -972,10 +1084,10 @@ void SetCommandPayloadClientID(T &payload, ClientID client_id)
 	if constexpr (requires { payload.GetClientIDField(); }) {
 		if (payload.GetClientIDField() == (ClientID)0) payload.GetClientIDField() = client_id;
 	} else {
-		constexpr size_t idx = GetTupleIndexIgnoreCvRef<ClientID, decltype(payload.GetValues())>();
-		static_assert(idx < std::tuple_size_v<std::remove_cvref_t<decltype(payload.GetValues())>>,
+		constexpr size_t idx = GetTypeListIndexIgnoreCvRef<ClientID, typename T::Types>();
+		static_assert(idx < T::ValueCount,
 				"There must be exactly one ClientID value in the command payload tuple unless a GetClientIDField method is present");
-		if (std::get<idx>(payload.GetValues()) == (ClientID)0) std::get<idx>(payload.GetValues()) = client_id;
+		if (payload.template GetValue<idx>() == (ClientID)0) payload.template GetValue<idx>() = client_id;
 	}
 }
 
@@ -985,59 +1097,87 @@ concept CommandPayloadStringType = std::is_same_v<T, std::string> || std::is_sam
 template <typename T>
 concept CommandPayloadAsRef = CommandPayloadStringType<T> || T::command_payload_as_ref || false;
 
+template <typename T>
+concept PayloadHasTupleCmdDataTag = T::ValueTupleCmdDataTag || T::RefTupleCmdDataTag || false;
+
+template <typename T>
+concept PayloadHasValueTupleCmdDataTag = T::ValueTupleCmdDataTag || false;
+
 struct CommandProcTupleAdapter {
 	template <typename T>
 	using with_ref_params = std::conditional_t<CommandPayloadAsRef<T>, const T &, T>;
 };
 
-struct BaseTupleCmdDataTag{};
+template <typename... T>
+struct CmdDataT;
 
 namespace TupleCmdDataDetail {
-	/**
-	 * For internal use by TupleCmdData, AutoFmtTupleCmdData.
-	 */
-	template <typename... T>
-	struct EMPTY_BASES BaseTupleCmdData : public CommandPayloadBase, public BaseTupleCmdDataTag {
-		using CommandProc = CommandCost(DoCommandFlags, TileIndex, typename CommandProcTupleAdapter::with_ref_params<T>...);
-		using CommandProcNoTile = CommandCost(DoCommandFlags, typename CommandProcTupleAdapter::with_ref_params<T>...);
-		using Tuple = std::tuple<T...>;
-		Tuple values;
+	template <size_t I, typename T>
+	struct TupleCmdDataValue {
+		T data;
 
-		template <typename... Args>
-		BaseTupleCmdData(Args&& ... args) : values(std::forward<Args>(args)...) {}
+		bool operator==(TupleCmdDataValue const &) const = default;
+	};
 
-		BaseTupleCmdData(Tuple&& values) : values(std::move(values)) {}
+	template <class IndexSequence, typename... T>
+	struct TupleCmdDataValueList;
 
-		virtual void Serialise(BufferSerialisationRef buffer) const override;
-		virtual void SanitiseStrings(StringValidationSettings settings) override;
-		bool Deserialise(DeserialisationBuffer &buffer, StringValidationSettings default_string_validation);
+	template <size_t... I, typename... T>
+	struct TupleCmdDataValueList<std::index_sequence<I...>, T...> : public TupleCmdDataValue<I, T>... {
+		using Types = TypeList<T...>;
 
-		Tuple &GetValues() { return this->values; }
-		const Tuple &GetValues() const { return this->values; }
+		template <size_t IDX>
+		using ElementType = TupleCmdDataValue<IDX, std::tuple_element_t<IDX, Types>>;
+
+		template <size_t IDX>
+		constexpr auto &GetValue() { ElementType<IDX> *elem = this; return elem->data; }
+
+		template <size_t IDX>
+		constexpr const auto &GetValue() const { const ElementType<IDX> *elem = this; return elem->data; }
+
+		bool operator==(TupleCmdDataValueList const &) const = default;
 	};
 };
 
 template <typename Parent, typename... T>
-struct TupleCmdData : public TupleCmdDataDetail::BaseTupleCmdData<T...> {
-	using TupleCmdDataDetail::BaseTupleCmdData<T...>::BaseTupleCmdData;
-	using Tuple = typename TupleCmdDataDetail::BaseTupleCmdData<T...>::Tuple;
+struct EMPTY_BASES TupleCmdData : public CommandPayloadBase {
+	static constexpr bool ValueTupleCmdDataTag = true;
 
-	std::unique_ptr<CommandPayloadBase> Clone() const override;
+	using TupleCmdDataType = TupleCmdData<Parent, T...>;
+	using Self = TupleCmdDataType;
+	using RealParent = std::conditional_t<std::is_same_v<Parent, void>, CmdDataT<T...>, Parent>;
 
-	static Parent Make(T... args)
+	using CommandProc = CommandCost(DoCommandFlags, TileIndex, typename CommandProcTupleAdapter::with_ref_params<T>...);
+	using CommandProcNoTile = CommandCost(DoCommandFlags, typename CommandProcTupleAdapter::with_ref_params<T>...);
+	using Types = TypeList<T...>;
+	using Tuple = std::tuple<T...>;
+	static constexpr size_t ValueCount = sizeof...(T);
+	static constexpr bool HasStringType = (CommandPayloadStringType<T> || ...);
+	static constexpr bool HasNonStringType = ((!CommandPayloadStringType<T>) || ...);
+	static constexpr bool HasStringSanitiser = HasStringType;
+
+	static const CommandPayloadBase::Operations operations;
+
+	TupleCmdDataDetail::TupleCmdDataValueList<std::index_sequence_for<T...>, T...> values;
+
+	template <typename... Args>
+	TupleCmdData(Args&& ... args) : CommandPayloadBase(RealParent::operations), values({ std::forward<Args>(args)... }) {}
+
+	bool Deserialise(DeserialisationBuffer &buffer, StringValidationSettings default_string_validation);
+
+	template <size_t IDX>
+	constexpr auto &GetValue() { return this->values.template GetValue<IDX>(); }
+
+	template <size_t IDX>
+	constexpr const auto &GetValue() const { return this->values.template GetValue<IDX>(); }
+
+	bool operator==(const Self &other) const { return this->values == other.values; }
+
+	static RealParent Make(T... args)
 	{
-		Parent out;
-		out.values = Tuple(std::forward<T>(args)...);
-		return out;
+		return { TupleCmdDataDetail::TupleCmdDataValueList<std::index_sequence_for<T...>, T...>{ {std::forward<T>(args)}... } };
 	}
 };
-
-template <typename Parent, typename... T>
-std::unique_ptr<CommandPayloadBase> TupleCmdData<Parent, T...>::Clone() const
-{
-	static_assert(std::is_final_v<Parent>);
-	return std::make_unique<Parent>(*static_cast<const Parent *>(this));
-}
 
 enum TupleCmdDataFlags : uint8_t {
 	TCDF_NONE    =  0x0, ///< no flags
@@ -1047,79 +1187,101 @@ DECLARE_ENUM_AS_BIT_SET(TupleCmdDataFlags)
 
 template <typename Parent, TupleCmdDataFlags flags, typename... T>
 struct AutoFmtTupleCmdData : public TupleCmdData<Parent, T...> {
-	using TupleCmdData<Parent, T...>::TupleCmdData;
+	using Self = AutoFmtTupleCmdData<Parent, flags, T...>;
+	static constexpr bool HasFormatDebugSummary = true;
 	static inline constexpr const char fmt_str[] = "";
 
-	void FormatDebugSummary(struct format_target &output) const override;
+	using TupleCmdData<Parent, T...>::TupleCmdData;
 };
 
 template <typename Parent, typename T>
-struct EMPTY_BASES TupleRefCmdData : public CommandPayloadSerialisable<Parent>, public T, public BaseTupleCmdDataTag {
+struct EMPTY_BASES TupleRefCmdData : public CommandPayloadSerialisable<Parent>, public T {
+	static constexpr bool RefTupleCmdDataTag = true;
+
 private:
+	template <typename P>
+	using ValueT = std::remove_cvref_t<decltype(std::declval<T>().*P{})>;
+
 	template <typename H> struct TupleHelper;
 
 	template <typename... Targs>
 	struct TupleHelper<std::tuple<Targs...>> {
-		using CommandProc = CommandCost(DoCommandFlags, TileIndex, typename CommandProcTupleAdapter::with_ref_params<std::remove_cvref_t<Targs>>...);
-		using CommandProcNoTile = CommandCost(DoCommandFlags, typename CommandProcTupleAdapter::with_ref_params<std::remove_cvref_t<Targs>>...);
-		using ValueTuple = std::tuple<std::remove_cvref_t<Targs>...>;
-		using ConstRefTuple = std::tuple<const std::remove_reference_t<Targs> &...>;
+		using ValueTypes = TypeList<ValueT<Targs>...>;
+		using ValueTuple = std::tuple<ValueT<Targs>...>;
+		using CommandProc = CommandCost(DoCommandFlags, TileIndex, typename CommandProcTupleAdapter::with_ref_params<ValueT<Targs>>...);
+		using CommandProcNoTile = CommandCost(DoCommandFlags, typename CommandProcTupleAdapter::with_ref_params<ValueT<Targs>>...);
+		static constexpr size_t ValueCount = sizeof...(Targs);
+		static constexpr bool HasStringType = (CommandPayloadStringType<ValueT<Targs>> || ...);
+		static constexpr bool HasNonStringType = ((!CommandPayloadStringType<ValueT<Targs>>) || ...);
 
-		static_assert((std::is_lvalue_reference_v<Targs> && ...));
+		static_assert((std::is_member_pointer_v<Targs> && ...));
 	};
-	using Helper = TupleHelper<decltype(std::declval<T>().GetRefTuple())>;
+	using Helper = TupleHelper<decltype(T::GetTupleFields())>;
 
 public:
+	using Self = TupleRefCmdData<Parent, T>;
+	using Types = typename Helper::ValueTypes;
 	using Tuple = typename Helper::ValueTuple;
 	using CommandProc = typename Helper::CommandProc;
 	using CommandProcNoTile = typename Helper::CommandProcNoTile;
+	static constexpr size_t ValueCount = Helper::ValueCount;
+	static constexpr bool HasStringType = Helper::HasStringType;
+	static constexpr bool HasNonStringType = Helper::HasNonStringType;
+	static constexpr bool HasStringSanitiser = HasStringType;
 
 private:
+	template <size_t I, typename Targ0, typename... Targs>
+	struct MakeIndexHelper {
+		Parent &payload;
+
+		inline constexpr auto operator <<(Targ0 &&arg) const
+		{
+			payload.template GetValue<I>() = std::move(arg);
+			if constexpr (sizeof...(Targs) > 0) {
+				return MakeIndexHelper<I + 1, Targs...>{this->payload};
+			} else {
+				return;
+			}
+		}
+	};
+
 	template <typename H> struct MakeHelper;
 
 	template <typename... Targs>
-	struct MakeHelper<std::tuple<Targs...>> {
-		Parent operator()(Targs... args) const
+	struct MakeHelper<TypeList<Targs...>> {
+		constexpr Parent operator()(Targs... args) const
 		{
 			Parent out;
-			out.T::GetRefTuple() = std::forward_as_tuple(args...);
+			(MakeIndexHelper<0, Targs...>{out} << ... << std::move(args));
 			return out;
 		}
 	};
 
 public:
-	static inline constexpr MakeHelper<Tuple> Make{};
+	static inline constexpr MakeHelper<Types> Make{};
 
-	virtual void Serialise(BufferSerialisationRef buffer) const override;
-	virtual void SanitiseStrings(StringValidationSettings settings) override;
 	bool Deserialise(DeserialisationBuffer &buffer, StringValidationSettings default_string_validation);
 
-	auto GetValues() { return this->T::GetRefTuple(); }
-	typename Helper::ConstRefTuple GetValues() const { return typename Helper::ConstRefTuple(const_cast<TupleRefCmdData *>(this)->GetValues()); }
+	template <size_t IDX>
+	auto &GetValue() { return static_cast<Parent *>(this)->*std::get<IDX>(Parent::GetTupleFields()); }
+
+	template <size_t IDX>
+	const auto &GetValue() const { return static_cast<const Parent *>(this)->*std::get<IDX>(Parent::GetTupleFields()); }
+
+	bool operator==(const Self &other) const
+	{
+		auto handler = [&]<size_t... Tindices>(std::index_sequence<Tindices...>) -> bool {
+			return (... && (this->GetValue<Tindices>() == other.GetValue<Tindices>()));
+		};
+		return handler(std::make_index_sequence<ValueCount>{});
+	}
 };
 
 /** Wrapper for commands to handle the most common case where no custom/special behaviour is required. */
 template <typename... T>
-struct EMPTY_BASES CmdDataT final : public AutoFmtTupleCmdData<CmdDataT<T...>, TCDF_NONE, T...> {};
-
-/** Specialisation for string which doesn't bother implementing FormatDebugSummary at all. */
-template <>
-struct EMPTY_BASES CmdDataT<std::string> final : public TupleCmdData<CmdDataT<std::string>, std::string> {};
-template <>
-struct EMPTY_BASES CmdDataT<std::string, std::string> final : public TupleCmdData<CmdDataT<std::string, std::string>, std::string, std::string> {};
-template <>
-struct EMPTY_BASES CmdDataT<std::string, std::string, std::string> final : public TupleCmdData<CmdDataT<std::string, std::string, std::string>, std::string, std::string, std::string> {};
-
-template <>
-struct EMPTY_BASES CmdDataT<> final : public CommandPayloadSerialisable<CmdDataT<>>, public BaseTupleCmdDataTag {
-	using CommandProc = CommandCost(DoCommandFlags, TileIndex);
-	using CommandProcNoTile = CommandCost(DoCommandFlags);
-	using Tuple = std::tuple<>;
-
-	Tuple GetValues() const { return {}; }
-	void Serialise(BufferSerialisationRef buffer) const override {}
-	bool Deserialise(DeserialisationBuffer &buffer, StringValidationSettings default_string_validation) { return true; }
-	static inline CmdDataT<> Make() { return CmdDataT<>{}; }
+struct EMPTY_BASES CmdDataT final : public TupleCmdData<void, T...> {
+	using Self = CmdDataT<T...>;
+	static constexpr bool HasFormatDebugSummary = Self::HasNonStringType;
 };
 using EmptyCmdData = CmdDataT<>;
 
@@ -1155,13 +1317,13 @@ struct SerialisedBaseCommandContainer {
 };
 
 struct DynBaseCommandContainer {
-	Commands cmd{};                              ///< command being executed.
-	StringID error_msg{};                        ///< error message
-	TileIndex tile{};                            ///< tile command being executed on.
-	std::unique_ptr<CommandPayloadBase> payload; ///< payload
+	Commands cmd{};                      ///< command being executed.
+	StringID error_msg{};                ///< error message
+	TileIndex tile{};                    ///< tile command being executed on.
+	CommandPayloadBaseUniquePtr payload; ///< payload
 
 	DynBaseCommandContainer() = default;
-	DynBaseCommandContainer(Commands cmd, StringID error_msg, TileIndex tile, std::unique_ptr<CommandPayloadBase> payload)
+	DynBaseCommandContainer(Commands cmd, StringID error_msg, TileIndex tile, CommandPayloadBaseUniquePtr payload)
 			: cmd(cmd), error_msg(error_msg), tile(tile), payload(std::move(payload)) {}
 
 	template <Commands Tcmd>
@@ -1190,7 +1352,7 @@ struct DynCommandContainer {
 	CallbackParameter callback_param{};
 
 	DynCommandContainer() = default;
-	DynCommandContainer(Commands cmd, StringID error_msg, TileIndex tile, std::unique_ptr<CommandPayloadBase> payload, CommandCallback callback, CallbackParameter callback_param)
+	DynCommandContainer(Commands cmd, StringID error_msg, TileIndex tile, CommandPayloadBaseUniquePtr payload, CommandCallback callback, CallbackParameter callback_param)
 			: command(cmd, error_msg, tile, std::move(payload)), callback(callback), callback_param(callback_param) {}
 
 	template <Commands Tcmd>
@@ -1203,7 +1365,7 @@ struct CommandExecData {
 	const CommandPayloadBase &payload;
 };
 
-using CommandPayloadDeserialiser = std::unique_ptr<CommandPayloadBase>(DeserialisationBuffer &, StringValidationSettings default_string_validation);
+using CommandPayloadDeserialiser = CommandPayloadBaseUniquePtr(DeserialisationBuffer &, StringValidationSettings default_string_validation);
 
 template <typename T>
 using CommandProcDirect = CommandCost(DoCommandFlags flags, TileIndex tile, const T &data);

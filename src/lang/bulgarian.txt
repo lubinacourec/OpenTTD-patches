@@ -15,7 +15,7 @@
 # This file is part of OpenTTD.
 # OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
 # OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
 
 
 ##id 0x0000
@@ -3096,7 +3096,7 @@ STR_LAND_AREA_INFORMATION_AIRPORT_CLASS                         :{BLACK}Клас
 STR_LAND_AREA_INFORMATION_AIRPORT_NAME                          :{BLACK}Име на летището: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_AIRPORTTILE_NAME                      :{BLACK}Име на поле на летище: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_NEWGRF_NAME                           :{BLACK}NewGRF: {LTBLUE}{STRING}
-STR_LAND_AREA_INFORMATION_CARGO_ACCEPTED                        :{BLACK}Приет товар: {LTBLUE}
+STR_LAND_AREA_INFORMATION_CARGO_ACCEPTED                        :{BLACK}Приет товар: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_CARGO_EIGHTS                          :({COMMA}/8 {STRING})
 STR_LANG_AREA_INFORMATION_RAIL_TYPE                             :{BLACK}Тип релси: {LTBLUE}{STRING}
 STR_LANG_AREA_INFORMATION_ROAD_TYPE                             :{BLACK}Тип път: {LTBLUE}{STRING}
@@ -3825,14 +3825,12 @@ STR_CARGO_RATING_EXCELLENT                                      :Отлично
 STR_CARGO_RATING_OUTSTANDING                                    :Невероятно
 
 STR_STATION_VIEW_CENTER_TOOLTIP                                 :{BLACK}Центриране на камерата върху станцията. Ctrl+Click отваря прозорец с нов изглед към станцията
-STR_STATION_VIEW_RENAME_TOOLTIP                                 :{BLACK}Промяна името на станцията
 
 STR_STATION_VIEW_SCHEDULED_TRAINS_TOOLTIP                       :{BLACK}Показване на всички влакове които минават през гарата
 STR_STATION_VIEW_SCHEDULED_ROAD_VEHICLES_TOOLTIP                :{BLACK}Показване на всички автомобили които минават през гарата
 STR_STATION_VIEW_SCHEDULED_AIRCRAFT_TOOLTIP                     :{BLACK}Показване на всички летателни средства които кацат на летището
 STR_STATION_VIEW_SCHEDULED_SHIPS_TOOLTIP                        :{BLACK}Показване на всички кораби които спират на пристанището
 
-STR_STATION_VIEW_RENAME_STATION_CAPTION                         :Преименуване на станция
 
 STR_STATION_VIEW_CLOSE_AIRPORT                                  :{BLACK}Затвори летище
 STR_STATION_VIEW_CLOSE_AIRPORT_TOOLTIP                          :{BLACK}Забранява кацането на летателни средства на това летище
@@ -3840,11 +3838,9 @@ STR_STATION_VIEW_CLOSE_AIRPORT_TOOLTIP                          :{BLACK}Забр
 # Waypoint/buoy view window
 STR_WAYPOINT_VIEW_CAPTION                                       :{WHITE}{WAYPOINT}
 STR_WAYPOINT_VIEW_CENTER_TOOLTIP                                :{BLACK}Центриране на камерата върху междинния пункт. Ctrl+Click отваря прозорец с нов изглед към пункта
-STR_WAYPOINT_VIEW_CHANGE_WAYPOINT_NAME                          :{BLACK}Смяна на името на междинния пункт
 STR_BUOY_VIEW_CENTER_TOOLTIP                                    :{BLACK}Центриране на камерата върху шамандура. Ctrl+Click отваря прозорец с нов изглед към шамандурата
 STR_BUOY_VIEW_RENAME_TOOLTIP                                    :{BLACK}Промяна на името на шамандурата
 
-STR_EDIT_WAYPOINT_NAME                                          :{WHITE}Редакция на името на междинния пункт
 
 # Finances window
 STR_FINANCES_CAPTION                                            :{WHITE}Финансов отчет на {COMPANY} {BLACK}{COMPANY_NUM}
@@ -3959,7 +3955,7 @@ STR_COMPANY_INFRASTRUCTURE_VIEW_TOTAL_PERIOD                    :{WHITE}{CURRENC
 # Industry directory
 STR_INDUSTRY_DIRECTORY_CAPTION                                  :{WHITE}Индустрии({COMMA} от {COMMA})
 STR_INDUSTRY_DIRECTORY_NONE                                     :{ORANGE}- Отсъства -
-STR_INDUSTRY_DIRECTORY_ITEM_INFO                                :{BLACK}{CARGO_LONG}{STRING}{YELLOW} ({COMMA}% транспортирани){BLACK}
+STR_INDUSTRY_DIRECTORY_ITEM_INFO                                :{BLACK}{CARGO_LONG}{STRING}{YELLOW} ({COMMA}% транспортирани)
 STR_INDUSTRY_DIRECTORY_ITEM_NOPROD                              :{ORANGE}{INDUSTRY}
 STR_INDUSTRY_DIRECTORY_ITEM_PROD1                               :{ORANGE}{INDUSTRY} {STRING}
 STR_INDUSTRY_DIRECTORY_ITEM_PROD2                               :{ORANGE}{INDUSTRY} {STRING}, {STRING}
@@ -3980,9 +3976,9 @@ STR_INDUSTRY_VIEW_LOCATION_TOOLTIP                              :{BLACK}Цент
 STR_INDUSTRY_VIEW_PRODUCTION_LEVEL                              :{BLACK}Ниво на производство: {YELLOW}{COMMA}%
 STR_INDUSTRY_VIEW_INDUSTRY_ANNOUNCED_CLOSURE                    :{YELLOW}Индустрията обяви незабавна ликвидация!
 
-STR_INDUSTRY_VIEW_REQUIRES_N_CARGO                              :{BLACK}Изисква: {YELLOW}{STRING}{STRING}
-STR_INDUSTRY_VIEW_PRODUCES_N_CARGO                              :{BLACK}Произвежда: {YELLOW}{STRING}{STRING}
-STR_INDUSTRY_VIEW_CARGO_LIST_EXTENSION                          :, {STRING}{STRING}
+STR_INDUSTRY_VIEW_REQUIRES_N_CARGO                              :{BLACK}Изисква: {YELLOW}{STRING}
+STR_INDUSTRY_VIEW_PRODUCES_N_CARGO                              :{BLACK}Произвежда: {YELLOW}{STRING}
+STR_INDUSTRY_VIEW_CARGO_LIST_EXTENSION                          :{STRING}{STRING}
 
 STR_INDUSTRY_VIEW_REQUIRES                                      :{BLACK}Изисква:
 
@@ -4503,7 +4499,7 @@ STR_VEHICLE_DETAILS_TRAIN_CAPACITIES_TOOLTIP                    :{BLACK}Капа
 STR_VEHICLE_DETAIL_TAB_TOTAL_CARGO                              :{BLACK}Общо товар
 STR_VEHICLE_DETAILS_TRAIN_TOTAL_CARGO_TOOLTIP                   :{BLACK}Общ капацитет на влака, разделен по типове товар
 
-STR_VEHICLE_DETAILS_TRAIN_ARTICULATED_RV_CAPACITY               :{BLACK}Капацитет: {LTBLUE}
+STR_VEHICLE_DETAILS_TRAIN_ARTICULATED_RV_CAPACITY               :{BLACK}Капацитет: {LTBLUE}{STRING}
 
 # Vehicle refit
 STR_REFIT_CAPTION                                               :{WHITE}{VEHICLE} (Преоборудване)

@@ -14,7 +14,7 @@
 # This file is part of OpenTTD.
 # OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
 # OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
 
 
 ##id 0x0000
@@ -313,6 +313,7 @@ STR_SHOW_HIDDEN_ENGINES_VEHICLE_AIRCRAFT_TOOLTIP                :{BLACK}Ao ativa
 STR_BUTTON_DEFAULT                                              :{BLACK}Predefinição
 STR_BUTTON_CANCEL                                               :{BLACK}Cancelar
 STR_BUTTON_OK                                                   :{BLACK}Confirmar
+STR_BUTTON_MOVE                                                 :{BLACK}Mover
 
 # On screen keyboard window
 STR_OSK_KEYBOARD_LAYOUT                                         :`1234567890-= qwertyuiop[]asdfghjkl;'#\zxcvbnm,./ .
@@ -1115,7 +1116,7 @@ STR_GAME_OPTIONS_BASE_GRF_TOOLTIP                               :Selecione o con
 STR_GAME_OPTIONS_BASE_GRF_DESCRIPTION_TOOLTIP                   :Informação adicional sobre o conjunto de gráficos base
 
 STR_GAME_OPTIONS_BASE_SFX                                       :Conjunto de sons base
-STR_GAME_OPTIONS_BASE_SFX_TOOLTIP                               :Selecione o conjunto de sons base a usar (não pode ser alterado no jogo, só a partir do menu principal)
+STR_GAME_OPTIONS_BASE_SFX_TOOLTIP                               :Selecione o conjunto de sons base a usar
 STR_GAME_OPTIONS_BASE_SFX_DESCRIPTION_TOOLTIP                   :Informação adicional sobre o conjunto de sons base
 
 STR_GAME_OPTIONS_BASE_MUSIC                                     :Conjunto de música base
@@ -1248,7 +1249,7 @@ STR_CONFIG_SETTING_EXPAND_ALL                                   :Expandir todas
 STR_CONFIG_SETTING_COLLAPSE_ALL                                 :Colapsar todas
 STR_CONFIG_SETTING_RESET_ALL                                    :Repor todos os valores
 STR_CONFIG_SETTING_NO_EXPLANATION_AVAILABLE_HELPTEXT            :(sem explicação disponível)
-STR_CONFIG_SETTING_VALUE                                        :{PUSH_COLOUR}{ORANGE}{STRING}{POP_COLOUR}
+STR_CONFIG_SETTING_VALUE                                        :{ORANGE}{STRING}
 STR_CONFIG_SETTING_DEFAULT_VALUE                                :{LTBLUE}Valor por omissão: {ORANGE}{STRING}
 STR_CONFIG_SETTING_TYPE                                         :{LTBLUE}Tipo de configuração: {ORANGE}{STRING}
 STR_CONFIG_SETTING_TYPE_CLIENT                                  :Configuração de cliente (não guardado; afeta todos os jogos)
@@ -2069,7 +2070,7 @@ STR_CONFIG_SETTING_ZOOM_LVL_OUT_4X                              :4x
 STR_CONFIG_SETTING_ZOOM_LVL_OUT_8X                              :8x
 
 STR_CONFIG_SETTING_SPRITE_ZOOM_MIN                              :Resolução máxima de gráficos a usar: {STRING}
-STR_CONFIG_SETTING_SPRITE_ZOOM_MIN_HELPTEXT                     :Limita a resolução máxima a ser usada para os elementos visuais. Limitar a resolução dos elementos visuais evitará o uso de gráficos de alta resolução, mesmo quando disponíveis. Isto pode ajudar a manter a aparência do jogo consistente ao usar uma combinação de ficheiros GRF com e sem gráficos de alta resolução
+STR_CONFIG_SETTING_SPRITE_ZOOM_MIN_HELPTEXT                     :Limita a resolução máxima a ser usada para os elementos visuais. Limitar a resolução dos elementos visuais evitará o uso de gráficos de alta resolução, mesmo quando disponíveis. Isto pode ajudar a manter a aparência do jogo consistente ao usar uma combinação de ficheiros NewGRF com e sem gráficos de alta resolução
 ###length 3
 STR_CONFIG_SETTING_SPRITE_ZOOM_LVL_MIN                          :4x
 STR_CONFIG_SETTING_SPRITE_ZOOM_LVL_IN_2X                        :2x
@@ -2091,6 +2092,8 @@ STR_CONFIG_SETTING_LARGER_TOWNS_VALUE                           :1 em cada {COMM
 STR_CONFIG_SETTING_LARGER_TOWNS_DISABLED                        :Nenhum
 STR_CONFIG_SETTING_CITY_SIZE_MULTIPLIER                         :Multiplicador inicial para a dimensão das metrópoles: {STRING}
 STR_CONFIG_SETTING_CITY_SIZE_MULTIPLIER_HELPTEXT                :Tamanho relativo das cidades em relação ao tamanho normal das localidades aquando o início do jogo
+STR_CONFIG_SETTING_TOWN_MIN_DISTANCE                            :Distância mínima entre localidades: {STRING}
+STR_CONFIG_SETTING_TOWN_MIN_DISTANCE_HELPTEXT                   :Defina a distância mínima em mosaicos entre localidades durante a geração dos mapas e quando se cria uma nova de forma aleatória
 
 STR_CONFIG_SETTING_LINKGRAPH_RECALC_INTERVAL                    :Atualizar o gráfico de distribuição a cada {STRING}
 STR_CONFIG_SETTING_LINKGRAPH_RECALC_INTERVAL_HELPTEXT           :Tempo de intervalo entre recalculos subsequentes do gráfico de ligações. Cada recalculo calcula os planos para um componente do gráfico. Isso significa que um valor X para esta configuração não significa que todo o gráfico será atualizado a cada X segundos. Apenas algum componente será. Quanto mais curto escolher, mais tempo de CPU será necessário para calcular. Quanto mais tempo for definido, mais tempo levará até que a distribuição de carga inicie nas novas rotas
@@ -2883,15 +2886,15 @@ STR_PICKER_HOUSE_TYPE_TOOLTIP                                   :Escolher um tip
 STR_PICKER_HOUSE_COLLECTION_TOOLTIP                             :Selecione uma coleção de casas para mostrar
 
 STR_HOUSE_PICKER_CAPTION                                        :Seleção de Casas
-STR_HOUSE_PICKER_NAME                                           :{BLACK}Nome: {ORANGE}{STRING}
-STR_HOUSE_PICKER_POPULATION                                     :{BLACK}População: {ORANGE}{NUM}
-STR_HOUSE_PICKER_YEARS                                          :{BLACK}Anos: {ORANGE}{NUM}-{NUM}
-STR_HOUSE_PICKER_YEARS_ANY                                      :{BLACK}Anos: {ORANGE}Qualquer
-STR_HOUSE_PICKER_YEARS_FROM                                     :{BLACK}Anos: {ORANGE}De {NUM}
-STR_HOUSE_PICKER_YEARS_UNTIL                                    :{BLACK}Anos: {ORANGE}Até {NUM}
-STR_HOUSE_PICKER_SIZE                                           :{BLACK}Tamanho: {ORANGE}{NUM}x{NUM} mosaicos
-STR_HOUSE_PICKER_CARGO_ACCEPTED                                 :{BLACK}Carga aceite: {ORANGE}
-STR_HOUSE_PICKER_CARGO_PRODUCED                                 :{BLACK}Carga produzida: {ORANGE}{CARGO_LIST}
+STR_HOUSE_PICKER_NAME                                           :{BLACK}Nome: {GOLD}{STRING}
+STR_HOUSE_PICKER_POPULATION                                     :{BLACK}População: {GOLD}{NUM}
+STR_HOUSE_PICKER_YEARS                                          :{BLACK}Anos: {GOLD}{NUM}-{NUM}
+STR_HOUSE_PICKER_YEARS_ANY                                      :{BLACK}Anos: {GOLD}Qualquer
+STR_HOUSE_PICKER_YEARS_FROM                                     :{BLACK}Anos: {GOLD}De {NUM}
+STR_HOUSE_PICKER_YEARS_UNTIL                                    :{BLACK}Anos: {GOLD}Até {NUM}
+STR_HOUSE_PICKER_SIZE                                           :{BLACK}Tamanho: {GOLD}{NUM}x{NUM} mosaicos
+STR_HOUSE_PICKER_CARGO_ACCEPTED                                 :{BLACK}Carga aceite: {GOLD}{STRING}
+STR_HOUSE_PICKER_CARGO_PRODUCED                                 :{BLACK}Carga produzida: {GOLD}{CARGO_LIST}
 
 STR_HOUSE_PICKER_CLASS_ZONE1                                    :Limite
 STR_HOUSE_PICKER_CLASS_ZONE2                                    :Arredores
@@ -3179,7 +3182,7 @@ STR_LAND_AREA_INFORMATION_AIRPORT_CLASS                         :{BLACK}Tipo de 
 STR_LAND_AREA_INFORMATION_AIRPORT_NAME                          :{BLACK}Nome do aeroporto: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_AIRPORTTILE_NAME                      :{BLACK}Nome do mosaico do aeroporto: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_NEWGRF_NAME                           :{BLACK}NewGRF: {LTBLUE}{STRING}
-STR_LAND_AREA_INFORMATION_CARGO_ACCEPTED                        :{BLACK}Carga aceite: {LTBLUE}
+STR_LAND_AREA_INFORMATION_CARGO_ACCEPTED                        :{BLACK}Carga aceite: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_CARGO_EIGHTS                          :({COMMA}/8 {STRING})
 STR_LANG_AREA_INFORMATION_RAIL_TYPE                             :{BLACK}Tipo de carril: {LTBLUE}{STRING}
 STR_LANG_AREA_INFORMATION_ROAD_TYPE                             :{BLACK}Tipo de estrada: {LTBLUE}{STRING}
@@ -3642,7 +3645,7 @@ STR_NEWGRF_ERROR_INVALID_PARAMETER                              :Parâmetro inv�
 STR_NEWGRF_ERROR_LOAD_BEFORE                                    :{1:STRING} deve ser carregado antes de {2:STRING}
 STR_NEWGRF_ERROR_LOAD_AFTER                                     :{1:STRING} deve ser carregado depois de {2:STRING}
 STR_NEWGRF_ERROR_OTTD_VERSION_NUMBER                            :{1:STRING} requer OpenTTD versão {2:STRING} ou superior
-STR_NEWGRF_ERROR_AFTER_TRANSLATED_FILE                          :o ficheiro GRF que foi desenvolvido para tradução
+STR_NEWGRF_ERROR_AFTER_TRANSLATED_FILE                          :o ficheiro NewGRF que foi desenvolvido para tradução
 STR_NEWGRF_ERROR_TOO_MANY_NEWGRFS_LOADED                        :Demasiados NewGRFs carregados.
 STR_NEWGRF_ERROR_STATIC_GRF_CAUSES_DESYNC                       :Carregar {1:STRING} como NewGRF estático com {2:STRING} pode causar dessincronização
 STR_NEWGRF_ERROR_UNEXPECTED_SPRITE                              :Gráfico inválido (sprite {3:NUM})
@@ -3651,7 +3654,7 @@ STR_NEWGRF_ERROR_INVALID_ID                                     :Tentativa de us
 STR_NEWGRF_ERROR_CORRUPT_SPRITE                                 :{YELLOW}{STRING} contém um elemento visual corrompido. Todos os elementos visuais corrompidos serão apresentados como um ponto de interrogação (?) vermelho.
 STR_NEWGRF_ERROR_MULTIPLE_ACTION_8                              :Contém múltiplas entradas Ação 8 - (sprite {3:NUM})
 STR_NEWGRF_ERROR_READ_BOUNDS                                    :Leitura além dos limites do pseudo-sprite (sprite {3:NUM})
-STR_NEWGRF_ERROR_GRM_FAILED                                     :Recursos GRF pedidos não disponíveis (sprite {3:NUM})
+STR_NEWGRF_ERROR_GRM_FAILED                                     :Recursos NewGRF pedidos não estão disponíveis (elemento gráfico {3:NUM})
 STR_NEWGRF_ERROR_FORCEFULLY_DISABLED                            :{1:STRING} foi desativado por {STRING}
 STR_NEWGRF_ERROR_INVALID_SPRITE_LAYOUT                          :Formato do elemento visual Inválido ou desconhecido (sprite {3:NUM})
 STR_NEWGRF_ERROR_LIST_PROPERTY_TOO_LONG                         :Demasiados elementos na lista de valores de propriedade (sprite {3:NUM}, propriedade {4:HEX})
@@ -3662,12 +3665,12 @@ STR_NEWGRF_POPUP_CAUTION_CAPTION                                :{WHITE}Alerta!
 STR_NEWGRF_CONFIRMATION_TEXT                                    :{YELLOW}Vai alterar um jogo em execução. O OpenTTD pode terminar abruptamente. Não envie relatórios de erros sobre estas situações.{}Tem a certeza que quer continuar?
 
 STR_NEWGRF_DUPLICATE_GRFID                                      :{WHITE}Não é possível adicionar ficheiro: GRF ID duplicado
-STR_NEWGRF_COMPATIBLE_LOADED                                    :{ORANGE}Ficheiro correspondente não encontrado (GRF compatível carregado)
+STR_NEWGRF_COMPATIBLE_LOADED                                    :{ORANGE}Ficheiro correspondente não encontrado (NewGRF compatível carregado)
 STR_NEWGRF_TOO_MANY_NEWGRFS                                     :{WHITE}Não é possível adicionar ficheiro: foi alcançado o limite de NewGRFs
 
 STR_NEWGRF_COMPATIBLE_LOAD_WARNING                              :{WHITE}GRF(s) compatíveis carregados para ficheiros em falta
 STR_NEWGRF_DISABLED_WARNING                                     :{WHITE}Ficheiro(s) GRF em falta foram desativados
-STR_NEWGRF_UNPAUSE_WARNING_TITLE                                :{YELLOW}Ficheiro(s) GRF em falta
+STR_NEWGRF_UNPAUSE_WARNING_TITLE                                :{YELLOW}Ficheiro(s) NewGRF em falta
 STR_NEWGRF_UNPAUSE_WARNING                                      :{WHITE}Sair da pausa pode causar problemas ao OpenTTD. Não envie informações sobre este tipo de problemas.{}Deseja realmente sair da pausa?
 
 # NewGRF status
@@ -3711,7 +3714,7 @@ STR_SIGN_LIST_MATCH_CASE                                        :{BLACK}Maiúscu
 STR_SIGN_LIST_MATCH_CASE_TOOLTIP                                :{BLACK}Considerar ou ignorar maiúsculas/minúsculas na pesquisa dos letreiros
 
 # Sign window
-STR_EDIT_SIGN_CAPTION                                           :{WHITE}Editar texto do letreiro
+STR_EDIT_SIGN_CAPTION                                           :{WHITE}Editar letreiro
 STR_EDIT_SIGN_LOCATION_TOOLTIP                                  :{BLACK}Centrar a vista principal na localização do letreiro. Ctrl+Clique para abrir um novo visualizador na localização do letreiro
 STR_EDIT_SIGN_NEXT_SIGN_TOOLTIP                                 :{BLACK}Ir para o próximo letreiro
 STR_EDIT_SIGN_PREVIOUS_SIGN_TOOLTIP                             :{BLACK}Ir para o letreiro anterior
@@ -3929,14 +3932,14 @@ STR_CARGO_RATING_EXCELLENT                                      :Excelente
 STR_CARGO_RATING_OUTSTANDING                                    :Excecional
 
 STR_STATION_VIEW_CENTER_TOOLTIP                                 :{BLACK}Centrar visualização na localização da estação. Ctrl+Clique para abrir um novo visualizador na localização da estação
-STR_STATION_VIEW_RENAME_TOOLTIP                                 :{BLACK}Alterar o nome da estação
+STR_STATION_VIEW_EDIT_TOOLTIP                                   :{BLACK}Renomear estação ou mover letreiro
 
 STR_STATION_VIEW_SCHEDULED_TRAINS_TOOLTIP                       :{BLACK}Mostrar todos os comboios que têm esta estação nas ordens de serviço
 STR_STATION_VIEW_SCHEDULED_ROAD_VEHICLES_TOOLTIP                :{BLACK}Mostrar todos os veículos rodoviários que têm esta estação nas ordens de serviço
 STR_STATION_VIEW_SCHEDULED_AIRCRAFT_TOOLTIP                     :{BLACK}Mostrar todas as aeronaves que têm esta estação nas ordens de serviço
 STR_STATION_VIEW_SCHEDULED_SHIPS_TOOLTIP                        :{BLACK}Mostrar todos os navios que têm esta estação nas ordens de serviço
 
-STR_STATION_VIEW_RENAME_STATION_CAPTION                         :Alterar nome de estação/local de carga
+STR_STATION_VIEW_EDIT_STATION_SIGN                              :{WHITE}Editar letreiro da estação
 
 STR_STATION_VIEW_CLOSE_AIRPORT                                  :{BLACK}Fechar aeroporto
 STR_STATION_VIEW_CLOSE_AIRPORT_TOOLTIP                          :{BLACK}Não permitir que aviões aterrarem neste aeroporto
@@ -3944,11 +3947,11 @@ STR_STATION_VIEW_CLOSE_AIRPORT_TOOLTIP                          :{BLACK}Não per
 # Waypoint/buoy view window
 STR_WAYPOINT_VIEW_CAPTION                                       :{WHITE}{WAYPOINT}
 STR_WAYPOINT_VIEW_CENTER_TOOLTIP                                :{BLACK}Centrar visualização na localização do ponto de controlo. Ctrl+Clique para abrir um novo visualizador na localização do ponto de controlo
-STR_WAYPOINT_VIEW_CHANGE_WAYPOINT_NAME                          :{BLACK}Mudar o nome do ponto de controlo
+STR_WAYPOINT_VIEW_EDIT_TOOLTIP                                  :{BLACK}Renomear ponto de controlo ou mover letreiro
 STR_BUOY_VIEW_CENTER_TOOLTIP                                    :{BLACK}Centrar visualização principal na localização da boia. Ctrl+Clique para abrir um novo visualizador na localização da boia
 STR_BUOY_VIEW_RENAME_TOOLTIP                                    :{BLACK}Alterar o nome da boia
 
-STR_EDIT_WAYPOINT_NAME                                          :{WHITE}Editar nome do ponto de controlo
+STR_WAYPOINT_VIEW_EDIT_WAYPOINT_SIGN                            :{WHITE}Editar letreiro do ponto de controlo
 
 # Finances window
 STR_FINANCES_CAPTION                                            :{WHITE}Finanças de {COMPANY} {BLACK}{COMPANY_NUM}
@@ -4063,7 +4066,7 @@ STR_COMPANY_INFRASTRUCTURE_VIEW_TOTAL_PERIOD                    :{WHITE}{CURRENC
 # Industry directory
 STR_INDUSTRY_DIRECTORY_CAPTION                                  :{WHITE}Indústrias ({COMMA} de {COMMA})
 STR_INDUSTRY_DIRECTORY_NONE                                     :{ORANGE}- Nenhuma -
-STR_INDUSTRY_DIRECTORY_ITEM_INFO                                :{BLACK}{CARGO_LONG}{STRING}{YELLOW} ({COMMA}% transportado){BLACK}
+STR_INDUSTRY_DIRECTORY_ITEM_INFO                                :{BLACK}{CARGO_LONG}{STRING}{YELLOW} ({COMMA}% transportado)
 STR_INDUSTRY_DIRECTORY_ITEM_NOPROD                              :{ORANGE}{INDUSTRY}
 STR_INDUSTRY_DIRECTORY_ITEM_PROD1                               :{ORANGE}{INDUSTRY} {STRING}
 STR_INDUSTRY_DIRECTORY_ITEM_PROD2                               :{ORANGE}{INDUSTRY} {STRING}, {STRING}
@@ -4086,9 +4089,9 @@ STR_INDUSTRY_VIEW_CARGO_GRAPH_TOOLTIP                           :{BLACK}Mostra o
 STR_INDUSTRY_VIEW_PRODUCTION_LEVEL                              :{BLACK}Nível de produção: {YELLOW}{COMMA}%
 STR_INDUSTRY_VIEW_INDUSTRY_ANNOUNCED_CLOSURE                    :{YELLOW}A indústria anunciou encerramento iminente!
 
-STR_INDUSTRY_VIEW_REQUIRES_N_CARGO                              :{BLACK}Requer: {YELLOW}{STRING}{STRING}
-STR_INDUSTRY_VIEW_PRODUCES_N_CARGO                              :{BLACK}Produz: {YELLOW}{STRING}{STRING}
-STR_INDUSTRY_VIEW_CARGO_LIST_EXTENSION                          :, {STRING}{STRING}
+STR_INDUSTRY_VIEW_REQUIRES_N_CARGO                              :{BLACK}Requer: {YELLOW}{STRING}
+STR_INDUSTRY_VIEW_PRODUCES_N_CARGO                              :{BLACK}Produz: {YELLOW}{STRING}
+STR_INDUSTRY_VIEW_CARGO_LIST_EXTENSION                          :{STRING}{STRING}
 
 STR_INDUSTRY_VIEW_REQUIRES                                      :{BLACK}Requer:
 STR_INDUSTRY_VIEW_ACCEPT_CARGO_SUFFIX                           :{YELLOW}{0:STRING}{BLACK}{3:STRING}
@@ -4622,7 +4625,7 @@ STR_VEHICLE_DETAILS_TRAIN_CAPACITIES_TOOLTIP                    :{BLACK}Mostrar 
 STR_VEHICLE_DETAIL_TAB_TOTAL_CARGO                              :{BLACK}Carga Total
 STR_VEHICLE_DETAILS_TRAIN_TOTAL_CARGO_TOOLTIP                   :{BLACK}Mostrar capacidade total do comboio, dividir por tipo de carga
 
-STR_VEHICLE_DETAILS_TRAIN_ARTICULATED_RV_CAPACITY               :{BLACK}Capacidade: {LTBLUE}
+STR_VEHICLE_DETAILS_TRAIN_ARTICULATED_RV_CAPACITY               :{BLACK}Capacidade: {LTBLUE}{STRING}
 
 # Vehicle refit
 STR_REFIT_CAPTION                                               :{WHITE}{VEHICLE} (Adaptar)
@@ -4735,6 +4738,7 @@ STR_ORDERS_SKIP_BUTTON                                          :{BLACK}Saltar
 STR_ORDERS_SKIP_TOOLTIP                                         :{BLACK}Saltar a ordem atual, e iniciar a próxima. Ctrl+Clique para saltar até à ordem selecionada
 
 STR_ORDERS_DELETE_BUTTON                                        :{BLACK}Eliminar
+STR_ORDERS_DELETE_ALL_BUTTON                                    :{BLACK}Eliminar Todas
 STR_ORDERS_DELETE_TOOLTIP                                       :{BLACK}Eliminar a ordem selecionada
 STR_ORDERS_DELETE_ALL_TOOLTIP                                   :{BLACK}Eliminar todas as ordens
 STR_ORDERS_STOP_SHARING_BUTTON                                  :{BLACK}Parar de partilhar
@@ -5170,6 +5174,7 @@ STR_ERROR_TOO_MANY_TRUCK_STOPS                                  :{WHITE}Demasiad
 STR_ERROR_TOO_CLOSE_TO_ANOTHER_DOCK                             :{WHITE}Muito perto de outra doca
 STR_ERROR_TOO_CLOSE_TO_ANOTHER_AIRPORT                          :{WHITE}Demasiado perto de outro aeroporto
 STR_ERROR_CAN_T_RENAME_STATION                                  :{WHITE}Não é possível alterar o nome da estação...
+STR_ERROR_CAN_T_MOVE_STATION_NAME                               :{WHITE}Não é possível mover o letreiro da estação...
 STR_ERROR_DRIVE_THROUGH_ON_TOWN_ROAD                            :{WHITE}... estrada pertence a uma localidade
 STR_ERROR_DRIVE_THROUGH_DIRECTION                               :{WHITE}... estrada orientada na direção incorreta
 STR_ERROR_DRIVE_THROUGH_CORNER                                  :{WHITE}... estações de passagem não podem ter curvas
@@ -5201,6 +5206,7 @@ STR_ERROR_CAN_T_BUILD_RAIL_WAYPOINT                             :{WHITE}Não é 
 STR_ERROR_CAN_T_BUILD_ROAD_WAYPOINT                             :{WHITE}Não é possível construir ponto de controlo rodoviário aqui...
 STR_ERROR_CAN_T_POSITION_BUOY_HERE                              :{WHITE}Não é possível colocar uma boia aqui...
 STR_ERROR_CAN_T_CHANGE_WAYPOINT_NAME                            :{WHITE}Não é possível alterar o nome do ponto de controlo...
+STR_ERROR_CAN_T_MOVE_WAYPOINT_NAME                              :{WHITE}Não é possível mover o letreiro do ponto de controlo...
 
 STR_ERROR_CAN_T_REMOVE_RAIL_WAYPOINT                            :{WHITE}Não é possível remover ponto de controlo ferroviário daqui...
 STR_ERROR_CAN_T_REMOVE_ROAD_WAYPOINT                            :{WHITE}Não é possível remover ponto de controlo rodoviário daqui...
@@ -5994,7 +6000,8 @@ STR_LORRY                                                       :{BLACK}{LORRY}
 STR_PLANE                                                       :{BLACK}{PLANE}
 STR_SHIP                                                        :{BLACK}{SHIP}
 
-STR_TOOLBAR_RAILTYPE_VELOCITY                                   :{STRING} ({VELOCITY})
+STR_TOOLBAR_RAILTYPE_VELOCITY                                   :{STRING} {YELLOW}({VELOCITY})
+STR_TOOLBAR_ROADTYPE_VELOCITY                                   :{STRING} {YELLOW}({VELOCITY})
 
 STR_BADGE_NAME_LIST                                             :{STRING}: {GOLD}{STRING}
 STR_BADGE_CONFIG_MENU_TOOLTIP                                   :Abrir configuração de crachá

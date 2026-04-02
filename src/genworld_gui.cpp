@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file genworld_gui.cpp GUI to configure and show progress during map generation. */
@@ -571,8 +571,8 @@ struct GenerateLandscapeWindow : public Window {
 		if (mode == GLWM_GENERATE) {
 			this->SetWidgetDisabledState(WID_GL_SMOOTHNESS_PULLDOWN, _settings_newgame.game_creation.land_generator == LG_ORIGINAL);
 			this->SetWidgetDisabledState(WID_GL_VARIETY_PULLDOWN, _settings_newgame.game_creation.land_generator == LG_ORIGINAL);
-			this->SetWidgetDisabledState(WID_GL_BORDERS_RANDOM, _settings_newgame.game_creation.land_generator == LG_ORIGINAL || !_settings_newgame.construction.freeform_edges);
-			this->SetWidgetsDisabledState(_settings_newgame.game_creation.land_generator == LG_ORIGINAL || !_settings_newgame.construction.freeform_edges || _settings_newgame.game_creation.water_borders == BorderFlag::RandomBorders,
+			this->SetWidgetDisabledState(WID_GL_BORDERS_RANDOM, _settings_newgame.game_creation.land_generator == LG_ORIGINAL);
+			this->SetWidgetsDisabledState(_settings_newgame.game_creation.land_generator == LG_ORIGINAL || _settings_newgame.game_creation.water_borders == BorderFlag::RandomBorders,
 					WID_GL_WATER_NW, WID_GL_WATER_NE, WID_GL_WATER_SE, WID_GL_WATER_SW);
 
 			this->SetWidgetLoweredState(WID_GL_BORDERS_RANDOM, _settings_newgame.game_creation.water_borders == BorderFlag::RandomBorders);

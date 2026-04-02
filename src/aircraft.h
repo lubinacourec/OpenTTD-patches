@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file aircraft.h Base for aircraft. */
@@ -86,10 +86,9 @@ struct Aircraft final : public SpecializedVehicle<Aircraft, VEH_AIRCRAFT> {
 
 	AircraftCache acache{};
 
-	/** We don't want GCC to zero our struct! It already is zeroed and has an index! */
-	Aircraft() : SpecializedVehicleBase() {}
+	Aircraft(VehicleID index) : SpecializedVehicleBase(index) {}
 	/** We want to 'destruct' the right class. */
-	virtual ~Aircraft() { this->PreDestructor(); }
+	~Aircraft() override { this->PreDestructor(); }
 
 	void MarkDirty() override;
 	void UpdateDeltaXY() override;

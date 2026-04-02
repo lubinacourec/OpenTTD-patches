@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file linkgraph.h Declaration of link graph classes used for cargo distribution. */
@@ -306,13 +306,12 @@ public:
 		return val > 0 ? std::max(1U, val * target_age / orig_age) : 0;
 	}
 
-	/** Bare constructor, only for save/load. */
-	LinkGraph() {}
 	/**
 	 * Real constructor.
 	 * @param cargo Cargo the link graph is about.
 	 */
-	LinkGraph(CargoType cargo) : cargo(cargo), last_compression(_scaled_tick_counter) {}
+	LinkGraph(LinkGraphID index, CargoType cargo = INVALID_CARGO) :
+		PoolItemBase(index), cargo(cargo), last_compression(_scaled_tick_counter) {}
 
 	void Init(uint size);
 	void ShiftDates(EconTime::DateDelta interval);

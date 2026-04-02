@@ -13,7 +13,7 @@
 # This file is part of OpenTTD.
 # OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
 # OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
 
 
 ##id 0x0000
@@ -312,6 +312,7 @@ STR_SHOW_HIDDEN_ENGINES_VEHICLE_AIRCRAFT_TOOLTIP                :{BLACK}Wanneer 
 STR_BUTTON_DEFAULT                                              :{BLACK}Standaard
 STR_BUTTON_CANCEL                                               :{BLACK}Annuleren
 STR_BUTTON_OK                                                   :{BLACK}OK
+STR_BUTTON_MOVE                                                 :{BLACK}Verplaatsen
 
 # On screen keyboard window
 STR_OSK_KEYBOARD_LAYOUT                                         :`1234567890-= qwertyuiop[]asdfghjkl;'#\zxcvbnm,./ .
@@ -2090,6 +2091,8 @@ STR_CONFIG_SETTING_LARGER_TOWNS_VALUE                           :1 op {COMMA}
 STR_CONFIG_SETTING_LARGER_TOWNS_DISABLED                        :Geen
 STR_CONFIG_SETTING_CITY_SIZE_MULTIPLIER                         :Beginfactor voor stadsgroei: {STRING}
 STR_CONFIG_SETTING_CITY_SIZE_MULTIPLIER_HELPTEXT                :Gemiddelde grootte van steden in vergelijking tot normale steden bij het begin van het spel.
+STR_CONFIG_SETTING_TOWN_MIN_DISTANCE                            :Minimale afstand tussen steden: {STRING}
+STR_CONFIG_SETTING_TOWN_MIN_DISTANCE_HELPTEXT                   :Minimale afstand in tegels instellen tussen steden bij kaart genereren en willekeurig stichten
 
 STR_CONFIG_SETTING_LINKGRAPH_RECALC_INTERVAL                    :Distributiegrafiek elke {STRING} bijwerken
 STR_CONFIG_SETTING_LINKGRAPH_RECALC_INTERVAL_HELPTEXT           :De tijd tussen opeenvolgende herberekeningen van de koppelingsgrafiek. Elke berekening berekent de plannen voor één component van de grafiek. Dat betekent dat een waarde X voor deze instelling niet betekent dat de hele grafiek elke X seconden wordt bijgewerkt. Dat geldt alleen voor één component. Hoe korter je deze waarde instelt, hoe meer CPU-tijd er nodig is voor de berekening. Hoe langer je deze waarde instelt, hoe langer het duurt voordat de vrachtdistributie start op nieuwe routes.
@@ -2864,15 +2867,15 @@ STR_PICKER_HOUSE_CLASS_TOOLTIP                                  :Selecteer een s
 STR_PICKER_HOUSE_TYPE_TOOLTIP                                   :Selecteer een type huizen om te bouwen. Ctrl+klik om toe te voegen aan of te verwijderen uit opgeslagen onderdelen
 
 STR_HOUSE_PICKER_CAPTION                                        :Huizen selecteren
-STR_HOUSE_PICKER_NAME                                           :{BLACK}Naam: {ORANGE}{STRING}
-STR_HOUSE_PICKER_POPULATION                                     :{BLACK}Bevolking: {ORANGE}{NUM}
-STR_HOUSE_PICKER_YEARS                                          :{BLACK}Jaar: {ORANGE}{NUM}-{NUM}
-STR_HOUSE_PICKER_YEARS_ANY                                      :{BLACK}Jaar: {ORANGE}Willekeurig
-STR_HOUSE_PICKER_YEARS_FROM                                     :{BLACK}Jaar: {ORANGE}Vanaf {NUM}
-STR_HOUSE_PICKER_YEARS_UNTIL                                    :{BLACK}Jaar: {ORANGE}Tot en met {NUM}
-STR_HOUSE_PICKER_SIZE                                           :{BLACK}Grootte: {ORANGE}{NUM}x{NUM} tegels
-STR_HOUSE_PICKER_CARGO_ACCEPTED                                 :{BLACK}Geaccepteerde vracht: {ORANGE}
-STR_HOUSE_PICKER_CARGO_PRODUCED                                 :{BLACK}Geproduceerde vracht: {ORANGE}{CARGO_LIST}
+STR_HOUSE_PICKER_NAME                                           :{BLACK}Naam: {GOLD}{STRING}
+STR_HOUSE_PICKER_POPULATION                                     :{BLACK}Bevolking: {GOLD}{NUM}
+STR_HOUSE_PICKER_YEARS                                          :{BLACK}Jaar: {GOLD}{NUM}-{NUM}
+STR_HOUSE_PICKER_YEARS_ANY                                      :{BLACK}Jaar: {GOLD}Willekeurig
+STR_HOUSE_PICKER_YEARS_FROM                                     :{BLACK}Jaar: {GOLD}Vanaf {NUM}
+STR_HOUSE_PICKER_YEARS_UNTIL                                    :{BLACK}Jaar: {GOLD}Tot en met {NUM}
+STR_HOUSE_PICKER_SIZE                                           :{BLACK}Grootte: {GOLD}{NUM}x{NUM} tegels
+STR_HOUSE_PICKER_CARGO_ACCEPTED                                 :{BLACK}Geaccepteerde vracht: {GOLD}{STRING}
+STR_HOUSE_PICKER_CARGO_PRODUCED                                 :{BLACK}Geproduceerde vracht: {GOLD}{CARGO_LIST}
 
 STR_HOUSE_PICKER_CLASS_ZONE1                                    :Rand
 STR_HOUSE_PICKER_CLASS_ZONE2                                    :Buitenwijken
@@ -3160,7 +3163,7 @@ STR_LAND_AREA_INFORMATION_AIRPORT_CLASS                         :{BLACK}Vliegvel
 STR_LAND_AREA_INFORMATION_AIRPORT_NAME                          :{BLACK}Vliegveldnaam: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_AIRPORTTILE_NAME                      :{BLACK}Vliegveldtegelnaam: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_NEWGRF_NAME                           :{BLACK}NewGRF: {LTBLUE}{STRING}
-STR_LAND_AREA_INFORMATION_CARGO_ACCEPTED                        :{BLACK}Geaccepteerde vracht: {LTBLUE}
+STR_LAND_AREA_INFORMATION_CARGO_ACCEPTED                        :{BLACK}Geaccepteerde vracht: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_CARGO_EIGHTS                          :({COMMA}/8 {STRING})
 STR_LANG_AREA_INFORMATION_RAIL_TYPE                             :{BLACK}Spoortype: {LTBLUE}{STRING}
 STR_LANG_AREA_INFORMATION_ROAD_TYPE                             :{BLACK}Wegtype: {LTBLUE}{STRING}
@@ -3692,7 +3695,7 @@ STR_SIGN_LIST_MATCH_CASE                                        :{BLACK}Hoofdlet
 STR_SIGN_LIST_MATCH_CASE_TOOLTIP                                :{BLACK}Schakel hoofdlettergevoeligheid in bij het vergelijken van bordnamen met de filtertekst
 
 # Sign window
-STR_EDIT_SIGN_CAPTION                                           :{WHITE}Wijzig tekst van bord
+STR_EDIT_SIGN_CAPTION                                           :{WHITE}Bord bewerken
 STR_EDIT_SIGN_LOCATION_TOOLTIP                                  :{BLACK}Centreer het hoofdscherm op de locatie van het sein. Ctrl+klik opent een nieuw venster op de locatie van het sein.
 STR_EDIT_SIGN_NEXT_SIGN_TOOLTIP                                 :{BLACK}Ga naar volgende bord
 STR_EDIT_SIGN_PREVIOUS_SIGN_TOOLTIP                             :{BLACK}Ga naar vorige bord
@@ -3910,14 +3913,14 @@ STR_CARGO_RATING_EXCELLENT                                      :Uitstekend
 STR_CARGO_RATING_OUTSTANDING                                    :Voortreffelijk
 
 STR_STATION_VIEW_CENTER_TOOLTIP                                 :{BLACK}Centreer het hoofdscherm op de locatie van het station. Ctrl+klik opent een nieuw venster op de locatie van het station
-STR_STATION_VIEW_RENAME_TOOLTIP                                 :{BLACK}Station hernoemen
+STR_STATION_VIEW_EDIT_TOOLTIP                                   :{BLACK}Station hernoemen of bord verplaatsen
 
 STR_STATION_VIEW_SCHEDULED_TRAINS_TOOLTIP                       :{BLACK}Geef alle treinen weer die dit station in hun opdrachtenlijst hebben
 STR_STATION_VIEW_SCHEDULED_ROAD_VEHICLES_TOOLTIP                :{BLACK}Geef alle wegvoertuigen weer die dit station in hun opdrachtenlijst hebben
 STR_STATION_VIEW_SCHEDULED_AIRCRAFT_TOOLTIP                     :{BLACK}Geef alle vliegtuigen weer die dit station in hun opdrachtenlijst hebben
 STR_STATION_VIEW_SCHEDULED_SHIPS_TOOLTIP                        :{BLACK}Geef alle schepen weer die dit station in hun opdrachtenlijst hebben
 
-STR_STATION_VIEW_RENAME_STATION_CAPTION                         :Station/laadgebied hernoemen
+STR_STATION_VIEW_EDIT_STATION_SIGN                              :{WHITE}Stationsbord bewerken
 
 STR_STATION_VIEW_CLOSE_AIRPORT                                  :{BLACK}Luchthaven sluiten
 STR_STATION_VIEW_CLOSE_AIRPORT_TOOLTIP                          :{BLACK}Voorkom landen van vliegtuig op deze luchthaven
@@ -3925,11 +3928,11 @@ STR_STATION_VIEW_CLOSE_AIRPORT_TOOLTIP                          :{BLACK}Voorkom 
 # Waypoint/buoy view window
 STR_WAYPOINT_VIEW_CAPTION                                       :{WHITE}{WAYPOINT}
 STR_WAYPOINT_VIEW_CENTER_TOOLTIP                                :{BLACK}Centreer het hoofdscherm op het routepunt. Ctrl+klik opent nieuw venster op locatie van routepunt.
-STR_WAYPOINT_VIEW_CHANGE_WAYPOINT_NAME                          :{BLACK}Naam routepunt aanpassen
+STR_WAYPOINT_VIEW_EDIT_TOOLTIP                                  :{BLACK}Routepunt hernoemen of bord verplaatsen
 STR_BUOY_VIEW_CENTER_TOOLTIP                                    :{BLACK}Centreer het hoofdscherm op de locatie van de boei. Ctrl+klik opent een nieuw venster op de locatie van de boei.
 STR_BUOY_VIEW_RENAME_TOOLTIP                                    :{BLACK}Naam van boei aanpassen
 
-STR_EDIT_WAYPOINT_NAME                                          :{WHITE}Naam routepunt aanpassen
+STR_WAYPOINT_VIEW_EDIT_WAYPOINT_SIGN                            :{WHITE}Routepuntbord bewerken
 
 # Finances window
 STR_FINANCES_CAPTION                                            :{WHITE}{COMPANY} Financiën {BLACK}{COMPANY_NUM}
@@ -4044,7 +4047,7 @@ STR_COMPANY_INFRASTRUCTURE_VIEW_TOTAL_PERIOD                    :{WHITE}{CURRENC
 # Industry directory
 STR_INDUSTRY_DIRECTORY_CAPTION                                  :{WHITE}Industrieën ({COMMA} van {COMMA})
 STR_INDUSTRY_DIRECTORY_NONE                                     :{ORANGE} Geen
-STR_INDUSTRY_DIRECTORY_ITEM_INFO                                :{BLACK}{CARGO_LONG}{STRING}{YELLOW} ({COMMA}% vervoerd){BLACK}
+STR_INDUSTRY_DIRECTORY_ITEM_INFO                                :{BLACK}{CARGO_LONG}{STRING}{YELLOW} ({COMMA}% vervoerd)
 STR_INDUSTRY_DIRECTORY_ITEM_NOPROD                              :{ORANGE}{INDUSTRY}
 STR_INDUSTRY_DIRECTORY_ITEM_PROD1                               :{ORANGE}{INDUSTRY} {STRING}
 STR_INDUSTRY_DIRECTORY_ITEM_PROD2                               :{ORANGE}{INDUSTRY} {STRING}, {STRING}
@@ -4067,9 +4070,9 @@ STR_INDUSTRY_VIEW_CARGO_GRAPH_TOOLTIP                           :{BLACK}Geeft de
 STR_INDUSTRY_VIEW_PRODUCTION_LEVEL                              :{BLACK}Productieniveau: {YELLOW}{COMMA}%
 STR_INDUSTRY_VIEW_INDUSTRY_ANNOUNCED_CLOSURE                    :{YELLOW}De industrie heeft een dreigende sluiting aangekondigd!
 
-STR_INDUSTRY_VIEW_REQUIRES_N_CARGO                              :{BLACK}Vereist: {YELLOW}{STRING}{STRING}
-STR_INDUSTRY_VIEW_PRODUCES_N_CARGO                              :{BLACK}Produceert: {YELLOW}{STRING}{STRING}
-STR_INDUSTRY_VIEW_CARGO_LIST_EXTENSION                          :, {STRING}{STRING}
+STR_INDUSTRY_VIEW_REQUIRES_N_CARGO                              :{BLACK}Vereist: {YELLOW}{STRING}
+STR_INDUSTRY_VIEW_PRODUCES_N_CARGO                              :{BLACK}Produceert: {YELLOW}{STRING}
+STR_INDUSTRY_VIEW_CARGO_LIST_EXTENSION                          :{STRING}{STRING}
 
 STR_INDUSTRY_VIEW_REQUIRES                                      :{BLACK}Vereist:
 STR_INDUSTRY_VIEW_ACCEPT_CARGO_SUFFIX                           :{YELLOW}{0:STRING}{BLACK}{3:STRING}
@@ -4596,7 +4599,7 @@ STR_VEHICLE_DETAILS_TRAIN_CAPACITIES_TOOLTIP                    :{BLACK}Capacite
 STR_VEHICLE_DETAIL_TAB_TOTAL_CARGO                              :{BLACK}Totale lading
 STR_VEHICLE_DETAILS_TRAIN_TOTAL_CARGO_TOOLTIP                   :{BLACK}Totale capaciteit van trein weergeven, opgesplitst naar vrachttype
 
-STR_VEHICLE_DETAILS_TRAIN_ARTICULATED_RV_CAPACITY               :{BLACK}Capaciteit: {LTBLUE}
+STR_VEHICLE_DETAILS_TRAIN_ARTICULATED_RV_CAPACITY               :{BLACK}Capaciteit: {LTBLUE}{STRING}
 
 # Vehicle refit
 STR_REFIT_CAPTION                                               :{WHITE}{VEHICLE} (Ombouwen)
@@ -5144,6 +5147,7 @@ STR_ERROR_TOO_MANY_TRUCK_STOPS                                  :{WHITE}Te veel 
 STR_ERROR_TOO_CLOSE_TO_ANOTHER_DOCK                             :{WHITE}Te dicht bij een andere haven
 STR_ERROR_TOO_CLOSE_TO_ANOTHER_AIRPORT                          :{WHITE}Te dicht bij een ander vliegveld
 STR_ERROR_CAN_T_RENAME_STATION                                  :{WHITE}Kan stationsnaam niet veranderen...
+STR_ERROR_CAN_T_MOVE_STATION_NAME                               :{WHITE}Kan stationsbord niet verplaatsen...
 STR_ERROR_DRIVE_THROUGH_ON_TOWN_ROAD                            :{WHITE}... weg in eigendom van een stad
 STR_ERROR_DRIVE_THROUGH_DIRECTION                               :{WHITE}... weg is in de verkeerde richting
 STR_ERROR_DRIVE_THROUGH_CORNER                                  :{WHITE}... doorrij haltes kunnen geen bochten hebben
@@ -5175,6 +5179,7 @@ STR_ERROR_CAN_T_BUILD_RAIL_WAYPOINT                             :{WHITE}Kan hier
 STR_ERROR_CAN_T_BUILD_ROAD_WAYPOINT                             :{WHITE}Kan hier geen weg-routepunt bouwen...
 STR_ERROR_CAN_T_POSITION_BUOY_HERE                              :{WHITE}Kan boei hier niet plaatsen...
 STR_ERROR_CAN_T_CHANGE_WAYPOINT_NAME                            :{WHITE}Kan naam routepunt niet aanpassen...
+STR_ERROR_CAN_T_MOVE_WAYPOINT_NAME                              :{WHITE}Kan routepuntbord niet verplaatsen...
 
 STR_ERROR_CAN_T_REMOVE_RAIL_WAYPOINT                            :{WHITE}Kan hier geen routepunt verwijderen...
 STR_ERROR_CAN_T_REMOVE_ROAD_WAYPOINT                            :{WHITE}Kan hier geen weg-routepunt verwijderen...

@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file subsidy.cpp Handling of subsidies. */
@@ -170,7 +170,7 @@ static bool CheckSubsidyDistance(Source src, Source dst)
  */
 void CreateSubsidy(CargoType cargo_type, Source src, Source dst)
 {
-	Subsidy *s = new Subsidy(cargo_type, src, dst, SUBSIDY_OFFER_MONTHS);
+	Subsidy *s = Subsidy::Create(cargo_type, src, dst, SUBSIDY_OFFER_MONTHS);
 
 	const CargoSpec *cs = CargoSpec::Get(s->cargo_type);
 	EncodedString headline = GetEncodedString(STR_NEWS_SERVICE_SUBSIDY_OFFERED, cs->name, s->src.GetFormat(), s->src.id, s->dst.GetFormat(), s->dst.id, _settings_game.difficulty.subsidy_duration);

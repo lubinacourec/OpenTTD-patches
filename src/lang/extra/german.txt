@@ -393,11 +393,6 @@ STR_CONFIG_SETTING_SHARING_PAYMENT_IN_DEBT                      :Erlaube verschu
 STR_CONFIG_SETTING_SHARING_USED_BY_VEHICLES                     :Einstellung kann nicht geändert werden, da Fahrzeuge die geteilte Infrastruktur benutzen.
 STR_CONFIG_SETTING_SHARING_ORDERS_TO_OTHERS                     :Einstellung kann nicht geändert werden, da Fahrzeuge Aufträge haben die auf fremdes Eigentum zeigen.
 
-STR_CONFIG_SETTING_INFRA_OTHERS_BUY_IN_DEPOT_RAIL               :Erlaube Mitbewerbern in fremden Depots Züge zu kaufen und zu erneuern: {STRING}
-STR_CONFIG_SETTING_INFRA_OTHERS_BUY_IN_DEPOT_ROAD               :Erlaube Mitbewerbern in fremden Depots Straßenfahrzeuge zu kaufen und zu erneuern: {STRING}
-STR_CONFIG_SETTING_INFRA_OTHERS_BUY_IN_DEPOT_WATER              :Erlaube Mitbewerbern in fremden Werften Schiffe zu kaufen und zu erneuern: {STRING}
-STR_CONFIG_SETTING_INFRA_OTHERS_BUY_IN_DEPOT_AIR                :Erlaube Mitbewerbern in fremden Hangars Flugzeuge zu kaufen und zu erneuern: {STRING}
-
 STR_CONFIG_SETTING_TRAIN_SPEED_ADAPTATION                       :Zuggeschwindigkeitsanpassung aktivieren: {STRING}
 STR_CONFIG_SETTING_TRAIN_SPEED_ADAPTATION_HELPTEXT              :Wenn aktiviert, passen schnellere Züge ihre Geschwindigkeit an vor ihnen fahrende langsamere Züge an.
 
@@ -473,9 +468,6 @@ STR_CONFIG_SETTING_TOWN_GROWTH_CARGO_TRANSPORTED_HELPTEXT       :Prozentsatz der
 
 STR_CONFIG_SETTING_RANDOM_ROAD_RECONSTRUCTION                   :Wahrscheinlichkeit zufälliger Straßenreparaturen: {STRING}
 STR_CONFIG_SETTING_RANDOM_ROAD_RECONSTRUCTION_HELPTEXT          :Setze den Wert für die Wahrscheinlichkeit, dass städtische Straßen zufällig repariert werden (0 = aus, 1000 = max)
-
-STR_CONFIG_SETTING_TOWN_MIN_DISTANCE                            :Minimaler Abstand zwischen Städten: {STRING}
-STR_CONFIG_SETTING_TOWN_MIN_DISTANCE_HELPTEXT                   :Stelle den Mindestabstand zwischen Städten in Kacheln für die Kartenerzeugung und zufällige Stadtgründungen ein.
 
 STR_CONFIG_SETTING_DISTRIBUTION_PER_CARGO                       :Zu überschreibendes Verteilungsschema für folgede Frachtart: {STRING}
 STR_CONFIG_SETTING_DISTRIBUTION_PER_CARGO_PARAM                 :Zu überschreibendes Verteilungsschema für {STRING}: {STRING}
@@ -718,8 +710,7 @@ STR_TRACE_RESTRICT_SLOT_PBS_RES_END_TRY_ACQUIRE_ITEM            :Pfadreservierun
 STR_TRACE_RESTRICT_SLOT_PBS_RES_END_RELEASE_ITEM                :Pfadreservierung endet hier: Löse Slot: {PUSH_COLOUR}{STRING}{POP_COLOUR}
 STR_TRACE_RESTRICT_SLOT_NAME                                    :{TRSLOT}
 STR_TRACE_RESTRICT_SLOT_NAME_PREFIXED                           :[{STRING}] {TRSLOT}
-STR_TRACE_RESTRICT_SLOT_LIST_HEADER                             :{BLACK}Slot{CONSUME_ARG}{P "" s}: {LTBLUE}
-STR_TRACE_RESTRICT_SLOT_LIST_SEPARATOR                          :{BLACK}, {LTBLUE}
+STR_TRACE_RESTRICT_SLOT_LIST_HEADER                             :{BLACK}Slot{CONSUME_ARG}{P "" s}:{SPACE}
 STR_TRACE_RESTRICT_COUNTER_NAME                                 :{TRCOUNTER}
 STR_TRACE_RESTRICT_COUNTER_INCREASE                             :Inkrementiere
 STR_TRACE_RESTRICT_COUNTER_DECREASE                             :Dekrementiere
@@ -1186,7 +1177,7 @@ STR_QUERY_RENAME_TRAIN_TYPE_WAGON_CAPTION                       :{WHITE}Waggon u
 STR_VEHICLE_VIEW_SEND_TO_DEPOT_TOOLTIP_SHIFT                    :{STRING}. Shift+Klick, um auszuwählen welches
 STR_VEHICLE_VIEW_SEND_TO_DEPOT_MENU                             :{BLACK}Fahrzeug ins Depot/Werft/Hangar schicken abbrechen. Strg+Klick für das Menü. Shift+Klick, um Depot/Werft/Hangar auszuwählen
 
-STR_VEHICLE_STATUS_LOADING_UNLOADING_ADVANCE                    :{STRING}, {VELOCITY}
+STR_VEHICLE_STATUS_LOADING_UNLOADING_ADVANCE                    :{LTBLUE}{STRING}, {VELOCITY}
 STR_VEHICLE_STATUS_BROKEN_DOWN_VEL                              :{RED}Panne - {STRING}, {LTBLUE} {VELOCITY}
 STR_VEHICLE_STATUS_BROKEN_DOWN_VEL_SHORT                        :{RED}Panne - {STRING}
 STR_VEHICLE_STATUS_TRAIN_STUCK_WAIT_RESTRICTION                 :{ORANGE}Warte aufgrund von Routing-Beschränkung
@@ -1235,7 +1226,7 @@ STR_VEHICLE_INFO_TE_WEIGHT_RATIO                                :{BLACK}Max. Zug
 STR_VEHICLE_INFO_FULL_WEIGHT_WITH_RATIOS                        :{BLACK}Volles Gewicht: {LTBLUE}{WEIGHT_SHORT} {STRING}
 STR_VEHICLE_INFO_MAX_SPEED_LOADED                               :{BLACK}Maximalgeschwindigkeit (beladen): {LTBLUE}{VELOCITY}
 
-STR_VEHICLE_INFO_PROFIT_THIS_YEAR_LAST_YEAR_LIFETIME            :{STRING} (seit Inbetriebnahme: {CURRENCY_LONG})
+STR_VEHICLE_INFO_PROFIT_THIS_YEAR_LAST_YEAR_LIFETIME            :{STRING} {LTBLUE}(seit Inbetriebnahme: {CURRENCY_LONG})
 
 STR_VEHICLE_INFO_GROUP                                          :{BLACK}Gruppe: {LTBLUE}{GROUP}
 

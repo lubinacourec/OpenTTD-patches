@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file newgrf_extension.cpp NewGRF extension support. */
@@ -48,7 +48,6 @@ extern const GRFFeatureInfo _grf_feature_list[] = {
 	GRFFeatureInfo("varaction2_railtype_adjacent_crossing", 1),
 	GRFFeatureInfo("action0_global_extra_station_names", 2),
 	GRFFeatureInfo("action0_global_default_object_generate_amount", 1),
-	GRFFeatureInfo("action0_global_allow_rocks_in_desert", 1),
 	GRFFeatureInfo("action0_signals_programmable_signals", 1),
 	GRFFeatureInfo("action0_signals_no_entry_signals", 1),
 	GRFFeatureInfo("action0_signals_restricted_signals", 2),
@@ -110,7 +109,6 @@ extern const GRFPropertyMapDefinition _grf_action0_remappable_properties[] = {
 	GRFPropertyMapDefinition(GSF_GLOBALVAR, A0RPI_GLOBALVAR_EXTRA_STATION_NAMES_PROBABILITY, "global_extra_station_names_probability"),
 	GRFPropertyMapDefinition(GSF_GLOBALVAR, A0RPI_GLOBALVAR_LIGHTHOUSE_GENERATE_AMOUNT, "global_lighthouse_generate_amount"),
 	GRFPropertyMapDefinition(GSF_GLOBALVAR, A0RPI_GLOBALVAR_TRANSMITTER_GENERATE_AMOUNT, "global_transmitter_generate_amount"),
-	GRFPropertyMapDefinition(GSF_GLOBALVAR, A0RPI_GLOBALVAR_ALLOW_ROCKS_DESERT, "global_allow_rocks_in_desert"),
 	GRFPropertyMapDefinition(GSF_SIGNALS, A0RPI_SIGNALS_ENABLE_PROGRAMMABLE_SIGNALS, "signals_enable_programmable_signals"),
 	GRFPropertyMapDefinition(GSF_SIGNALS, A0RPI_SIGNALS_ENABLE_NO_ENTRY_SIGNALS, "signals_enable_no_entry_signals"),
 	GRFPropertyMapDefinition(GSF_SIGNALS, A0RPI_SIGNALS_ENABLE_RESTRICTED_SIGNALS, "signals_enable_restricted_signals"),

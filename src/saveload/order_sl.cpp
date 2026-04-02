@@ -2,10 +2,10 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
-/** @file order_sl.cpp Code handling saving and loading of orders */
+/** @file order_sl.cpp Code handling saving and loading of orders. */
 
 #include "../stdafx.h"
 
@@ -59,7 +59,7 @@ struct ORDRChunkHandler : ChunkHandler {
 			int index;
 
 			while ((index = SlIterateArray()) != -1) {
-				OrderPoolItem *item = new (OrderID(index)) OrderPoolItem();
+				OrderPoolItem *item = OrderPoolItem::CreateAtIndex(OrderID(index));
 				SlObject(&item->order, slt);
 				item->next_ref = _order_item_ref;
 			}
@@ -117,7 +117,7 @@ struct ORDLChunkHandler : ChunkHandler {
 
 		while ((index = SlIterateArray()) != -1) {
 			/* set num_orders to 0 so it's a valid OrderList */
-			OrderList *list = new (OrderListID(index)) OrderList();
+			OrderList *list = OrderList::CreateAtIndex(OrderListID(index));
 			SlObject(list, slt);
 			if (old_mode) {
 				RegisterOrderPoolItemReference(&list->GetOrderVector(), _order_item_ref);
@@ -168,7 +168,7 @@ struct BKORChunkHandler : ChunkHandler {
 
 		while ((index = SlIterateArray()) != -1) {
 			/* set num_orders to 0 so it's a valid OrderList */
-			OrderBackup *ob = new (OrderBackupID(index)) OrderBackup();
+			OrderBackup *ob = OrderBackup::CreateAtIndex(OrderBackupID(index));
 			SlObject(ob, slt);
 			if (ob->cur_real_order_index == 0xFF) ob->cur_real_order_index = INVALID_VEH_ORDER_ID;
 			if (ob->cur_implicit_order_index == 0xFF) ob->cur_implicit_order_index = INVALID_VEH_ORDER_ID;

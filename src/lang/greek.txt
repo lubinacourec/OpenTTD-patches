@@ -15,7 +15,7 @@
 # This file is part of OpenTTD.
 # OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
 # OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
 
 
 ##id 0x0000
@@ -374,6 +374,7 @@ STR_SHOW_HIDDEN_ENGINES_VEHICLE_AIRCRAFT_TOOLTIP                :{BLACK}Ενερ
 STR_BUTTON_DEFAULT                                              :{BLACK}Προεπιλογή
 STR_BUTTON_CANCEL                                               :{BLACK}Ακύρωση
 STR_BUTTON_OK                                                   :{BLACK}OK
+STR_BUTTON_MOVE                                                 :{BLACK}Μετακίνηση
 
 # On screen keyboard window
 STR_OSK_KEYBOARD_LAYOUT                                         :`1234567890-= qwertyuiop[]asdfghjkl;'#\zxcvbnm,./ .
@@ -1207,7 +1208,7 @@ STR_GAME_OPTIONS_BASE_GRF_TOOLTIP                               :Επιλογή 
 STR_GAME_OPTIONS_BASE_GRF_DESCRIPTION_TOOLTIP                   :Επιπλέον πληροφορίες σχετικά με το βασικό πακέτο γραφικών
 
 STR_GAME_OPTIONS_BASE_SFX                                       :Σετ βασικών ήχων
-STR_GAME_OPTIONS_BASE_SFX_TOOLTIP                               :Επιλογή του βασικού σετ ήχων που θα χρησιμοποιηθεί (δεν αλλάζει μέσα από ένα παιχνίδι, μόνο από το κεντρικό μενού)
+STR_GAME_OPTIONS_BASE_SFX_TOOLTIP                               :Επιλογή του βασικού σετ ήχων που θα χρησιμοποιηθεί
 STR_GAME_OPTIONS_BASE_SFX_DESCRIPTION_TOOLTIP                   :Επιπλέον πληροφορίες σχετικά με τους βασικούς ήχους
 
 STR_GAME_OPTIONS_BASE_MUSIC                                     :Βασικό σετ μουσικής
@@ -1340,7 +1341,7 @@ STR_CONFIG_SETTING_EXPAND_ALL                                   :Επέκτασ�
 STR_CONFIG_SETTING_COLLAPSE_ALL                                 :Σύμπτυξη όλων
 STR_CONFIG_SETTING_RESET_ALL                                    :Επαναφορά όλων των τιμών
 STR_CONFIG_SETTING_NO_EXPLANATION_AVAILABLE_HELPTEXT            :(δεν υπάρχει διαθέσιμη επεξήγηση)
-STR_CONFIG_SETTING_VALUE                                        :{PUSH_COLOUR}{ORANGE}{STRING}{POP_COLOUR}
+STR_CONFIG_SETTING_VALUE                                        :{ORANGE}{STRING}
 STR_CONFIG_SETTING_DEFAULT_VALUE                                :{LTBLUE}Προκαθορισμένη τιμή: {ORANGE}{STRING}
 STR_CONFIG_SETTING_TYPE                                         :{LTBLUE}Τύπος ρύθμισης: {ORANGE}{STRING}
 STR_CONFIG_SETTING_TYPE_CLIENT                                  :Ρύθμιση πελάτη (δεν αποθηκεύεται στα αποθηκευμένα παιχνίδια, επηρεάζει όλα τα παιχνίδια)
@@ -2161,7 +2162,7 @@ STR_CONFIG_SETTING_ZOOM_LVL_OUT_4X                              :4x
 STR_CONFIG_SETTING_ZOOM_LVL_OUT_8X                              :8x
 
 STR_CONFIG_SETTING_SPRITE_ZOOM_MIN                              :Η μεγαλύτερη ανάλυση που χρησιμοποιούν τα sprites: {STRING}
-STR_CONFIG_SETTING_SPRITE_ZOOM_MIN_HELPTEXT                     :Περιορίστε την μέγιστη ανάλυση για τα sprites. Περιορίζοντας την ανάλυση των sprites, θα αποφύγετε την χρήση γραφικών υψηλής ανάλυσης ακόμα και όταν αυτά είναι διαθέσιμα. Αυτό μπορεί να βοηθήσει να κρατήσετε την εμφάνιση του παιχνιδιού ενιαία όταν χρησιμοποιείτε μία μίξη από GRF αρχεία με και χωρίς γραφικά υψηλής ανάλυσης
+STR_CONFIG_SETTING_SPRITE_ZOOM_MIN_HELPTEXT                     :Περιορισμός μέγιστης ανάλυσης για sprites. Περιορίζοντας την ανάλυση των sprites, θα αποφευχθεί η χρήση γραφικών υψηλής ανάλυσης ακόμα και όταν αυτά είναι διαθέσιμα. Αυτό μπορεί να βοηθήσει στη διατήρηση ενιαίας εμφάνισης του παιχνιδιού όταν χρησιμοποιείται μία μίξη από NewGRF αρχεία με και χωρίς γραφικά υψηλής ανάλυσης
 ###length 3
 STR_CONFIG_SETTING_SPRITE_ZOOM_LVL_MIN                          :4x
 STR_CONFIG_SETTING_SPRITE_ZOOM_LVL_IN_2X                        :2x
@@ -2183,6 +2184,8 @@ STR_CONFIG_SETTING_LARGER_TOWNS_VALUE                           :1 σε {COMMA}
 STR_CONFIG_SETTING_LARGER_TOWNS_DISABLED                        :Καμία
 STR_CONFIG_SETTING_CITY_SIZE_MULTIPLIER                         :Αρχικός πολλαπλασιαστής μεγέθους πόλης: {STRING}
 STR_CONFIG_SETTING_CITY_SIZE_MULTIPLIER_HELPTEXT                :Μέσο μέγεθος μεγάλων πόλεων σε σχέση με τις κανονικές στην αρχή του παιχνιδιού
+STR_CONFIG_SETTING_TOWN_MIN_DISTANCE                            :Eλάχιστη απόσταση μεταξύ πόλεων: {STRING}
+STR_CONFIG_SETTING_TOWN_MIN_DISTANCE_HELPTEXT                   :Ορίστε την ελάχιστη απόσταση σε πλακίδια μεταξύ των πόλεων για τη δημιουργία χαρτών και την τυχαία ίδρυση
 
 STR_CONFIG_SETTING_LINKGRAPH_RECALC_INTERVAL                    :Ανανέωση του γραφήματος κατανομής κάθε {STRING}
 STR_CONFIG_SETTING_LINKGRAPH_RECALC_INTERVAL_HELPTEXT           :Χρόνος μεταξύ των επακόλουθων επανυπολογισμών του γραφήματος σύνδεσης. Κάθε επανυπολογισμός υπολογίζει τα σχέδια για ένα στοιχείο του γραφήματος. Αυτό σημαίνει ότι μια τιμή X για αυτήν τη ρύθμιση δεν σημαίνει ότι ολόκληρο το γράφημα θα ενημερώνεται κάθε Χ δευτερόλεπτα. Μόνο κάποιο συστατικό του θα ανανεωθεί. Σε όσο πιο μικρή τιμή το ρυθμίσετε, τόσο περισσότερη επεξεργαστική ισχύς θα χρειαστεί για τον υπολογισμό του. Σε όσο πιο μεγάλη τιμή το ρυθμίσετε, τόσο περισσότερος χρόνος θα χρειαστεί μέχρι να ξεκινήσει η διανομή φορτίου σε νέα δρομολόγια
@@ -2975,15 +2978,15 @@ STR_PICKER_HOUSE_TYPE_TOOLTIP                                   :Επιλογή 
 STR_PICKER_HOUSE_COLLECTION_TOOLTIP                             :Επιλέξτε μια συλλογή από σπίτια προς εμφάνιση
 
 STR_HOUSE_PICKER_CAPTION                                        :Επιλογή Σπιτιού
-STR_HOUSE_PICKER_NAME                                           :{BLACK}Όνομα: {ORANGE}{STRING}
-STR_HOUSE_PICKER_POPULATION                                     :{BLACK}Πληθυσμός: {ORANGE}{NUM}
-STR_HOUSE_PICKER_YEARS                                          :{BLACK}Έτη: {ORANGE}{NUM}-{NUM}
-STR_HOUSE_PICKER_YEARS_ANY                                      :{BLACK}Έτη: {ORANGE}Όσα
-STR_HOUSE_PICKER_YEARS_FROM                                     :{BLACK}Έτη: {ORANGE}Από {NUM}
-STR_HOUSE_PICKER_YEARS_UNTIL                                    :{BLACK}Έτη: {ORANGE}Έως {NUM}
-STR_HOUSE_PICKER_SIZE                                           :{BLACK}Μέγεθος: {ORANGE}{NUM}x{NUM} τετραγωνίδια
-STR_HOUSE_PICKER_CARGO_ACCEPTED                                 :{BLACK}Αποδεκτό φορτίο: {ORANGE}
-STR_HOUSE_PICKER_CARGO_PRODUCED                                 :{BLACK}Φορτίο που παρήχθει: {ORANGE}{CARGO_LIST}
+STR_HOUSE_PICKER_NAME                                           :{BLACK}Όνομα: {GOLD}{STRING}
+STR_HOUSE_PICKER_POPULATION                                     :{BLACK}Πληθυσμός: {GOLD}{NUM}
+STR_HOUSE_PICKER_YEARS                                          :{BLACK}Έτη: {GOLD}{NUM}-{NUM}
+STR_HOUSE_PICKER_YEARS_ANY                                      :{BLACK}Έτη: {GOLD}Όσα
+STR_HOUSE_PICKER_YEARS_FROM                                     :{BLACK}Έτη: {GOLD}Από {NUM}
+STR_HOUSE_PICKER_YEARS_UNTIL                                    :{BLACK}Έτη: {GOLD}Έως {NUM}
+STR_HOUSE_PICKER_SIZE                                           :{BLACK}Μέγεθος: {GOLD}{NUM}x{NUM} τετραγωνίδια
+STR_HOUSE_PICKER_CARGO_ACCEPTED                                 :{BLACK}Αποδεκτό φορτίο: {GOLD}{STRING}
+STR_HOUSE_PICKER_CARGO_PRODUCED                                 :{BLACK}Φορτίο που παρήχθει: {GOLD}{CARGO_LIST}
 
 STR_HOUSE_PICKER_CLASS_ZONE1                                    :Άκρη
 STR_HOUSE_PICKER_CLASS_ZONE2                                    :Περίχωρα
@@ -3271,7 +3274,7 @@ STR_LAND_AREA_INFORMATION_AIRPORT_CLASS                         :{BLACK}Κατη
 STR_LAND_AREA_INFORMATION_AIRPORT_NAME                          :{BLACK}Όνομα αεροδρομίου: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_AIRPORTTILE_NAME                      :{BLACK}Όνομα αεροδρομίου: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_NEWGRF_NAME                           :{BLACK}NewGRF: {LTBLUE}{STRING}
-STR_LAND_AREA_INFORMATION_CARGO_ACCEPTED                        :{BLACK}Αποδεκτά εμπορεύματα: {LTBLUE}
+STR_LAND_AREA_INFORMATION_CARGO_ACCEPTED                        :{BLACK}Αποδεκτά εμπορεύματα: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_CARGO_EIGHTS                          :({COMMA}/8 {STRING})
 STR_LANG_AREA_INFORMATION_RAIL_TYPE                             :{BLACK}Τύπος σιδηροτροχιάς: {LTBLUE}{STRING}
 STR_LANG_AREA_INFORMATION_ROAD_TYPE                             :{BLACK}Τύπος δρόμου: {LTBLUE}{STRING}
@@ -3734,7 +3737,7 @@ STR_NEWGRF_ERROR_INVALID_PARAMETER                              :Λάθος πα
 STR_NEWGRF_ERROR_LOAD_BEFORE                                    :Το {1:STRING} πρέπει να φορτωθεί πριν από το {2:STRING}
 STR_NEWGRF_ERROR_LOAD_AFTER                                     :Το {1:STRING} πρέπει να φορτωθεί μετά από το {2:STRING}
 STR_NEWGRF_ERROR_OTTD_VERSION_NUMBER                            :Το {1:STRING} απαιτεί έκδοση OpenTTD {2:STRING} ή υψηλότερη
-STR_NEWGRF_ERROR_AFTER_TRANSLATED_FILE                          :το αρχείο GRF είναι σχεδιασμένο για να μεταφράζει
+STR_NEWGRF_ERROR_AFTER_TRANSLATED_FILE                          :το αρχείο NewGRF που σχεδιάστηκε για να μεταφράζει
 STR_NEWGRF_ERROR_TOO_MANY_NEWGRFS_LOADED                        :Έχουν φορτωθεί πολλά NewGRF
 STR_NEWGRF_ERROR_STATIC_GRF_CAUSES_DESYNC                       :Η φόρτωση του {1:STRING} ως στατικό NewGRF με {2:STRING} μπορεί να προκαλέσει αποσυγχρονισμούς
 STR_NEWGRF_ERROR_UNEXPECTED_SPRITE                              :Απρόοπτο sprite (sprite {3:NUM})
@@ -3743,7 +3746,7 @@ STR_NEWGRF_ERROR_INVALID_ID                                     :Προσπάθ�
 STR_NEWGRF_ERROR_CORRUPT_SPRITE                                 :Το {YELLOW}{STRING} περιέχει ένα αλλοιωμένο sprite. Όλα τα αλλοιωμένα sprites θα εμφανίζονται ως κόκκινα ερωτηματικά (?)
 STR_NEWGRF_ERROR_MULTIPLE_ACTION_8                              :Περιέχει πολλαπλές καταχωρήσεις Action 8 (sprite {3:NUM})
 STR_NEWGRF_ERROR_READ_BOUNDS                                    :Διάβασε πέρα από το τέλος του ψευδό-sprite (sprite {3:NUM})
-STR_NEWGRF_ERROR_GRM_FAILED                                     :Οι ζητημένοι πόροι GRF δεν είναι διαθέσιμοι (sprite {3:NUM})
+STR_NEWGRF_ERROR_GRM_FAILED                                     :Οι πόροι NewGRF που ζητήθηκαν δεν είναι διαθέσιμοι (sprite {3:NUM})
 STR_NEWGRF_ERROR_FORCEFULLY_DISABLED                            :Το {1:STRING} απενεργοποιήθηκε από το {2:STRING}
 STR_NEWGRF_ERROR_INVALID_SPRITE_LAYOUT                          :Άκυρη/άγνωστη μορφή σχεδίου sprite (sprite {3:NUM})
 STR_NEWGRF_ERROR_LIST_PROPERTY_TOO_LONG                         :Πάρα πολλά αντικέιμενα στη λίστα τιμών ιδιοτήτων (sprite {3:NUM}, ιδιότητα {4:HEX})
@@ -3754,12 +3757,12 @@ STR_NEWGRF_POPUP_CAUTION_CAPTION                                :{WHITE}Προσ
 STR_NEWGRF_CONFIRMATION_TEXT                                    :{YELLOW}Πρόκειται να κάνετε αλλαγές σε παιχνίδι που είναι ήδη σε εξέλιξη. Αυτό μπορεί να κλείσει απρόοπτα το OpenTTD ή να διαλύσει την κατάσταση του παιχνιδιού. Μην καταχωρείτε αναφορές σφάλματος για τέτοια προβλήματα.{}Είστε απόλυτα σίγουροι για αυτή την ενέργεια;
 
 STR_NEWGRF_DUPLICATE_GRFID                                      :{WHITE}Δεν μπορεί να γίνει η προσθήκη του αρχείου: διπλότυπο GRF ID
-STR_NEWGRF_COMPATIBLE_LOADED                                    :{ORANGE}Δεν βρέθηκε ταυτοποιημένο αρχείο (φορτώθηκε συμβατό GRF)
+STR_NEWGRF_COMPATIBLE_LOADED                                    :{ORANGE}Δεν βρέθηκε ταυτοποιημένο αρχείο (φορτώθηκε συμβατό NewGRF)
 STR_NEWGRF_TOO_MANY_NEWGRFS                                     :{WHITE}Δεν μπορεί να προστεθεί το αρχείο: φτάσατε το όριο αρχείων NewGRF
 
 STR_NEWGRF_COMPATIBLE_LOAD_WARNING                              :{WHITE}Φόρτωση συμβατού/ών GRF για χαμένα αρχεία
 STR_NEWGRF_DISABLED_WARNING                                     :{WHITE}Απενεργοποιήθηκε/αν ανύπαρκτο/α αρχείο/α GRF
-STR_NEWGRF_UNPAUSE_WARNING_TITLE                                :{YELLOW}Ανύπαρκτο/α αρχείο/α GRF
+STR_NEWGRF_UNPAUSE_WARNING_TITLE                                :{YELLOW}Το αρχείο/α NewGRF δεν βρέθηκε
 STR_NEWGRF_UNPAUSE_WARNING                                      :{WHITE}Η συνέχιση μπορεί να κλείσει απρόοπτα το OpenTTD. Μη δώσετε αναφορές σφαλμάτων για κλεισίματα.{}Θέλετε πραγματικά να συνεχίσετε την λειτουργία;
 
 # NewGRF status
@@ -3803,7 +3806,7 @@ STR_SIGN_LIST_MATCH_CASE                                        :{BLACK}Αντι
 STR_SIGN_LIST_MATCH_CASE_TOOLTIP                                :{BLACK}Εναλλαγή ταύτισης μεγέθους κατά τη σύγκρισης ονομάτων πινακίδων με τον όρο φιλτραρισμού
 
 # Sign window
-STR_EDIT_SIGN_CAPTION                                           :{WHITE}Επεξεργασία κειμένου πινακίδας
+STR_EDIT_SIGN_CAPTION                                           :{WHITE}Επεξεργασία πινακίδας
 STR_EDIT_SIGN_LOCATION_TOOLTIP                                  :{BLACK}Κεντράρισμα της κύριας προβολής στη τοποθεσία της πινακίδας. Ctrl+Κλικ για άνοιγμα νέου παραθύρου προβολής στην τοποθεσία της πινακίδας
 STR_EDIT_SIGN_NEXT_SIGN_TOOLTIP                                 :{BLACK}Μετάβαση στην επόμενη πινακίδα
 STR_EDIT_SIGN_PREVIOUS_SIGN_TOOLTIP                             :{BLACK}Μετάβαση στη προηγούμενη πινακίδα
@@ -4021,14 +4024,14 @@ STR_CARGO_RATING_EXCELLENT                                      :Εξαιρετ�
 STR_CARGO_RATING_OUTSTANDING                                    :Καταπληκτική
 
 STR_STATION_VIEW_CENTER_TOOLTIP                                 :{BLACK}Κεντράρισμα της κύριας προβολής στην τοποθεσία του σταθμού. Ctrl+Κλικ για άνοιγμα νέου παραθύρου προβολής στην τοποθεσία του σταθμού
-STR_STATION_VIEW_RENAME_TOOLTIP                                 :{BLACK}Αλλαγή ονόματος του σταθμού
+STR_STATION_VIEW_EDIT_TOOLTIP                                   :{BLACK}Μετονομασία σταθμού ή μετακίνηση σήματος
 
 STR_STATION_VIEW_SCHEDULED_TRAINS_TOOLTIP                       :{BLACK}Εμφάνιση όλων των τρένων που έχουν αυτό τον σταθμό στο δρομολόγιό τους
 STR_STATION_VIEW_SCHEDULED_ROAD_VEHICLES_TOOLTIP                :{BLACK}Εμφάνιση όλων των οχημάτων που έχουν αυτόν τον σταθμό στο δρομολόγιό τους
 STR_STATION_VIEW_SCHEDULED_AIRCRAFT_TOOLTIP                     :{BLACK}Εμφάνιση όλων των αεροσκαφών που έχουν αυτόν τον σταθμό στο δρομολόγιό τους
 STR_STATION_VIEW_SCHEDULED_SHIPS_TOOLTIP                        :{BLACK}Εμφάνιση όλων των πλοίων που έχουν αυτόν τον σταθμό στο δρομολόγιό τους
 
-STR_STATION_VIEW_RENAME_STATION_CAPTION                         :Μετονομασία περιοχής σταθμού/φόρτωσης
+STR_STATION_VIEW_EDIT_STATION_SIGN                              :{WHITE}Επεξεργασία πινακίδας σταθμού
 
 STR_STATION_VIEW_CLOSE_AIRPORT                                  :{BLACK}Κλείσιμο αεροδρομίου
 STR_STATION_VIEW_CLOSE_AIRPORT_TOOLTIP                          :{BLACK}Αποτροπή προσγείωσης αεροσκαφών σε αυτό το αεροδρόμιο
@@ -4036,11 +4039,11 @@ STR_STATION_VIEW_CLOSE_AIRPORT_TOOLTIP                          :{BLACK}Αποτ
 # Waypoint/buoy view window
 STR_WAYPOINT_VIEW_CAPTION                                       :{WHITE}{WAYPOINT}
 STR_WAYPOINT_VIEW_CENTER_TOOLTIP                                :{BLACK}Κεντράρισμα της κύριας προβολής στην τοποθεσία του σημείου καθοδήγησης. Ctrl+Κλικ για άνοιγμα νέου παραθύρου προβολής στην τοποθεσία του σημείου καθοδήγησης
-STR_WAYPOINT_VIEW_CHANGE_WAYPOINT_NAME                          :{BLACK}Αλλαγή του ονόματος του σημείου καθοδήγησης
+STR_WAYPOINT_VIEW_EDIT_TOOLTIP                                  :{BLACK}Μετονομασία σημείου καθοδήγησης ή μετακίνηση σήματος
 STR_BUOY_VIEW_CENTER_TOOLTIP                                    :{BLACK}Κεντράρισμα της κύριας προβολής στη τοποθεσία της σημαδούρας. Ctrl+Κλικ για άνοιγμα νέου παραθύρου προβολής στην τοποθεσία της σημαδούρας
 STR_BUOY_VIEW_RENAME_TOOLTIP                                    :{BLACK}Αλλαγή ονόματος σημαδούρας
 
-STR_EDIT_WAYPOINT_NAME                                          :{WHITE}Διαμόρφωση ονόματος σημείου καθοδήγησης
+STR_WAYPOINT_VIEW_EDIT_WAYPOINT_SIGN                            :{WHITE}Επεξεργασία πινακίδας σημείου καθοδήγησης
 
 # Finances window
 STR_FINANCES_CAPTION                                            :{WHITE}{COMPANY} Οικονομικά {BLACK}{COMPANY_NUM}
@@ -4156,7 +4159,7 @@ STR_COMPANY_INFRASTRUCTURE_VIEW_TOTAL_PERIOD                    :{WHITE}{CURRENC
 # Industry directory
 STR_INDUSTRY_DIRECTORY_CAPTION                                  :{WHITE}Βιομηχανίες ({COMMA} από {COMMA})
 STR_INDUSTRY_DIRECTORY_NONE                                     :{ORANGE}- Τίποτα -
-STR_INDUSTRY_DIRECTORY_ITEM_INFO                                :{BLACK}{CARGO_LONG}{STRING}{YELLOW} ({COMMA}% μεταφέρθηκαν){BLACK}
+STR_INDUSTRY_DIRECTORY_ITEM_INFO                                :{BLACK}{CARGO_LONG}{STRING}{YELLOW} ({COMMA}% μεταφέρθηκαν)
 STR_INDUSTRY_DIRECTORY_ITEM_NOPROD                              :{ORANGE}{INDUSTRY}
 STR_INDUSTRY_DIRECTORY_ITEM_PROD1                               :{ORANGE}{INDUSTRY} {STRING}
 STR_INDUSTRY_DIRECTORY_ITEM_PROD2                               :{ORANGE}{INDUSTRY} {STRING}, {STRING}
@@ -4179,9 +4182,9 @@ STR_INDUSTRY_VIEW_CARGO_GRAPH_TOOLTIP                           :{BLACK}Εμφα
 STR_INDUSTRY_VIEW_PRODUCTION_LEVEL                              :{BLACK}Επίπεδο παραγωγής: {YELLOW}{COMMA}%
 STR_INDUSTRY_VIEW_INDUSTRY_ANNOUNCED_CLOSURE                    :{YELLOW}Η βιομηχανία έχει ανακοινώσει άμεσο κλείσιμο!
 
-STR_INDUSTRY_VIEW_REQUIRES_N_CARGO                              :{BLACK}Απαιτεί: {YELLOW}{STRING}{STRING}
-STR_INDUSTRY_VIEW_PRODUCES_N_CARGO                              :{BLACK}Παράγει: {YELLOW}{STRING}{STRING}
-STR_INDUSTRY_VIEW_CARGO_LIST_EXTENSION                          :, {STRING}{STRING}
+STR_INDUSTRY_VIEW_REQUIRES_N_CARGO                              :{BLACK}Απαιτεί: {YELLOW}{STRING}
+STR_INDUSTRY_VIEW_PRODUCES_N_CARGO                              :{BLACK}Παράγει: {YELLOW}{STRING}
+STR_INDUSTRY_VIEW_CARGO_LIST_EXTENSION                          :{STRING}{STRING}
 
 STR_INDUSTRY_VIEW_REQUIRES                                      :{BLACK}Απαιτεί:
 STR_INDUSTRY_VIEW_ACCEPT_CARGO_SUFFIX                           :{YELLOW}{0:STRING}{BLACK}{3:STRING}
@@ -4722,7 +4725,7 @@ STR_VEHICLE_DETAILS_TRAIN_CAPACITIES_TOOLTIP                    :{BLACK}Εμφά
 STR_VEHICLE_DETAIL_TAB_TOTAL_CARGO                              :{BLACK}Συνολικό Φορτίο
 STR_VEHICLE_DETAILS_TRAIN_TOTAL_CARGO_TOOLTIP                   :{BLACK}Εμφάνιση συνολικής χωρητικότητας του τρένου, διαχωρισμένη κατά τύπο εμπορεύματος
 
-STR_VEHICLE_DETAILS_TRAIN_ARTICULATED_RV_CAPACITY               :{BLACK}Χωρητικότητα: {LTBLUE}
+STR_VEHICLE_DETAILS_TRAIN_ARTICULATED_RV_CAPACITY               :{BLACK}Χωρητικότητα: {LTBLUE}{STRING}
 
 # Vehicle refit
 STR_REFIT_CAPTION                                               :{WHITE}{VEHICLE} (Μετατροπή)
@@ -4835,6 +4838,7 @@ STR_ORDERS_SKIP_BUTTON                                          :{BLACK}Παρά
 STR_ORDERS_SKIP_TOOLTIP                                         :{BLACK}Παρακάμπτει την τρέχουσα εντολή και ξεκινά την επόμενη. Ctrl+Κλικ για παράκαμψη της επιλεγμένης εντολής
 
 STR_ORDERS_DELETE_BUTTON                                        :{BLACK}Διαγραφή
+STR_ORDERS_DELETE_ALL_BUTTON                                    :{BLACK}Διαγραφή όλων
 STR_ORDERS_DELETE_TOOLTIP                                       :{BLACK}Διαγραφή της επιλεγμένης εντολής
 STR_ORDERS_DELETE_ALL_TOOLTIP                                   :{BLACK}Διαγραφή όλων των εντολών
 STR_ORDERS_STOP_SHARING_BUTTON                                  :{BLACK}Διακοπή μοιράσματος
@@ -5270,6 +5274,7 @@ STR_ERROR_TOO_MANY_TRUCK_STOPS                                  :{WHITE}Πάρα
 STR_ERROR_TOO_CLOSE_TO_ANOTHER_DOCK                             :{WHITE}Πολύ κοντά σε άλλη αποβάθρα
 STR_ERROR_TOO_CLOSE_TO_ANOTHER_AIRPORT                          :{WHITE}Πολύ κοντά σε άλλο αεροδρόμιο
 STR_ERROR_CAN_T_RENAME_STATION                                  :{WHITE}Δεν μπορεί να μετονομαστεί ο σταθμός...
+STR_ERROR_CAN_T_MOVE_STATION_NAME                               :{WHITE}Δεν είναι δυνατή η μετακίνηση του σήματος του σταθμού...
 STR_ERROR_DRIVE_THROUGH_ON_TOWN_ROAD                            :{WHITE}... δρόμος ιδιοκτησία κάποιας πόλης
 STR_ERROR_DRIVE_THROUGH_DIRECTION                               :{WHITE}... ο δρόμος βλέπει σε λάθος κατεύθυνση
 STR_ERROR_DRIVE_THROUGH_CORNER                                  :{WHITE}... οι μη τερματικοί σταθμοί δε μπορούν να έχουν στροφές
@@ -5301,6 +5306,7 @@ STR_ERROR_CAN_T_BUILD_RAIL_WAYPOINT                             :{WHITE}Δεν �
 STR_ERROR_CAN_T_BUILD_ROAD_WAYPOINT                             :{WHITE}Δεν μπορεί να κατασκευαστεί οδικό σημείο καθοδήγησης εδώ...
 STR_ERROR_CAN_T_POSITION_BUOY_HERE                              :{WHITE}Δεν μπορεί να τοποθετηθεί σημαδούρα εδώ...
 STR_ERROR_CAN_T_CHANGE_WAYPOINT_NAME                            :{WHITE}Δεν μπορεί να αλλάξει το όνομα του σημείου καθοδήγησης...
+STR_ERROR_CAN_T_MOVE_WAYPOINT_NAME                              :{WHITE}Δεν είναι δυνατή η μετακίνηση του σήματος του σημείου καθοδήγησης...
 
 STR_ERROR_CAN_T_REMOVE_RAIL_WAYPOINT                            :{WHITE}Αδύνατο να αφαιρεθεί το σημείο καθοδήγησης τρένου από εδώ...
 STR_ERROR_CAN_T_REMOVE_ROAD_WAYPOINT                            :{WHITE}Αδύνατο να αφαιρεθεί το οδικό σημείο καθοδήγησης από εδώ...
@@ -6098,7 +6104,8 @@ STR_LORRY                                                       :{BLACK}{LORRY}
 STR_PLANE                                                       :{BLACK}{PLANE}
 STR_SHIP                                                        :{BLACK}{SHIP}
 
-STR_TOOLBAR_RAILTYPE_VELOCITY                                   :{STRING} ({VELOCITY})
+STR_TOOLBAR_RAILTYPE_VELOCITY                                   :{STRING} {YELLOW}({VELOCITY})
+STR_TOOLBAR_ROADTYPE_VELOCITY                                   :{STRING} {YELLOW}({VELOCITY})
 
 STR_BADGE_NAME_LIST                                             :{STRING}: {GOLD}{STRING}
 STR_BADGE_CONFIG_MENU_TOOLTIP                                   :Άνοιγμα ρυθμίσεων badge

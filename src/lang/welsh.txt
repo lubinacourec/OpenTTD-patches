@@ -13,7 +13,7 @@
 # This file is part of OpenTTD.
 # OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
 # OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
 
 
 ##id 0x0000
@@ -312,6 +312,7 @@ STR_SHOW_HIDDEN_ENGINES_VEHICLE_AIRCRAFT_TOOLTIP                :{BLACK}Drwy all
 STR_BUTTON_DEFAULT                                              :{BLACK}Rhagosodiad
 STR_BUTTON_CANCEL                                               :{BLACK}Diddymu
 STR_BUTTON_OK                                                   :{BLACK}Iawn
+STR_BUTTON_MOVE                                                 :{BLACK}Symud
 
 # On screen keyboard window
 STR_OSK_KEYBOARD_LAYOUT                                         :`1234567890-= qwertyuiop[]asdfghjkl;'#\zxcvbnm,./ .
@@ -1247,7 +1248,7 @@ STR_CONFIG_SETTING_EXPAND_ALL                                   :Ehangu oll
 STR_CONFIG_SETTING_COLLAPSE_ALL                                 :Cywasgu oll
 STR_CONFIG_SETTING_RESET_ALL                                    :Ailosod pob gwerth
 STR_CONFIG_SETTING_NO_EXPLANATION_AVAILABLE_HELPTEXT            :(dim esboniad ar gael)
-STR_CONFIG_SETTING_VALUE                                        :{PUSH_COLOUR}{ORANGE}{STRING}{POP_COLOUR}
+STR_CONFIG_SETTING_VALUE                                        :{ORANGE}{STRING}
 STR_CONFIG_SETTING_DEFAULT_VALUE                                :{LTBLUE}Gwerth rhagosodedig: {ORANGE}{STRING}
 STR_CONFIG_SETTING_TYPE                                         :{LTBLUE}Math o osodiad: {ORANGE}{STRING}
 STR_CONFIG_SETTING_TYPE_CLIENT                                  :Gosodiad gwestai (ni gedwir yn y ffeiliau cadw; yn effeithio ar pob gêm)
@@ -2090,6 +2091,8 @@ STR_CONFIG_SETTING_LARGER_TOWNS_VALUE                           :1 mewn {COMMA}
 STR_CONFIG_SETTING_LARGER_TOWNS_DISABLED                        :Dim
 STR_CONFIG_SETTING_CITY_SIZE_MULTIPLIER                         :Lluosydd cychwynol maint dinas: {STRING}
 STR_CONFIG_SETTING_CITY_SIZE_MULTIPLIER_HELPTEXT                :Maint cymhedrol dinasoedd o gymharu â threfi arferol ar ddechrau'r gêm
+STR_CONFIG_SETTING_TOWN_MIN_DISTANCE                            :Pellter isafsymol rhwng trefi: {STRING}
+STR_CONFIG_SETTING_TOWN_MIN_DISTANCE_HELPTEXT                   :Gosod y pellter lleiaf mewn teiliau rhwng trefi ar gyfer cynhyrchu map a sefydlu ar hap
 
 STR_CONFIG_SETTING_LINKGRAPH_RECALC_INTERVAL                    :Diweddaru'r graff dosraniad bob {STRING}
 STR_CONFIG_SETTING_LINKGRAPH_RECALC_INTERVAL_HELPTEXT           :Amser rhwng ailgyfrifiadau o'r graff cyswllt. Mae bob ailgyfrifiad yn cyfrifo'r cynlluniau ar gyfer un cydran o'r graff. Mae hyn yn golygu nad yw gwerth o X yn golygu y bydd y graff gyfan yn cael ei ddiweddaru bob X eiliad, dim ond rhyw gydran ohono. Po fyrraf y gwerth y mwyaf o amser prosesydd y bydd ei angen i'w gyfrifo. Yr hiraf y gwerth y mwyaf yr amser cyn y bydd dosbarthiad cargo yn dechrau ar lwybrau newydd
@@ -2864,15 +2867,15 @@ STR_PICKER_HOUSE_CLASS_TOOLTIP                                  :Dewiswch parth 
 STR_PICKER_HOUSE_TYPE_TOOLTIP                                   :Dewiswch math tŷ i'w ddangos. Mae Ctrl+Clic yn adio neu tynnu o'r eitemau a gedwir
 
 STR_HOUSE_PICKER_CAPTION                                        :Dewis Tai
-STR_HOUSE_PICKER_NAME                                           :{BLACK}Enw: {ORANGE}{STRING}
-STR_HOUSE_PICKER_POPULATION                                     :{BLACK}Poblogaeth: {ORANGE}{NUM}
-STR_HOUSE_PICKER_YEARS                                          :{BLACK}Blynyddoedd: {ORANGE}{NUM}-{NUM}
-STR_HOUSE_PICKER_YEARS_ANY                                      :{BLACK}Blynyddoedd: {ORANGE}Unrhyw
-STR_HOUSE_PICKER_YEARS_FROM                                     :{BLACK}Blynyddoedd: {ORANGE}O {NUM}
-STR_HOUSE_PICKER_YEARS_UNTIL                                    :{BLACK}Blynyddoedd: {ORANGE}Hyd {NUM}
-STR_HOUSE_PICKER_SIZE                                           :{BLACK}Maint: {ORANGE}{NUM}x{NUM} teil
-STR_HOUSE_PICKER_CARGO_ACCEPTED                                 :{BLACK}Llwythi a dderbynir: {ORANGE}
-STR_HOUSE_PICKER_CARGO_PRODUCED                                 :{BLACK}Llwythi a gynhyrchir: {ORANGE}{CARGO_LIST}
+STR_HOUSE_PICKER_NAME                                           :{BLACK}Enw: {GOLD}{STRING}
+STR_HOUSE_PICKER_POPULATION                                     :{BLACK}Poblogaeth: {GOLD}{NUM}
+STR_HOUSE_PICKER_YEARS                                          :{BLACK}Blynyddoedd: {GOLD}{NUM}-{NUM}
+STR_HOUSE_PICKER_YEARS_ANY                                      :{BLACK}Blynyddoedd: {GOLD}Unrhyw
+STR_HOUSE_PICKER_YEARS_FROM                                     :{BLACK}Blynyddoedd: {GOLD}O {NUM}
+STR_HOUSE_PICKER_YEARS_UNTIL                                    :{BLACK}Blynyddoedd: {GOLD}Hyd {NUM}
+STR_HOUSE_PICKER_SIZE                                           :{BLACK}Maint: {GOLD}{NUM}x{NUM} teil
+STR_HOUSE_PICKER_CARGO_ACCEPTED                                 :{BLACK}Llwythi a dderbynir: {GOLD}{STRING}
+STR_HOUSE_PICKER_CARGO_PRODUCED                                 :{BLACK}Llwythi a gynhyrchir: {GOLD}{CARGO_LIST}
 
 STR_HOUSE_PICKER_CLASS_ZONE1                                    :Ffiniau
 STR_HOUSE_PICKER_CLASS_ZONE2                                    :Cyrion
@@ -3160,7 +3163,7 @@ STR_LAND_AREA_INFORMATION_AIRPORT_CLASS                         :{BLACK}Dosbarth
 STR_LAND_AREA_INFORMATION_AIRPORT_NAME                          :{BLACK}Enw'r maes awyr: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_AIRPORTTILE_NAME                      :{BLACK}Enw teil maes awyr: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_NEWGRF_NAME                           :{BLACK}NewGRF: {LTBLUE}{STRING}
-STR_LAND_AREA_INFORMATION_CARGO_ACCEPTED                        :{BLACK}Llwythi a dderbynir: {LTBLUE}
+STR_LAND_AREA_INFORMATION_CARGO_ACCEPTED                        :{BLACK}Llwythi a dderbynir: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_CARGO_EIGHTS                          :({COMMA}/8 {STRING})
 STR_LANG_AREA_INFORMATION_RAIL_TYPE                             :{BLACK}Math rheilffordd: {LTBLUE}{STRING}
 STR_LANG_AREA_INFORMATION_ROAD_TYPE                             :{BLACK}Math lôn: {LTBLUE}{STRING}
@@ -3692,7 +3695,7 @@ STR_SIGN_LIST_MATCH_CASE                                        :{BLACK}Cydweddu
 STR_SIGN_LIST_MATCH_CASE_TOOLTIP                                :{BLACK}Toglo cydweddu prif lythrennau pan yn cymharu enwau arwyddion yn erbyn y llinyn hidlo
 
 # Sign window
-STR_EDIT_SIGN_CAPTION                                           :{WHITE}Golygu testun arwydd
+STR_EDIT_SIGN_CAPTION                                           :{WHITE}Golygu arwydd
 STR_EDIT_SIGN_LOCATION_TOOLTIP                                  :{BLACK}Canoli'r brif olygfa ar leoliad yr arwydd. Mae Ctrl+Clic yn agor ffenestr olygfa newydd ar leoliad yr arwydd
 STR_EDIT_SIGN_NEXT_SIGN_TOOLTIP                                 :{BLACK}Mynd i'r arwydd nesaf
 STR_EDIT_SIGN_PREVIOUS_SIGN_TOOLTIP                             :{BLACK}Mynd i'r arwydd blaenorol
@@ -3910,14 +3913,14 @@ STR_CARGO_RATING_EXCELLENT                                      :Gwych
 STR_CARGO_RATING_OUTSTANDING                                    :Rhagorol
 
 STR_STATION_VIEW_CENTER_TOOLTIP                                 :{BLACK}Canoli'r brif olygfa ar leoliad yr orsaf. Ctrl+Clic i agor ffenest golwg newydd ar leoliad yr orsaf
-STR_STATION_VIEW_RENAME_TOOLTIP                                 :{BLACK}Newid enw'r orsaf
+STR_STATION_VIEW_EDIT_TOOLTIP                                   :{BLACK}Ailenwi gorsaf neu symud arwydd
 
 STR_STATION_VIEW_SCHEDULED_TRAINS_TOOLTIP                       :{BLACK}Dangos pob trên sydd â'r orsaf hon yn eu hamserlen
 STR_STATION_VIEW_SCHEDULED_ROAD_VEHICLES_TOOLTIP                :{BLACK}Dangos pob cerbyd ffordd sydd â'r orsaf hon yn eu hamserlen
 STR_STATION_VIEW_SCHEDULED_AIRCRAFT_TOOLTIP                     :{BLACK}Dangos pob awyren sydd â'r orsaf hon yn eu hamserlen
 STR_STATION_VIEW_SCHEDULED_SHIPS_TOOLTIP                        :{BLACK}Dangos pob llong sydd â'r orsaf hon yn eu hamserlen
 
-STR_STATION_VIEW_RENAME_STATION_CAPTION                         :Ailenwi gorsaf/ardal lwytho
+STR_STATION_VIEW_EDIT_STATION_SIGN                              :{WHITE}Golygu arwydd gorsaf
 
 STR_STATION_VIEW_CLOSE_AIRPORT                                  :{BLACK}Cau'r maes awyr
 STR_STATION_VIEW_CLOSE_AIRPORT_TOOLTIP                          :{BLACK}Rhwystro awyrennau rhag glanio ar y maes awyr yma
@@ -3925,11 +3928,11 @@ STR_STATION_VIEW_CLOSE_AIRPORT_TOOLTIP                          :{BLACK}Rhwystro
 # Waypoint/buoy view window
 STR_WAYPOINT_VIEW_CAPTION                                       :{WHITE}{WAYPOINT}
 STR_WAYPOINT_VIEW_CENTER_TOOLTIP                                :{BLACK}Canoli'r brif olygfa ar leoliad y pwynt llwybro. Ctrl+Clic i agor ffenest olygfa newydd ar leoliad y pwynt llwybro
-STR_WAYPOINT_VIEW_CHANGE_WAYPOINT_NAME                          :{BLACK}Newid enw pwynt llwybro
+STR_WAYPOINT_VIEW_EDIT_TOOLTIP                                  :{BLACK}Ailenwi pwynt llwybro neu ddileu arwydd
 STR_BUOY_VIEW_CENTER_TOOLTIP                                    :{BLACK}Canoli'r brif olygfa ar leoliad y bwï. Ctrl+Clic i agor ffenestr olygfa newydd ar leoliad y bwï
 STR_BUOY_VIEW_RENAME_TOOLTIP                                    :{BLACK}Newid enw bwï
 
-STR_EDIT_WAYPOINT_NAME                                          :{WHITE}Golygu enw pwynt llwybro
+STR_WAYPOINT_VIEW_EDIT_WAYPOINT_SIGN                            :{WHITE}Golygu arwydd pwynt llwybro
 
 # Finances window
 STR_FINANCES_CAPTION                                            :{WHITE}Cyllid {COMPANY}{BLACK}{COMPANY_NUM}
@@ -4044,7 +4047,7 @@ STR_COMPANY_INFRASTRUCTURE_VIEW_TOTAL_PERIOD                    :{WHITE}{CURRENC
 # Industry directory
 STR_INDUSTRY_DIRECTORY_CAPTION                                  :{WHITE}Diwydiannau ({COMMA} o {COMMA})
 STR_INDUSTRY_DIRECTORY_NONE                                     :{ORANGE}- Dim -
-STR_INDUSTRY_DIRECTORY_ITEM_INFO                                :{BLACK}{CARGO_LONG}{STRING}{YELLOW} ({COMMA}% wedi'i gludo){BLACK}
+STR_INDUSTRY_DIRECTORY_ITEM_INFO                                :{BLACK}{CARGO_LONG}{STRING}{YELLOW} ({COMMA}% wedi'i gludo)
 STR_INDUSTRY_DIRECTORY_ITEM_NOPROD                              :{ORANGE}{INDUSTRY}
 STR_INDUSTRY_DIRECTORY_ITEM_PROD1                               :{ORANGE}{INDUSTRY} {STRING}
 STR_INDUSTRY_DIRECTORY_ITEM_PROD2                               :{ORANGE}{INDUSTRY} {STRING}, {STRING}
@@ -4067,9 +4070,9 @@ STR_INDUSTRY_VIEW_CARGO_GRAPH_TOOLTIP                           :{BLACK}Yn dango
 STR_INDUSTRY_VIEW_PRODUCTION_LEVEL                              :{BLACK}Lefel cynhyrchu: {YELLOW}{COMMA}%
 STR_INDUSTRY_VIEW_INDUSTRY_ANNOUNCED_CLOSURE                    :{YELLOW}Mae'r diwydiant wedi datgan ei fod ar fin cau!
 
-STR_INDUSTRY_VIEW_REQUIRES_N_CARGO                              :{BLACK}Angen: {YELLOW}{STRING}{STRING}
-STR_INDUSTRY_VIEW_PRODUCES_N_CARGO                              :{BLACK}Yn cynhyrchu: {YELLOW}{STRING}{STRING}
-STR_INDUSTRY_VIEW_CARGO_LIST_EXTENSION                          :, {STRING}{STRING}
+STR_INDUSTRY_VIEW_REQUIRES_N_CARGO                              :{BLACK}Angen: {YELLOW}{STRING}
+STR_INDUSTRY_VIEW_PRODUCES_N_CARGO                              :{BLACK}Yn cynhyrchu: {YELLOW}{STRING}
+STR_INDUSTRY_VIEW_CARGO_LIST_EXTENSION                          :{STRING}{STRING}
 
 STR_INDUSTRY_VIEW_REQUIRES                                      :{BLACK}Angen:
 STR_INDUSTRY_VIEW_ACCEPT_CARGO_SUFFIX                           :{YELLOW}{0:STRING}{BLACK}{3:STRING}
@@ -4596,7 +4599,7 @@ STR_VEHICLE_DETAILS_TRAIN_CAPACITIES_TOOLTIP                    :{BLACK}Dangos c
 STR_VEHICLE_DETAIL_TAB_TOTAL_CARGO                              :{BLACK}Cyfanswm Llwyth
 STR_VEHICLE_DETAILS_TRAIN_TOTAL_CARGO_TOOLTIP                   :{BLACK}Dangos cynhwysedd y trên, wedi'i rannu yn ôl math nwyddau
 
-STR_VEHICLE_DETAILS_TRAIN_ARTICULATED_RV_CAPACITY               :{BLACK}Cynhwysedd: {LTBLUE}
+STR_VEHICLE_DETAILS_TRAIN_ARTICULATED_RV_CAPACITY               :{BLACK}Cynhwysedd: {LTBLUE}{STRING}
 
 # Vehicle refit
 STR_REFIT_CAPTION                                               :{WHITE}{VEHICLE} (Ailffitio)
@@ -5144,6 +5147,7 @@ STR_ERROR_TOO_MANY_TRUCK_STOPS                                  :{WHITE}Gormod o
 STR_ERROR_TOO_CLOSE_TO_ANOTHER_DOCK                             :{WHITE}Rhy agos i ddoc arall
 STR_ERROR_TOO_CLOSE_TO_ANOTHER_AIRPORT                          :{WHITE}Rhy agos i faes awyr arall
 STR_ERROR_CAN_T_RENAME_STATION                                  :{WHITE}Methu ailenwi gorsaf...
+STR_ERROR_CAN_T_MOVE_STATION_NAME                               :{WHITE}Methu symud arwydd gorsaf...
 STR_ERROR_DRIVE_THROUGH_ON_TOWN_ROAD                            :{WHITE}... mae'r ffordd hon yn eiddo i dref
 STR_ERROR_DRIVE_THROUGH_DIRECTION                               :{WHITE}... mae'r ffordd yn gorwedd yn y cyfeiriad anghywir
 STR_ERROR_DRIVE_THROUGH_CORNER                                  :{WHITE}... ni all arosfannau gyrru-trwodd fod â chorneli
@@ -5175,6 +5179,7 @@ STR_ERROR_CAN_T_BUILD_RAIL_WAYPOINT                             :{WHITE}Does dim
 STR_ERROR_CAN_T_BUILD_ROAD_WAYPOINT                             :{WHITE}Methu adeiladu pwynt llwybro ffordd yma...
 STR_ERROR_CAN_T_POSITION_BUOY_HERE                              :{WHITE}Methu gosod bwï yma...
 STR_ERROR_CAN_T_CHANGE_WAYPOINT_NAME                            :{WHITE}Does dim modd newid enw pwynt llwybro...
+STR_ERROR_CAN_T_MOVE_WAYPOINT_NAME                              :{WHITE}Methu symud arwydd pwynt llwybro...
 
 STR_ERROR_CAN_T_REMOVE_RAIL_WAYPOINT                            :{WHITE}Does dim modd tynnu'r pwynt llwybro trên yma...
 STR_ERROR_CAN_T_REMOVE_ROAD_WAYPOINT                            :{WHITE}Methu tynnu'r pwynt llwybro ffordd yma...

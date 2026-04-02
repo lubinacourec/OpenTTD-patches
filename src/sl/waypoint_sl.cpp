@@ -2,10 +2,10 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
-/** @file waypoint_sl.cpp Code handling saving and loading of waypoints */
+/** @file waypoint_sl.cpp Code handling saving and loading of waypoints. */
 
 #include "../stdafx.h"
 #include "../waypoint_base.h"
@@ -98,10 +98,10 @@ void MoveWaypointsToBaseStations()
 		TileIndex t = wp.xy;
 		/* Sometimes waypoint (sign) locations became disconnected from their actual location in
 		 * the map array. If this is the case, try to locate the actual location in the map array */
-		if (!IsTileType(t, MP_RAILWAY) || GetRailTileType(t) != 2 /* RAIL_TILE_WAYPOINT */ || _m[t].m2 != wp.index) {
+		if (!IsTileType(t, MP_RAILWAY) || GetRailTileType(t) != RailTileType{2} /* RAIL_TILE_WAYPOINT */ || _m[t].m2 != wp.index) {
 			Debug(sl, 0, "Found waypoint tile {:#X} with invalid position", t);
 			for (t = TileIndex{0}; t < Map::Size(); t++) {
-				if (IsTileType(t, MP_RAILWAY) && GetRailTileType(t) == 2 /* RAIL_TILE_WAYPOINT */ && _m[t].m2 == wp.index) {
+				if (IsTileType(t, MP_RAILWAY) && GetRailTileType(t) == RailTileType{2} /* RAIL_TILE_WAYPOINT */ && _m[t].m2 == wp.index) {
 					Debug(sl, 0, "Found actual waypoint position at {:#X}", t);
 					break;
 				}
@@ -111,7 +111,7 @@ void MoveWaypointsToBaseStations()
 			SlErrorCorrupt("Waypoint with invalid tile");
 		}
 
-		Waypoint *new_wp = new Waypoint(t);
+		Waypoint *new_wp = Waypoint::Create(t);
 		new_wp->town       = wp.town;
 		new_wp->town_cn    = wp.town_cn;
 		new_wp->name       = std::move(wp.name);

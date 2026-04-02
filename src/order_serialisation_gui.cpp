@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file order_serialisation_gui.h GUI for order serialisation and deserialisation to/from JSON. */
@@ -66,7 +66,7 @@ struct OrderListImportErrorsWindow : GeneralVehicleWindow
 	const OrderImportErrors errs;
 	Scrollbar *vscroll = nullptr;
 	bool show_non_error_order = false;
-	OrderList saved_orders{};
+	OrderList saved_orders{OrderListID::Invalid()};
 	VehicleFlags saved_vehicle_flags{};
 
 	OrderListImportErrorsWindow(const Vehicle *v, OrderImportErrors errs) : GeneralVehicleWindow(_order_list_import_errors_desc, v), errs(std::move(errs))
@@ -85,7 +85,7 @@ struct OrderListImportErrorsWindow : GeneralVehicleWindow
 	{
 		this->saved_vehicle_flags = this->vehicle->vehicle_flags;
 		if (this->vehicle->orders != nullptr) {
-			this->saved_orders = *this->vehicle->orders;
+			this->saved_orders.CopyOrderListContents(*this->vehicle->orders);
 		}
 	}
 

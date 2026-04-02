@@ -2,13 +2,10 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
-/**
- * @file newgrf_commons.cpp Implementation of the class %OverrideManagerBase
- * and its descendance, present and future.
- */
+/** @file newgrf_commons.cpp Implementation of the class %OverrideManagerBase and its descendance, present and future. */
 
 #include "stdafx.h"
 #include "debug.h"
@@ -351,7 +348,7 @@ uint32_t GetTerrainType(TileIndex tile, TileContext context)
 					/* During map generation the snowstate may not be valid yet, as the tileloop may not have run yet. */
 					if (_generating_world) goto genworld; // we do not care about foundations here
 					RailGroundType ground = GetRailGroundType(tile);
-					has_snow = (ground == RAIL_GROUND_ICE_DESERT || (context == TCX_UPPER_HALFTILE && ground == RAIL_GROUND_HALF_SNOW));
+					has_snow = (ground == RailGroundType::SnowOrDesert || (context == TCX_UPPER_HALFTILE && ground == RailGroundType::HalfTileSnow));
 					break;
 				}
 
@@ -449,7 +446,7 @@ uint32_t GetNearbyTileInformation(TileIndex tile, bool grf_version8, uint32_t ma
 	}
 	if (mask & 0xFE00) {
 		/* Return 0 if the tile is a land tile */
-		uint8_t terrain_type = (HasTileWaterClass(tile) ? (GetWaterClass(tile) + 1) & 3 : 0) << 5 | GetTerrainType(tile) << 2 | (tile_type == MP_WATER ? 1 : 0) << 1;
+		uint8_t terrain_type = (HasTileWaterClass(tile) ? (to_underlying(GetWaterClass(tile)) + 1) & 3 : 0) << 5 | GetTerrainType(tile) << 2 | (tile_type == MP_WATER ? 1 : 0) << 1;
 		result |= terrain_type << 8;
 	}
 	if (mask & 0xFF00FF) {

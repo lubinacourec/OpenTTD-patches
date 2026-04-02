@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file object_cmd.cpp Handling of object tiles. */
@@ -142,7 +142,7 @@ void BuildObject(ObjectType type, TileIndex tile, CompanyID owner, Town *town, u
 	const ObjectSpec *spec = ObjectSpec::Get(type);
 
 	TileArea ta(tile, GB(spec->size, HasBit(view, 0) ? 4 : 0, 4), GB(spec->size, HasBit(view, 0) ? 0 : 4, 4));
-	Object *o = new Object(type, town == nullptr ? CalcClosestTownFromTile(tile) : town, ta, CalTime::CurDate(), view);
+	Object *o = Object::Create(type, town == nullptr ? CalcClosestTownFromTile(tile) : town, ta, CalTime::CurDate(), view);
 
 	/* If nothing owns the object, the colour will be random. Otherwise
 	 * get the colour from the company's livery settings. */
@@ -168,16 +168,16 @@ void BuildObject(ObjectType type, TileIndex tile, CompanyID owner, Town *town, u
 	for (TileIndex t : ta) {
 		if (IsWaterTile(t)) ClearNeighbourNonFloodingStates(t);
 		if (HasTileWaterGround(t)) InvalidateWaterRegion(t);
-		WaterClass wc = (IsWaterTile(t) ? GetWaterClass(t) : WATER_CLASS_INVALID);
+		WaterClass wc = (IsWaterTile(t) ? GetWaterClass(t) : WaterClass::Invalid);
 		/* Update company infrastructure counts for objects build on canals owned by nobody. */
-		if (wc == WATER_CLASS_CANAL && owner != OWNER_NONE && (IsTileOwner(t, OWNER_NONE) || IsTileOwner(t, OWNER_WATER))) {
+		if (wc == WaterClass::Canal && owner != OWNER_NONE && (IsTileOwner(t, OWNER_NONE) || IsTileOwner(t, OWNER_WATER))) {
 			Company::Get(owner)->infrastructure.water++;
 			DirtyCompanyInfrastructureWindows(owner);
 		}
 		bool remove = IsDockingTile(t);
 		MakeObject(t, owner, o->index, wc, Random());
 		if (remove) RemoveDockingTile(t);
-		if (spec->ctrl_flags.Test(ObjectCtrlFlag::UseLandGround) && wc == WATER_CLASS_INVALID) {
+		if (spec->ctrl_flags.Test(ObjectCtrlFlag::UseLandGround) && wc == WaterClass::Invalid) {
 			SetObjectGroundTypeDensity(t, OBJECT_GROUND_GRASS, 0);
 		}
 		SetObjectFoundationType(t, SLOPE_ELEVATED, type, spec);
@@ -510,7 +510,7 @@ CommandCost CmdPurchaseLandArea(DoCommandFlags flags, TileIndex tile, TileIndex 
  * @param start_tile start tile of area dragging
  * @param type the object type to build
  * @param view the view for the object
- * @param diagonal Whether to use the Orthogonal (0) or Diagonal (1) iterator.
+ * @param diagonal Whether to use the Diagonal or Orthogonal tile iterator.
  * @return the cost of this operation or an error
  */
 CommandCost CmdBuildObjectArea(DoCommandFlags flags, TileIndex tile, TileIndex start_tile, ObjectType type, uint8_t view, bool diagonal)
@@ -718,17 +718,17 @@ ClearedObjectArea *FindClearedObject(TileIndex tile)
 bool WouldObjectLeaveWaterBehind(TileIndex tile)
 {
 	WaterClass wc = GetWaterClass(tile);
-	if (wc == WATER_CLASS_INVALID) return false;
+	if (wc == WaterClass::Invalid) return false;
 
 	Slope slope = GetTileSlope(tile);
 	if (slope != SLOPE_FLAT) {
 		/* Only river water should be restored on appropriate slopes. Other water would be invalid on slopes */
-		if (wc != WATER_CLASS_RIVER || GetInclinedSlopeDirection(slope) == INVALID_DIAGDIR) {
-			wc = WATER_CLASS_INVALID;
+		if (wc != WaterClass::River || GetInclinedSlopeDirection(slope) == INVALID_DIAGDIR) {
+			wc = WaterClass::Invalid;
 		}
 	}
 
-	return wc != WATER_CLASS_INVALID;
+	return wc != WaterClass::Invalid;
 }
 
 static CommandCost ClearTile_Object(TileIndex tile, DoCommandFlags flags)
@@ -915,7 +915,7 @@ static inline bool NeighbourIsNormal(TileIndex tile)
 		TileIndex t = tile + TileOffsByDiagDir(dir);
 		if (!IsValidTile(t)) continue;
 		if (GetTropicZone(t) != TROPICZONE_DESERT) return true;
-		if (HasTileWaterClass(t) && GetWaterClass(t) == WATER_CLASS_SEA) return true;
+		if (HasTileWaterClass(t) && GetWaterClass(t) == WaterClass::Sea) return true;
 	}
 	return false;
 }
@@ -1069,7 +1069,7 @@ static bool TryBuildLightHouse()
 	}
 
 	/* Only build lighthouses at tiles where the border is sea. */
-	if (!IsTileType(tile, MP_WATER) || GetWaterClass(tile) != WATER_CLASS_SEA) return false;
+	if (!IsTileType(tile, MP_WATER) || GetWaterClass(tile) != WaterClass::Sea) return false;
 
 	for (int j = 0; j < 19; j++) {
 		int h;
@@ -1173,7 +1173,7 @@ static void ChangeTileOwner_Object(TileIndex tile, Owner old_owner, Owner new_ow
 	ObjectType type = GetObjectType(tile);
 	if ((type == OBJECT_OWNED_LAND || type >= NEW_OBJECT_OFFSET) && new_owner != INVALID_OWNER) {
 		SetTileOwner(tile, new_owner);
-		if (GetWaterClass(tile) == WATER_CLASS_CANAL) {
+		if (GetWaterClass(tile) == WaterClass::Canal) {
 			Company::Get(old_owner)->infrastructure.water--;
 			Company::Get(new_owner)->infrastructure.water++;
 		}
@@ -1215,14 +1215,14 @@ static CommandCost TerraformTile_Object(TileIndex tile, DoCommandFlags flags, in
 	ObjectType type = GetObjectType(tile);
 
 	auto update_water_class = [&]() {
-		if (GetWaterClass(tile) == WATER_CLASS_CANAL) {
+		if (GetWaterClass(tile) == WaterClass::Canal) {
 			Company *c = Company::GetIfValid(GetTileOwner(tile));
 			if (c != nullptr) {
 				c->infrastructure.water--;
 				DirtyCompanyInfrastructureWindows(c->index);
 			}
 		}
-		SetWaterClass(tile, WATER_CLASS_INVALID);
+		SetWaterClass(tile, WaterClass::Invalid);
 	};
 
 	if (type == OBJECT_OWNED_LAND) {

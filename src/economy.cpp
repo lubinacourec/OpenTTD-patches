@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file economy.cpp Handling of the economy. */
@@ -387,7 +387,7 @@ void ChangeOwnershipOfCompanyItems(Owner old_owner, Owner new_owner)
 					CommandCost res = Command<CMD_SELL_SHARE_IN_COMPANY>::Do({DoCommandFlag::Execute, DoCommandFlag::Bankrupt}, c->index);
 					/* Because we are in a DoCommand, we can't just execute another one and
 					 *  expect the money to be removed. We need to do it ourself! */
-					SubtractMoneyFromCompany(res);
+					SubtractMoneyFromCompany(_current_company, res);
 				}
 			}
 		}
@@ -407,7 +407,7 @@ void ChangeOwnershipOfCompanyItems(Owner old_owner, Owner new_owner)
 				CommandCost res = Command<CMD_SELL_SHARE_IN_COMPANY>::Do({DoCommandFlag::Execute, DoCommandFlag::Bankrupt}, old_owner);
 				/* Because we are in a DoCommand, we can't just execute another one and
 				 *  expect the money to be removed. We need to do it ourself! */
-				SubtractMoneyFromCompany(res);
+				SubtractMoneyFromCompany(_current_company, res);
 			}
 		}
 		cur_company2.Restore();
@@ -763,14 +763,10 @@ static void CompaniesGenStatistics()
 		CompanyCheckBankrupt(c);
 	}
 
-	Backup<CompanyID> cur_company(_current_company, FILE_LINE);
-
 	/* Pay Infrastructure Maintenance, if enabled */
 	if (_settings_game.economy.infrastructure_maintenance) {
 		/* Improved monthly infrastructure costs. */
 		for (const Company *c : Company::Iterate()) {
-			cur_company.Change(c->index);
-
 			CommandCost cost(EXPENSES_PROPERTY);
 			uint32_t rail_total = c->infrastructure.GetRailTotal();
 			for (RailType rt = RAILTYPE_BEGIN; rt < RAILTYPE_END; rt++) {
@@ -786,10 +782,9 @@ static void CompaniesGenStatistics()
 			cost.AddCost(StationMaintenanceCost(c->infrastructure.station));
 			cost.AddCost(AirportMaintenanceCost(c->index));
 
-			SubtractMoneyFromCompany(cost);
+			SubtractMoneyFromCompany(c->index, cost);
 		}
 	}
-	cur_company.Restore();
 
 	/* Only run the economic statistics and update company stats every 3rd economy month (1st of quarter). */
 	if ((EconTime::CurMonth() % 3) != 0) return;
@@ -931,10 +926,7 @@ void RecomputePrices()
 /** Let all companies pay the monthly interest on their loan. */
 static void CompaniesPayInterest()
 {
-	Backup<CompanyID> cur_company(_current_company, FILE_LINE);
 	for (const Company *c : Company::Iterate()) {
-		cur_company.Change(c->index);
-
 		/* Over a year the paid interest should be "loan * interest percentage",
 		 * but... as that number is likely not dividable by 12 (pay each month),
 		 * one needs to account for that in the monthly fee calculations.
@@ -957,11 +949,10 @@ static void CompaniesPayInterest()
 		Money up_to_previous_month = yearly_fee * EconTime::CurMonth() / 12;
 		Money up_to_this_month = yearly_fee * (EconTime::CurMonth() + 1) / 12;
 
-		SubtractMoneyFromCompany(CommandCost(EXPENSES_LOAN_INTEREST, up_to_this_month - up_to_previous_month));
+		SubtractMoneyFromCompany(c->index, CommandCost(EXPENSES_LOAN_INTEREST, up_to_this_month - up_to_previous_month));
 
-		SubtractMoneyFromCompany(CommandCost(EXPENSES_OTHER, _price[PR_STATION_VALUE] >> 2));
+		SubtractMoneyFromCompany(c->index, CommandCost(EXPENSES_OTHER, _price[PR_STATION_VALUE] >> 2));
 	}
-	cur_company.Restore();
 }
 
 static void HandleEconomyFluctuations()
@@ -1406,9 +1397,11 @@ static void TriggerIndustryProduction(Industry *i)
 
 /**
  * Makes us a new cargo payment helper.
+ * @param index The index into the cargo payment pool
  * @param front The front of the train
  */
-CargoPayment::CargoPayment(Vehicle *front) :
+CargoPayment::CargoPayment(CargoPaymentID index, Vehicle *front) :
+	PoolItemBase(index),
 	current_station(front->last_station_visited),
 	front(front)
 {
@@ -1416,7 +1409,7 @@ CargoPayment::CargoPayment(Vehicle *front) :
 
 CargoPayment::~CargoPayment()
 {
-	if (this->CleaningPool()) return;
+	if (CleaningPool()) return;
 
 	this->front->cargo_payment = nullptr;
 
@@ -1424,7 +1417,7 @@ CargoPayment::~CargoPayment()
 
 	Backup<CompanyID> cur_company(_current_company, this->front->owner, FILE_LINE);
 
-	SubtractMoneyFromCompany(CommandCost(this->front->GetExpenseType(true), -this->route_profit));
+	SubtractMoneyFromCompany(_current_company, CommandCost(this->front->GetExpenseType(true), -this->route_profit));
 	this->front->profit_this_year += (this->visual_profit + this->visual_transfer) << 8;
 
 	if (this->route_profit != 0 && IsLocalCompany() && !PlayVehicleSound(this->front, VSE_LOAD_UNLOAD)) {
@@ -1537,7 +1530,7 @@ void PrepareUnload(Vehicle *front_v)
 	 * limit in number of CargoPayments. Can't go wrong. */
 	static_assert(CargoPaymentPool::MAX_SIZE == VehiclePool::MAX_SIZE);
 	assert(CargoPayment::CanAllocateItem());
-	front_v->cargo_payment = new CargoPayment(front_v);
+	front_v->cargo_payment = CargoPayment::Create(front_v);
 
 	CargoStationIDVectorSet next_station = front_v->GetNextStoppingStation();
 	if (front_v->orders == nullptr || (front_v->current_order.GetUnloadType() & OUFB_NO_UNLOAD) == 0) {
@@ -2522,6 +2515,7 @@ void PostAcquireCompany(Company *c)
 	InvalidateWindowClassesData(WC_ROADVEH_LIST, 0);
 	InvalidateWindowClassesData(WC_AIRCRAFT_LIST, 0);
 	InvalidateWindowClassesData(WC_DEPARTURES_BOARD, 0);
+	InvalidateWindowData(WC_CLIENT_LIST, 0);
 
 	delete c;
 

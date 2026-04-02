@@ -15,7 +15,7 @@
 # This file is part of OpenTTD.
 # OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
 # OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
 
 
 ##id 0x0000
@@ -446,6 +446,7 @@ STR_SHOW_HIDDEN_ENGINES_VEHICLE_AIRCRAFT_TOOLTIP                :{BLACK}нати
 STR_BUTTON_DEFAULT                                              :{BLACK}Стандартно
 STR_BUTTON_CANCEL                                               :{BLACK}Скасувати
 STR_BUTTON_OK                                                   :{BLACK}Так
+STR_BUTTON_MOVE                                                 :{BLACK}Перемістити
 
 # On screen keyboard window
 STR_OSK_KEYBOARD_LAYOUT                                         :`1234567890-= йцукенгшщзхїфівапролджє#\ячсмитьбю. .
@@ -1251,7 +1252,7 @@ STR_GAME_OPTIONS_BASE_GRF_TOOLTIP                               :Оберіть,
 STR_GAME_OPTIONS_BASE_GRF_DESCRIPTION_TOOLTIP                   :Додаткова інформація про базовий набір графіки
 
 STR_GAME_OPTIONS_BASE_SFX                                       :Базовий набір звуків
-STR_GAME_OPTIONS_BASE_SFX_TOOLTIP                               :Оберіть базовий набір звуків для використання (неможливо змінити у грі, тільки з головного меню)
+STR_GAME_OPTIONS_BASE_SFX_TOOLTIP                               :Оберіть базовий набір звуків для використання
 STR_GAME_OPTIONS_BASE_SFX_DESCRIPTION_TOOLTIP                   :Додаткова інформація про базовий набір звуків
 
 STR_GAME_OPTIONS_BASE_MUSIC                                     :Базовий музичний набір
@@ -1384,7 +1385,7 @@ STR_CONFIG_SETTING_EXPAND_ALL                                   :Розгорн�
 STR_CONFIG_SETTING_COLLAPSE_ALL                                 :Згорнути всі
 STR_CONFIG_SETTING_RESET_ALL                                    :Скинути усі значення
 STR_CONFIG_SETTING_NO_EXPLANATION_AVAILABLE_HELPTEXT            :(пояснення відсутнє)
-STR_CONFIG_SETTING_VALUE                                        :{PUSH_COLOUR}{ORANGE}{STRING}{POP_COLOUR}
+STR_CONFIG_SETTING_VALUE                                        :{ORANGE}{STRING}
 STR_CONFIG_SETTING_DEFAULT_VALUE                                :{LTBLUE}Стандартне значення: {ORANGE}{STRING}
 STR_CONFIG_SETTING_TYPE                                         :{LTBLUE}Тип: {ORANGE}{STRING}
 STR_CONFIG_SETTING_TYPE_CLIENT                                  :Налаштування клієнта (не присутні в збережених іграх; впливають на будь-яку гру)
@@ -2227,6 +2228,8 @@ STR_CONFIG_SETTING_LARGER_TOWNS_VALUE                           :1 з {COMMA}
 STR_CONFIG_SETTING_LARGER_TOWNS_DISABLED                        :Жодного
 STR_CONFIG_SETTING_CITY_SIZE_MULTIPLIER                         :Множник розміру мегаполісів: {STRING}
 STR_CONFIG_SETTING_CITY_SIZE_MULTIPLIER_HELPTEXT                :Середньостатистичне відношення початкового розміру мегаполісів порівняно зі звичайними містами.
+STR_CONFIG_SETTING_TOWN_MIN_DISTANCE                            :Найменша відстань між містами: {STRING}
+STR_CONFIG_SETTING_TOWN_MIN_DISTANCE_HELPTEXT                   :Встановлення найменшої відстані у клітинках між містами при створенні мапи і випадковому заснуванні
 
 STR_CONFIG_SETTING_LINKGRAPH_RECALC_INTERVAL                    :Оновлення обрахунку зв'язків, час {STRING}
 STR_CONFIG_SETTING_LINKGRAPH_RECALC_INTERVAL_HELPTEXT           :Час між перерозрахунками графа зв'язків. Кожен розрахунок обчислює один компонент графа, тобто лише деякі компоненти оновляться після закінчення кожного проміжку часу, а не весь граф. Чим менше це значення, тим більше часу процесора буде витрачатися. Чим більше це значення, тим довше доведеться очікувати розподілення вантажів на нових маршрутах
@@ -2988,7 +2991,18 @@ STR_PICKER_PREVIEW_SHRINK_TOOLTIP                               :Зменшит�
 STR_PICKER_PREVIEW_EXPAND                                       :+
 STR_PICKER_PREVIEW_EXPAND_TOOLTIP                               :Збільшити висоту попереднього перегляду зображень. Ctrl+клац збільшує до верхньої межі
 
+STR_PICKER_SELECT_COLLECTION_TOOLTIP                            :Обрання збірки
+STR_PICKER_COLLECTION_ADD                                       :Додати
+STR_PICKER_COLLECTION_ADD_TOOLTIP                               :Створення нової збірки
+STR_PICKER_COLLECTION_RENAME                                    :Перейменувати
+STR_PICKER_COLLECTION_RENAME_TOOLTIP                            :Перейменування збірки
+STR_PICKER_COLLECTION_DELETE                                    :Видалити
+STR_PICKER_COLLECTION_DELETE_TOOLTIP                            :Видалення збірки
 
+STR_PICKER_COLLECTION_RENAME_QUERY                              :Перейменувати збірку
+STR_PICKER_COLLECTION_DELETE_QUERY                              :Видалити збірку
+STR_PICKER_COLLECTION_DELETE_QUERY_TEXT                         :{YELLOW}Дійсно бажаєте видалити збірку?
+STR_PICKER_COLLECTION_DELETE_QUERY_DISABLED_TEXT                :{YELLOW}Дійсно бажаєте видалити збірку? У списку є відключені NewGRFи!
 
 STR_PICKER_STATION_CLASS_TOOLTIP                                :Виберіть тип станцій для відображення
 STR_PICKER_STATION_TYPE_TOOLTIP                                 :Виберіть тип станції для побудови. Клацніть Ctrl+Клік, щоб додати або видалити зі списку збереженого
@@ -2996,23 +3010,25 @@ STR_PICKER_WAYPOINT_CLASS_TOOLTIP                               :Виберіт�
 STR_PICKER_WAYPOINT_TYPE_TOOLTIP                                :Виберіть тип точки шляху для побудови. Клацніть Ctrl+Клік, щоб додати або видалити зі списку збереженого
 STR_PICKER_ROADSTOP_BUS_CLASS_TOOLTIP                           :Виберіть тип автобусної зупинки для відображення
 STR_PICKER_ROADSTOP_BUS_TYPE_TOOLTIP                            :Виберіть тип автобусної зупинки для побудови. Клацніть Ctrl+Клік, щоб додати або видалити зі списку збереженого
+STR_PICKER_ROADSTOP_BUS_COLLECTION_TOOLTIP                      :Обрання збірки автобусних станцій для показу
 STR_PICKER_ROADSTOP_TRUCK_CLASS_TOOLTIP                         :Виберіть клас вантажної станції для відображення
 STR_PICKER_ROADSTOP_TRUCK_TYPE_TOOLTIP                          :Виберіть тип вантажної станції для побудови. Клацніть Ctrl+Клік, щоб додати або видалити зі списку збереженого
 STR_PICKER_OBJECT_CLASS_TOOLTIP                                 :Виберіть тип об’єкта для його відображення
 STR_PICKER_OBJECT_TYPE_TOOLTIP                                  :Виберіть тип об’єкта для побудови. Ctrl+клац, щоб додати або видалити зі списку збереженого. Ctrl+клац+протягування для виділення діагональної ділянки. Утримуйте Shift для показу очікуваних витрат
+STR_PICKER_OBJECT_COLLECTION_TOOLTIP                            :Обрання збірки чи об'єктів для показу
 STR_PICKER_HOUSE_CLASS_TOOLTIP                                  :Виберіть зону міста для відображення
 STR_PICKER_HOUSE_TYPE_TOOLTIP                                   :Виберіть тип споруди для побудови. Клацніть Ctrl+Клік, щоб додати або видалити зі списку збереженого
 
 STR_HOUSE_PICKER_CAPTION                                        :Вибір будівлі
-STR_HOUSE_PICKER_NAME                                           :{BLACK}Назва: {ORANGE}{STRING}
-STR_HOUSE_PICKER_POPULATION                                     :{BLACK}Населення: {ORANGE}{NUM}
-STR_HOUSE_PICKER_YEARS                                          :{BLACK}Роки: {ORANGE}{NUM}-{NUM}
-STR_HOUSE_PICKER_YEARS_ANY                                      :{BLACK}Роки: {ORANGE}будь-які
-STR_HOUSE_PICKER_YEARS_FROM                                     :{BLACK}Роки: {ORANGE}з {NUM}
-STR_HOUSE_PICKER_YEARS_UNTIL                                    :{BLACK}Роки: {ORANGE}до {NUM}
-STR_HOUSE_PICKER_SIZE                                           :{BLACK}Розмір: {ORANGE}{NUM}x{NUM} клітинок
-STR_HOUSE_PICKER_CARGO_ACCEPTED                                 :{BLACK}Приймається вантаж: {ORANGE}
-STR_HOUSE_PICKER_CARGO_PRODUCED                                 :{BLACK}Вантажу вироблено: {ORANGE}{CARGO_LIST}
+STR_HOUSE_PICKER_NAME                                           :{BLACK}Назва: {GOLD}{STRING}
+STR_HOUSE_PICKER_POPULATION                                     :{BLACK}Населення: {GOLD}{NUM}
+STR_HOUSE_PICKER_YEARS                                          :{BLACK}Роки: {GOLD}{NUM}-{NUM}
+STR_HOUSE_PICKER_YEARS_ANY                                      :{BLACK}Роки: {GOLD}будь-які
+STR_HOUSE_PICKER_YEARS_FROM                                     :{BLACK}Роки: {GOLD}з {NUM}
+STR_HOUSE_PICKER_YEARS_UNTIL                                    :{BLACK}Роки: {GOLD}до {NUM}
+STR_HOUSE_PICKER_SIZE                                           :{BLACK}Розмір: {GOLD}{NUM}x{NUM} клітинок
+STR_HOUSE_PICKER_CARGO_ACCEPTED                                 :{BLACK}Приймається вантаж: {GOLD}{STRING}
+STR_HOUSE_PICKER_CARGO_PRODUCED                                 :{BLACK}Вантажу вироблено: {GOLD}{CARGO_LIST}
 
 STR_HOUSE_PICKER_CLASS_ZONE1                                    :Край
 STR_HOUSE_PICKER_CLASS_ZONE2                                    :Окраїна
@@ -3300,7 +3316,7 @@ STR_LAND_AREA_INFORMATION_AIRPORT_CLASS                         :{BLACK}Клас
 STR_LAND_AREA_INFORMATION_AIRPORT_NAME                          :{BLACK}Назва аеропорта: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_AIRPORTTILE_NAME                      :{BLACK}Назва ділянки аеропорту: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_NEWGRF_NAME                           :{BLACK}NewGRF: {LTBLUE}{STRING}
-STR_LAND_AREA_INFORMATION_CARGO_ACCEPTED                        :{BLACK}Приймає: {LTBLUE}
+STR_LAND_AREA_INFORMATION_CARGO_ACCEPTED                        :{BLACK}Приймає: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_CARGO_EIGHTS                          :({COMMA}/8 {STRING})
 STR_LANG_AREA_INFORMATION_RAIL_TYPE                             :{BLACK}Тип зал.колії: {LTBLUE}{STRING}
 STR_LANG_AREA_INFORMATION_ROAD_TYPE                             :{BLACK}Тип дороги: {LTBLUE}{STRING}
@@ -3832,7 +3848,7 @@ STR_SIGN_LIST_MATCH_CASE                                        :{BLACK}Врах
 STR_SIGN_LIST_MATCH_CASE_TOOLTIP                                :{BLACK}Перемкнути регістр при порівнянні назви позначок з фільтром
 
 # Sign window
-STR_EDIT_SIGN_CAPTION                                           :{WHITE}Редагування напису
+STR_EDIT_SIGN_CAPTION                                           :{WHITE}Редагування назви
 STR_EDIT_SIGN_LOCATION_TOOLTIP                                  :{BLACK}Показати позначку в центрі екрану. Ctrl+клац мишею відкриє нове вікно у місці розташування позначки
 STR_EDIT_SIGN_NEXT_SIGN_TOOLTIP                                 :{BLACK}Наступне позначення
 STR_EDIT_SIGN_PREVIOUS_SIGN_TOOLTIP                             :{BLACK}Попереднє позначення
@@ -4050,14 +4066,14 @@ STR_CARGO_RATING_EXCELLENT                                      :відмінн�
 STR_CARGO_RATING_OUTSTANDING                                    :найкраще
 
 STR_STATION_VIEW_CENTER_TOOLTIP                                 :{BLACK}Показувати станцію в центрі екрану. Ctrl+клац мишею відкриє нове вікно з видом на станцію
-STR_STATION_VIEW_RENAME_TOOLTIP                                 :{BLACK}Перейменувати станцію
+STR_STATION_VIEW_EDIT_TOOLTIP                                   :{BLACK}Перейменувати станцію чи пересунути назву
 
 STR_STATION_VIEW_SCHEDULED_TRAINS_TOOLTIP                       :{BLACK}Показати всі поїзди, які заходять на цю станцію
 STR_STATION_VIEW_SCHEDULED_ROAD_VEHICLES_TOOLTIP                :{BLACK}Показати всі авто, які заходять на цю станцію
 STR_STATION_VIEW_SCHEDULED_AIRCRAFT_TOOLTIP                     :{BLACK}Показати всі літаки, які залітають на цю станцію
 STR_STATION_VIEW_SCHEDULED_SHIPS_TOOLTIP                        :{BLACK}Показати всі кораблі, які запливають на цю станцію
 
-STR_STATION_VIEW_RENAME_STATION_CAPTION                         :Перейменування станції
+STR_STATION_VIEW_EDIT_STATION_SIGN                              :{WHITE}Редагування назви станції
 
 STR_STATION_VIEW_CLOSE_AIRPORT                                  :{BLACK}Закрити аеропорт
 STR_STATION_VIEW_CLOSE_AIRPORT_TOOLTIP                          :{BLACK}Заборонити посадку авіатранспорту на цей аеропорт
@@ -4065,11 +4081,11 @@ STR_STATION_VIEW_CLOSE_AIRPORT_TOOLTIP                          :{BLACK}Забо
 # Waypoint/buoy view window
 STR_WAYPOINT_VIEW_CAPTION                                       :{WHITE}{WAYPOINT}
 STR_WAYPOINT_VIEW_CENTER_TOOLTIP                                :{BLACK}Показати точку маршруту в центрі екрану. Ctrl+клац мишею відкриє нове вікно з видом на точку маршруту
-STR_WAYPOINT_VIEW_CHANGE_WAYPOINT_NAME                          :{BLACK}Перейменувати точку маршруту
+STR_WAYPOINT_VIEW_EDIT_TOOLTIP                                  :{BLACK}Перейменувати точку шляху чи пересунути назву
 STR_BUOY_VIEW_CENTER_TOOLTIP                                    :{BLACK}Показати буй в центрі екрану. Ctrl+клац мишею відкриє нове вікно з видом на розташування буя
 STR_BUOY_VIEW_RENAME_TOOLTIP                                    :{BLACK}Перейменувати буй
 
-STR_EDIT_WAYPOINT_NAME                                          :{WHITE}Перейменуйте точку маршруту
+STR_WAYPOINT_VIEW_EDIT_WAYPOINT_SIGN                            :{WHITE}Редагування назви точки шляху
 
 # Finances window
 STR_FINANCES_CAPTION                                            :{WHITE}Фінанси {COMPANY} {BLACK}{COMPANY_NUM}
@@ -4184,7 +4200,7 @@ STR_COMPANY_INFRASTRUCTURE_VIEW_TOTAL_PERIOD                    :{WHITE}{CURRENC
 # Industry directory
 STR_INDUSTRY_DIRECTORY_CAPTION                                  :{WHITE}Підприємства ({COMMA} та {COMMA})
 STR_INDUSTRY_DIRECTORY_NONE                                     :{ORANGE}- немає -
-STR_INDUSTRY_DIRECTORY_ITEM_INFO                                :{BLACK}{CARGO_LONG}{STRING}{YELLOW} ({COMMA}% перевезено){BLACK}
+STR_INDUSTRY_DIRECTORY_ITEM_INFO                                :{BLACK}{CARGO_LONG}{STRING}{YELLOW} ({COMMA}% перевезено)
 STR_INDUSTRY_DIRECTORY_ITEM_NOPROD                              :{ORANGE}{INDUSTRY}
 STR_INDUSTRY_DIRECTORY_ITEM_PROD1                               :{ORANGE}{INDUSTRY} {STRING}
 STR_INDUSTRY_DIRECTORY_ITEM_PROD2                               :{ORANGE}{INDUSTRY} {STRING}, {STRING}
@@ -4207,9 +4223,9 @@ STR_INDUSTRY_VIEW_CARGO_GRAPH_TOOLTIP                           :{BLACK}Пока
 STR_INDUSTRY_VIEW_PRODUCTION_LEVEL                              :{BLACK}Обсяг виробництва: {YELLOW}{COMMA}%
 STR_INDUSTRY_VIEW_INDUSTRY_ANNOUNCED_CLOSURE                    :{YELLOW}Підприємство оголосило про близьке закриття!
 
-STR_INDUSTRY_VIEW_REQUIRES_N_CARGO                              :{BLACK}Потребує: {YELLOW}{STRING}{STRING}
-STR_INDUSTRY_VIEW_PRODUCES_N_CARGO                              :{BLACK}Виробляє: {YELLOW}{STRING}{STRING}
-STR_INDUSTRY_VIEW_CARGO_LIST_EXTENSION                          :, {STRING}{STRING}
+STR_INDUSTRY_VIEW_REQUIRES_N_CARGO                              :{BLACK}Потребує: {YELLOW}{STRING}
+STR_INDUSTRY_VIEW_PRODUCES_N_CARGO                              :{BLACK}Виробляє: {YELLOW}{STRING}
+STR_INDUSTRY_VIEW_CARGO_LIST_EXTENSION                          :{STRING}{STRING}
 
 STR_INDUSTRY_VIEW_REQUIRES                                      :{BLACK}Потребує:
 STR_INDUSTRY_VIEW_ACCEPT_CARGO_SUFFIX                           :{YELLOW}{0:STRING}{BLACK}{3:STRING}
@@ -4736,7 +4752,7 @@ STR_VEHICLE_DETAILS_TRAIN_CAPACITIES_TOOLTIP                    :{BLACK}Пока
 STR_VEHICLE_DETAIL_TAB_TOTAL_CARGO                              :{BLACK}Повна місткість
 STR_VEHICLE_DETAILS_TRAIN_TOTAL_CARGO_TOOLTIP                   :{BLACK}Показати загальну місткість поїзда, розділену за типом вантажу
 
-STR_VEHICLE_DETAILS_TRAIN_ARTICULATED_RV_CAPACITY               :{BLACK}Місткість: {LTBLUE}
+STR_VEHICLE_DETAILS_TRAIN_ARTICULATED_RV_CAPACITY               :{BLACK}Місткість: {LTBLUE}{STRING}
 
 # Vehicle refit
 STR_REFIT_CAPTION                                               :{WHITE}{VEHICLE} (Переобладнання)
@@ -5286,6 +5302,7 @@ STR_ERROR_TOO_MANY_TRUCK_STOPS                                  :{WHITE}Дуже
 STR_ERROR_TOO_CLOSE_TO_ANOTHER_DOCK                             :{WHITE}Дуже близько до іншого порту
 STR_ERROR_TOO_CLOSE_TO_ANOTHER_AIRPORT                          :{WHITE}Дуже близько до іншого аеропорту
 STR_ERROR_CAN_T_RENAME_STATION                                  :{WHITE}Неможливо перейменувати станцію...
+STR_ERROR_CAN_T_MOVE_STATION_NAME                               :{WHITE}Неможливо пересунути назву станції...
 STR_ERROR_DRIVE_THROUGH_ON_TOWN_ROAD                            :{WHITE}... ця дорога у власності міста
 STR_ERROR_DRIVE_THROUGH_DIRECTION                               :{WHITE}... дорога не в тому напрямку
 STR_ERROR_DRIVE_THROUGH_CORNER                                  :{WHITE}... проїзні зупинки не можуть мати поворотів
@@ -5317,6 +5334,7 @@ STR_ERROR_CAN_T_BUILD_RAIL_WAYPOINT                             :{WHITE}Тут �
 STR_ERROR_CAN_T_BUILD_ROAD_WAYPOINT                             :{WHITE}Неможливо побудувати точку шляху тут...
 STR_ERROR_CAN_T_POSITION_BUOY_HERE                              :{WHITE}Неможливо розмістити бакен тут...
 STR_ERROR_CAN_T_CHANGE_WAYPOINT_NAME                            :{WHITE}Не можна перейменувати точку маршруту...
+STR_ERROR_CAN_T_MOVE_WAYPOINT_NAME                              :{WHITE}Неможливо пересунути назву точки шляху...
 
 STR_ERROR_CAN_T_REMOVE_RAIL_WAYPOINT                            :{WHITE}Тут не можна прибрати точку шляху..
 STR_ERROR_CAN_T_REMOVE_ROAD_WAYPOINT                            :{WHITE}Неможливо прибрати цю точку шляху...

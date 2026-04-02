@@ -2,10 +2,10 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
-/** @file picker_gui.cpp %File for dealing with picker windows */
+/** @file picker_gui.cpp %File for dealing with picker windows. */
 
 #include "stdafx.h"
 #include "core/backup_type.hpp"
@@ -443,8 +443,8 @@ void PickerWindow::DrawWidget(const Rect &r, WidgetID widget) const
 				int by = ir.Height() - ScaleGUITrad(12);
 
 				GrfSpecFeature feature = this->callbacks.GetFeature();
-				/* Houses have recolours but not related to the company colour. */
-				PaletteID palette = feature == GSF_HOUSES ? PAL_NONE : GetCompanyPalette(_local_company);
+				/* Houses have recolours but not related to the company colour and other items depend on gamemode. */
+				PaletteID palette = _game_mode != GM_NORMAL || feature == GSF_HOUSES ? PAL_NONE : GetCompanyPalette(_local_company);
 				DrawBadgeColumn({0, by, ir.Width() - 1, ir.Height() - 1}, 0, this->badge_classes, this->callbacks.GetTypeBadges(item.class_index, item.index), feature, std::nullopt, palette);
 
 				auto saved = this->callbacks.GetSelectedSavedCollection();
@@ -464,7 +464,7 @@ void PickerWindow::DrawWidget(const Rect &r, WidgetID widget) const
 
 		case WID_PW_TYPE_NAME: {
 			StringID str = this->callbacks.GetTypeName(this->callbacks.GetSelectedClass(), this->callbacks.GetSelectedType());
-			if (str != INVALID_STRING_ID) DrawString(r, str, TC_ORANGE, SA_CENTER);
+			if (str != INVALID_STRING_ID) DrawString(r, str, TC_GOLD, SA_CENTER);
 			break;
 		}
 	}
@@ -623,14 +623,14 @@ void PickerWindow::OnClick(Point pt, WidgetID widget, int)
 
 		case WID_PW_CONFIGURE_BADGES:
 			if (this->badge_classes.GetClasses().empty()) break;
-			ShowDropDownList(this, BuildBadgeClassConfigurationList(this->badge_classes, 1, {}, COLOUR_DARK_GREEN), -1, widget, 0, DDMF_PERSIST);
+			ShowDropDownList(this, BuildBadgeClassConfigurationList(this->badge_classes, 1, {}, COLOUR_DARK_GREEN), -1, widget, 0, DropDownOption::Persist);
 			break;
 
 		default:
 			if (IsInsideMM(widget, this->badge_filters.first, this->badge_filters.second)) {
-				/* Houses have recolours but not related to the company colour. */
-				PaletteID palette = this->callbacks.GetFeature() == GSF_HOUSES ? PAL_NONE : GetCompanyPalette(_local_company);
-				ShowDropDownList(this, this->GetWidget<NWidgetBadgeFilter>(widget)->GetDropDownList(palette), -1, widget, 0, DDMF_NONE);
+				/* Houses have recolours but not related to the company colour and other items depend on gamemode. */
+				PaletteID palette = _game_mode != GM_NORMAL || this->callbacks.GetFeature() == GSF_HOUSES ? PAL_NONE : GetCompanyPalette(_local_company);
+				ShowDropDownList(this, this->GetWidget<NWidgetBadgeFilter>(widget)->GetDropDownList(palette), -1, widget, 0);
 			}
 			break;
 	}

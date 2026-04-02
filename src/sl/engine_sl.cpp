@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file engine_sl.cpp Code handling saving and loading of engines */
@@ -27,10 +27,10 @@ static TypedIndexContainer<std::vector<Engine *>, EngineID> _temp_engine;
  * The allocated Engine must be freed using FreeEngine;
  * @return Allocated engine.
  */
-static Engine *CallocEngine()
+static Engine *CallocEngine(EngineID index, VehicleType type, uint16_t local_id)
 {
 	uint8_t *zero = CallocT<uint8_t>(sizeof(Engine));
-	Engine *engine = new (zero) Engine();
+	Engine *engine = ::new (zero) Engine(index, type, local_id);
 	return engine;
 }
 
@@ -46,12 +46,12 @@ static void FreeEngine(Engine *e)
 	}
 }
 
-Engine *GetTempDataEngine(EngineID index)
+Engine *GetTempDataEngine(EngineID index, VehicleType type, uint16_t local_id)
 {
 	if (index < _temp_engine.size()) {
 		return _temp_engine[index];
 	} else if (index == _temp_engine.size()) {
-		_temp_engine.push_back(CallocEngine());
+		_temp_engine.push_back(CallocEngine(index, type, local_id));
 		return _temp_engine[index];
 	} else {
 		NOT_REACHED();

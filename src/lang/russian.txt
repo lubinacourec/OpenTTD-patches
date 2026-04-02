@@ -15,7 +15,7 @@
 # This file is part of OpenTTD.
 # OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
 # OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
 
 
 ##id 0x0000
@@ -438,6 +438,7 @@ STR_SHOW_HIDDEN_ENGINES_VEHICLE_AIRCRAFT_TOOLTIP                :{BLACK}Если
 STR_BUTTON_DEFAULT                                              :{BLACK}По умолчанию
 STR_BUTTON_CANCEL                                               :{BLACK}Отмена
 STR_BUTTON_OK                                                   :{BLACK}OK
+STR_BUTTON_MOVE                                                 :{BLACK}Переместить
 
 # On screen keyboard window
 STR_OSK_KEYBOARD_LAYOUT                                         :`1234567890-= qwertyuiop[]asdfghjkl;'#\zxcvbnm,./ .
@@ -1259,7 +1260,7 @@ STR_GAME_OPTIONS_BASE_GRF_TOOLTIP                               :Выбор ос
 STR_GAME_OPTIONS_BASE_GRF_DESCRIPTION_TOOLTIP                   :Дополнительная информация о выбранном графическом пакете
 
 STR_GAME_OPTIONS_BASE_SFX                                       :Основной звуковой пакет
-STR_GAME_OPTIONS_BASE_SFX_TOOLTIP                               :Выбор основного пакета звуковых эффектов (его нельзя сменить в игре; только в главном меню)
+STR_GAME_OPTIONS_BASE_SFX_TOOLTIP                               :Выбор основного пакета звуковых эффектов
 STR_GAME_OPTIONS_BASE_SFX_DESCRIPTION_TOOLTIP                   :Дополнительная информация о выбранном пакете звуковых эффектов
 
 STR_GAME_OPTIONS_BASE_MUSIC                                     :Основной музыкальный пакет
@@ -1396,7 +1397,7 @@ STR_CONFIG_SETTING_EXPAND_ALL                                   :Разверн�
 STR_CONFIG_SETTING_COLLAPSE_ALL                                 :Свернуть всё
 STR_CONFIG_SETTING_RESET_ALL                                    :Сбросить все значения
 STR_CONFIG_SETTING_NO_EXPLANATION_AVAILABLE_HELPTEXT            :(нет описания)
-STR_CONFIG_SETTING_VALUE                                        :{PUSH_COLOUR}{ORANGE}{STRING}{POP_COLOUR}
+STR_CONFIG_SETTING_VALUE                                        :{ORANGE}{STRING}
 STR_CONFIG_SETTING_DEFAULT_VALUE                                :{LTBLUE}Значение по умолчанию: {ORANGE}{STRING}
 STR_CONFIG_SETTING_TYPE                                         :{LTBLUE}Тип настроек: {ORANGE}{STRING}
 STR_CONFIG_SETTING_TYPE_CLIENT                                  :Настройки клиента (не содержатся в файлах сохранений; влияют на все игры)
@@ -2241,6 +2242,8 @@ STR_CONFIG_SETTING_LARGER_TOWNS_VALUE                           :1 из {COMMA}
 STR_CONFIG_SETTING_LARGER_TOWNS_DISABLED                        :нет
 STR_CONFIG_SETTING_CITY_SIZE_MULTIPLIER                         :Стартовый множитель размера мегаполисов: {STRING}
 STR_CONFIG_SETTING_CITY_SIZE_MULTIPLIER_HELPTEXT                :Средний размер мегаполисов по сравнению с остальными городами в начале игры
+STR_CONFIG_SETTING_TOWN_MIN_DISTANCE                            :Минимальное расстояние между городами: {STRING}
+STR_CONFIG_SETTING_TOWN_MIN_DISTANCE_HELPTEXT                   :Минимальное расстояние, которое должно соблюдаться между городами при создании карты, а также при основании города в случайном месте
 
 STR_CONFIG_SETTING_LINKGRAPH_RECALC_INTERVAL                    :Интервал обновления графа распределения: {STRING}
 STR_CONFIG_SETTING_LINKGRAPH_RECALC_INTERVAL_HELPTEXT           :Интервалы между перерасчётами графов распределения грузов. Каждый перерасчёт обновляет один компонент графа. То есть, по истечении указанного здесь времени будет обновлён не весь граф, а только один из его компонентов. Чем ниже значение, тем выше нагрузка на процессор. Чем выше значение, тем дольше не будет работать распределение грузов на новых маршрутах.
@@ -3053,15 +3056,15 @@ STR_PICKER_HOUSE_TYPE_TOOLTIP                                   :Выберит�
 STR_PICKER_HOUSE_COLLECTION_TOOLTIP                             :Выберите коллекцию домов для отображения
 
 STR_HOUSE_PICKER_CAPTION                                        :Выбор типов зданий
-STR_HOUSE_PICKER_NAME                                           :{BLACK}Здание: {ORANGE}{STRING}
-STR_HOUSE_PICKER_POPULATION                                     :{BLACK}Кол-во жителей: {ORANGE}{NUM}
-STR_HOUSE_PICKER_YEARS                                          :{BLACK}Дата: {ORANGE}{NUM}-{NUM}
-STR_HOUSE_PICKER_YEARS_ANY                                      :{BLACK}Дата: {ORANGE}любая
-STR_HOUSE_PICKER_YEARS_FROM                                     :{BLACK}Дата: {ORANGE}с {NUM} г.
-STR_HOUSE_PICKER_YEARS_UNTIL                                    :{BLACK}Дата: {ORANGE}до {NUM} г.
-STR_HOUSE_PICKER_SIZE                                           :{BLACK}Размеры: {ORANGE}{NUM}×{NUM}
-STR_HOUSE_PICKER_CARGO_ACCEPTED                                 :{BLACK}Принимаемый груз: {ORANGE}
-STR_HOUSE_PICKER_CARGO_PRODUCED                                 :{BLACK}Груза отдано: {ORANGE}{CARGO_LIST}
+STR_HOUSE_PICKER_NAME                                           :{BLACK}Здание: {GOLD}{STRING}
+STR_HOUSE_PICKER_POPULATION                                     :{BLACK}Кол-во жителей: {GOLD}{NUM}
+STR_HOUSE_PICKER_YEARS                                          :{BLACK}Дата: {GOLD}{NUM}-{NUM}
+STR_HOUSE_PICKER_YEARS_ANY                                      :{BLACK}Дата: {GOLD}любая
+STR_HOUSE_PICKER_YEARS_FROM                                     :{BLACK}Дата: {GOLD}с {NUM} г.
+STR_HOUSE_PICKER_YEARS_UNTIL                                    :{BLACK}Дата: {GOLD}до {NUM} г.
+STR_HOUSE_PICKER_SIZE                                           :{BLACK}Размеры: {GOLD}{NUM}×{NUM}
+STR_HOUSE_PICKER_CARGO_ACCEPTED                                 :{BLACK}Принимаемый груз: {GOLD}{STRING}
+STR_HOUSE_PICKER_CARGO_PRODUCED                                 :{BLACK}Груза отдано: {GOLD}{CARGO_LIST}
 
 STR_HOUSE_PICKER_CLASS_ZONE1                                    :Пригород
 STR_HOUSE_PICKER_CLASS_ZONE2                                    :Окраина
@@ -3353,7 +3356,7 @@ STR_LAND_AREA_INFORMATION_AIRPORT_CLASS                         :{BLACK}Клас
 STR_LAND_AREA_INFORMATION_AIRPORT_NAME                          :{BLACK}Тип аэропорта: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_AIRPORTTILE_NAME                      :{BLACK}Зона аэропорта: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_NEWGRF_NAME                           :{BLACK}NewGRF: {LTBLUE}{STRING}
-STR_LAND_AREA_INFORMATION_CARGO_ACCEPTED                        :{BLACK}Принимает: {LTBLUE}
+STR_LAND_AREA_INFORMATION_CARGO_ACCEPTED                        :{BLACK}Принимает: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_CARGO_EIGHTS                          :({COMMA}/8 {STRING})
 STR_LANG_AREA_INFORMATION_RAIL_TYPE                             :{BLACK}Тип ж/д полотна: {LTBLUE}{STRING}
 STR_LANG_AREA_INFORMATION_ROAD_TYPE                             :{BLACK}Тип дорожного полотна: {LTBLUE}{STRING}
@@ -3816,7 +3819,7 @@ STR_NEWGRF_ERROR_INVALID_PARAMETER                              :Неверны�
 STR_NEWGRF_ERROR_LOAD_BEFORE                                    :{1:STRING} должен быть загружен перед {2:STRING}.
 STR_NEWGRF_ERROR_LOAD_AFTER                                     :{1:STRING} должен быть загружен после {2:STRING}.
 STR_NEWGRF_ERROR_OTTD_VERSION_NUMBER                            :Для {1:STRING} требуется OpenTTD версии {2:STRING} или выше
-STR_NEWGRF_ERROR_AFTER_TRANSLATED_FILE                          :файл GRF, который им переводится.
+STR_NEWGRF_ERROR_AFTER_TRANSLATED_FILE                          :файл NewGRF, который им переводится
 STR_NEWGRF_ERROR_TOO_MANY_NEWGRFS_LOADED                        :Загружено слишком много модулей NewGRF
 STR_NEWGRF_ERROR_STATIC_GRF_CAUSES_DESYNC                       :Загрузка {1:STRING} в качестве статического NewGRF с {2:STRING} может вызвать рассинхронизацию
 STR_NEWGRF_ERROR_UNEXPECTED_SPRITE                              :Неверный спрайт (спрайт {3:NUM})
@@ -3825,7 +3828,7 @@ STR_NEWGRF_ERROR_INVALID_ID                                     :Попытка 
 STR_NEWGRF_ERROR_CORRUPT_SPRITE                                 :{YELLOW}{STRING} содержит повреждённый спрайт. Все повреждённые спрайты будут показаны красным знаком вопроса (?).
 STR_NEWGRF_ERROR_MULTIPLE_ACTION_8                              :Содержит несколько блоков «Action 8» (спрайт {3:NUM})
 STR_NEWGRF_ERROR_READ_BOUNDS                                    :Чтение за концом псевдо-спрайта (спрайт {3:NUM})
-STR_NEWGRF_ERROR_GRM_FAILED                                     :Запрошенные ресурсы GRF недоступны (спрайт {3:NUM})
+STR_NEWGRF_ERROR_GRM_FAILED                                     :Запрошенные ресурсы NewGRF недоступны (спрайт {3:NUM})
 STR_NEWGRF_ERROR_FORCEFULLY_DISABLED                            :{1:STRING} был отключён из-за {2:STRING}
 STR_NEWGRF_ERROR_INVALID_SPRITE_LAYOUT                          :Недопустимый/неизвестный формат расположения спрайтов (спрайт {3:NUM})
 STR_NEWGRF_ERROR_LIST_PROPERTY_TOO_LONG                         :Слишком много элементов в списке значений (спрайт {3:NUM}, свойство {4:HEX})
@@ -3836,12 +3839,12 @@ STR_NEWGRF_POPUP_CAUTION_CAPTION                                :{WHITE}Осто
 STR_NEWGRF_CONFIRMATION_TEXT                                    :{YELLOW}Вы собираетесь внести изменения в запущенную игру. Это может привести к нестабильной работе или к аварийному завершению OpenTTD. В этом случае не надо присылать отчёты об ошибках.{}Вы действительно хотите это сделать?
 
 STR_NEWGRF_DUPLICATE_GRFID                                      :{WHITE}Невозможно добавить файл: дублируются GRF ID
-STR_NEWGRF_COMPATIBLE_LOADED                                    :{ORANGE}Соответствующий файл не найден (загружен совместимый GRF)
+STR_NEWGRF_COMPATIBLE_LOADED                                    :{ORANGE}Соответствующий файл не найден (загружен совместимый NewGRF)
 STR_NEWGRF_TOO_MANY_NEWGRFS                                     :{WHITE}Не удалось добавить файл: слишком много модулей NewGRF
 
 STR_NEWGRF_COMPATIBLE_LOAD_WARNING                              :{WHITE}Вместо отсутствующих загружены совместимые файлы NewGRF
 STR_NEWGRF_DISABLED_WARNING                                     :{WHITE}Отсутствующие файлы NewGRF были отключены
-STR_NEWGRF_UNPAUSE_WARNING_TITLE                                :{YELLOW}Недостающие GRF файлы
+STR_NEWGRF_UNPAUSE_WARNING_TITLE                                :{YELLOW}Отсутствующие файлы NewGRF
 STR_NEWGRF_UNPAUSE_WARNING                                      :{WHITE}Снятие с паузы может привести к ошибке OpenTTD.{}Вы хотите запустить игру?
 
 # NewGRF status
@@ -3885,7 +3888,7 @@ STR_SIGN_LIST_MATCH_CASE                                        :{BLACK}Реги
 STR_SIGN_LIST_MATCH_CASE_TOOLTIP                                :{BLACK}Переключить проверку регистра при сравнении названий табличек с фильтром
 
 # Sign window
-STR_EDIT_SIGN_CAPTION                                           :{WHITE}Изменить текст таблички
+STR_EDIT_SIGN_CAPTION                                           :{WHITE}Изменение таблички
 STR_EDIT_SIGN_LOCATION_TOOLTIP                                  :{BLACK}Показать метку в основном окне. Ctrl+щелчок - показать в дополнительном окне.
 STR_EDIT_SIGN_NEXT_SIGN_TOOLTIP                                 :{BLACK}К следующей табличке
 STR_EDIT_SIGN_PREVIOUS_SIGN_TOOLTIP                             :{BLACK}К предыдущей табличке
@@ -4103,14 +4106,14 @@ STR_CARGO_RATING_EXCELLENT                                      :Отличны�
 STR_CARGO_RATING_OUTSTANDING                                    :Великолепный
 
 STR_STATION_VIEW_CENTER_TOOLTIP                                 :{BLACK}Показать станцию в основном окне. Ctrl+щелчок - показать в дополнительном окне.
-STR_STATION_VIEW_RENAME_TOOLTIP                                 :{BLACK}Переименовать станцию
+STR_STATION_VIEW_EDIT_TOOLTIP                                   :{BLACK}Переименовать станцию или переместить метку
 
 STR_STATION_VIEW_SCHEDULED_TRAINS_TOOLTIP                       :{BLACK}Показать список поездов, маршрут которых проходит через эту станцию
 STR_STATION_VIEW_SCHEDULED_ROAD_VEHICLES_TOOLTIP                :{BLACK}Показать список автомобилей, маршрут которых проходит через эту станцию/остановку
 STR_STATION_VIEW_SCHEDULED_AIRCRAFT_TOOLTIP                     :{BLACK}Показать список воздушных судов, маршрут которых проходит через этот аэропорт
 STR_STATION_VIEW_SCHEDULED_SHIPS_TOOLTIP                        :{BLACK}Показать список судов, маршрут которых проходит через эту пристань
 
-STR_STATION_VIEW_RENAME_STATION_CAPTION                         :Название станции
+STR_STATION_VIEW_EDIT_STATION_SIGN                              :{WHITE}Редактировать метку
 
 STR_STATION_VIEW_CLOSE_AIRPORT                                  :{BLACK}Закрыть аэропорт
 STR_STATION_VIEW_CLOSE_AIRPORT_TOOLTIP                          :{BLACK}Запретить воздушным судам садиться в этом аэропорту
@@ -4118,11 +4121,11 @@ STR_STATION_VIEW_CLOSE_AIRPORT_TOOLTIP                          :{BLACK}Запр
 # Waypoint/buoy view window
 STR_WAYPOINT_VIEW_CAPTION                                       :{WHITE}{WAYPOINT}
 STR_WAYPOINT_VIEW_CENTER_TOOLTIP                                :{BLACK}Показать маршрутную точку в основном окне. Ctrl+щелчок{}NBSP- показать в дополнительном окне.
-STR_WAYPOINT_VIEW_CHANGE_WAYPOINT_NAME                          :{BLACK}Переименовать маршрутную точку
+STR_WAYPOINT_VIEW_EDIT_TOOLTIP                                  :{BLACK}Переименовать маршрутную точку или переместить метку
 STR_BUOY_VIEW_CENTER_TOOLTIP                                    :{BLACK}Показать буй в основном окне. Ctrl+щелчок - показать в дополнительном окне.
 STR_BUOY_VIEW_RENAME_TOOLTIP                                    :{BLACK}Изменить название буя
 
-STR_EDIT_WAYPOINT_NAME                                          :{WHITE}Название маршрутной точки
+STR_WAYPOINT_VIEW_EDIT_WAYPOINT_SIGN                            :{WHITE}Редактировать метку
 
 # Finances window
 STR_FINANCES_CAPTION                                            :{WHITE}Финансы - {COMPANY} {BLACK}{COMPANY_NUM}
@@ -4237,7 +4240,7 @@ STR_COMPANY_INFRASTRUCTURE_VIEW_TOTAL_PERIOD                    :{WHITE}{CURRENC
 # Industry directory
 STR_INDUSTRY_DIRECTORY_CAPTION                                  :{WHITE}Предприятия ({COMMA} / {COMMA})
 STR_INDUSTRY_DIRECTORY_NONE                                     :{ORANGE}- Нет -
-STR_INDUSTRY_DIRECTORY_ITEM_INFO                                :{BLACK}{CARGO_LONG}{STRING}{YELLOW} ({COMMA}% перевезено){BLACK}
+STR_INDUSTRY_DIRECTORY_ITEM_INFO                                :{BLACK}{CARGO_LONG}{STRING}{YELLOW} ({COMMA}% перевезено)
 STR_INDUSTRY_DIRECTORY_ITEM_NOPROD                              :{ORANGE}{INDUSTRY}
 STR_INDUSTRY_DIRECTORY_ITEM_PROD1                               :{ORANGE}{INDUSTRY} {STRING}
 STR_INDUSTRY_DIRECTORY_ITEM_PROD2                               :{ORANGE}{INDUSTRY} {STRING}, {STRING}
@@ -4260,9 +4263,9 @@ STR_INDUSTRY_VIEW_CARGO_GRAPH_TOOLTIP                           :{BLACK}Пока
 STR_INDUSTRY_VIEW_PRODUCTION_LEVEL                              :{BLACK}Производительность: {YELLOW}{COMMA}%
 STR_INDUSTRY_VIEW_INDUSTRY_ANNOUNCED_CLOSURE                    :{YELLOW}Предприятие скоро закрывается!
 
-STR_INDUSTRY_VIEW_REQUIRES_N_CARGO                              :{BLACK}Требует: {YELLOW}{STRING.acc}{STRING}
-STR_INDUSTRY_VIEW_PRODUCES_N_CARGO                              :{BLACK}Производит: {YELLOW}{STRING.acc}{STRING}
-STR_INDUSTRY_VIEW_CARGO_LIST_EXTENSION                          :, {STRING.acc}{STRING}
+STR_INDUSTRY_VIEW_REQUIRES_N_CARGO                              :{BLACK}Требует: {YELLOW}{STRING}
+STR_INDUSTRY_VIEW_PRODUCES_N_CARGO                              :{BLACK}Производит: {YELLOW}{STRING}
+STR_INDUSTRY_VIEW_CARGO_LIST_EXTENSION                          :{STRING.acc}{STRING}
 
 STR_INDUSTRY_VIEW_REQUIRES                                      :{BLACK}Требуется:
 STR_INDUSTRY_VIEW_ACCEPT_CARGO_SUFFIX                           :{YELLOW}{0:STRING}{BLACK}{3:STRING}
@@ -4556,7 +4559,7 @@ STR_DEPOT_SELL_CONFIRMATION_TEXT                                :{YELLOW}Вес�
 # Engine preview window
 STR_ENGINE_PREVIEW_CAPTION                                      :{WHITE}Сообщение от производителя транспортных средств
 STR_ENGINE_PREVIEW_CAPTION_COUNT                                :{WHITE}Сообщение от производителя транспортных средств ({COMMA} из {COMMA})
-STR_ENGINE_PREVIEW_MESSAGE                                      :{GOLD}Мы создали новую модель {STRING.gen}. Заинтересованы ли вы в его годовом эксклюзивном использовании для проверки перед запуском в серийное производство?
+STR_ENGINE_PREVIEW_MESSAGE                                      :{GOLD}Мы разработали новую модель {STRING.gen}. Заинтересованы ли вы в его годовом эксклюзивном использовании для проверки перед запуском в серийное производство?
 
 STR_ENGINE_PREVIEW_PREVIOUS                                     :Назад
 STR_ENGINE_PREVIEW_PREVIOUS_TOOLTIP                             :К предыдущей модели транспортного средства
@@ -4808,7 +4811,7 @@ STR_VEHICLE_DETAILS_TRAIN_CAPACITIES_TOOLTIP                    :{BLACK}Пока
 STR_VEHICLE_DETAIL_TAB_TOTAL_CARGO                              :{BLACK}Общий груз
 STR_VEHICLE_DETAILS_TRAIN_TOTAL_CARGO_TOOLTIP                   :{BLACK}Показать общую вместимость поезда по типам грузов
 
-STR_VEHICLE_DETAILS_TRAIN_ARTICULATED_RV_CAPACITY               :{BLACK}Ёмкость: {LTBLUE}
+STR_VEHICLE_DETAILS_TRAIN_ARTICULATED_RV_CAPACITY               :{BLACK}Ёмкость: {LTBLUE}{STRING}
 
 # Vehicle refit
 STR_REFIT_CAPTION                                               :{WHITE}{VEHICLE} (Переоборудование)
@@ -4921,6 +4924,7 @@ STR_ORDERS_SKIP_BUTTON                                          :{BLACK}Проп
 STR_ORDERS_SKIP_TOOLTIP                                         :{BLACK}Перейти к следующему заданию. Ctrl+щелчок - перейти к выделенному заданию.
 
 STR_ORDERS_DELETE_BUTTON                                        :{BLACK}Удалить
+STR_ORDERS_DELETE_ALL_BUTTON                                    :{BLACK}Удалить все
 STR_ORDERS_DELETE_TOOLTIP                                       :{BLACK}Удалить выделенное задание
 STR_ORDERS_DELETE_ALL_TOOLTIP                                   :{BLACK}Удалить все задания
 STR_ORDERS_STOP_SHARING_BUTTON                                  :{BLACK}Индивидуальный список
@@ -5356,6 +5360,7 @@ STR_ERROR_TOO_MANY_TRUCK_STOPS                                  :{WHITE}Слиш
 STR_ERROR_TOO_CLOSE_TO_ANOTHER_DOCK                             :{WHITE}Слишком близко к другой пристани
 STR_ERROR_TOO_CLOSE_TO_ANOTHER_AIRPORT                          :{WHITE}Слишком близко к другому аэропорту
 STR_ERROR_CAN_T_RENAME_STATION                                  :{WHITE}Невозможно переименовать станцию...
+STR_ERROR_CAN_T_MOVE_STATION_NAME                               :{WHITE}Невозможно переместить метку станции...
 STR_ERROR_DRIVE_THROUGH_ON_TOWN_ROAD                            :{WHITE}... эта дорога принадлежит городу
 STR_ERROR_DRIVE_THROUGH_DIRECTION                               :{WHITE}... неверное направление дороги
 STR_ERROR_DRIVE_THROUGH_CORNER                                  :{WHITE}... на проходных остановках нельзя делать повороты
@@ -5387,6 +5392,7 @@ STR_ERROR_CAN_T_BUILD_RAIL_WAYPOINT                             :{WHITE}Здес
 STR_ERROR_CAN_T_BUILD_ROAD_WAYPOINT                             :{WHITE}Здесь невозможно поставить маршрутную точку...
 STR_ERROR_CAN_T_POSITION_BUOY_HERE                              :{WHITE}Не удалось установить здесь буй...
 STR_ERROR_CAN_T_CHANGE_WAYPOINT_NAME                            :{WHITE}Невозможно переименовать маршрутную точку...
+STR_ERROR_CAN_T_MOVE_WAYPOINT_NAME                              :{WHITE}Невозможно переместить метку маршрутной точки...
 
 STR_ERROR_CAN_T_REMOVE_RAIL_WAYPOINT                            :{WHITE}Невозможно удалить маршрутную точку...
 STR_ERROR_CAN_T_REMOVE_ROAD_WAYPOINT                            :{WHITE}Невозможно удалить маршрутную точку...
@@ -6254,7 +6260,8 @@ STR_LORRY                                                       :{BLACK}{LORRY}
 STR_PLANE                                                       :{BLACK}{PLANE}
 STR_SHIP                                                        :{BLACK}{SHIP}
 
-STR_TOOLBAR_RAILTYPE_VELOCITY                                   :{STRING} ({VELOCITY})
+STR_TOOLBAR_RAILTYPE_VELOCITY                                   :{STRING} {YELLOW}({VELOCITY})
+STR_TOOLBAR_ROADTYPE_VELOCITY                                   :{STRING} {YELLOW}({VELOCITY})
 
 STR_BADGE_NAME_LIST                                             :{STRING}: {GOLD}{STRING}
 STR_BADGE_CONFIG_MENU_TOOLTIP                                   :Открыть настройки значков

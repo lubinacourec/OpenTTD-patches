@@ -13,7 +13,7 @@
 # This file is part of OpenTTD.
 # OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
 # OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
 
 
 ##id 0x0000
@@ -312,6 +312,7 @@ STR_SHOW_HIDDEN_ENGINES_VEHICLE_AIRCRAFT_TOOLTIP                :{BLACK}Mat dës
 STR_BUTTON_DEFAULT                                              :{BLACK}Standard
 STR_BUTTON_CANCEL                                               :{BLACK}Ofbriechen
 STR_BUTTON_OK                                                   :{BLACK}OK
+STR_BUTTON_MOVE                                                 :{BLACK}Versetzen
 
 # On screen keyboard window
 STR_OSK_KEYBOARD_LAYOUT                                         :§1234567890'^ qwertzuiopè¨asdfghjkléà$\yxcvbnm,.- .
@@ -2090,6 +2091,8 @@ STR_CONFIG_SETTING_LARGER_TOWNS_VALUE                           :1 zu {COMMA}
 STR_CONFIG_SETTING_LARGER_TOWNS_DISABLED                        :Keng
 STR_CONFIG_SETTING_CITY_SIZE_MULTIPLIER                         :Ufangs-Gréisst vu Stied multiplizéiren mat: {STRING}
 STR_CONFIG_SETTING_CITY_SIZE_MULTIPLIER_HELPTEXT                :Duerchschnëttsgréisst vu Stied an Proportioun zu normalen Dierfer um Spillstart
+STR_CONFIG_SETTING_TOWN_MIN_DISTANCE                            :Minimal Distanz tëschent Stied: {STRING}
+STR_CONFIG_SETTING_TOWN_MIN_DISTANCE_HELPTEXT                   :Definéier d'minimal Distanz a Felder tëschend Stied fir d'Kaartegeneratioun and zoufälleg Grënnung
 
 STR_CONFIG_SETTING_LINKGRAPH_RECALC_INTERVAL                    :Update de Verdeelergraph all {STRING}
 STR_CONFIG_SETTING_LINKGRAPH_RECALC_INTERVAL_HELPTEXT           :Zäit tëschend zwou Neiberechnungen vun der Linkgrafik. All Neiberechnung berechent eng Komponent vun der Grafik. Dëst bedeit dass e Wäert X net heescht dass déi ganze Grafik all X Sekonne geupdate gëtt. Nëmmen eng Komponent gëtt berechent. Wat de Wäert méi kuerz gesat gëtt, wat méi CPU Leeschtung gebraucht gëtt fir alles ze berechnen. Je gréisser de Wäert gesat gëtt desto méi laang brauch et bis d'Wuereverdeelung op neie Route gestart gëtt
@@ -2864,15 +2867,15 @@ STR_PICKER_HOUSE_CLASS_TOOLTIP                                  :Wiel eng Stad-Z
 STR_PICKER_HOUSE_TYPE_TOOLTIP                                   :Wiel en Haustyp fir ze bauen. Ctrl+Klick fir en bei d'gespäichert Objeten dobäizesetzen oder ewechzehuelen
 
 STR_HOUSE_PICKER_CAPTION                                        :Häiserauswiel
-STR_HOUSE_PICKER_NAME                                           :{BLACK}Numm: {ORANGE}{STRING}
-STR_HOUSE_PICKER_POPULATION                                     :{BLACK}Awunner: {ORANGE}{NUM}
-STR_HOUSE_PICKER_YEARS                                          :{BLACK}Joer: {ORANGE}{NUM}-{NUM}
-STR_HOUSE_PICKER_YEARS_ANY                                      :{BLACK}Joer: {ORANGE}All
-STR_HOUSE_PICKER_YEARS_FROM                                     :{BLACK}Joer: {ORANGE}Vun {NUM}
-STR_HOUSE_PICKER_YEARS_UNTIL                                    :{BLACK}Joer: {ORANGE}Bis {NUM}
-STR_HOUSE_PICKER_SIZE                                           :{BLACK}Gréisst: {ORANGE}{NUM}x{NUM} Felder
-STR_HOUSE_PICKER_CARGO_ACCEPTED                                 :{BLACK}Akzeptéiert Wuer: {ORANGE}
-STR_HOUSE_PICKER_CARGO_PRODUCED                                 :{BLACK}Produzéiert Wuer: {ORANGE}{CARGO_LIST}
+STR_HOUSE_PICKER_NAME                                           :{BLACK}Numm: {GOLD}{STRING}
+STR_HOUSE_PICKER_POPULATION                                     :{BLACK}Awunner: {GOLD}{NUM}
+STR_HOUSE_PICKER_YEARS                                          :{BLACK}Joer: {GOLD}{NUM}-{NUM}
+STR_HOUSE_PICKER_YEARS_ANY                                      :{BLACK}Joer: {GOLD}All
+STR_HOUSE_PICKER_YEARS_FROM                                     :{BLACK}Joer: {GOLD}Vun {NUM}
+STR_HOUSE_PICKER_YEARS_UNTIL                                    :{BLACK}Joer: {GOLD}Bis {NUM}
+STR_HOUSE_PICKER_SIZE                                           :{BLACK}Gréisst: {GOLD}{NUM}x{NUM} Felder
+STR_HOUSE_PICKER_CARGO_ACCEPTED                                 :{BLACK}Akzeptéiert Wuer: {GOLD}{STRING}
+STR_HOUSE_PICKER_CARGO_PRODUCED                                 :{BLACK}Produzéiert Wuer: {GOLD}{CARGO_LIST}
 
 STR_HOUSE_PICKER_CLASS_ZONE1                                    :Rand
 STR_HOUSE_PICKER_CLASS_ZONE2                                    :Ausseberäich
@@ -3160,7 +3163,7 @@ STR_LAND_AREA_INFORMATION_AIRPORT_CLASS                         :{BLACK}Fluchhaf
 STR_LAND_AREA_INFORMATION_AIRPORT_NAME                          :{BLACK}Fluchhafennumm: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_AIRPORTTILE_NAME                      :{BLACK}Fluchhafefeldnumm: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_NEWGRF_NAME                           :{BLACK}NewGRF: {LTBLUE}{STRING}
-STR_LAND_AREA_INFORMATION_CARGO_ACCEPTED                        :{BLACK}Akzeptéiert Wuer: {LTBLUE}
+STR_LAND_AREA_INFORMATION_CARGO_ACCEPTED                        :{BLACK}Akzeptéiert Wuer: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_CARGO_EIGHTS                          :({COMMA}/8 {STRING})
 STR_LANG_AREA_INFORMATION_RAIL_TYPE                             :{BLACK}Schinnentyp: {LTBLUE}{STRING}
 STR_LANG_AREA_INFORMATION_ROAD_TYPE                             :{BLACK}Stroossentyp: {LTBLUE}{STRING}
@@ -3692,7 +3695,7 @@ STR_SIGN_LIST_MATCH_CASE                                        :{BLACK}Passende
 STR_SIGN_LIST_MATCH_CASE_TOOLTIP                                :{BLACK}Zoutreffend Fäll wiesselen wann Schëldernimm mam String-Filter verglach ginn
 
 # Sign window
-STR_EDIT_SIGN_CAPTION                                           :{WHITE}Schëldtext änneren
+STR_EDIT_SIGN_CAPTION                                           :{WHITE}Schëld änneren
 STR_EDIT_SIGN_LOCATION_TOOLTIP                                  :{BLACK}Zentréiert d'Usiicht op d'Schëld. Ctrl+Klick erstellt eng nei Usiicht op d'Schëld
 STR_EDIT_SIGN_NEXT_SIGN_TOOLTIP                                 :{BLACK}Géi bei d'nächst Schëld
 STR_EDIT_SIGN_PREVIOUS_SIGN_TOOLTIP                             :{BLACK}Géi bei d'Schëld firdrun
@@ -3910,14 +3913,14 @@ STR_CARGO_RATING_EXCELLENT                                      :Exzellent
 STR_CARGO_RATING_OUTSTANDING                                    :Perfekt
 
 STR_STATION_VIEW_CENTER_TOOLTIP                                 :{BLACK}Zentréiert d'Usiicht op d'Statioun. Ctrl+Klick erstellt eng nei Usiicht op d'Statioun
-STR_STATION_VIEW_RENAME_TOOLTIP                                 :{BLACK}Den Numm vun der Statioun änneren
+STR_STATION_VIEW_EDIT_TOOLTIP                                   :{BLACK}Gare embënennen oder Schëld versetzen
 
 STR_STATION_VIEW_SCHEDULED_TRAINS_TOOLTIP                       :{BLACK}Weis all Zich déi des Statioun an hierem Zäitplang hunn
 STR_STATION_VIEW_SCHEDULED_ROAD_VEHICLES_TOOLTIP                :{BLACK}Weis all Stroossegefierer déi des Statioun an hierem Zäitplang hunn
 STR_STATION_VIEW_SCHEDULED_AIRCRAFT_TOOLTIP                     :{BLACK}Weis all Fliger déi des Statioun an hierem Zäitplang hunn
 STR_STATION_VIEW_SCHEDULED_SHIPS_TOOLTIP                        :{BLACK}Weis all Schëffer déi des Statioun an hierem Zäitplang hunn
 
-STR_STATION_VIEW_RENAME_STATION_CAPTION                         :D'Gare ëmbenennen
+STR_STATION_VIEW_EDIT_STATION_SIGN                              :{WHITE}Gareschëld änneren
 
 STR_STATION_VIEW_CLOSE_AIRPORT                                  :{BLACK}Fluchhafen zoumaachen
 STR_STATION_VIEW_CLOSE_AIRPORT_TOOLTIP                          :{BLACK}Hal de Fliger dovun of op dësem Fluchhafen ze landen
@@ -3925,11 +3928,11 @@ STR_STATION_VIEW_CLOSE_AIRPORT_TOOLTIP                          :{BLACK}Hal de F
 # Waypoint/buoy view window
 STR_WAYPOINT_VIEW_CAPTION                                       :{WHITE}{WAYPOINT}
 STR_WAYPOINT_VIEW_CENTER_TOOLTIP                                :{BLACK}Zentréiert d'Usiicht op de Weepunkt. Ctrl+Klick erstellt eng nei Usiicht um Weepunkt
-STR_WAYPOINT_VIEW_CHANGE_WAYPOINT_NAME                          :{BLACK}Weepunkt Numm änneren
+STR_WAYPOINT_VIEW_EDIT_TOOLTIP                                  :{BLACK}Weepunkt embënennen oder Schëld versetzen
 STR_BUOY_VIEW_CENTER_TOOLTIP                                    :{BLACK}Zentréiert d'Usiicht op d'Boje. Ctrl+Klick erstellt eng nei Usiicht op d'Boje
 STR_BUOY_VIEW_RENAME_TOOLTIP                                    :{BLACK}Boje ëmbenennen
 
-STR_EDIT_WAYPOINT_NAME                                          :{WHITE}Weepunktnumm
+STR_WAYPOINT_VIEW_EDIT_WAYPOINT_SIGN                            :{WHITE}Weepunktschëld änneren
 
 # Finances window
 STR_FINANCES_CAPTION                                            :{WHITE}{COMPANY} Finanzen {BLACK}{COMPANY_NUM}
@@ -4044,7 +4047,7 @@ STR_COMPANY_INFRASTRUCTURE_VIEW_TOTAL_PERIOD                    :{WHITE}{CURRENC
 # Industry directory
 STR_INDUSTRY_DIRECTORY_CAPTION                                  :{WHITE}Industrien ({COMMA} vu {COMMA})
 STR_INDUSTRY_DIRECTORY_NONE                                     :{ORANGE}- Keng -
-STR_INDUSTRY_DIRECTORY_ITEM_INFO                                :{BLACK}{CARGO_LONG}{STRING}{YELLOW} ({COMMA}% transportéiert){BLACK}
+STR_INDUSTRY_DIRECTORY_ITEM_INFO                                :{BLACK}{CARGO_LONG}{STRING}{YELLOW} ({COMMA}% transportéiert)
 STR_INDUSTRY_DIRECTORY_ITEM_NOPROD                              :{ORANGE}{INDUSTRY}
 STR_INDUSTRY_DIRECTORY_ITEM_PROD1                               :{ORANGE}{INDUSTRY} {STRING}
 STR_INDUSTRY_DIRECTORY_ITEM_PROD2                               :{ORANGE}{INDUSTRY} {STRING}, {STRING}
@@ -4067,9 +4070,9 @@ STR_INDUSTRY_VIEW_CARGO_GRAPH_TOOLTIP                           :{BLACK}Weist d'
 STR_INDUSTRY_VIEW_PRODUCTION_LEVEL                              :{BLACK}Produktiounsniveau: {YELLOW}{COMMA}%
 STR_INDUSTRY_VIEW_INDUSTRY_ANNOUNCED_CLOSURE                    :{YELLOW}D'Industrie annoncéiert dass se zougemaach gëtt
 
-STR_INDUSTRY_VIEW_REQUIRES_N_CARGO                              :{BLACK}Brauch: {YELLOW}{STRING}{STRING}
-STR_INDUSTRY_VIEW_PRODUCES_N_CARGO                              :{BLACK}Produzéiert: {YELLOW}{STRING}{STRING}
-STR_INDUSTRY_VIEW_CARGO_LIST_EXTENSION                          :, {STRING}{STRING}
+STR_INDUSTRY_VIEW_REQUIRES_N_CARGO                              :{BLACK}Brauch: {YELLOW}{STRING}
+STR_INDUSTRY_VIEW_PRODUCES_N_CARGO                              :{BLACK}Produzéiert: {YELLOW}{STRING}
+STR_INDUSTRY_VIEW_CARGO_LIST_EXTENSION                          :{STRING}{STRING}
 
 STR_INDUSTRY_VIEW_REQUIRES                                      :{BLACK}Brauch:
 STR_INDUSTRY_VIEW_ACCEPT_CARGO_SUFFIX                           :{YELLOW}{0:STRING}{BLACK}{3:STRING}
@@ -4596,7 +4599,7 @@ STR_VEHICLE_DETAILS_TRAIN_CAPACITIES_TOOLTIP                    :{BLACK}Weist d'
 STR_VEHICLE_DETAIL_TAB_TOTAL_CARGO                              :{BLACK}Total Luedung
 STR_VEHICLE_DETAILS_TRAIN_TOTAL_CARGO_TOOLTIP                   :{BLACK}Weist d'Total Kapazitéit vum Zuch, opgedeelt op d'Wuerentypen
 
-STR_VEHICLE_DETAILS_TRAIN_ARTICULATED_RV_CAPACITY               :{BLACK}Kapazitéit: {LTBLUE}
+STR_VEHICLE_DETAILS_TRAIN_ARTICULATED_RV_CAPACITY               :{BLACK}Kapazitéit: {LTBLUE}{STRING}
 
 # Vehicle refit
 STR_REFIT_CAPTION                                               :{WHITE}{VEHICLE} (Refit)
@@ -5144,6 +5147,7 @@ STR_ERROR_TOO_MANY_TRUCK_STOPS                                  :{WHITE}Ze vill 
 STR_ERROR_TOO_CLOSE_TO_ANOTHER_DOCK                             :{WHITE}Ze no un engem aanere Quai
 STR_ERROR_TOO_CLOSE_TO_ANOTHER_AIRPORT                          :{WHITE}Ze no un engem aanere Fluchhafen
 STR_ERROR_CAN_T_RENAME_STATION                                  :{WHITE}Kann d'Gare net ëmbenennen...
+STR_ERROR_CAN_T_MOVE_STATION_NAME                               :{WHITE}Ka Gareschëld net versetzen
 STR_ERROR_DRIVE_THROUGH_ON_TOWN_ROAD                            :{WHITE}... d'Strooss ass am Besëtz vun der Stad
 STR_ERROR_DRIVE_THROUGH_DIRECTION                               :{WHITE}... Strooss geet an dei falsch Richtung
 STR_ERROR_DRIVE_THROUGH_CORNER                                  :{WHITE}... Duerchfahrtstops kënnen keng Kéiren hunn
@@ -5175,6 +5179,7 @@ STR_ERROR_CAN_T_BUILD_RAIL_WAYPOINT                             :{WHITE}Kann kee
 STR_ERROR_CAN_T_BUILD_ROAD_WAYPOINT                             :{WHITE}Kann kee Stroosseweepunkt he bauen...
 STR_ERROR_CAN_T_POSITION_BUOY_HERE                              :{WHITE}Kann Boje net hei plazéieren...
 STR_ERROR_CAN_T_CHANGE_WAYPOINT_NAME                            :{WHITE}Kann de Weepunktnumm net änneren...
+STR_ERROR_CAN_T_MOVE_WAYPOINT_NAME                              :{WHITE}Ka Weepunktschëld net versetzen
 
 STR_ERROR_CAN_T_REMOVE_RAIL_WAYPOINT                            :{WHITE}Kann de Weepunkt hei net ofrappen...
 STR_ERROR_CAN_T_REMOVE_ROAD_WAYPOINT                            :{WHITE}Kann de Stroosseweepunkt hei net ofrappen...

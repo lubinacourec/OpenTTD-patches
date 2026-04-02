@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file industry_cmd.cpp Handling of industry tiles. */
@@ -451,7 +451,7 @@ static void AddAcceptedCargo_Industry(TileIndex tile, CargoArray &acceptance, Ca
 		}
 	}
 
-	for (uint8_t i = 0; i < std::size(itspec->accepts_cargo); i++) {
+	for (size_t i = 0; i < std::size(itspec->accepts_cargo); i++) {
 		CargoType cargo = accepts_cargo[i];
 		if (cargo == INVALID_CARGO || cargo_acceptance[i] <= 0) continue; // work only with valid cargoes
 
@@ -2024,7 +2024,7 @@ static void DoCreateNewIndustry(Industry *i, TileIndex tile, IndustryType type, 
 		if (it.gfx != GFX_WATERTILE_SPECIALCHECK) {
 			i->location.Add(cur_tile);
 
-			WaterClass wc = (IsWaterTile(cur_tile) ? GetWaterClass(cur_tile) : WATER_CLASS_INVALID);
+			WaterClass wc = (IsWaterTile(cur_tile) ? GetWaterClass(cur_tile) : WaterClass::Invalid);
 
 			Command<CMD_LANDSCAPE_CLEAR>::Do({DoCommandFlag::Execute, DoCommandFlag::NoTestTownRating, DoCommandFlag::NoModifyTownRating}, cur_tile);
 
@@ -2130,7 +2130,7 @@ static CommandCost CreateNewIndustryHelper(TileIndex tile, IndustryType type, Do
 	if (!Industry::CanAllocateItem()) return CommandCost(STR_ERROR_TOO_MANY_INDUSTRIES);
 
 	if (flags.Test(DoCommandFlag::Execute)) {
-		*ip = new Industry(tile);
+		*ip = Industry::Create(tile);
 		if (!custom_shape_check) CheckIfCanLevelIndustryPlatform(tile, {DoCommandFlag::NoWater, DoCommandFlag::Execute}, layout);
 		DoCreateNewIndustry(*ip, tile, type, layout, layout_index, t, founder, random_initial_bits);
 	}
@@ -2567,7 +2567,7 @@ static IndustryGenerationProbabilities GetScaledProbabilities(bool water)
 
 	for (IndustryType it = 0; it < NUM_INDUSTRYTYPES; it++) {
 		p.probs[it] = GetScaledIndustryGenerationProbability(it, water, &p.force_one[it]);
-		p.total += p.probs[it];;
+		p.total += p.probs[it];
 		if (p.force_one[it]) p.num_forced++;
 	}
 
@@ -2592,7 +2592,8 @@ void GenerateIndustries()
 		auto &p = water ? wprob : lprob;
 
 		/* Total number of industries scaled by land/water proportion. */
-		uint total_amount = p.total * GetNumberOfIndustries() / (lprob.total + wprob.total);
+		uint total_amount = 0;
+		if (lprob.total + wprob.total > 0) total_amount = p.total * GetNumberOfIndustries() / (lprob.total + wprob.total);
 
 		/* Scale land-based industries to the land proportion, unless the player has set a custom industry count. */
 		if (!water && _settings_game.difficulty.industry_density != ID_CUSTOM) total_amount = Map::ScaleByLandProportion(total_amount);

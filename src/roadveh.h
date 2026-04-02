@@ -2,10 +2,10 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
-/** @file src/roadveh.h Road vehicle states */
+/** @file roadveh.h Road vehicle states. */
 
 #ifndef ROADVEH_H
 #define ROADVEH_H
@@ -154,10 +154,9 @@ struct RoadVehicle final : public GroundVehicle<RoadVehicle, VEH_ROAD> {
 
 	RoadType roadtype{};                               ///< Roadtype of this vehicle.
 
-	/** We don't want GCC to zero our struct! It already is zeroed and has an index! */
-	RoadVehicle() : GroundVehicleBase() {}
+	RoadVehicle(VehicleID index) : GroundVehicleBase(index) {}
 	/** We want to 'destruct' the right class. */
-	virtual ~RoadVehicle() { this->PreDestructor(); }
+	~RoadVehicle() override { this->PreDestructor(); }
 
 	friend struct GroundVehicle<RoadVehicle, VEH_ROAD>; // GroundVehicle needs to use the acceleration functions defined at RoadVehicle.
 

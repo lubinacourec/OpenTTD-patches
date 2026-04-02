@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file tile_type.h Types related to tiles. */
@@ -217,7 +217,7 @@ static_assert(sizeof(TileIndex) == 4);
  */
 inline constexpr TileIndex INVALID_TILE = TileIndex{ (uint32_t)-1 };
 
-debug_inline uint32_t debug_tile_index_type_erasure(TileIndex tile) { return tile.base(); }
+[[debug_inline]] inline uint32_t debug_tile_index_type_erasure(TileIndex tile) { return tile.base(); }
 [[noreturn]] void assert_tile_error(int line, const char *file, const char *expr, TileIndex tile);
 
 #endif /* TILE_TYPE_H */

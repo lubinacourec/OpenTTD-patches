@@ -598,11 +598,6 @@ STR_CONFIG_SETTING_SHARING_PAYMENT_IN_DEBT                      :Allow companies
 STR_CONFIG_SETTING_SHARING_USED_BY_VEHICLES                     :Can't change this setting, vehicles are using shared infrastructure.
 STR_CONFIG_SETTING_SHARING_ORDERS_TO_OTHERS                     :Can't change this setting, vehicles have orders to destinations of others.
 
-STR_CONFIG_SETTING_INFRA_OTHERS_BUY_IN_DEPOT_RAIL               :Enable competitors to buy and renew trains in depots: {STRING2}
-STR_CONFIG_SETTING_INFRA_OTHERS_BUY_IN_DEPOT_ROAD               :Enable competitors to buy and renew road vehicles in depots: {STRING2}
-STR_CONFIG_SETTING_INFRA_OTHERS_BUY_IN_DEPOT_WATER              :Enable competitors to buy and renew ships in depots: {STRING2}
-STR_CONFIG_SETTING_INFRA_OTHERS_BUY_IN_DEPOT_AIR                :Enable competitors to buy and renew aircraft in hangars: {STRING2}
-
 STR_CONFIG_SETTING_TRAIN_SPEED_ADAPTATION                       :Enable train speed adaptation: {STRING2}
 STR_CONFIG_SETTING_TRAIN_SPEED_ADAPTATION_HELPTEXT              :When enabled, faster trains adjust their speed when passing signals to attempt to match slower trains in front.{}This may not be appropriate for some signalling styles or layouts, and can be disabled and re-enabled on a per-train basis using signal routing restrictions.
 
@@ -730,9 +725,6 @@ STR_CONFIG_SETTING_CARGO_PAYMENT_ALGORITHM                      :Cargo payment a
 STR_CONFIG_SETTING_CARGO_PAYMENT_ALGORITHM_HELPTEXT             :The algorithm to use to calculate how much money to pay for delivering cargo to its destination.
 STR_CONFIG_SETTING_CARGO_PAYMENT_ALGORITHM_TRADITIONAL          :Traditional
 STR_CONFIG_SETTING_CARGO_PAYMENT_ALGORITHM_MODERN               :Modern
-
-STR_CONFIG_SETTING_TOWN_MIN_DISTANCE                            :Minimum distance between towns: {STRING2}
-STR_CONFIG_SETTING_TOWN_MIN_DISTANCE_HELPTEXT                   :Set the minimum distance in tiles between towns for map generation and random founding
 
 STR_CONFIG_SETTING_DISTRIBUTION_PER_CARGO                       :Distribution mode override for this cargo: {STRING2}
 STR_CONFIG_SETTING_DISTRIBUTION_PER_CARGO_PARAM                 :Distribution mode override for {STRING}: {STRING2}
@@ -1035,8 +1027,7 @@ STR_TRACE_RESTRICT_SLOT_GROUP_NAME_DOWN                         :{DOWN_ARROW} {T
 STR_TRACE_RESTRICT_SLOT_GROUP_NAME_DOWN_PREFIXED                :{DOWN_ARROW} [{STRING}] {TRSLOTGROUP}
 STR_TRACE_RESTRICT_SLOT_GROUP_EMPTY_WARNING                     :{TRSLOTGROUP} {PUSH_COLOUR}{RED}(has no slots){POP_COLOUR}
 STR_TRACE_RESTRICT_SLOT_GROUP_NON_PUBLIC_WARNING                :{TRSLOTGROUP} {PUSH_COLOUR}{RED}(has unusable non-public slots){POP_COLOUR}
-STR_TRACE_RESTRICT_SLOT_LIST_HEADER                             :{BLACK}Slot{CONSUME_ARG}{P "" s}: {LTBLUE}
-STR_TRACE_RESTRICT_SLOT_LIST_SEPARATOR                          :{BLACK}, {LTBLUE}
+STR_TRACE_RESTRICT_SLOT_LIST_HEADER                             :{BLACK}Slot{CONSUME_ARG}{P "" s}:{SPACE}
 STR_TRACE_RESTRICT_COUNTER_NAME                                 :{TRCOUNTER}
 STR_TRACE_RESTRICT_COUNTER_INCREASE                             :Increase
 STR_TRACE_RESTRICT_COUNTER_DECREASE                             :Decrease
@@ -1161,6 +1152,7 @@ STR_TRACE_RESTRICT_COUNTER_QUERY_DELETE_CAPTION                 :{WHITE}Delete c
 STR_TRACE_RESTRICT_COUNTER_DELETE_QUERY_TEXT                    :{WHITE}Are you sure you want to delete this counter?
 STR_TRACE_RESTRICT_INSERT                                       :{BLACK}Insert
 STR_TRACE_RESTRICT_REMOVE                                       :{BLACK}Remove
+STR_TRACE_RESTRICT_REMOVE_N                                     :{BLACK}Remove {COMMA}
 STR_TRACE_RESTRICT_RESET                                        :{BLACK}Reset
 STR_TRACE_RESTRICT_COPY                                         :{BLACK}Copy
 STR_TRACE_RESTRICT_APPEND                                       :{BLACK}Append
@@ -1222,6 +1214,15 @@ STR_TRACE_RESTRICT_ERROR_COUNTER_CAN_T_CREATE                   :{WHITE}Can't cr
 STR_TRACE_RESTRICT_ERROR_COUNTER_CAN_T_DELETE                   :{WHITE}Can't delete this counter...
 STR_TRACE_RESTRICT_ERROR_COUNTER_CAN_T_RENAME                   :{WHITE}Can't rename counter...
 STR_TRACE_RESTRICT_ERROR_COUNTER_CAN_T_MODIFY                   :{WHITE}Can't modify this counter...
+
+STR_TRACE_RESTRICT_BACKUP_TOGGLE_PANEL_TOOLTIP                  :{BLACK}Click to open/close the backups panel
+STR_TRACE_RESTRICT_BACKUP_BUTTON_TOOLTIP                        :{BLACK}Click to select a backup
+STR_TRACE_RESTRICT_BACKUP_RESTORE                               :{BLACK}Restore from backup
+STR_TRACE_RESTRICT_BACKUP_RESTORE_TOOLTIP                       :{BLACK}Click to replace the contents of the current program with the selected backup.{}This does not remove any sharing. Use the Reset or Unshare buttons first if necessary.
+STR_TRACE_RESTRICT_BACKUP_CREATE                                :{BLACK}Backup current program
+STR_TRACE_RESTRICT_BACKUP_CREATE_TOOLTIP                        :{BLACK}Click to manually create a backup of the current program.
+STR_TRACE_RESTRICT_BACKUP_ERROR_CAN_T_RESTORE                   :{WHITE}Can't restore program from backup
+STR_TRACE_RESTRICT_BACKUP_ERROR_CAN_T_CREATE_BACKUP             :{WHITE}Can't create backup of program
 
 # Programmable Pre-Signals
 STR_PROGRAM_SIGNAL_TOOLTIP                                      :{BLACK}Program pre-signal
@@ -1350,7 +1351,7 @@ STR_SAVELOAD_DIFFERENT_ID                                       :{YELLOW}This fi
 STR_SAVELOAD_OVERWRITE_TITLE_DIFFERENT_ID                       :{WHITE}Overwrite File (Different Game)
 STR_SAVELOAD_OVERWRITE_TITLE_DIFFERENT_VERSION_SUFFIX           :{STRING} (Different Version)
 STR_SAVELOAD_OVERWRITE_WARNING_DIFFERENT_ID                     :{YELLOW}Are you sure you want to overwrite the existing file?{}{}The file is from a different game.
-STR_SAVELOAD_OVERWRITE_WARNING_DIFFERENT_VERSION_SUFFIX         :{STRING}{}{}The file is from a different version{STRING1}.{}If overwritten the file will no longer be readable by the original version.
+STR_SAVELOAD_OVERWRITE_WARNING_DIFFERENT_VERSION_SUFFIX         :{YELLOW}{STRING}{}{}The file is from a different version{STRING1}.{}If overwritten the file will no longer be readable by the original version.
 STR_SAVELOAD_OVERWRITE_WARNING_VERSION_NAME                     : ({RAW_STRING})
 
 STR_SAVELOAD_SAVE_ORDERLIST                                     :{WHITE}Save Orderlist
@@ -1647,7 +1648,7 @@ STR_VEHICLE_VIEW_SHOW_ORDERS_TOOLTIP_EXTRA                      :{STRING}{BLACK}
 
 STR_VEHICLE_VIEW_ORDER_NUMBER                                   :{COMMA}:{SPACE}
 
-STR_VEHICLE_STATUS_LOADING_UNLOADING_ADVANCE                    :{STRING}, {VELOCITY}
+STR_VEHICLE_STATUS_LOADING_UNLOADING_ADVANCE                    :{LTBLUE}{STRING}, {VELOCITY}
 STR_VEHICLE_STATUS_BROKEN_DOWN_VEL                              :{RED}Broken down - {STRING1}, {LTBLUE} {VELOCITY}
 STR_VEHICLE_STATUS_BROKEN_DOWN_VEL_SHORT                        :{RED}Broken down - {STRING1}
 STR_VEHICLE_STATUS_TRAIN_STUCK_WAIT_RESTRICTION                 :{ORANGE}Waiting due to routing restriction
@@ -1709,7 +1710,7 @@ STR_VEHICLE_INFO_MAX_SPEED_LOADED                               :{BLACK}Max. spe
 
 STR_VEHICLE_INFO_AGE_RUNNING_COST_ORIG_YR                       :{BLACK}Age: {LTBLUE}{STRING2}{BLACK}   Running Cost: {LTBLUE}{CURRENCY_LONG}/original year
 
-STR_VEHICLE_INFO_PROFIT_THIS_YEAR_LAST_YEAR_LIFETIME            :{STRING2} (lifetime: {CURRENCY_LONG})
+STR_VEHICLE_INFO_PROFIT_THIS_YEAR_LAST_YEAR_LIFETIME            :{STRING2} {LTBLUE}(lifetime: {CURRENCY_LONG})
 
 STR_VEHICLE_INFO_GROUP                                          :{BLACK}Group: {LTBLUE}{GROUP}
 
@@ -1741,6 +1742,9 @@ STR_VEHICLE_DETAILS_SERVICING_INTERVAL_PRODUCTION_INTERVALS     :{BLACK}Servicin
 
 STR_VEHICLE_DETAILS_INCREASE_SERVICING_INTERVAL_TOOLTIP_PRODINT :{BLACK}Increase servicing interval by 5 production intervals. Ctrl+Click to increase servicing interval by 1 production interval
 STR_VEHICLE_DETAILS_DECREASE_SERVICING_INTERVAL_TOOLTIP_PRODINT :{BLACK}Decrease servicing interval by 5 production intervals. Ctrl+Click to decrease servicing interval by 1 production interval
+
+STR_VEHICLE_DETAIL_TAB_PERFORMANCE                              :{BLACK}Performance
+STR_VEHICLE_DETAILS_TRAIN_PERFORMANCE_TOOLTIP                   :{BLACK}Show train performance statistics when empty and fully loaded
 
 STR_ORDER_DROP_CARGO_TYPE_LOAD                                  :Load by cargo type
 STR_ORDER_DROP_CARGO_TYPE_UNLOAD                                :Unload by cargo type
@@ -2258,6 +2262,7 @@ STR_TMPL_RPLALLGUI_USE_TIP                                      :{BLACK}Select a
 
 STR_TMPL_CANT_CREATE                                            :{WHITE}Can't create template or virtual vehicle...
 STR_TMPL_CANT_RENAME                                            :{WHITE}Can't rename template...
+STR_TMPL_ERROR_NOT_RUNNABLE                                     :{WHITE}... template is not runnable
 
 # Scheduled Dispatch
 STR_SCHDISPATCH_CAPTION                                         :{WHITE}{VEHICLE} (Scheduled Dispatch)
@@ -2584,3 +2589,9 @@ STR_PICKER_ROADSTOP_BUS_RANDOM_TOOLTIP                          :Place random bu
 STR_PICKER_ROADSTOP_TRUCK_RANDOM_TOOLTIP                        :Place random lorry stations from the selected collection
 STR_PICKER_OBJECT_RANDOM_TOOLTIP                                :Place random 1x1 objects from the selected collection
 STR_PICKER_HOUSE_RANDOM_TOOLTIP                                 :Place random 1x1 houses from the selected collection
+
+STR_CONFIG_SETTING_LINEAR_MAINTENANCE                           :Linear maintenance growth: {STRING2}
+STR_CONFIG_SETTING_LINEAR_MAINTENANCE_HELPTEXT                  :When enabled, infrastructure maintenance costs grow linearly rather than polynomially
+
+STR_CONFIG_SETTING_VEHICLE_INTRO_RANDOMISATION                  :Randomise vehicle introduction dates: {STRING2}
+STR_CONFIG_SETTING_VEHICLE_INTRO_RANDOMISATION_HELPTEXT         :When enabled, randomises vehicle introduction dates by up to one and a half years

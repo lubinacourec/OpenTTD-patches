@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file build_industry.h Tables with default industry layouts and behaviours. */
@@ -1147,7 +1147,7 @@ enum IndustryTypes : uint8_t {
 	   industry behaviours
 	   industry name                           building text
 	   messages : Closure                      production up                      production down   */
-static const IndustrySpec _origin_industry_specs[NEW_INDUSTRYOFFSET] = {
+extern const IndustrySpec _origin_industry_specs[NEW_INDUSTRYOFFSET] = {
 	MI(_tile_table_coal_mine,                  {},
 	   210,  0xB3333333,                       2, 3, 0, 0,    8, 8, 0, 0,          1,
 	   IT_POWER_STATION,  IT_INVALID,          IT_INVALID,       CHECK_NOTHING,

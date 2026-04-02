@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file industry_sl.cpp Code handling saving and loading of industries */
@@ -364,14 +364,14 @@ static void Load_INDY()
 
 	int index;
 	while ((index = SlIterateArray()) != -1) {
-		Industry *i = new (IndustryID(index)) Industry();
+		Industry *i = Industry::CreateAtIndex(IndustryID(index));
 		SlObjectLoadFiltered(i, slt);
 
 		/* Before savegame version 161, persistent storages were not stored in a pool. */
 		if (IsSavegameVersionBefore(SLV_161) && !IsSavegameVersionBefore(SLV_76)) {
 			/* Store the old persistent storage. The GRFID will be added later. */
 			assert(PersistentStorage::CanAllocateItem());
-			i->psa = new PersistentStorage(0, GSF_INVALID, TileIndex{});
+			i->psa = PersistentStorage::Create(0, GSF_INVALID, TileIndex{});
 			std::copy(std::begin(_old_ind_persistent_storage.storage), std::end(_old_ind_persistent_storage.storage), std::begin(i->psa->storage));
 		}
 		if (SlXvIsFeatureMissing(XSLFI_INDUSTRY_CARGO_REORGANISE)) {

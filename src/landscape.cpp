@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file landscape.cpp Functions related to the landscape (slopes etc.). */
@@ -13,6 +13,7 @@
 #include "heightmap.h"
 #include "clear_map.h"
 #include "spritecache.h"
+#include "station_map.h"
 #include "viewport_func.h"
 #include "command_func.h"
 #include "landscape.h"
@@ -36,10 +37,12 @@
 #include "sl/saveload.h"
 #include "framerate_type.h"
 #include "town.h"
+#include "terraform_cmd.h"
 #include "scope_info.h"
 #include "network/network_sync.h"
 #include "3rdparty/cpp-btree/btree_set.h"
 #include "3rdparty/cpp-ring-buffer/ring_buffer.hpp"
+#include "3rdparty/robin_hood/robin_hood.h"
 #include <array>
 
 #include "table/strings.h"
@@ -325,7 +328,7 @@ Slope UpdateFoundationSlopeFromTileSlope(TileIndex tile, Slope tileh, int &tilez
  * @param tile The tile of interest.
  * @return The slope on top of the foundation and the z of the foundation slope.
  */
-std::tuple<Slope, int> GetFoundationSlope(TileIndex tile)
+std::pair<Slope, int> GetFoundationSlope(TileIndex tile)
 {
 	auto [tileh, z] = GetTileSlopeZ(tile);
 	tileh = UpdateFoundationSlopeFromTileSlope(tile, tileh, z);
@@ -593,11 +596,16 @@ CommandCost CmdLandscapeClear(DoCommandFlags flags, TileIndex tile)
 	bool do_clear = false;
 	/* Test for stuff which results in water when cleared. Then add the cost to also clear the water. */
 	if (flags.Test(DoCommandFlag::ForceClearTile) && HasTileWaterClass(tile) && IsTileOnWater(tile) && !IsWaterTile(tile) && !IsCoastTile(tile)) {
-		if (flags.Test(DoCommandFlag::Auto) && GetWaterClass(tile) == WATER_CLASS_CANAL) return CommandCost(STR_ERROR_MUST_DEMOLISH_CANAL_FIRST);
-		do_clear = true;
-		const bool is_canal = GetWaterClass(tile) == WATER_CLASS_CANAL;
+		if (flags.Test(DoCommandFlag::Auto) && GetWaterClass(tile) == WaterClass::Canal) return CommandCost(STR_ERROR_MUST_DEMOLISH_CANAL_FIRST);
+
+		const bool is_canal = GetWaterClass(tile) == WaterClass::Canal;
 		if (!is_canal && _game_mode != GM_EDITOR && !_settings_game.construction.enable_remove_water && !flags.Test(DoCommandFlag::AllowRemoveWater)) return CommandCost(STR_ERROR_CAN_T_BUILD_ON_WATER);
-		cost.AddCost(is_canal ? _price[PR_CLEAR_CANAL] : _price[PR_CLEAR_WATER]);
+
+		/* Buoy tiles are special as they can be cleared by anyone, but the underlying tile shouldn't be cleared if it has a different owner. */
+		if (!IsBuoyTile(tile) || GetTileOwner(tile) == _current_company) {
+			do_clear = true;
+			cost.AddCost(is_canal ? _price[PR_CLEAR_CANAL] : _price[PR_CLEAR_WATER]);
+		}
 	}
 
 	Company *c = flags.Any({DoCommandFlag::Auto, DoCommandFlag::Bankrupt}) ? nullptr : Company::GetIfValid(_current_company);
@@ -1321,6 +1329,52 @@ static void BuildRiver(TileIndex begin, TileIndex end)
 }
 
 /**
+ * Find the size of a patch of connected sea tiles.
+ * @param start_tile The starting tile to search.
+ * @param sea The set of sea tiles found.
+ * @param limit How many tiles to find before cutting the search short.
+ * @return True iff we found a map edge and broke out early, otherwise false (use the sea parameter as the output count/tile set).
+ */
+static bool CountConnectedSeaTiles(TileIndex start_tile, std::vector<TileIndex> &sea, const uint limit)
+{
+	jgr::ring_buffer<TileIndex> candidate_queue;
+	robin_hood::unordered_flat_set<TileIndex> seen_tiles;
+
+	/* Seed queue with start tile. */
+	candidate_queue.push_back(start_tile);
+	seen_tiles.insert(start_tile);
+
+	while (sea.size() <= limit && !candidate_queue.empty()) {
+		TileIndex tile = candidate_queue.front();
+		candidate_queue.pop_front();
+
+		/* This tile might not be sea. */
+		if (!IsWaterTile(tile) || GetWaterClass(tile) != WaterClass::Sea || !IsTileFlat(tile)) continue;
+
+		/* If we've found an edge tile, we are "connected to the sea outside the map." */
+		if (DistanceFromEdge(tile) <= 1) return true;
+
+		/* We have now evaluated this tile and added it to the output. */
+		sea.push_back(tile);
+
+		/* We might want to cut our search short if the size of the sea is "big enough".
+		 * Count this tile but don't check its neighbors. */
+		if (sea.size() > limit) break;
+
+		/* Queue adjacent tiles which have not already been queued. */
+		for (DiagDirection d = DIAGDIR_BEGIN; d < DIAGDIR_END; d++) {
+			TileIndex t = tile + TileOffsByDiagDir(d);
+			if (IsValidTile(t)) {
+				auto res = seen_tiles.insert(t);
+				if (res.second) candidate_queue.push_back(t);
+			}
+		}
+	}
+
+	return false;
+}
+
+/**
  * Try to flow the river down from a given begin.
  * @param spring The springing point of the river.
  * @param begin  The begin point we are looking from; somewhere down hill from the spring.
@@ -1353,10 +1407,31 @@ static bool FlowRiver(TileIndex spring, TileIndex begin, uint min_river_length)
 		end = queue.front();
 		queue.pop_front();
 
-		uint height_end = TileHeight(end);
-		if (IsTileFlat(end) && (height_end < height_begin || (height_end == height_begin && IsWaterTile(end)))) {
-			found = true;
-			break;
+		int height_end;
+		if (IsTileFlat(end, &height_end) && (height_end < static_cast<int>(height_begin) || (height_end == static_cast<int>(height_begin) && IsWaterTile(end)))) {
+			if (IsWaterTile(end) && GetWaterClass(end) == WaterClass::Sea) {
+				/* If we've found the sea, make sure it's large enough. Scale by the map size but set a cap to avoid performance issues on large maps. */
+				const uint MAX_SEA_SIZE_THRESHOLD = 1024;
+				const uint SEA_SIZE_THRESHOLD = std::min(static_cast<uint>(2 * std::sqrt(Map::SizeX() * Map::SizeY())), MAX_SEA_SIZE_THRESHOLD);
+				std::vector<TileIndex> sea;
+				/* Count the connected tiles, if the sea is large we can end the river here. */
+				bool found_edge = CountConnectedSeaTiles(end, sea, SEA_SIZE_THRESHOLD);
+				if (found_edge || sea.size() > SEA_SIZE_THRESHOLD) {
+					found = true;
+					break;
+				} else {
+					/* Sea is too small, flatten it so the river keeps looking or forms a lake / wetland. */
+					for (TileIndex sea_tile : sea) {
+						Command<CMD_TERRAFORM_LAND>::Do(DoCommandFlag::Execute, sea_tile, SLOPE_ELEVATED, false);
+						Slope slope = ComplementSlope(GetTileSlope(sea_tile));
+						Command<CMD_TERRAFORM_LAND>::Do(DoCommandFlag::Execute, sea_tile, slope, true);
+					}
+				}
+			} else {
+				/* We've found a river. */
+				found = true;
+				break;
+			}
 		}
 
 		for (DiagDirection d = DIAGDIR_BEGIN; d < DIAGDIR_END; d++) {

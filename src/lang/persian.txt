@@ -13,7 +13,7 @@
 # This file is part of OpenTTD.
 # OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
 # OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
 
 
 ##id 0x0000
@@ -2303,7 +2303,7 @@ STR_HOUSE_PICKER_YEARS_ANY                                      :{BLACK}سال�
 STR_HOUSE_PICKER_YEARS_FROM                                     :{BLACK}سال‌ها: {ORANGE}از {NUM}
 STR_HOUSE_PICKER_YEARS_UNTIL                                    :{BLACK}سال‌ها: {ORANGE}تا {NUM}
 STR_HOUSE_PICKER_SIZE                                           :{BLACK}اندازه: {ORANGE}{NUM}x{NUM} کاشی
-STR_HOUSE_PICKER_CARGO_ACCEPTED                                 :{BLACK}محموله پذیرفته شد: {ORANGE}
+STR_HOUSE_PICKER_CARGO_ACCEPTED                                 :{BLACK}محموله پذیرفته شد: {GOLD}{STRING}
 STR_HOUSE_PICKER_CARGO_PRODUCED                                 :{BLACK}محموله تولید شده: {ORANGE}{CARGO_LIST}
 
 STR_HOUSE_PICKER_CLASS_ZONE1                                    :لبه
@@ -2567,7 +2567,7 @@ STR_LAND_AREA_INFORMATION_AIRPORT_CLASS                         :{BLACK}کلاس
 STR_LAND_AREA_INFORMATION_AIRPORT_NAME                          :{BLACK}نام فرودگاه: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_AIRPORTTILE_NAME                      :{BLACK}نام قطعه فرودگاه: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_NEWGRF_NAME                           :{BLACK}NewGRF: {LTBLUE}{STRING}
-STR_LAND_AREA_INFORMATION_CARGO_ACCEPTED                        :{BLACK}محموله های دریافتی : {LTBLUE}
+STR_LAND_AREA_INFORMATION_CARGO_ACCEPTED                        :{BLACK}محموله های دریافتی : {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_CARGO_EIGHTS                          :({COMMA}/8 {STRING})
 STR_LANG_AREA_INFORMATION_RAIL_SPEED_LIMIT                      :{BLACK}حد سرعت ریل: {LTBLUE}{VELOCITY}
 STR_LANG_AREA_INFORMATION_ROAD_SPEED_LIMIT                      :{BLACK}حداکثر سرعت جاده ای: {LTBLUE}{VELOCITY}
@@ -3171,24 +3171,20 @@ STR_CARGO_RATING_EXCELLENT                                      :عالی
 STR_CARGO_RATING_OUTSTANDING                                    :بسیار عالی
 
 STR_STATION_VIEW_CENTER_TOOLTIP                                 :{BLACK}مرکز تصویر اصلی را روی محل ایستگاه قرار بده. Ctrl+Click برای گشودن یک پنجره نما از ایستگاه
-STR_STATION_VIEW_RENAME_TOOLTIP                                 :{BLACK}تغییر نام ایستگاه
 
 STR_STATION_VIEW_SCHEDULED_TRAINS_TOOLTIP                       :{BLACK}همه قطار هایی که در ایستگاه هایشان دارای زمانبندی می باشند را نشان می دهد.
 STR_STATION_VIEW_SCHEDULED_ROAD_VEHICLES_TOOLTIP                :{BLACK}همه خودروهایی هایی که در ایستگاه هایشان دارای زمانبندی می باشند را نشان می دهد.
 STR_STATION_VIEW_SCHEDULED_AIRCRAFT_TOOLTIP                     :{BLACK}همه هواپیماهایی که در ایستگاه هایشان دارای زمانبندی می باشند را نشان می دهد.
 STR_STATION_VIEW_SCHEDULED_SHIPS_TOOLTIP                        :{BLACK}همه کشتی هایی هایی که در ایستگاه هایشان دارای زمانبندی می باشند را نشان می دهد.
 
-STR_STATION_VIEW_RENAME_STATION_CAPTION                         :نام گذاری محوطه ایستگاه/بارگیری
 
 STR_STATION_VIEW_CLOSE_AIRPORT                                  :{BLACK}بستن (یا نزدیک) فرودگاه
 STR_STATION_VIEW_CLOSE_AIRPORT_TOOLTIP                          :{BLACK}جلوگیری از فرود هواپیما در این فرودگاه
 
 # Waypoint/buoy view window
 STR_WAYPOINT_VIEW_CAPTION                                       :{WHITE}{WAYPOINT}
-STR_WAYPOINT_VIEW_CHANGE_WAYPOINT_NAME                          :{BLACK}تغییر نام نقطه مسیر
 STR_BUOY_VIEW_RENAME_TOOLTIP                                    :{BLACK}تغییر نام شناور
 
-STR_EDIT_WAYPOINT_NAME                                          :{WHITE}ویرایش نام نقطه راه
 
 # Finances window
 STR_FINANCES_YEAR                                               :{WHITE}{NUM}
@@ -3259,7 +3255,7 @@ STR_COMPANY_INFRASTRUCTURE_VIEW_AIRPORTS                        :{WHITE}فرود
 # Industry directory
 STR_INDUSTRY_DIRECTORY_CAPTION                                  :{WHITE}کارخانجات ({COMMA} of {COMMA})
 STR_INDUSTRY_DIRECTORY_NONE                                     :{ORANGE}- هیچ -
-STR_INDUSTRY_DIRECTORY_ITEM_INFO                                :{BLACK}{CARGO_LONG}{STRING}{YELLOW} ({COMMA}% transported){BLACK}
+STR_INDUSTRY_DIRECTORY_ITEM_INFO                                :{BLACK}{CARGO_LONG}{STRING}{YELLOW} ({COMMA}% transported)
 STR_INDUSTRY_DIRECTORY_ITEM_NOPROD                              :{ORANGE}{INDUSTRY}
 STR_INDUSTRY_DIRECTORY_ITEM_PROD1                               :{ORANGE}{INDUSTRY} {STRING}
 STR_INDUSTRY_DIRECTORY_ITEM_PROD2                               :{ORANGE}{INDUSTRY} {STRING}, {STRING}

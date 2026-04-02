@@ -2,24 +2,12 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /**
- * @file game_info.h Convert NetworkGameInfo to Packet and back.
- */
-
-#ifndef NETWORK_CORE_GAME_INFO_H
-#define NETWORK_CORE_GAME_INFO_H
-
-#include "config.h"
-#include "core.h"
-#include "../../newgrf_config.h"
-#include "../../date_type.h"
-#include "../../landscape_type.h"
-#include "../../3rdparty/robin_hood/robin_hood.h"
-
-/*
+ * @file network_game_info.h Convert NetworkGameInfo to Packet and back.
+ *
  * NetworkGameInfo has several revisions which we still need to support on the
  * wire. The table below shows the version and size for each field of the
  * serialized NetworkGameInfo.
@@ -80,6 +68,16 @@
  *                    (0 = temperate, 1 = arctic, 2 = desert, 3 = toyland)
  *   1+       1       whether the server is dedicated (0 = no, 1 = yes)
  */
+
+#ifndef NETWORK_CORE_GAME_INFO_H
+#define NETWORK_CORE_GAME_INFO_H
+
+#include "config.h"
+#include "core.h"
+#include "../../newgrf_config.h"
+#include "../../date_type.h"
+#include "../../landscape_type.h"
+#include "../../3rdparty/robin_hood/robin_hood.h"
 
 /** The different types/ways a NewGRF can be serialized in the GameInfo since version 6. */
 enum NewGRFSerializationType {

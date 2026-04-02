@@ -2,10 +2,10 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
-/** @file vehicle_sl.cpp Code handling saving and loading of vehicles */
+/** @file vehicle_sl.cpp Code handling saving and loading of vehicles. */
 
 #include "../stdafx.h"
 
@@ -574,12 +574,12 @@ struct VEHSChunkHandler : ChunkHandler {
 			VehicleType vtype = (VehicleType)SlReadByte();
 
 			switch (vtype) {
-				case VEH_TRAIN:    v = new (VehicleID(index)) Train();           break;
-				case VEH_ROAD:     v = new (VehicleID(index)) RoadVehicle();     break;
-				case VEH_SHIP:     v = new (VehicleID(index)) Ship();            break;
-				case VEH_AIRCRAFT: v = new (VehicleID(index)) Aircraft();        break;
-				case VEH_EFFECT:   v = new (VehicleID(index)) EffectVehicle();   break;
-				case VEH_DISASTER: v = new (VehicleID(index)) DisasterVehicle(); break;
+				case VEH_TRAIN: v = Train::CreateAtIndex(VehicleID(index)); break;
+				case VEH_ROAD: v = RoadVehicle::CreateAtIndex(VehicleID(index)); break;
+				case VEH_SHIP: v = Ship::CreateAtIndex(VehicleID(index)); break;
+				case VEH_AIRCRAFT: v = Aircraft::CreateAtIndex(VehicleID(index)); break;
+				case VEH_EFFECT: v = EffectVehicle::CreateAtIndex(VehicleID(index)); break;
+				case VEH_DISASTER: v = DisasterVehicle::CreateAtIndex(VehicleID(index)); break;
 				case VEH_INVALID: // Savegame shouldn't contain invalid vehicles
 				default: SlErrorCorrupt("Invalid vehicle type");
 			}
@@ -588,7 +588,7 @@ struct VEHSChunkHandler : ChunkHandler {
 
 			if (_cargo_count != 0 && IsCompanyBuildableVehicleType(v) && CargoPacket::CanAllocateItem()) {
 				/* Don't construct the packet with station here, because that'll fail with old savegames */
-				CargoPacket *cp = new CargoPacket(_cargo_count, _cargo_periods, _cargo_source, _cargo_source_xy, _cargo_feeder_share);
+				CargoPacket *cp = CargoPacket::Create(_cargo_count, _cargo_periods, _cargo_source, _cargo_source_xy, _cargo_feeder_share);
 				v->cargo.Append(cp);
 			}
 

@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file newgrf_debug_data.h Data 'tables' for NewGRF debugging. */
@@ -27,6 +27,7 @@
 #include "../train_speed_adaptation.h"
 #include "../tracerestrict.h"
 #include "../newgrf_dump.h"
+#include "../core/type_util.hpp"
 
 /* Helper for filling property tables */
 #define NIP(prop, base, variable, type, name) { name, { (ptrdiff_t)cpp_offsetof(base, variable), cpp_sizeof(base, variable) }, prop, type }
@@ -2222,6 +2223,8 @@ class NIHTraceRestrict : public NIHelper {
 		CA(CMB_SIGNAL_MODE_CTRL)
 		CA(ORDER_CONDITIONALS)
 		CA(REVERSE_AT)
+		CA(COUNTER_CONDITIONALS)
+		CA(IS_BACKUP)
 #undef CA
 		output.Print("");
 

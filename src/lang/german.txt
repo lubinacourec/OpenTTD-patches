@@ -14,7 +14,7 @@
 # This file is part of OpenTTD.
 # OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
 # OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
 
 
 ##id 0x0000
@@ -313,6 +313,7 @@ STR_SHOW_HIDDEN_ENGINES_VEHICLE_AIRCRAFT_TOOLTIP                :{BLACK}Zeigt au
 STR_BUTTON_DEFAULT                                              :{BLACK}Standard
 STR_BUTTON_CANCEL                                               :{BLACK}Abbrechen
 STR_BUTTON_OK                                                   :{BLACK}OK
+STR_BUTTON_MOVE                                                 :{BLACK}Verschieben
 
 # On screen keyboard window
 STR_OSK_KEYBOARD_LAYOUT                                         :^1234567890ß'€qwertzuiopü+asdfghjklöä#<yxcvbnm,.- .
@@ -1248,7 +1249,7 @@ STR_CONFIG_SETTING_EXPAND_ALL                                   :Alles ausklappe
 STR_CONFIG_SETTING_COLLAPSE_ALL                                 :Alles einklappen
 STR_CONFIG_SETTING_RESET_ALL                                    :Alle Werte zurücksetzen
 STR_CONFIG_SETTING_NO_EXPLANATION_AVAILABLE_HELPTEXT            :(keine Erklärung verfügbar)
-STR_CONFIG_SETTING_VALUE                                        :{PUSH_COLOUR}{ORANGE}{STRING}{POP_COLOUR}
+STR_CONFIG_SETTING_VALUE                                        :{ORANGE}{STRING}
 STR_CONFIG_SETTING_DEFAULT_VALUE                                :{LTBLUE}Standardwert: {ORANGE}{STRING}
 STR_CONFIG_SETTING_TYPE                                         :{LTBLUE}Art der Einstellung: {ORANGE}{STRING}
 STR_CONFIG_SETTING_TYPE_CLIENT                                  :Nutzer-Einstellung (nicht in Spielständen gespeichert; beeinflusst alle Spiele)
@@ -2091,6 +2092,8 @@ STR_CONFIG_SETTING_LARGER_TOWNS_VALUE                           :1 von {COMMA}
 STR_CONFIG_SETTING_LARGER_TOWNS_DISABLED                        :Keine
 STR_CONFIG_SETTING_CITY_SIZE_MULTIPLIER                         :Größe von Großstädten bei Spielbeginn: {STRING}×
 STR_CONFIG_SETTING_CITY_SIZE_MULTIPLIER_HELPTEXT                :Durchschnittliche Größe von Großstädten relativ zu normalen Städten bei Spielbeginn
+STR_CONFIG_SETTING_TOWN_MIN_DISTANCE                            :Minimale Distanz zwischen Städten: {STRING}
+STR_CONFIG_SETTING_TOWN_MIN_DISTANCE_HELPTEXT                   :Legt die minimale Distanz in Kacheln zwischen Städten für die Kartenerzeugung und Zufallsgründung fest
 
 STR_CONFIG_SETTING_LINKGRAPH_RECALC_INTERVAL                    :Verteilungsgraphen alle {STRING} aktualisieren
 STR_CONFIG_SETTING_LINKGRAPH_RECALC_INTERVAL_HELPTEXT           :Zeit zwischen anfolgenden Neuberechnungen der Warenverteilung. Jede Neuberechnung berechnet die Pläne für eine Komponente des Graphen. Das bedeutet, dass ein Wert X für diese Einstellung nicht bedeutet, dass der gesamte Graph alle X Sekunden aktualisiert wird. Nur ein Teil wird es. Je kürzer die Zeit festgelegt ist, desto mehr CPU-Zeit wird nötig sein, um ihn zu berechnen. Je länger die Zeit festgelegt ist, desto länger wird es dauern, bis die Frachtverteilung auf neuen Strecken beginnt
@@ -2865,15 +2868,15 @@ STR_PICKER_HOUSE_CLASS_TOOLTIP                                  :Wählen Sie ein
 STR_PICKER_HOUSE_TYPE_TOOLTIP                                   :Wählen Sie einen Haustyp zum Bauen. Strg+Klick, um in gespeicherten Einträgen hinzuzufügen oder zu entfernen
 
 STR_HOUSE_PICKER_CAPTION                                        :Hausauswahl
-STR_HOUSE_PICKER_NAME                                           :{BLACK}Name: {ORANGE}{STRING}
-STR_HOUSE_PICKER_POPULATION                                     :{BLACK}Bewohner: {ORANGE}{NUM}
-STR_HOUSE_PICKER_YEARS                                          :{BLACK}Jahre: {ORANGE}{NUM}-{NUM}
-STR_HOUSE_PICKER_YEARS_ANY                                      :{BLACK}Jahre: {ORANGE}Beliebig
-STR_HOUSE_PICKER_YEARS_FROM                                     :{BLACK}Jahre: {ORANGE}Ab {NUM}
-STR_HOUSE_PICKER_YEARS_UNTIL                                    :{BLACK}Jahre: {ORANGE}Bis {NUM}
-STR_HOUSE_PICKER_SIZE                                           :{BLACK}Größe: {ORANGE}{NUM}×{NUM} Kacheln
-STR_HOUSE_PICKER_CARGO_ACCEPTED                                 :{BLACK}Akzeptierte Fracht: {ORANGE}
-STR_HOUSE_PICKER_CARGO_PRODUCED                                 :{BLACK}Produzierte Fracht: {ORANGE}{CARGO_LIST}
+STR_HOUSE_PICKER_NAME                                           :{BLACK}Name: {GOLD}{STRING}
+STR_HOUSE_PICKER_POPULATION                                     :{BLACK}Bewohner: {GOLD}{NUM}
+STR_HOUSE_PICKER_YEARS                                          :{BLACK}Jahre: {GOLD}{NUM}-{NUM}
+STR_HOUSE_PICKER_YEARS_ANY                                      :{BLACK}Jahre: {GOLD}Beliebig
+STR_HOUSE_PICKER_YEARS_FROM                                     :{BLACK}Jahre: {GOLD}Ab {NUM}
+STR_HOUSE_PICKER_YEARS_UNTIL                                    :{BLACK}Jahre: {GOLD}Bis {NUM}
+STR_HOUSE_PICKER_SIZE                                           :{BLACK}Größe: {GOLD}{NUM}×{NUM} Kacheln
+STR_HOUSE_PICKER_CARGO_ACCEPTED                                 :{BLACK}Akzeptierte Fracht: {GOLD}{STRING}
+STR_HOUSE_PICKER_CARGO_PRODUCED                                 :{BLACK}Produzierte Fracht: {GOLD}{CARGO_LIST}
 
 STR_HOUSE_PICKER_CLASS_ZONE1                                    :Rand
 STR_HOUSE_PICKER_CLASS_ZONE2                                    :Peripherie
@@ -3161,7 +3164,7 @@ STR_LAND_AREA_INFORMATION_AIRPORT_CLASS                         :{BLACK}Flughafe
 STR_LAND_AREA_INFORMATION_AIRPORT_NAME                          :{BLACK}Name des Flughafen: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_AIRPORTTILE_NAME                      :{BLACK}Name des Flughafenfeldes: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_NEWGRF_NAME                           :{BLACK}NewGRF: {LTBLUE}{STRING}
-STR_LAND_AREA_INFORMATION_CARGO_ACCEPTED                        :{BLACK}Angenommene Frachtarten: {LTBLUE}
+STR_LAND_AREA_INFORMATION_CARGO_ACCEPTED                        :{BLACK}Angenommene Frachtarten: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_CARGO_EIGHTS                          :({COMMA}/8 {STRING})
 STR_LANG_AREA_INFORMATION_RAIL_TYPE                             :{BLACK}Gleistyp: {LTBLUE}{STRING}
 STR_LANG_AREA_INFORMATION_ROAD_TYPE                             :{BLACK}Straßentyp: {LTBLUE}{STRING}
@@ -3693,7 +3696,7 @@ STR_SIGN_LIST_MATCH_CASE                                        :{BLACK}Groß-/K
 STR_SIGN_LIST_MATCH_CASE_TOOLTIP                                :{BLACK}Umschalten zwischen Beachtung und Nichtbeachtung der Groß- und Kleinschreibung beim Vergleich von Schildern mit dem Suchbegriff
 
 # Sign window
-STR_EDIT_SIGN_CAPTION                                           :{WHITE}Schildtext ändern
+STR_EDIT_SIGN_CAPTION                                           :{WHITE}Schild bearbeiten
 STR_EDIT_SIGN_LOCATION_TOOLTIP                                  :{BLACK}Hauptansicht auf Schildposition zentrieren. Mit Strg+Klick wird ein neues Ansichtsfenster auf der Position des Schildes geöffnet
 STR_EDIT_SIGN_NEXT_SIGN_TOOLTIP                                 :{BLACK}Zum nächsten Schild wechseln
 STR_EDIT_SIGN_PREVIOUS_SIGN_TOOLTIP                             :{BLACK}Zum vorherigen Schild wechseln
@@ -3911,14 +3914,14 @@ STR_CARGO_RATING_EXCELLENT                                      :Ausgezeichnet
 STR_CARGO_RATING_OUTSTANDING                                    :Hervorragend
 
 STR_STATION_VIEW_CENTER_TOOLTIP                                 :{BLACK}Hauptansicht zur Station scrollen. Mit Strg+Klick wird eine neue Zusatzansicht bei der Station geöffnet
-STR_STATION_VIEW_RENAME_TOOLTIP                                 :{BLACK}Namen der Station ändern
+STR_STATION_VIEW_EDIT_TOOLTIP                                   :{BLACK}Station umbenennen oder Schild verschieben
 
 STR_STATION_VIEW_SCHEDULED_TRAINS_TOOLTIP                       :{BLACK}Alle Züge, die diesen Bahnhof anfahren, anzeigen
 STR_STATION_VIEW_SCHEDULED_ROAD_VEHICLES_TOOLTIP                :{BLACK}Alle Straßenfahrzeuge, die diese Station anfahren, anzeigen
 STR_STATION_VIEW_SCHEDULED_AIRCRAFT_TOOLTIP                     :{BLACK}Alle Flugzeuge, die diesen Flughafen anfliegen, anzeigen
 STR_STATION_VIEW_SCHEDULED_SHIPS_TOOLTIP                        :{BLACK}Alle Schiffe, die diesen Hafen ansteuern, anzeigen
 
-STR_STATION_VIEW_RENAME_STATION_CAPTION                         :Station/Ladeplatz umbenennen
+STR_STATION_VIEW_EDIT_STATION_SIGN                              :{WHITE}Stationsschild bearbeiten
 
 STR_STATION_VIEW_CLOSE_AIRPORT                                  :{BLACK}Flughafen schließen
 STR_STATION_VIEW_CLOSE_AIRPORT_TOOLTIP                          :{BLACK}Luftfahrzeugen die Landeerlaubnis verweigern
@@ -3926,11 +3929,11 @@ STR_STATION_VIEW_CLOSE_AIRPORT_TOOLTIP                          :{BLACK}Luftfahr
 # Waypoint/buoy view window
 STR_WAYPOINT_VIEW_CAPTION                                       :{WHITE}{WAYPOINT}
 STR_WAYPOINT_VIEW_CENTER_TOOLTIP                                :{BLACK}Hauptansicht auf den Wegpunktstandort zentrieren. Mit Strg+Klick wird neue Zusatzansicht beim Wegpunktstandort geöffnet
-STR_WAYPOINT_VIEW_CHANGE_WAYPOINT_NAME                          :{BLACK}Namen der Wegpunkte ändern
+STR_WAYPOINT_VIEW_EDIT_TOOLTIP                                  :{BLACK}Wegpunkt umbenennen oder Schild verschieben
 STR_BUOY_VIEW_CENTER_TOOLTIP                                    :{BLACK}Hauptansicht zum Bojenstandort zentrierten. Mit Strg+Klick wird eine neue Zusatzansicht beim Bojenstandort geöffnet
 STR_BUOY_VIEW_RENAME_TOOLTIP                                    :{BLACK}Namen der Boje ändern
 
-STR_EDIT_WAYPOINT_NAME                                          :{WHITE}Namen des Wegpunkts ändern
+STR_WAYPOINT_VIEW_EDIT_WAYPOINT_SIGN                            :{WHITE}Wegpunktschild bearbeiten
 
 # Finances window
 STR_FINANCES_CAPTION                                            :{WHITE}{COMPANY} – Finanzen {BLACK}{COMPANY_NUM}
@@ -4045,7 +4048,7 @@ STR_COMPANY_INFRASTRUCTURE_VIEW_TOTAL_PERIOD                    :{WHITE}{CURRENC
 # Industry directory
 STR_INDUSTRY_DIRECTORY_CAPTION                                  :{WHITE}Industrien ({COMMA} von {COMMA})
 STR_INDUSTRY_DIRECTORY_NONE                                     :{ORANGE}- Keine -
-STR_INDUSTRY_DIRECTORY_ITEM_INFO                                :{BLACK}{CARGO_LONG}{STRING}{YELLOW} ({COMMA}% transportiert){BLACK}
+STR_INDUSTRY_DIRECTORY_ITEM_INFO                                :{BLACK}{CARGO_LONG}{STRING}{YELLOW} ({COMMA}% transportiert)
 STR_INDUSTRY_DIRECTORY_ITEM_NOPROD                              :{ORANGE}{INDUSTRY}
 STR_INDUSTRY_DIRECTORY_ITEM_PROD1                               :{ORANGE}{INDUSTRY} {STRING}
 STR_INDUSTRY_DIRECTORY_ITEM_PROD2                               :{ORANGE}{INDUSTRY} {STRING}, {STRING}
@@ -4068,9 +4071,9 @@ STR_INDUSTRY_VIEW_CARGO_GRAPH_TOOLTIP                           :{BLACK}Zeigt da
 STR_INDUSTRY_VIEW_PRODUCTION_LEVEL                              :{BLACK}Produktionsrate: {YELLOW}{COMMA}%
 STR_INDUSTRY_VIEW_INDUSTRY_ANNOUNCED_CLOSURE                    :{YELLOW}Diese Industrie wird in Kürze schließen!
 
-STR_INDUSTRY_VIEW_REQUIRES_N_CARGO                              :{BLACK}Benötigt: {YELLOW}{STRING}{STRING}
-STR_INDUSTRY_VIEW_PRODUCES_N_CARGO                              :{BLACK}Produziert: {YELLOW}{STRING}{STRING}
-STR_INDUSTRY_VIEW_CARGO_LIST_EXTENSION                          :, {STRING}{STRING}
+STR_INDUSTRY_VIEW_REQUIRES_N_CARGO                              :{BLACK}Benötigt: {YELLOW}{STRING}
+STR_INDUSTRY_VIEW_PRODUCES_N_CARGO                              :{BLACK}Produziert: {YELLOW}{STRING}
+STR_INDUSTRY_VIEW_CARGO_LIST_EXTENSION                          :{STRING}{STRING}
 
 STR_INDUSTRY_VIEW_REQUIRES                                      :{BLACK}Benötigt:
 STR_INDUSTRY_VIEW_ACCEPT_CARGO_SUFFIX                           :{YELLOW}{0:STRING}{BLACK}{3:STRING}
@@ -4597,7 +4600,7 @@ STR_VEHICLE_DETAILS_TRAIN_CAPACITIES_TOOLTIP                    :{BLACK}Zeige Ka
 STR_VEHICLE_DETAIL_TAB_TOTAL_CARGO                              :{BLACK}Frachtübersicht
 STR_VEHICLE_DETAILS_TRAIN_TOTAL_CARGO_TOOLTIP                   :{BLACK}Frachtübersicht des Zuges anzeigen, aufgeteilt nach Frachttyp
 
-STR_VEHICLE_DETAILS_TRAIN_ARTICULATED_RV_CAPACITY               :{BLACK}Kapazität: {LTBLUE}
+STR_VEHICLE_DETAILS_TRAIN_ARTICULATED_RV_CAPACITY               :{BLACK}Kapazität: {LTBLUE}{STRING}
 
 # Vehicle refit
 STR_REFIT_CAPTION                                               :{WHITE}{VEHICLE} (Umrüsten)
@@ -5145,6 +5148,7 @@ STR_ERROR_TOO_MANY_TRUCK_STOPS                                  :{WHITE}Zu viele
 STR_ERROR_TOO_CLOSE_TO_ANOTHER_DOCK                             :{WHITE}Zu dicht an einem anderen Hafen
 STR_ERROR_TOO_CLOSE_TO_ANOTHER_AIRPORT                          :{WHITE}Zu dicht an einem anderen Flughafen
 STR_ERROR_CAN_T_RENAME_STATION                                  :{WHITE}Station kann nicht umbenannt werden ...
+STR_ERROR_CAN_T_MOVE_STATION_NAME                               :{WHITE}Stationsschild kann nicht bewegt werden …
 STR_ERROR_DRIVE_THROUGH_ON_TOWN_ROAD                            :{WHITE}... Staße im Stadteigentum
 STR_ERROR_DRIVE_THROUGH_DIRECTION                               :{WHITE}... Straße verläuft in die falsche Richtung
 STR_ERROR_DRIVE_THROUGH_CORNER                                  :{WHITE}... Bus- und Lkw-Haltestellen können nicht um die Kurve gehen
@@ -5176,6 +5180,7 @@ STR_ERROR_CAN_T_BUILD_RAIL_WAYPOINT                             :{WHITE}Wegpunkt
 STR_ERROR_CAN_T_BUILD_ROAD_WAYPOINT                             :{WHITE}Straßenwegpunkt kann hier nicht gebaut werden …
 STR_ERROR_CAN_T_POSITION_BUOY_HERE                              :{WHITE}Boje kann hier nicht platziert werden ...
 STR_ERROR_CAN_T_CHANGE_WAYPOINT_NAME                            :{WHITE}Wegpunktname kann nicht geändert werden ...
+STR_ERROR_CAN_T_MOVE_WAYPOINT_NAME                              :{WHITE}Wegpunktschild kann nicht bewegt werden …
 
 STR_ERROR_CAN_T_REMOVE_RAIL_WAYPOINT                            :{WHITE}Wegpunkt kann hier nicht entfernt werden ...
 STR_ERROR_CAN_T_REMOVE_ROAD_WAYPOINT                            :{WHITE}Straßenwegpunkt kann hier nicht entfernt werden …

@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file settings_type.h Types related to global configuration settings. */
@@ -112,6 +112,14 @@ enum PlaceHouses : uint8_t {
 	PH_FORBIDDEN = 0,
 	PH_ALLOWED,
 	PH_ALLOWED_CONSTRUCTED,
+};
+
+/** Possible values for "vehicle_breakdowns" setting. */
+enum VehicleBreakdowns : uint8_t {
+	VB_NONE = 0,
+	VB_REDUCED = 1,
+	VB_NORMAL = 2,
+	VB_VERY_REDUCED = 64,
 };
 
 /** Settings related to the difficulty of the game */
@@ -359,8 +367,8 @@ struct GUISettings : public TimeSettings {
 	bool        show_progsig_ui;                                 ///< Show programmable pre-signals feature in UI
 	bool        show_noentrysig_ui;                              ///< Show no-entry signals feature in UI
 	uint8_t     osk_activation;                                  ///< Mouse gesture to trigger the OSK.
-	Colours     starting_colour;                                 ///< default color scheme for the company to start a new game with
-	Colours     starting_colour_secondary;                       ///< default secondary color scheme for the company to start a new game with
+	Colours     starting_colour;                                 ///< default colour scheme for the company to start a new game with
+	Colours     starting_colour_secondary;                       ///< default secondary colour scheme for the company to start a new game with
 	bool        show_newgrf_name;                                ///< Show the name of the NewGRF in the build vehicle window
 	bool        show_cargo_in_vehicle_lists;                     ///< Show the cargoes the vehicles can carry in the list windows
 	bool        show_wagon_intro_year;                           ///< Show the introduction year for wagons in the build vehicle window
@@ -759,6 +767,7 @@ struct VehicleSettings {
 	uint8_t  freight_trains;                   ///< value to multiply the weight of cargo by
 	bool     dynamic_engines;                  ///< enable dynamic allocation of engine data
 	bool     never_expire_vehicles;            ///< never expire vehicles
+	bool     vehicle_intro_randomisation;      ///< randomise the introduction dates of vehicles
 	CalTime::Year no_expire_vehicles_after;    ///< do not expire vehicles after this year
 	CalTime::Year no_introduce_vehicles_after; ///< do not introduce vehicles after this year
 	uint8_t  extend_vehicle_life;              ///< extend vehicle life by this many years
@@ -833,6 +842,7 @@ struct EconomySettings {
 	bool     allow_town_bridges;             ///< towns are allowed to build bridges
 	bool     default_allow_town_growth;      ///< town growth is allowed per-town by default
 	bool     infrastructure_maintenance;     ///< enable monthly maintenance fee for owner infrastructure
+	bool     linear_maintenance;             ///< set maintenance costs to grow linearly rather than polynomially
 	TimekeepingUnits timekeeping_units;      ///< time units to use for the game economy, either calendar or wallclock
 	uint16_t minutes_per_calendar_year;      ///< minutes per calendar year. Special value 0 means that calendar time is frozen.
 	uint16_t town_cargo_scale;               ///< scale cargo production of towns by this percentage.
@@ -911,7 +921,6 @@ struct CompanySettings {
 	VehicleDefaultSettings vehicle{};               ///< default settings for vehicles
 	uint8_t order_occupancy_smoothness = 0;         ///< percentage smoothness of occupancy measurement changes
 	uint8_t  auto_timetable_separation_rate = 0;    ///< percentage of auto timetable separation change to apply
-	bool infra_others_buy_in_depot[4]{};            ///< other companies can buy/autorenew in this companies depots (where infra sharing enabled)
 	uint16_t timetable_autofill_rounding = 0;       ///< round up timetable times to be a multiple of this number of ticks
 	bool advance_order_on_clone = false;            ///< when cloning a vehicle or copying/sharing an order list, advance the current order to a suitable point
 	bool copy_clone_add_to_group = false;           ///< whether to add cloned vehicles to the source vehicle's group, when cloning a vehicle without sharing orders

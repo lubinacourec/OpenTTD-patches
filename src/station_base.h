@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file station_base.h Base classes/functions for stations. */
@@ -924,8 +924,8 @@ public:
 	CargoTypes station_cargo_history_cargoes = 0;                                            ///< Bitmask of cargoes in station_cargo_history
 	std::vector<std::array<uint16_t, MAX_STATION_CARGO_HISTORY_DAYS>> station_cargo_history; ///< Station history of waiting cargo, dynamic range compressed (see RXCompressUint)
 
-	Station(TileIndex tile = INVALID_TILE);
-	~Station();
+	Station(StationID index, TileIndex tile = INVALID_TILE);
+	~Station() override;
 
 	void AddFacility(StationFacility new_facility_bit, TileIndex facil_xy);
 

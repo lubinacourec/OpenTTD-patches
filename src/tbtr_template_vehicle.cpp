@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file tbtr_template_vehicle.cpp Template-based train replacement: template vehicle. */
@@ -69,7 +69,8 @@ void TemplateVehicleImageDimensions::SetFromTrain(const Train *t)
 	}
 }
 
-TemplateVehicle::TemplateVehicle(VehicleType type, EngineID eid, Owner current_owner) : BaseVehicle(type), first(this), owner(current_owner), engine_type(eid)
+TemplateVehicle::TemplateVehicle(TemplateID index, VehicleType type, EngineID eid, Owner current_owner) :
+	PoolItemBase(index), BaseVehicle(type), first(this), owner(current_owner), engine_type(eid)
 {
 	this->sprite_seq.Set(SPR_IMG_QUERY);
 }
@@ -97,16 +98,6 @@ TemplateVehicle *TemplateVehicle::GetNextUnit() const
 			tv = tv->Next();
 		}
 		return tv;
-}
-
-TemplateVehicle *TemplateVehicle::GetPrevUnit()
-{
-	TemplateVehicle *tv = this->Prev();
-	while (tv && HasBit(tv->subtype, GVSF_ARTICULATED_PART|GVSF_ENGINE)) {
-		tv = tv->Prev();
-	}
-	if (tv && HasBit(tv->subtype, GVSF_MULTIHEADED|GVSF_ENGINE)) tv = tv->Prev();
-	return tv;
 }
 
 void ClearTemplateReplacements()

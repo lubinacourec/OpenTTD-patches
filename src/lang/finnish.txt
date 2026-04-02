@@ -13,7 +13,7 @@
 # This file is part of OpenTTD.
 # OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
 # OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
 
 
 ##id 0x0000
@@ -312,6 +312,7 @@ STR_SHOW_HIDDEN_ENGINES_VEHICLE_AIRCRAFT_TOOLTIP                :{BLACK}Kun otat
 STR_BUTTON_DEFAULT                                              :{BLACK}Oletus
 STR_BUTTON_CANCEL                                               :{BLACK}Peruuta
 STR_BUTTON_OK                                                   :{BLACK}OK
+STR_BUTTON_MOVE                                                 :{BLACK}Siirrä
 
 # On screen keyboard window
 STR_OSK_KEYBOARD_LAYOUT                                         :§1234567890+´ qwertyuiopå¨asdfghjklöä'<zxcvbnm,.- .
@@ -1114,7 +1115,7 @@ STR_GAME_OPTIONS_BASE_GRF_TOOLTIP                               :Valitse käytet
 STR_GAME_OPTIONS_BASE_GRF_DESCRIPTION_TOOLTIP                   :Lisätietoja perusgrafiikkakokoelmasta
 
 STR_GAME_OPTIONS_BASE_SFX                                       :Perusäänikokoelma
-STR_GAME_OPTIONS_BASE_SFX_TOOLTIP                               :Valitse käytettävä perusäänikokoelma (ei vaihdettavissa pelin aikana, ainoastaan päävalikosta)
+STR_GAME_OPTIONS_BASE_SFX_TOOLTIP                               :Valitse käytettävä perusäänikokoelma
 STR_GAME_OPTIONS_BASE_SFX_DESCRIPTION_TOOLTIP                   :Lisätietoja perusäänikokoelmasta
 
 STR_GAME_OPTIONS_BASE_MUSIC                                     :Musiikkipaketti
@@ -1247,7 +1248,7 @@ STR_CONFIG_SETTING_EXPAND_ALL                                   :Laajenna kaikki
 STR_CONFIG_SETTING_COLLAPSE_ALL                                 :Tiivistä kaikki
 STR_CONFIG_SETTING_RESET_ALL                                    :Palauta oletukset
 STR_CONFIG_SETTING_NO_EXPLANATION_AVAILABLE_HELPTEXT            :(selitystä ei saatavilla)
-STR_CONFIG_SETTING_VALUE                                        :{PUSH_COLOUR}{ORANGE}{STRING}{POP_COLOUR}
+STR_CONFIG_SETTING_VALUE                                        :{ORANGE}{STRING}
 STR_CONFIG_SETTING_DEFAULT_VALUE                                :{LTBLUE}Oletusarvo: {ORANGE}{STRING}
 STR_CONFIG_SETTING_TYPE                                         :{LTBLUE}Asetuksen tyyppi: {ORANGE}{STRING}
 STR_CONFIG_SETTING_TYPE_CLIENT                                  :Yleinen asetus (ei tallenneta tallennuksiin; vaikuttaa kaikkiin peleihin)
@@ -2068,7 +2069,7 @@ STR_CONFIG_SETTING_ZOOM_LVL_OUT_4X                              :4x
 STR_CONFIG_SETTING_ZOOM_LVL_OUT_8X                              :8x
 
 STR_CONFIG_SETTING_SPRITE_ZOOM_MIN                              :Korkein käytettävä sprite-resoluutio: {STRING}
-STR_CONFIG_SETTING_SPRITE_ZOOM_MIN_HELPTEXT                     :Rajoita suurinta spriteille käytettävää resoluutiota. Resoluution rajoittaminen estää korkean tarkkuuden grafiikoiden käyttämisen, vaikka niitä olisi saatavilla. Tämä voi auttaa pitämään pelin ulkoasun yhtenäisenä käytettäessä sekaisin GRF-tiedostoja, joista osassa on ja osassa ei ole korkean tarkkuuden grafiikoita
+STR_CONFIG_SETTING_SPRITE_ZOOM_MIN_HELPTEXT                     :Rajoita suurinta spriteille käytettävää resoluutiota. Resoluution rajoittaminen estää korkean tarkkuuden grafiikoiden käyttämisen, vaikka niitä olisi saatavilla. Tämä voi auttaa pitämään pelin ulkoasun yhtenäisenä käytettäessä sekaisin NewGRF-tiedostoja, joista osassa on ja osassa ei ole korkean tarkkuuden grafiikoita
 ###length 3
 STR_CONFIG_SETTING_SPRITE_ZOOM_LVL_MIN                          :4×
 STR_CONFIG_SETTING_SPRITE_ZOOM_LVL_IN_2X                        :2×
@@ -2090,6 +2091,8 @@ STR_CONFIG_SETTING_LARGER_TOWNS_VALUE                           :1/{COMMA}
 STR_CONFIG_SETTING_LARGER_TOWNS_DISABLED                        :Ei yhtään
 STR_CONFIG_SETTING_CITY_SIZE_MULTIPLIER                         :Kasvukerroin alussa: {STRING}
 STR_CONFIG_SETTING_CITY_SIZE_MULTIPLIER_HELPTEXT                :Kaupunkien keskimääräinen koko suhteessa muihin kuntiin pelin alussa
+STR_CONFIG_SETTING_TOWN_MIN_DISTANCE                            :Vähimmäisetäisyys kuntien välillä: {STRING}
+STR_CONFIG_SETTING_TOWN_MIN_DISTANCE_HELPTEXT                   :Aseta kuntien välinen vähimmäisetäisyys ruutuina kartan luomista ja kuntien satunnaista perustamista varten
 
 STR_CONFIG_SETTING_LINKGRAPH_RECALC_INTERVAL                    :Yhteyskuvaajan päivitysväli: {STRING}
 STR_CONFIG_SETTING_LINKGRAPH_RECALC_INTERVAL_HELPTEXT           :Yhteyskuvaajan uudelleenlaskentojen välinen aika. Jokainen uudelleenlaskenta laskee suunnitelmat kuvaajan yhdelle osalle. Tämän asetuksen arvo X ei siis tarkoita, että koko kuvaaja päivittyisi X sekunnin välein, vaan ainoastaan sen yksi osa. Mitä lyhyemmäksi asetat tämän ajan, sitä enemmän suoritinaikaa kuluu laskentaan. Mitä pitemmäksi asetat ajan, sitä pitempään kestää rahdin jakautumisen alkaminen uusille reiteille
@@ -2882,15 +2885,15 @@ STR_PICKER_HOUSE_TYPE_TOOLTIP                                   :Valitse rakenne
 STR_PICKER_HOUSE_COLLECTION_TOOLTIP                             :Valitse näytettävä talokokoelma
 
 STR_HOUSE_PICKER_CAPTION                                        :Talojen valinta
-STR_HOUSE_PICKER_NAME                                           :{BLACK}Nimi: {ORANGE}{STRING}
-STR_HOUSE_PICKER_POPULATION                                     :{BLACK}Asukasluku: {ORANGE}{NUM}
-STR_HOUSE_PICKER_YEARS                                          :{BLACK}Vuodet: {ORANGE}{NUM}–{NUM}
-STR_HOUSE_PICKER_YEARS_ANY                                      :{BLACK}Vuodet: {ORANGE}milloin tahansa
-STR_HOUSE_PICKER_YEARS_FROM                                     :{BLACK}Vuodet: {ORANGE}{NUM} alkaen
-STR_HOUSE_PICKER_YEARS_UNTIL                                    :{BLACK}Vuodet: {ORANGE}{NUM} saakka
-STR_HOUSE_PICKER_SIZE                                           :{BLACK}Koko: {ORANGE}{NUM}×{NUM} ruutua
-STR_HOUSE_PICKER_CARGO_ACCEPTED                                 :{BLACK}Ottaa vastaan: {ORANGE}
-STR_HOUSE_PICKER_CARGO_PRODUCED                                 :{BLACK}Tuottaa: {ORANGE}{CARGO_LIST}
+STR_HOUSE_PICKER_NAME                                           :{BLACK}Nimi: {GOLD}{STRING}
+STR_HOUSE_PICKER_POPULATION                                     :{BLACK}Asukasluku: {GOLD}{NUM}
+STR_HOUSE_PICKER_YEARS                                          :{BLACK}Vuodet: {GOLD}{NUM}–{NUM}
+STR_HOUSE_PICKER_YEARS_ANY                                      :{BLACK}Vuodet: {GOLD}milloin tahansa
+STR_HOUSE_PICKER_YEARS_FROM                                     :{BLACK}Vuodet: {GOLD}{NUM} alkaen
+STR_HOUSE_PICKER_YEARS_UNTIL                                    :{BLACK}Vuodet: {GOLD}{NUM} saakka
+STR_HOUSE_PICKER_SIZE                                           :{BLACK}Koko: {GOLD}{NUM}×{NUM} ruutua
+STR_HOUSE_PICKER_CARGO_ACCEPTED                                 :{BLACK}Ottaa vastaan: {GOLD}{STRING}
+STR_HOUSE_PICKER_CARGO_PRODUCED                                 :{BLACK}Tuottaa: {GOLD}{CARGO_LIST}
 
 STR_HOUSE_PICKER_CLASS_ZONE1                                    :Reuna-alueet
 STR_HOUSE_PICKER_CLASS_ZONE2                                    :Laitamat
@@ -3178,7 +3181,7 @@ STR_LAND_AREA_INFORMATION_AIRPORT_CLASS                         :{BLACK}Lentoken
 STR_LAND_AREA_INFORMATION_AIRPORT_NAME                          :{BLACK}Lentokentän nimi: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_AIRPORTTILE_NAME                      :{BLACK}Lentokentän ruudun nimi: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_NEWGRF_NAME                           :{BLACK}NewGRF: {LTBLUE}{STRING}
-STR_LAND_AREA_INFORMATION_CARGO_ACCEPTED                        :{BLACK}Vastaanottaa rahtia: {LTBLUE}
+STR_LAND_AREA_INFORMATION_CARGO_ACCEPTED                        :{BLACK}Vastaanottaa rahtia: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_CARGO_EIGHTS                          :({COMMA}/8 {STRING})
 STR_LANG_AREA_INFORMATION_RAIL_TYPE                             :{BLACK}Raidetyyppi: {LTBLUE}{STRING}
 STR_LANG_AREA_INFORMATION_ROAD_TYPE                             :{BLACK}Tien tyyppi: {LTBLUE}{STRING}
@@ -3641,7 +3644,7 @@ STR_NEWGRF_ERROR_INVALID_PARAMETER                              :Virheellinen pa
 STR_NEWGRF_ERROR_LOAD_BEFORE                                    :{1:STRING} on ladattava ennen kuin {2:STRING} voidaan ladata
 STR_NEWGRF_ERROR_LOAD_AFTER                                     :{1:STRING} tulee ladata lisäosan {2:STRING} jälkeen
 STR_NEWGRF_ERROR_OTTD_VERSION_NUMBER                            :{1:STRING} vaatii OpenTTD:n version {2:STRING} tai uudemman
-STR_NEWGRF_ERROR_AFTER_TRANSLATED_FILE                          :GRF-tiedosto, jonka se muuntaa
+STR_NEWGRF_ERROR_AFTER_TRANSLATED_FILE                          :NewGRF-tiedosto, joka sen piti muuntaa
 STR_NEWGRF_ERROR_TOO_MANY_NEWGRFS_LOADED                        :Liian monta NewGRF:ää on ladattu
 STR_NEWGRF_ERROR_STATIC_GRF_CAUSES_DESYNC                       :Lisäosan {1:STRING} lataaminen staattisena NewGRF:nä lisäosan {2:STRING} kanssa voi johtaa tahdistusvirheisiin
 STR_NEWGRF_ERROR_UNEXPECTED_SPRITE                              :Odottamaton sprite (sprite {3:NUM})
@@ -3650,7 +3653,7 @@ STR_NEWGRF_ERROR_INVALID_ID                                     :Yritys käyttä
 STR_NEWGRF_ERROR_CORRUPT_SPRITE                                 :{YELLOW}{STRING} sisältää korruptoituneen spriten. Kaikki korruptoituneet spritet näkyvät punaisina kysymysmerkkeinä (?)
 STR_NEWGRF_ERROR_MULTIPLE_ACTION_8                              :Toimenpide 8 esiintyy moneen kertaan (sprite {3:NUM})
 STR_NEWGRF_ERROR_READ_BOUNDS                                    :Luku pseudo-spriten ohi (sprite {3:NUM})
-STR_NEWGRF_ERROR_GRM_FAILED                                     :Pyydetyt GRF-resurssit eivät ole saatavilla (sprite {3:NUM})
+STR_NEWGRF_ERROR_GRM_FAILED                                     :Pyydetyt NewGRF-resurssit eivät ole saatavilla (sprite {3:NUM})
 STR_NEWGRF_ERROR_FORCEFULLY_DISABLED                            :{2:STRING} poisti käytöstä NewGRF:n {1:STRING}
 STR_NEWGRF_ERROR_INVALID_SPRITE_LAYOUT                          :Virheellinen/tuntematon spriten asettelumuoto (sprite {3:NUM})
 STR_NEWGRF_ERROR_LIST_PROPERTY_TOO_LONG                         :Liian monta elementtiä ominaisuusarvolistassa (sprite {3:NUM}, ominaisuus {4:HEX})
@@ -3661,12 +3664,12 @@ STR_NEWGRF_POPUP_CAUTION_CAPTION                                :{WHITE}Varoitus
 STR_NEWGRF_CONFIRMATION_TEXT                                    :{YELLOW}Olet tekemässä muutoksia käynnissä olevaan peliin. OpenTTD voi kaatua tai nykyinen pelitilanne rikkoutua. Älä tee virheraportteja tästä johtuvista ongelmista.{}Oletko aivan varma?
 
 STR_NEWGRF_DUPLICATE_GRFID                                      :{WHITE}Ei voi lisätä tiedostoa: duplicate GRF ID
-STR_NEWGRF_COMPATIBLE_LOADED                                    :{ORANGE}Sopivaa tiedostoa ei löytynyt (korvaava GRF ladattu)
+STR_NEWGRF_COMPATIBLE_LOADED                                    :{ORANGE}Sopivaa tiedostoa ei löytynyt (yhteensopiva NewGRF ladattu)
 STR_NEWGRF_TOO_MANY_NEWGRFS                                     :{WHITE}Tiedostoa ei voida lisätä: NewGRF-tiedostojen raja saavutettu
 
 STR_NEWGRF_COMPATIBLE_LOAD_WARNING                              :{WHITE}Yhteensopivat GRF:t ladattu puuttuvien tiedostojen korvaamiseksi
 STR_NEWGRF_DISABLED_WARNING                                     :{WHITE}Puuttuvat GRF-tiedostot on poistettu käytöstä
-STR_NEWGRF_UNPAUSE_WARNING_TITLE                                :{YELLOW}Puuttuva(t) GRF-tiedosto(t)
+STR_NEWGRF_UNPAUSE_WARNING_TITLE                                :{YELLOW}Puuttuva(t) NewGRF-tiedosto(t)
 STR_NEWGRF_UNPAUSE_WARNING                                      :{WHITE}Taukotilasta poistuminen saattaa kaataa OpenTTD:n. Älä lähetä virheraportteja tämänjälkeisistä kaatumisista.{}Haluatko todella poistua taukotilasta?
 
 # NewGRF status
@@ -3710,7 +3713,7 @@ STR_SIGN_LIST_MATCH_CASE                                        :{BLACK}Kirjaink
 STR_SIGN_LIST_MATCH_CASE_TOOLTIP                                :{BLACK}Kytke kirjainkoon täsmäys kun verrataan kylttien nimiä suodatintekstiin
 
 # Sign window
-STR_EDIT_SIGN_CAPTION                                           :{WHITE}Muokkaa kyltin tekstiä
+STR_EDIT_SIGN_CAPTION                                           :{WHITE}Muokkaa kylttiä
 STR_EDIT_SIGN_LOCATION_TOOLTIP                                  :{BLACK}Keskitä päänäkymä kyltin sijaintiin. Ctrl+napsautus avaa uuden näkymäikkunan kyltin sijaintiin
 STR_EDIT_SIGN_NEXT_SIGN_TOOLTIP                                 :{BLACK}Siirry seuraavaan kylttiin
 STR_EDIT_SIGN_PREVIOUS_SIGN_TOOLTIP                             :{BLACK}Siirry edelliseen kylttiin
@@ -3928,14 +3931,14 @@ STR_CARGO_RATING_EXCELLENT                                      :Mainio
 STR_CARGO_RATING_OUTSTANDING                                    :Loistava
 
 STR_STATION_VIEW_CENTER_TOOLTIP                                 :{BLACK}Keskitä päänäkymä aseman sijaintiin. Ctrl+napsautus avaa uuden näkymäikkunan aseman sijaintiin.
-STR_STATION_VIEW_RENAME_TOOLTIP                                 :{BLACK}Muuta aseman nimi
+STR_STATION_VIEW_EDIT_TOOLTIP                                   :{BLACK}Nimeä asema uudelleen tai siirrä kylttiä
 
 STR_STATION_VIEW_SCHEDULED_TRAINS_TOOLTIP                       :{BLACK}Näytä kaikki junat, joilla on tämä asema käskyissään
 STR_STATION_VIEW_SCHEDULED_ROAD_VEHICLES_TOOLTIP                :{BLACK}Näytä kaikki ajoneuvot, joilla on tämä asema käskyissään.
 STR_STATION_VIEW_SCHEDULED_AIRCRAFT_TOOLTIP                     :{BLACK}Näytä kaikki lentokoneet, joilla on tämä asema käskyissään
 STR_STATION_VIEW_SCHEDULED_SHIPS_TOOLTIP                        :{BLACK}Näytä kaikki laivat, joilla on tämä asema käskyissään
 
-STR_STATION_VIEW_RENAME_STATION_CAPTION                         :Nimeä asema/lastausalue
+STR_STATION_VIEW_EDIT_STATION_SIGN                              :{WHITE}Muokkaa asemakylttiä
 
 STR_STATION_VIEW_CLOSE_AIRPORT                                  :{BLACK}Sulje lentokenttä
 STR_STATION_VIEW_CLOSE_AIRPORT_TOOLTIP                          :{BLACK}Estä ilma-aluksia laskeutumasta tälle lentokentälle
@@ -3943,11 +3946,11 @@ STR_STATION_VIEW_CLOSE_AIRPORT_TOOLTIP                          :{BLACK}Estä il
 # Waypoint/buoy view window
 STR_WAYPOINT_VIEW_CAPTION                                       :{WHITE}{WAYPOINT}
 STR_WAYPOINT_VIEW_CENTER_TOOLTIP                                :{BLACK}Keskitä päänäkymä reittipisteen sijaintiin. Ctrl+napsautus avaa uuden näkymäikkunan reittipisteen sijaintiin.
-STR_WAYPOINT_VIEW_CHANGE_WAYPOINT_NAME                          :{BLACK}Muuta reittipisteen nimeä
+STR_WAYPOINT_VIEW_EDIT_TOOLTIP                                  :{BLACK}Nimeä reittipiste uudelleen tai siirrä kylttiä
 STR_BUOY_VIEW_CENTER_TOOLTIP                                    :{BLACK}Keskitä päänäkymä poijun sijaintiin. Ctrl+napsautus avaa uuden näkymäikkunan poijun sijaintiin
 STR_BUOY_VIEW_RENAME_TOOLTIP                                    :{BLACK}Vaihda poijun nimeä
 
-STR_EDIT_WAYPOINT_NAME                                          :{WHITE}Muokkaa reittipisteen nimeä
+STR_WAYPOINT_VIEW_EDIT_WAYPOINT_SIGN                            :{WHITE}Muokkaa reittipisteen kylttiä
 
 # Finances window
 STR_FINANCES_CAPTION                                            :{WHITE}Talous, {COMPANY} {BLACK}{COMPANY_NUM}
@@ -4062,7 +4065,7 @@ STR_COMPANY_INFRASTRUCTURE_VIEW_TOTAL_PERIOD                    :{WHITE}{CURRENC
 # Industry directory
 STR_INDUSTRY_DIRECTORY_CAPTION                                  :{WHITE}Laitokset ({COMMA}/{COMMA})
 STR_INDUSTRY_DIRECTORY_NONE                                     :{ORANGE}- Ei mitään -
-STR_INDUSTRY_DIRECTORY_ITEM_INFO                                :{BLACK}{CARGO_LONG}{STRING}{YELLOW} ({COMMA}% kuljetettu){BLACK}
+STR_INDUSTRY_DIRECTORY_ITEM_INFO                                :{BLACK}{CARGO_LONG}{STRING}{YELLOW} ({COMMA}% kuljetettu)
 STR_INDUSTRY_DIRECTORY_ITEM_NOPROD                              :{ORANGE}{INDUSTRY}
 STR_INDUSTRY_DIRECTORY_ITEM_PROD1                               :{ORANGE}{INDUSTRY} {STRING}
 STR_INDUSTRY_DIRECTORY_ITEM_PROD2                               :{ORANGE}{INDUSTRY} {STRING}, {STRING}
@@ -4085,9 +4088,9 @@ STR_INDUSTRY_VIEW_CARGO_GRAPH_TOOLTIP                           :{BLACK}Näyttä
 STR_INDUSTRY_VIEW_PRODUCTION_LEVEL                              :{BLACK}Tuotantotaso: {YELLOW}{COMMA}{NBSP}%
 STR_INDUSTRY_VIEW_INDUSTRY_ANNOUNCED_CLOSURE                    :{YELLOW}Teollisuuslaitos ilmoittaa välittömästä lakkautuksesta!
 
-STR_INDUSTRY_VIEW_REQUIRES_N_CARGO                              :{BLACK}Tarvitsee: {YELLOW}{STRING}{STRING}
-STR_INDUSTRY_VIEW_PRODUCES_N_CARGO                              :{BLACK}Tuottaa: {YELLOW}{STRING}{STRING}
-STR_INDUSTRY_VIEW_CARGO_LIST_EXTENSION                          :, {STRING}{STRING}
+STR_INDUSTRY_VIEW_REQUIRES_N_CARGO                              :{BLACK}Tarvitsee: {YELLOW}{STRING}
+STR_INDUSTRY_VIEW_PRODUCES_N_CARGO                              :{BLACK}Tuottaa: {YELLOW}{STRING}
+STR_INDUSTRY_VIEW_CARGO_LIST_EXTENSION                          :{STRING}{STRING}
 
 STR_INDUSTRY_VIEW_REQUIRES                                      :{BLACK}Tarvitsee:
 STR_INDUSTRY_VIEW_ACCEPT_CARGO_SUFFIX                           :{YELLOW}{0:STRING}{BLACK}{3:STRING}
@@ -4486,7 +4489,7 @@ STR_VEHICLE_VIEW_CLONE_SHIP_INFO                                :{BLACK}Osta lai
 STR_VEHICLE_VIEW_CLONE_AIRCRAFT_INFO                            :{BLACK}Osta ilma-aluksen kopio. Ctrl+napsautus jakaa käskyt. Paina lisäksi vaihtonäppäintä nähdäksesi vain kustannusarvion.
 
 STR_VEHICLE_VIEW_TRAIN_IGNORE_SIGNAL_TOOLTIP                    :{BLACK}Anna junalle lupa ohittaa punainen opastin
-STR_VEHICLE_VIEW_TRAIN_REVERSE_TOOLTIP                          :{BLACK}Käännä junan suunta
+STR_VEHICLE_VIEW_TRAIN_REVERSE_TOOLTIP                          :{BLACK}Vaihda junan suunta
 STR_VEHICLE_VIEW_ROAD_VEHICLE_REVERSE_TOOLTIP                   :{BLACK}Pakota ajoneuvo kääntymään ympäri
 STR_VEHICLE_VIEW_ORDER_LOCATION_TOOLTIP                         :{BLACK}Keskitä päänäkymä käskyn kohteeseen. Ctrl+napsautus avaa uuden näkymäikkunan käskyn kohteen sijaintiin.
 
@@ -4621,7 +4624,7 @@ STR_VEHICLE_DETAILS_TRAIN_CAPACITIES_TOOLTIP                    :{BLACK}Näytä 
 STR_VEHICLE_DETAIL_TAB_TOTAL_CARGO                              :{BLACK}Rahtia yhteensä
 STR_VEHICLE_DETAILS_TRAIN_TOTAL_CARGO_TOOLTIP                   :{BLACK}Näytä junan kokonaiskapasiteetti, eritelty rahtityypin mukaan
 
-STR_VEHICLE_DETAILS_TRAIN_ARTICULATED_RV_CAPACITY               :{BLACK}Kapasiteetti: {LTBLUE}
+STR_VEHICLE_DETAILS_TRAIN_ARTICULATED_RV_CAPACITY               :{BLACK}Kapasiteetti: {LTBLUE}{STRING}
 
 # Vehicle refit
 STR_REFIT_CAPTION                                               :{WHITE}{VEHICLE} (sovita)
@@ -4734,6 +4737,7 @@ STR_ORDERS_SKIP_BUTTON                                          :{BLACK}Ohita
 STR_ORDERS_SKIP_TOOLTIP                                         :{BLACK}Ohita nykyinen käsky ja aloita seuraava. Ctrl+napsautus hyppää valittuun käskyyn
 
 STR_ORDERS_DELETE_BUTTON                                        :{BLACK}Poista
+STR_ORDERS_DELETE_ALL_BUTTON                                    :{BLACK}Poista kaikki
 STR_ORDERS_DELETE_TOOLTIP                                       :{BLACK}Poista korostettu käsky
 STR_ORDERS_DELETE_ALL_TOOLTIP                                   :{BLACK}Poista kaikki käskyt
 STR_ORDERS_STOP_SHARING_BUTTON                                  :{BLACK}Lopeta jakaminen
@@ -5169,6 +5173,7 @@ STR_ERROR_TOO_MANY_TRUCK_STOPS                                  :{WHITE}Liian mo
 STR_ERROR_TOO_CLOSE_TO_ANOTHER_DOCK                             :{WHITE}Liian lähellä toista satamaa.
 STR_ERROR_TOO_CLOSE_TO_ANOTHER_AIRPORT                          :{WHITE}Liian lähellä toista lentokenttää.
 STR_ERROR_CAN_T_RENAME_STATION                                  :{WHITE}Asemaa ei voi nimetä uudelleen.
+STR_ERROR_CAN_T_MOVE_STATION_NAME                               :{WHITE}Aseman kylttiä ei voida siirtää…
 STR_ERROR_DRIVE_THROUGH_ON_TOWN_ROAD                            :{WHITE}… tien omistaa kunta
 STR_ERROR_DRIVE_THROUGH_DIRECTION                               :{WHITE}... tie on väärin päin
 STR_ERROR_DRIVE_THROUGH_CORNER                                  :{WHITE}... läpiajettavissa pysäkeissä ei voi olla mutkia
@@ -5200,6 +5205,7 @@ STR_ERROR_CAN_T_BUILD_RAIL_WAYPOINT                             :{WHITE}Rautatie
 STR_ERROR_CAN_T_BUILD_ROAD_WAYPOINT                             :{WHITE}Tien reittipistettä ei voi rakentaa tähän…
 STR_ERROR_CAN_T_POSITION_BUOY_HERE                              :{WHITE}Poijua ei voi sijoittaa tähän...
 STR_ERROR_CAN_T_CHANGE_WAYPOINT_NAME                            :{WHITE}Reittipisteen nimeä ei voi muuttaa...
+STR_ERROR_CAN_T_MOVE_WAYPOINT_NAME                              :{WHITE}Reittipisteen kylttiä ei voida siirtää…
 
 STR_ERROR_CAN_T_REMOVE_RAIL_WAYPOINT                            :{WHITE}Rautatien reittipistettä ei voi poistaa tästä…
 STR_ERROR_CAN_T_REMOVE_ROAD_WAYPOINT                            :{WHITE}Tien reittipistettä ei voi poistaa tästä…
@@ -5993,7 +5999,8 @@ STR_LORRY                                                       :{BLACK}{LORRY}
 STR_PLANE                                                       :{BLACK}{PLANE}
 STR_SHIP                                                        :{BLACK}{SHIP}
 
-STR_TOOLBAR_RAILTYPE_VELOCITY                                   :{STRING} ({VELOCITY})
+STR_TOOLBAR_RAILTYPE_VELOCITY                                   :{STRING} {YELLOW}({VELOCITY})
+STR_TOOLBAR_ROADTYPE_VELOCITY                                   :{STRING} {YELLOW}({VELOCITY})
 
 STR_BADGE_NAME_LIST                                             :{STRING}: {GOLD}{STRING}
 STR_BADGE_CONFIG_MENU_TOOLTIP                                   :Avaa tunnusasetukset

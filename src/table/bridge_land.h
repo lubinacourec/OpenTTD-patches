@@ -2,13 +2,14 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 #include "table/strings.h"
 
 /**
- * @file bridge_land.h This file contains all the sprites for bridges
+ * @file bridge_land.h This file contains all the sprites for bridges.
+ *
  * It consists of a number of arrays.
  * <ul><li>_bridge_sprite_table_n_m. Defines all the sprites of a bridge besides the pylons.
  * n defines the number of the bridge type, m the number of the section. the highest m for

@@ -4,7 +4,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file departures_type.h Types related to departures. */
@@ -116,7 +116,9 @@ struct Departure {
 	DepartureShowAs show_as = DSA_NORMAL;  ///< Show as type
 	const Vehicle *vehicle = nullptr;      ///< The vehicle performing this departure
 	const Order *order = nullptr;          ///< The order corresponding to this departure
+	const Order *dispatch_order = nullptr; ///< The original dispatch order, if applicable
 	Ticks scheduled_waiting_time = INVALID_WAIT_TICKS; ///< Scheduled waiting time if scheduled dispatch is used
+	Ticks dispatch_offset = 0;             ///< Tick offset from original dispatch order, if applicable
 	uint32_t sequence_id = 0;              ///< Nominal sequence ID, used in determining vehicle_idx
 	uint32_t vehicle_idx = 0;              ///< Nominal vehicle index within a shared order group
 

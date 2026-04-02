@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file order_gui.cpp GUI related to orders. */
@@ -2132,6 +2132,14 @@ public:
 				break;
 			}
 
+			case WID_O_DELETE: {
+				Dimension d = maxdim(GetStringBoundingBox(STR_ORDERS_DELETE_BUTTON), GetStringBoundingBox(STR_ORDERS_DELETE_ALL_BUTTON));
+				d.width += padding.width;
+				d.height += padding.height;
+				size = maxdim(size, d);
+				break;
+			}
+
 			case WID_O_OCCUPANCY_TOGGLE:
 				size.width = GetStringBoundingBox(GetString(STR_ORDERS_OCCUPANCY_PERCENT, GetParamMaxValue(100))).width + 10 + WidgetDimensions::unscaled.framerect.Horizontal();
 				break;
@@ -2269,7 +2277,7 @@ public:
 			 * 'End of Orders' order or a regular order is selected. */
 			NWidgetCore *nwi = this->GetWidget<NWidgetCore>(WID_O_DELETE);
 			if (this->selected_order == this->vehicle->GetNumOrders()) {
-				nwi->SetStringTip(STR_ORDERS_DELETE_BUTTON, STR_ORDERS_DELETE_ALL_TOOLTIP);
+				nwi->SetStringTip(STR_ORDERS_DELETE_ALL_BUTTON, STR_ORDERS_DELETE_ALL_TOOLTIP);
 			} else {
 				nwi->SetStringTip(STR_ORDERS_DELETE_BUTTON, STR_ORDERS_DELETE_TOOLTIP);
 			}
@@ -3112,7 +3120,7 @@ public:
 				list.push_back(MakeDropDownListStringItem(STR_ORDER_IMPORT_ORDER_LIST_INSERT, 0x400, false));
 				list.push_back(MakeDropDownListStringItem(STR_ORDER_IMPORT_ORDER_LIST_INSERT_REVERSED, 0x401, false));
 
-				ShowDropDownList(this, std::move(list), -1, widget, 0, DDMF_NONE, DDSF_SHARED);
+				ShowDropDownList(this, std::move(list), -1, widget, 0, DropDownOptions{}, DDSF_SHARED);
 				break;
 			}
 
@@ -3181,7 +3189,7 @@ public:
 					list.push_back(MakeDropDownListStringItem(STR_ORDER_LABEL_TEXT_BUTTON, ODDI_LABEL_TEXT, false));
 					list.push_back(MakeDropDownListStringItem(STR_ORDER_LABEL_DEPARTURES_VIA_BUTTON, ODDI_LABEL_DEPARTURES_VIA, false));
 
-					ShowDropDownList(this, std::move(list), sel, WID_O_GOTO, 0, DDMF_NONE, DDSF_SHARED);
+					ShowDropDownList(this, std::move(list), sel, WID_O_GOTO, 0, DropDownOptions{}, DDSF_SHARED);
 				}
 				break;
 
@@ -3223,7 +3231,7 @@ public:
 				const Order *order = this->vehicle->GetOrder(this->OrderGetSel());
 				TraceRestrictSlotID value{order->GetXDataLow()};
 				DropDownList list = GetSlotDropDownList(this->vehicle->owner, value, selected, this->vehicle->type, order->GetConditionVariable() == OCV_SLOT_OCCUPANCY);
-				if (!list.empty()) ShowDropDownList(this, std::move(list), selected, WID_O_COND_SLOT, 0, DDMF_NONE, DDSF_SHARED);
+				if (!list.empty()) ShowDropDownList(this, std::move(list), selected, WID_O_COND_SLOT, 0, DropDownOptions{}, DDSF_SHARED);
 				break;
 			}
 
@@ -3232,7 +3240,7 @@ public:
 				const Order *order = this->vehicle->GetOrder(this->OrderGetSel());
 				TraceRestrictSlotGroupID value{order->GetXDataLow()};
 				DropDownList list = GetSlotGroupDropDownList(this->vehicle->owner, value, selected, this->vehicle->type);
-				if (!list.empty()) ShowDropDownList(this, std::move(list), selected, WID_O_COND_SLOT_GROUP, 0, DDMF_NONE, DDSF_SHARED);
+				if (!list.empty()) ShowDropDownList(this, std::move(list), selected, WID_O_COND_SLOT_GROUP, 0, DropDownOptions{}, DDSF_SHARED);
 				break;
 			}
 
@@ -3240,7 +3248,7 @@ public:
 				int selected;
 				TraceRestrictCounterID value{this->vehicle->GetOrder(this->OrderGetSel())->GetXDataHigh()};
 				DropDownList list = GetCounterDropDownList(this->vehicle->owner, value, selected);
-				if (!list.empty()) ShowDropDownList(this, std::move(list), selected, WID_O_COND_COUNTER, 0, DDMF_NONE, DDSF_SHARED);
+				if (!list.empty()) ShowDropDownList(this, std::move(list), selected, WID_O_COND_COUNTER, 0, DropDownOptions{}, DDSF_SHARED);
 				break;
 			}
 
@@ -3270,7 +3278,7 @@ public:
 						list.push_back(MakeDropDownListStringItem(std::string{ds.ScheduleName()}, i, false));
 					}
 				}
-				if (!list.empty()) ShowDropDownList(this, std::move(list), selected, WID_O_COND_SCHED_SELECT, 0, DDMF_NONE, DDSF_SHARED);
+				if (!list.empty()) ShowDropDownList(this, std::move(list), selected, WID_O_COND_SCHED_SELECT, 0, DropDownOptions{}, DDSF_SHARED);
 				break;
 			}
 
@@ -3280,7 +3288,7 @@ public:
 				list.push_back(MakeDropDownListStringItem(STR_TRACE_RESTRICT_DISPATCH_SLOT_VEH, ODCS_VEH, false));
 				list.push_back(MakeDropDownListStringItem(STR_TRACE_RESTRICT_DISPATCH_SLOT_NEXT, ODCS_NEXT, false));
 				list.push_back(MakeDropDownListStringItem(STR_TRACE_RESTRICT_DISPATCH_SLOT_LAST, ODCS_LAST, false));
-				ShowDropDownList(this, std::move(list), GB(value, ODCB_SRC_START, ODCB_SRC_COUNT), WID_O_COND_SCHED_TEST, 0, DDMF_NONE, DDSF_SHARED);
+				ShowDropDownList(this, std::move(list), GB(value, ODCB_SRC_START, ODCB_SRC_COUNT), WID_O_COND_SCHED_TEST, 0, DropDownOptions{}, DDSF_SHARED);
 				break;
 			}
 
@@ -3308,7 +3316,7 @@ public:
 						}
 					}
 
-					ShowDropDownList(this, std::move(list), (1 << 16) | order->GetXData2Low(), WID_O_COND_SCHED_VALUE, 0, DDMF_NONE, DDSF_SHARED);
+					ShowDropDownList(this, std::move(list), (1 << 16) | order->GetXData2Low(), WID_O_COND_SCHED_VALUE, 0, DropDownOptions{}, DDSF_SHARED);
 					return;
 				}
 
@@ -3331,7 +3339,7 @@ public:
 
 				int selected = (order->GetConditionValue() & GetBitMaskSC<uint16_t>(ODFLCB_TAG_START, ODFLCB_TAG_COUNT));
 				SB(selected, ODCB_MODE_START, ODCB_MODE_COUNT, OCDM_TAG);
-				ShowDropDownList(this, std::move(list), selected, WID_O_COND_SCHED_VALUE, 0, DDMF_NONE, DDSF_SHARED);
+				ShowDropDownList(this, std::move(list), selected, WID_O_COND_SCHED_VALUE, 0, DropDownOptions{}, DDSF_SHARED);
 				break;
 			}
 
@@ -3353,7 +3361,7 @@ public:
 					const CargoSpec *cs = _sorted_cargo_specs[i];
 					list.push_back(MakeDropDownListStringItem(cs->name, cs->Index(), false));
 				}
-				if (!list.empty()) ShowDropDownList(this, std::move(list), value, widget, 0, DDMF_NONE, DDSF_SHARED);
+				if (!list.empty()) ShowDropDownList(this, std::move(list), value, widget, 0, DropDownOptions{}, DDSF_SHARED);
 				break;
 			}
 
@@ -3403,7 +3411,7 @@ public:
 					}
 					list.push_back(MakeDropDownListStringItem(OrderStringForVariable(this->vehicle, ocv), ocv, false));
 				}
-				ShowDropDownList(this, std::move(list), current_ocv, WID_O_COND_VARIABLE, 0, DDMF_NONE, DDSF_SHARED);
+				ShowDropDownList(this, std::move(list), current_ocv, WID_O_COND_VARIABLE, 0, DropDownOptions{}, DDSF_SHARED);
 				break;
 			}
 
@@ -3451,7 +3459,7 @@ public:
 						SetBit(select_mask, ODFLCB_LAST_SLOT);
 					}
 					int selected = (((int)o->GetConditionComparator()) << 16) | (o->GetConditionValue() & select_mask);
-					ShowDropDownList(this, std::move(list), selected, WID_O_COND_COMPARATOR, 0, DDMF_NONE, DDSF_SHARED);
+					ShowDropDownList(this, std::move(list), selected, WID_O_COND_COMPARATOR, 0, DropDownOptions{}, DDSF_SHARED);
 					break;
 				}
 				uint mask;
@@ -3539,14 +3547,14 @@ public:
 					int selected;
 					TraceRestrictSlotGroupID value = this->vehicle->GetOrder(this->OrderGetSel())->GetDestination().ToSlotGroupID();
 					DropDownList list = GetSlotGroupDropDownList(this->vehicle->owner, value, selected, this->vehicle->type);
-					if (!list.empty()) ShowDropDownList(this, std::move(list), selected, WID_O_SLOT, 0, DDMF_NONE, DDSF_SHARED);
+					if (!list.empty()) ShowDropDownList(this, std::move(list), selected, WID_O_SLOT, 0, DropDownOptions{}, DDSF_SHARED);
 					break;
 				}
 
 				int selected;
 				TraceRestrictSlotID value = this->vehicle->GetOrder(this->OrderGetSel())->GetDestination().ToSlotID();
 				DropDownList list = GetSlotDropDownList(this->vehicle->owner, value, selected, this->vehicle->type, false);
-				if (!list.empty()) ShowDropDownList(this, std::move(list), selected, WID_O_SLOT, 0, DDMF_NONE, DDSF_SHARED);
+				if (!list.empty()) ShowDropDownList(this, std::move(list), selected, WID_O_SLOT, 0, DropDownOptions{}, DDSF_SHARED);
 				break;
 			}
 
@@ -3556,7 +3564,7 @@ public:
 				list.push_back(MakeDropDownListStringItem(STR_TRACE_RESTRICT_COUNTER_DECREASE, 1, false));
 				list.push_back(MakeDropDownListStringItem(STR_TRACE_RESTRICT_COUNTER_SET, 2, false));
 				int selected = this->vehicle->GetOrder(this->OrderGetSel())->GetCounterOperation();
-				ShowDropDownList(this, std::move(list), selected, WID_O_COUNTER_OP, 0, DDMF_NONE, DDSF_SHARED);
+				ShowDropDownList(this, std::move(list), selected, WID_O_COUNTER_OP, 0, DropDownOptions{}, DDSF_SHARED);
 				break;
 			}
 
@@ -3564,7 +3572,7 @@ public:
 				int selected;
 				TraceRestrictCounterID value = this->vehicle->GetOrder(this->OrderGetSel())->GetDestination().ToCounterID();
 				DropDownList list = GetCounterDropDownList(this->vehicle->owner, value, selected);
-				if (!list.empty()) ShowDropDownList(this, std::move(list), selected, WID_O_CHANGE_COUNTER, 0, DDMF_NONE, DDSF_SHARED);
+				if (!list.empty()) ShowDropDownList(this, std::move(list), selected, WID_O_CHANGE_COUNTER, 0, DropDownOptions{}, DDSF_SHARED);
 				break;
 			}
 
@@ -3587,7 +3595,7 @@ public:
 				list.push_back(MakeDropDownListStringItem(STR_ORDER_LABEL_DEPARTURES_SHOW_AS_VIA, OLST_DEPARTURES_VIA, false));
 				list.push_back(MakeDropDownListStringItem(STR_ORDER_LABEL_DEPARTURES_REMOVE_VIA, OLST_DEPARTURES_REMOVE_VIA, false));
 				int selected = this->vehicle->GetOrder(this->OrderGetSel())->GetLabelSubType();
-				ShowDropDownList(this, std::move(list), selected, WID_O_DEPARTURE_VIA_TYPE, 0, DDMF_NONE, DDSF_SHARED);
+				ShowDropDownList(this, std::move(list), selected, WID_O_DEPARTURE_VIA_TYPE, 0, DropDownOptions{}, DDSF_SHARED);
 				break;
 			}
 		}

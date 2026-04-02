@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file company_cmd.cpp Handling of companies. */
@@ -77,7 +77,7 @@ INSTANTIATE_POOL_METHODS(Company)
  * @param name_1 Name of the company.
  * @param is_ai  A computer program is running for this company.
  */
-Company::Company(StringID name_1, bool is_ai)
+Company::Company(CompanyID index, StringID name_1, bool is_ai) : PoolItemBase(index)
 {
 	this->name_1 = name_1;
 	this->is_ai = is_ai;
@@ -309,7 +309,7 @@ bool CheckCompanyHasMoney(CommandCost &cost)
  * @param c Company to pay the bill.
  * @param cost Money to pay.
  */
-static void SubtractMoneyFromAnyCompany(Company *c, const CommandCost &cost)
+void SubtractMoneyFromCompany(Company *c, const CommandCost &cost)
 {
 	if (cost.GetCost() == 0) return;
 	assert(cost.GetExpensesType() != INVALID_EXPENSES);
@@ -337,13 +337,14 @@ static void SubtractMoneyFromAnyCompany(Company *c, const CommandCost &cost)
 }
 
 /**
- * Subtract money from the #_current_company, if the company is valid.
+ * Subtract money from a company, if the company is valid.
+ * @param company CompanyID of company.
  * @param cost Money to pay.
  */
-void SubtractMoneyFromCompany(const CommandCost &cost)
+void SubtractMoneyFromCompany(CompanyID company, const CommandCost &cost)
 {
-	Company *c = Company::GetIfValid(_current_company);
-	if (c != nullptr) SubtractMoneyFromAnyCompany(c, cost);
+	Company *c = Company::GetIfValid(company);
+	if (c != nullptr) SubtractMoneyFromCompany(c, cost);
 }
 
 /**
@@ -360,7 +361,7 @@ void SubtractMoneyFromCompanyFract(CompanyID company, const CommandCost &cst)
 	c->money_fraction = m - (uint8_t)cost;
 	cost >>= 8;
 	if (c->money_fraction > m) cost++;
-	if (cost != 0) SubtractMoneyFromAnyCompany(c, CommandCost(cst.GetExpensesType(), cost));
+	if (cost != 0) SubtractMoneyFromCompany(c, CommandCost(cst.GetExpensesType(), cost));
 }
 
 static constexpr void UpdateLandscapingLimit(uint32_t &limit, uint64_t per_64k_frames, uint64_t burst)
@@ -637,10 +638,10 @@ Company *DoStartupNewCompany(DoStartupNewCompanyFlag flags, CompanyID company)
 
 	Company *c;
 	if (company == CompanyID::Invalid()) {
-		c = new Company(STR_SV_UNNAMED, is_ai);
+		c = Company::Create(STR_SV_UNNAMED, is_ai);
 	} else {
 		if (Company::IsValidID(company)) return nullptr;
-		c = new (company) Company(STR_SV_UNNAMED, is_ai);
+		c = Company::CreateAtIndex(company, STR_SV_UNNAMED, is_ai);
 	}
 
 	c->colour = colour;
@@ -658,8 +659,8 @@ Company *DoStartupNewCompany(DoStartupNewCompanyFlag flags, CompanyID company)
 	c->inaugurated_year = CalTime::CurYear();
 	c->display_inaugurated_period = EconTime::Detail::WallClockYearToDisplay(EconTime::CurYear());
 
-	/* If starting a player company in singleplayer and a favorite company manager face is selected, choose it. Otherwise, use a random face.
-	 * In a network game, we'll choose the favorite face later in CmdCompanyCtrl to sync it to all clients. */
+	/* If starting a player company in singleplayer and a favourite company manager face is selected, choose it. Otherwise, use a random face.
+	 * In a network game, we'll choose the favourite face later in CmdCompanyCtrl to sync it to all clients. */
 	bool randomise_face = true;
 	if (!_company_manager_face.empty() && !is_ai && !_networking) {
 		auto cmf = ParseCompanyManagerFaceCode(_company_manager_face);
@@ -1001,7 +1002,7 @@ CommandCost CmdCompanyCtrl(DoCommandFlags flags, CompanyCtrlAction cca, CompanyI
 				}
 
 				/*
-				 * If a favorite company manager face is selected, choose it. Otherwise, use a random face.
+				 * If a favourite company manager face is selected, choose it. Otherwise, use a random face.
 				 * Because this needs to be synchronised over the network, only the client knows
 				 * its configuration and we are currently in the execution of a command, we have
 				 * to circumvent the normal ::Post logic for commands and just send the command.
@@ -1107,7 +1108,7 @@ CommandCost CmdCompanyCtrl(DoCommandFlags flags, CompanyCtrlAction cca, CompanyI
 
 			if (!flags.Test(DoCommandFlag::Execute)) return CommandCost();
 
-			SubtractMoneyFromAnyCompany(c, CommandCost(EXPENSES_OTHER, to_merge->current_loan - to_merge->money));
+			SubtractMoneyFromCompany(c, CommandCost(EXPENSES_OTHER, to_merge->current_loan - to_merge->money));
 
 			Debug(desync, 1, "merge_companies: {}, company_id: {}, merged_company_id: {}", debug_date_dumper().HexDate(), company_id, to_merge_id);
 

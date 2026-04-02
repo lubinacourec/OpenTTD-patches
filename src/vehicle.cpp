@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file vehicle.cpp Base implementations of all vehicles. */
@@ -221,7 +221,7 @@ void VehicleServiceInDepot(Vehicle *v)
 		Ship::From(v)->critical_breakdown_count = 0;
 	}
 	v->vehstatus.Reset(VehState::AircraftBroken);
-	v->vehicle_flags.Test(VehicleFlag::ReplacementPending);
+	v->vehicle_flags.Reset(VehicleFlag::ReplacementPending);
 	SetWindowDirty(WC_VEHICLE_DETAILS, v->index); // ensure that last service date and reliability are updated
 
 	do {
@@ -282,7 +282,7 @@ bool Vehicle::NeedsServicing() const
 	/* If we're servicing anyway, because we have not disabled servicing when
 	 * there are no breakdowns or we are playing with breakdowns, bail out. */
 	if (needs_service && (!_settings_game.order.no_servicing_if_no_breakdowns ||
-			_settings_game.difficulty.vehicle_breakdowns != 0)) {
+			_settings_game.difficulty.vehicle_breakdowns != VB_NONE)) {
 		return true;
 	}
 
@@ -495,9 +495,10 @@ void VehicleLengthChanged(const Vehicle *u)
 
 /**
  * Vehicle constructor.
+ * @param index The index within the vehicle pool.
  * @param type Type of the new vehicle.
  */
-Vehicle::Vehicle(VehicleType type)
+Vehicle::Vehicle(VehicleID index, VehicleType type) : VehiclePool::PoolItem<&_vehicle_pool>(index)
 {
 	this->type               = type;
 	this->coord.left         = INVALID_COORD;
@@ -1162,11 +1163,9 @@ void Vehicle::PreDestructor()
 
 		if (this->owner == _local_company) InvalidateAutoreplaceWindow(this->engine_type, this->group_id);
 		DeleteGroupHighlightOfVehicle(this);
-		if (this->type == VEH_TRAIN) {
-			extern void DeleteTraceRestrictSlotHighlightOfVehicle(const Vehicle *v);
 
-			DeleteTraceRestrictSlotHighlightOfVehicle(this);
-		}
+		extern void DeleteTraceRestrictSlotHighlightOfVehicle(const Vehicle *v);
+		DeleteTraceRestrictSlotHighlightOfVehicle(this);
 	}
 
 	Company::Get(this->owner)->freeunits[this->type].ReleaseID(this->unitnumber);
@@ -1236,6 +1235,8 @@ Vehicle::~Vehicle()
 		this->cargo.OnCleanPool();
 		return;
 	}
+
+	if (this->index == VehicleID::Invalid()) return; // Temporary instances which were never added to the pool
 
 	if (this->type != VEH_EFFECT) InvalidateVehicleTickCaches();
 
@@ -1769,23 +1770,28 @@ void CallVehicleTicks()
 		if (auto result_v = res.GetResultData<VehicleID>(); result_v.has_value()) {
 			t = Train::Get(*result_v);
 		}
-		const Company *c = Company::Get(_current_company);
-		SubtractMoneyFromCompany(CommandCost(EXPENSES_NEW_VEHICLES, (Money)c->settings.engine_renew_money));
+		Company *c = Company::Get(_current_company);
+		SubtractMoneyFromCompany(c, CommandCost(EXPENSES_NEW_VEHICLES, (Money)c->settings.engine_renew_money));
 		CommandCost res2 = Command<CMD_AUTOREPLACE_VEHICLE>::Do(DoCommandFlag::Execute, t->index, true);
 		if (auto result_v = res2.GetResultData<VehicleID>(); result_v.has_value()) {
 			t = Train::Get(*result_v);
 		}
-		SubtractMoneyFromCompany(CommandCost(EXPENSES_NEW_VEHICLES, -(Money)c->settings.engine_renew_money));
-		if (res2.Succeeded() || res.GetCost() == 0) res.AddCost(res2.GetCost());
+		SubtractMoneyFromCompany(c, CommandCost(EXPENSES_NEW_VEHICLES, -(Money)c->settings.engine_renew_money));
 
 		if (!IsLocalCompany()) continue;
 
-		if (res.GetCost() != 0) {
-			ShowCostOrIncomeAnimation(x, y, z, res.GetCost());
+		Money total_cost = 0;
+		if (res.Succeeded()) total_cost += res.GetCost();
+		if (res2.Succeeded()) total_cost += res2.GetCost();
+
+		if (total_cost != 0) {
+			ShowCostOrIncomeAnimation(x, y, z, total_cost);
 		}
 
 		if (res.Failed()) {
 			ShowAutoReplaceAdviceMessage(res, t);
+		} else if (res2.Failed()) {
+			ShowAutoReplaceAdviceMessage(res2, t);
 		}
 	}
 	tmpl_cur_company.Restore();
@@ -1813,9 +1819,9 @@ void CallVehicleTicks()
 		int z = v->z_pos;
 
 		const Company *c = Company::Get(_current_company);
-		SubtractMoneyFromCompany(CommandCost(EXPENSES_NEW_VEHICLES, (Money)c->settings.engine_renew_money));
+		SubtractMoneyFromCompany(_current_company, CommandCost(EXPENSES_NEW_VEHICLES, (Money)c->settings.engine_renew_money));
 		CommandCost res = Command<CMD_AUTOREPLACE_VEHICLE>::Do(DoCommandFlag::Execute, v->index, false);
-		SubtractMoneyFromCompany(CommandCost(EXPENSES_NEW_VEHICLES, -(Money)c->settings.engine_renew_money));
+		SubtractMoneyFromCompany(_current_company, CommandCost(EXPENSES_NEW_VEHICLES, -(Money)c->settings.engine_renew_money));
 
 		if (!IsLocalCompany()) continue;
 
@@ -1829,13 +1835,11 @@ void CallVehicleTicks()
 	cur_company.Restore();
 	if (!_vehicles_to_autoreplace.empty()) RecordSyncEvent(NSRE_VEH_AUTOREPLACE);
 
-	Backup<CompanyID> repair_cur_company(_current_company, FILE_LINE);
 	for (VehicleID index : _vehicles_to_pay_repair) {
 		Vehicle *v = Vehicle::Get(index);
 		SCOPE_INFO_FMT([v], "CallVehicleTicks: repair: {}", VehicleInfoDumper(v));
 
 		ExpensesType type = INVALID_EXPENSES;
-		_current_company = v->owner;
 		switch (v->type) {
 			case VEH_AIRCRAFT:
 				type = EXPENSES_AIRCRAFT_RUN;
@@ -1865,11 +1869,12 @@ void CallVehicleTicks()
 		if (v->age > v->max_age) repair_cost <<= 1;
 		CommandCost cost(type, repair_cost);
 		v->First()->profit_this_year -= cost.GetCost() << 8;
-		SubtractMoneyFromCompany(cost);
-		ShowCostOrIncomeAnimation(v->x_pos, v->y_pos, v->z_pos, cost.GetCost());
+		SubtractMoneyFromCompany(v->owner, cost);
+		if (v->owner == _local_company) {
+			ShowCostOrIncomeAnimation(v->x_pos, v->y_pos, v->z_pos, cost.GetCost());
+		}
 		v->breakdowns_since_last_service = 0;
 	}
-	repair_cur_company.Restore();
 	if (!_vehicles_to_pay_repair.empty()) RecordSyncEvent(NSRE_VEH_REPAIR);
 	_vehicles_to_pay_repair.clear();
 }
@@ -2270,29 +2275,47 @@ void DetermineBreakdownType(Vehicle *v, uint32_t r) {
 	}
 }
 
+/**
+ * Periodic check for a vehicle to maybe break down.
+ * @param v The vehicle to consider breaking.
+ */
 void CheckVehicleBreakdown(Vehicle *v)
 {
-	int rel, rel_old;
+	/* Vehicles in the menu don't break down. */
+	if (_game_mode == GM_MENU) return;
 
-	/* decrease reliability */
-	if (!_settings_game.order.no_servicing_if_no_breakdowns ||
-			_settings_game.difficulty.vehicle_breakdowns != 0) {
-		const int reliability_dec = (v->reliability_spd_dec << 5) >> (5 - _settings_game.difficulty.reliability_decay_speed);
-		v->reliability = rel = std::max((rel_old = v->reliability) - reliability_dec, 0);
-		if ((rel_old >> 8) != (rel >> 8)) SetWindowDirty(WC_VEHICLE_DETAILS, v->First()->index);
-	}
+	/* If both breakdowns and automatic servicing are disabled, we don't decrease reliability or break down. */
+	if (_settings_game.difficulty.vehicle_breakdowns == VB_NONE && _settings_game.order.no_servicing_if_no_breakdowns) return;
 
-	if (v->breakdown_ctr != 0 || v->First()->vehstatus.Test(VehState::Stopped) ||
-			_settings_game.difficulty.vehicle_breakdowns < 1 ||
-			v->First()->cur_speed < 5 || _game_mode == GM_MENU ||
-			(v->type == VEH_AIRCRAFT && ((Aircraft*)v)->state != FLYING) ||
-			(v->type == VEH_TRAIN && !(Train::From(v)->IsFrontEngine()) && !_settings_game.vehicle.improved_breakdowns)) {
-		return;
-	}
+	/* With Reduced breakdowns, vehicles (un)loading at stations don't lose reliability. */
+	if (_settings_game.difficulty.vehicle_breakdowns != VB_NORMAL && v->current_order.IsType(OT_LOADING)) return;
+
+	/* Decrease reliability. */
+	const int rel_old = v->reliability;
+	const int reliability_dec = (v->reliability_spd_dec << 5) >> (5 - _settings_game.difficulty.reliability_decay_speed);
+	const int rel = std::max(rel_old - reliability_dec, 0);
+	v->reliability = rel;
+	if ((rel_old >> 8) != (rel >> 8)) SetWindowDirty(WC_VEHICLE_DETAILS, v->First()->index);
+
+	/* Some vehicles lose reliability but won't break down. */
+	/* Breakdowns are disabled. */
+	if (_settings_game.difficulty.vehicle_breakdowns == VB_NONE) return;
+	/* The vehicle is already broken down. */
+	if (v->breakdown_ctr != 0) return;
+	/* The vehicle is stopped or going very slow. */
+	if (v->First()->cur_speed < 5) return;
+	/* The vehicle has been manually stopped. */
+	if (v->First()->vehstatus.Test(VehState::Stopped)) return;
+	/* Aircraft is not flying. */
+	if (v->type == VEH_AIRCRAFT && Aircraft::From(v)->state != FLYING) return;
+	/* Not a suitable train engine to break down. */
+	if (v->type == VEH_TRAIN && !(Train::From(v)->IsFrontEngine()) && !_settings_game.vehicle.improved_breakdowns) return;
+
+	/* Time to consider breaking down. */
 
 	uint32_t r = Random();
 
-	/* increase chance of failure */
+	/* Increase chance of failure. */
 	int chance = v->breakdown_chance + 1;
 	if (Chance16I(1, 25, r)) chance += 25;
 	chance = ClampTo<uint8_t>(chance);
@@ -2318,7 +2341,7 @@ void CheckVehicleBreakdown(Vehicle *v)
 	 * their impact will be significantly less.
 	 */
 	uint32_t r1 = Random();
-	uint32_t breakdown_scaling_x2 = (_settings_game.difficulty.vehicle_breakdowns == 64) ? 1 : (_settings_game.difficulty.vehicle_breakdowns * 2);
+	uint32_t breakdown_scaling_x2 = (_settings_game.difficulty.vehicle_breakdowns == VB_VERY_REDUCED) ? 1 : (_settings_game.difficulty.vehicle_breakdowns * 2);
 	if ((uint32_t) (0xffff - v->reliability) * breakdown_scaling_x2 * chance > GB(r1, 0, 24) * 10 * 2) {
 		uint32_t r2 = Random();
 		v->breakdown_ctr = GB(r1, 24, 6) + 0xF;
@@ -3985,7 +4008,7 @@ CommandCost Vehicle::SendToDepot(DoCommandFlags flags, DepotCommandFlags command
 							ShowCostOrIncomeAnimation(x, y, z, cost.GetCost());
 						}
 					}
-					SubtractMoneyFromCompany(cost);
+					SubtractMoneyFromCompany(_current_company, cost);
 				}
 			}
 			return CommandCost();
@@ -4478,7 +4501,7 @@ void Vehicle::AddToShared(Vehicle *shared_chain)
 	if (shared_chain->orders == nullptr) {
 		dbg_assert(shared_chain->previous_shared == nullptr);
 		dbg_assert(shared_chain->next_shared == nullptr);
-		this->orders = shared_chain->orders = new OrderList(nullptr, shared_chain);
+		this->orders = shared_chain->orders = OrderList::Create(nullptr, shared_chain);
 	}
 
 	this->next_shared     = shared_chain->next_shared;

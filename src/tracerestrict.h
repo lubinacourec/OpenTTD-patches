@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file tracerestrict.h Header file for Trace Restrict */
@@ -808,10 +808,14 @@ enum TraceRestrictProgramActionsUsedFlags : uint32_t {
 	TRPAUF_CMB_SIGNAL_MODE_CTRL   = 1 << 18, ///< Combined normal/shunt signal mode control
 	TRPAUF_ORDER_CONDITIONALS     = 1 << 19, ///< Order conditionals are present
 	TRPAUF_REVERSE_AT             = 1 << 20, ///< Reverse at signal
+	TRPAUF_COUNTER_CONDITIONALS   = 1 << 21, ///< Counter conditionals are present
+	TRPAUF_IS_BACKUP              = 1 << 22, ///< This program is a backup
 };
 DECLARE_ENUM_AS_BIT_SET(TraceRestrictProgramActionsUsedFlags)
 
 static constexpr TraceRestrictProgramActionsUsedFlags TRPAUF_SPECIAL_ASPECT_PROPAGATION_FLAG_MASK = TRPAUF_WAIT_AT_PBS | TRPAUF_REVERSE_AT | TRPAUF_PBS_RES_END_WAIT | TRPAUF_RESERVE_THROUGH;
+static constexpr TraceRestrictProgramActionsUsedFlags TRPAUF_HAS_SLOT_FLAG_MASK = TRPAUF_SLOT_ACQUIRE | TRPAUF_SLOT_RELEASE_BACK | TRPAUF_SLOT_RELEASE_FRONT | TRPAUF_PBS_RES_END_SLOT | TRPAUF_SLOT_CONDITIONALS;
+static constexpr TraceRestrictProgramActionsUsedFlags TRPAUF_HAS_COUNTER_FLAG_MASK = TRPAUF_CHANGE_COUNTER | TRPAUF_COUNTER_CONDITIONALS;
 
 /**
  * Enumeration for TraceRestrictProgramInput::permitted_slot_operations
@@ -948,12 +952,12 @@ public:
 	/**
 	 * We need an (empty) constructor so struct isn't zeroed (as C++ standard states)
 	 */
-	TraceRestrictProgram() { }
+	TraceRestrictProgram(TraceRestrictProgramID index) : PoolItemBase(index) {}
 
 	/**
 	 * (Empty) destructor has to be defined else operator delete might be called with nullptr parameter
 	 */
-	~TraceRestrictProgram() { }
+	~TraceRestrictProgram() {}
 
 	/**
 	 * Increment ref count, only use when creating a mapping
@@ -998,6 +1002,8 @@ public:
 	void TrimLabels(const std::span<const TraceRestrictProgramItem> items);
 	std::string_view GetLabel(uint16_t id) const;
 };
+
+bool TraceRestrictProgramsEquivalent(const TraceRestrictProgram *a, const TraceRestrictProgram *b);
 
 /**
  * Categorisation of what is allowed in the TraceRestrictItem condition op field
@@ -1429,7 +1435,8 @@ struct TraceRestrictSlot : TraceRestrictSlotPool::PoolItem<&_tracerestrictslot_p
 	static void ValidateSlotGroupDescendants(std::function<void(std::string_view)> log);
 	static void PreCleanPool();
 
-	TraceRestrictSlot(CompanyID owner = CompanyID::Invalid(), VehicleType type = VEH_TRAIN) : owner(owner), vehicle_type(type) {}
+	TraceRestrictSlot(TraceRestrictSlotID index, CompanyID owner = CompanyID::Invalid(), VehicleType type = VEH_TRAIN) :
+		PoolItemBase(index), owner(owner), vehicle_type(type) {}
 
 	~TraceRestrictSlot()
 	{
@@ -1517,7 +1524,8 @@ struct TraceRestrictSlotGroup : TraceRestrictSlotGroupPool::PoolItem<&_tracerest
 	ankerl::svector<TraceRestrictSlotID, 8> contained_slots; ///< NOSAVE: slots directly and indirectly contained in this slot group, sorted
 	bool folded = false;        ///< NOSAVE: Is this slot group folded in the slot view?
 
-	TraceRestrictSlotGroup(CompanyID owner = CompanyID::Invalid(), VehicleType type = VEH_TRAIN) : owner(owner), vehicle_type(type), parent(INVALID_TRACE_RESTRICT_SLOT_GROUP) {}
+	TraceRestrictSlotGroup(TraceRestrictSlotGroupID index, CompanyID owner = CompanyID::Invalid(), VehicleType type = VEH_TRAIN) :
+		PoolItemBase(index), owner(owner), vehicle_type(type), parent(INVALID_TRACE_RESTRICT_SLOT_GROUP) {}
 
 	void AddSlotsToParentGroups();
 	void RemoveSlotsFromParentGroups();
@@ -1540,7 +1548,7 @@ struct TraceRestrictCounter : TraceRestrictCounterPool::PoolItem<&_tracerestrict
 	std::string name;
 	ankerl::svector<SignalReference, 0> progsig_dependants;
 
-	TraceRestrictCounter(CompanyID owner = CompanyID::Invalid()) : owner(owner) {}
+	TraceRestrictCounter(TraceRestrictCounterID index, CompanyID owner = CompanyID::Invalid()) : PoolItemBase(index), owner(owner) {}
 
 	void UpdateValue(int32_t new_value);
 

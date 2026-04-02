@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file sdl2_v.cpp Implementation of the SDL2 video driver. */
@@ -44,6 +44,8 @@
 #include "../safeguards.h"
 
 static std::string _editing_text;
+
+bool _ini_no_mouse_capture;
 
 static void SetTextInputRect();
 
@@ -902,7 +904,7 @@ const char *VideoDriver_SDL_Base::Start(const StringList &param)
 	if (error != nullptr) return error;
 
 #ifdef SDL_HINT_MOUSE_AUTO_CAPTURE
-	if (GetDriverParamBool(param, "no_mouse_capture")) {
+	if (_ini_no_mouse_capture || GetDriverParamBool(param, "no_mouse_capture")) {
 		/* By default SDL captures the mouse, while a button is pressed.
 		 * This is annoying during debugging, when OpenTTD is suspended while the button was pressed.
 		 */

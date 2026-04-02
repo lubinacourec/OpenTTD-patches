@@ -2,10 +2,10 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
-/** @file story_sl.cpp Code handling saving and loading of story pages */
+/** @file story_sl.cpp Code handling saving and loading of story pages. */
 
 #include "../stdafx.h"
 
@@ -60,7 +60,7 @@ struct STPEChunkHandler : ChunkHandler {
 		int index;
 		uint32_t max_sort_value = 0;
 		while ((index = SlIterateArray()) != -1) {
-			StoryPageElement *s = new (StoryPageElementID(index)) StoryPageElement();
+			StoryPageElement *s = StoryPageElement::CreateAtIndex(StoryPageElementID(index));
 			SlObject(s, slt);
 			if (s->sort_value > max_sort_value) {
 				max_sort_value = s->sort_value;
@@ -102,7 +102,7 @@ struct STPAChunkHandler : ChunkHandler {
 		int index;
 		uint32_t max_sort_value = 0;
 		while ((index = SlIterateArray()) != -1) {
-			StoryPage *s = new (StoryPageID(index)) StoryPage();
+			StoryPage *s = StoryPage::CreateAtIndex(StoryPageID(index));
 			SlObject(s, slt);
 			if (s->sort_value > max_sort_value) {
 				max_sort_value = s->sort_value;

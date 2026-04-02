@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file console_cmds.cpp Implementation of the console hooks. */
@@ -295,6 +295,8 @@ static bool ConResetEngines(std::span<std::string_view> argv)
 		return true;
 	}
 
+	extern uint32_t _engine_seed;
+	_engine_seed = 0; // Reset engine seed to re-randomise engine values.
 	StartupEngines();
 	return true;
 }
@@ -2808,25 +2810,25 @@ static bool ConNewGRFReload(std::span<std::string_view> argv)
 static bool ConListDirs(std::span<std::string_view> argv)
 {
 	struct SubdirNameMap {
-		Subdirectory subdir; ///< Index of subdirectory type
 		std::string_view name; ///< UI name for the directory
-		bool default_only;   ///< Whether only the default (first existing) directory for this is interesting
+		Subdirectory subdir; ///< Index of subdirectory type
+		bool default_only; ///< Whether only the default (first existing) directory for this is interesting
 	};
 	static const SubdirNameMap subdir_name_map[] = {
 		/* Game data directories */
-		{ BASESET_DIR,      "baseset",    false },
-		{ NEWGRF_DIR,       "newgrf",     false },
-		{ AI_DIR,           "ai",         false },
-		{ AI_LIBRARY_DIR,   "ailib",      false },
-		{ GAME_DIR,         "gs",         false },
-		{ GAME_LIBRARY_DIR, "gslib",      false },
-		{ SCENARIO_DIR,     "scenario",   false },
-		{ HEIGHTMAP_DIR,    "heightmap",  false },
+		{ "baseset", BASESET_DIR, false },
+		{ "newgrf", NEWGRF_DIR, false },
+		{ "ai", AI_DIR, false },
+		{ "ailib", AI_LIBRARY_DIR, false },
+		{ "gs", GAME_DIR, false },
+		{ "gslib", GAME_LIBRARY_DIR, false },
+		{ "scenario", SCENARIO_DIR, false },
+		{ "heightmap", HEIGHTMAP_DIR, false },
 		/* Default save locations for user data */
-		{ SAVE_DIR,         "save",       true  },
-		{ AUTOSAVE_DIR,     "autosave",   true  },
-		{ SCREENSHOT_DIR,   "screenshot", true  },
-		{ SOCIAL_INTEGRATION_DIR, "social_integration", true },
+		{ "save", SAVE_DIR, true },
+		{ "autosave", AUTOSAVE_DIR, true },
+		{ "screenshot", SCREENSHOT_DIR, true },
+		{ "social_integration", SOCIAL_INTEGRATION_DIR, true },
 	};
 
 	if (argv.size() != 2) {
@@ -4283,7 +4285,7 @@ static bool ConFindNonRealisticBrakingSignal(std::span<std::string_view> argv)
 	}
 
 	for (TileIndex t(0); t < Map::Size(); t++) {
-		if (IsTileType(t, MP_RAILWAY) && GetRailTileType(t) == RAIL_TILE_SIGNALS) {
+		if (IsTileType(t, MP_RAILWAY) && GetRailTileType(t) == RailTileType::Signals) {
 			uint signals = GetPresentSignals(t);
 			if ((signals & 0x3) & ((signals & 0x3) - 1) || (signals & 0xC) & ((signals & 0xC) - 1)) {
 				/* Signals in both directions */

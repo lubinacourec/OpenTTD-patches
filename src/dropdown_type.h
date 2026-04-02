@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file dropdown_type.h Types related to the drop down widget. */
@@ -10,6 +10,7 @@
 #ifndef DROPDOWN_TYPE_H
 #define DROPDOWN_TYPE_H
 
+#include "core/enum_type.hpp"
 #include "window_type.h"
 #include "gfx_func.h"
 #include "gfx_type.h"
@@ -78,16 +79,15 @@ public:
  */
 typedef std::vector<std::unique_ptr<const DropDownListItem>> DropDownList;
 
-enum DropDownModeFlags : uint8_t {
-	DDMF_NONE              = 0,
-	DDMF_INSTANT_CLOSE     = 1 << 0, ///< Close the window when the mouse button is raised.
-	DDMF_PERSIST           = 1 << 1, ///< Dropdown menu will persist.
+enum class DropDownOption : uint8_t {
+	InstantClose, ///< Set if releasing mouse button should close the list regardless of where the cursor is.
+	Persist, ///< Set if this dropdown should stay open after an option is selected.
 };
-DECLARE_ENUM_AS_BIT_SET(DropDownModeFlags)
+using DropDownOptions = EnumBitSet<DropDownOption, uint8_t>;
 
-void ShowDropDownListAt(Window *w, DropDownList &&list, int selected, WidgetID button, Rect wi_rect, Colours wi_colour, DropDownModeFlags mode_flags = DDMF_NONE, DropDownSyncFocus sync_parent_focus = DDSF_NONE);
+void ShowDropDownListAt(Window *w, DropDownList &&list, int selected, WidgetID button, Rect wi_rect, Colours wi_colour, DropDownOptions options = {}, DropDownSyncFocus sync_parent_focus = DDSF_NONE);
 
-void ShowDropDownList(Window *w, DropDownList &&list, int selected, WidgetID button, uint width = 0, DropDownModeFlags mode_flags = DDMF_NONE, DropDownSyncFocus sync_parent_focus = DDSF_NONE);
+void ShowDropDownList(Window *w, DropDownList &&list, int selected, WidgetID button, uint width = 0, DropDownOptions options = {}, DropDownSyncFocus sync_parent_focus = DDSF_NONE);
 
 Dimension GetDropDownListDimension(const DropDownList &list);
 

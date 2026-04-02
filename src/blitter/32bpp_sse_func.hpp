@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file 32bpp_sse_func.hpp Functions related to SSE 32 bpp blitter. */
@@ -116,7 +116,6 @@ INTERNAL_LINKAGE inline __m128i DarkenTwoPixels(__m128i src, __m128i dst, const 
 	return _mm_packus_epi16(dstAB, dstAB);
 }
 
-IGNORE_UNINITIALIZED_WARNING_START
 GNU_TARGET(SSE_TARGET)
 INTERNAL_LINKAGE Colour ReallyAdjustBrightness(Colour colour, uint8_t brightness)
 {
@@ -147,7 +146,6 @@ INTERNAL_LINKAGE Colour ReallyAdjustBrightness(Colour colour, uint8_t brightness
 	ret = _mm_packus_epi16(ret, ret);      // PACKUSWB, saturate and pack.
 	return alpha32 | _mm_cvtsi128_si32(ret);
 }
-IGNORE_UNINITIALIZED_WARNING_STOP
 
 /** ReallyAdjustBrightness() is not called that often.
  * Inlining this function implies a far jump, which has a huge latency.
@@ -210,7 +208,6 @@ INTERNAL_LINKAGE inline __m128i AdjustBrightnessOfTwoPixels([[maybe_unused]] __m
  * @param bp further blitting parameters
  * @param zoom zoom level at which we are drawing
  */
-IGNORE_UNINITIALIZED_WARNING_START
 template <BlitterMode mode, Blitter_32bppSSE2::ReadMode read_mode, Blitter_32bppSSE2::BlockType bt_last, bool translucent>
 GNU_TARGET(SSE_TARGET)
 #if (SSE_VERSION == 2)
@@ -507,7 +504,6 @@ next_line:
 		dst_line += bp->pitch;
 	}
 }
-IGNORE_UNINITIALIZED_WARNING_STOP
 
 /**
  * Draws a sprite to a (screen) buffer. Calls adequate templated function.

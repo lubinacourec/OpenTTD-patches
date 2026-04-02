@@ -2,23 +2,23 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /**
- * @file sprites.h
- * This file contains all sprite-related enums and defines. These consist mainly of
- * the sprite numbers and a bunch of masks and macros to handle sprites and to get
- * rid of all the magic numbers in the code.
+ * @file sprites.h This file contains all sprite-related enums and defines.
+ *
+ * These consist mainly of the sprite numbers and a bunch of masks and macros
+ * to handle sprites and to get rid of all the magic numbers in the code.
  *
  * @note
- * ALL SPRITE NUMBERS BELOW 5126 are in the main files
+ * ALL SPRITE NUMBERS BELOW 5126 are in the main files.
  *
  * All elements which consist of two elements should
- * have the same name and then suffixes
+ * have the same name and then suffixes:
  *   _GROUND and _BUILD for building-type sprites
  *   _REAR and _FRONT for transport-type sprites (tiles where vehicles are on)
- * These sprites are split because of the Z order of the elements
+ * These sprites are split because of the Z order of the elements.
  *  (like some parts of a bridge are behind the vehicle, while others are before)
  *
  *
@@ -32,7 +32,7 @@
  * get a proper editor. If your Operating Systems don't have any decent editors,
  * get a proper Operating System.
  *
- * @todo Split the "Sprites" enum into smaller chunks and document them
+ * @todo Split the "Sprites" enum into smaller chunks and document them.
  */
 
 #ifndef SPRITES_H
@@ -1676,7 +1676,7 @@ static const PaletteID PALETTE_CRASH               = 804;  ///< Recolour sprite 
 static const PaletteID PALETTE_CHURCH_RED          = 1438; ///< Recolour sprite for reddish churches
 static const PaletteID PALETTE_CHURCH_CREAM        = 1439; ///< Recolour sprite for white churches
 
-static const PaletteID PALETTE_ALL_BLACK           = SPR_PALETTE_BASE; ///< Exchange any color by black, needed for painting fictive tiles outside map
+static const PaletteID PALETTE_ALL_BLACK           = SPR_PALETTE_BASE; ///< Exchange any colour by black, needed for painting fictive tiles outside map
 
 static const PaletteID PALETTE_WHITE_TINT          = SPR_MISC_GUI_BASE + 1;
 

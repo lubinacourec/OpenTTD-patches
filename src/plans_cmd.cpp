@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file plans_cmd.cpp Handling of plan related commands. */
@@ -30,7 +30,7 @@ CommandCost CmdAddPlan(DoCommandFlags flags)
 	if (!Plan::CanAllocateItem()) return CommandCost(STR_ERROR_TOO_MANY_PLANS);
 	CommandCost cost;
 	if (flags.Test(DoCommandFlag::Execute)) {
-		Plan *plan = new Plan(_current_company);
+		Plan *plan = Plan::Create(_current_company);
 		cost.SetResultData(plan->index);
 	}
 	return cost;
@@ -224,7 +224,7 @@ CommandCost CmdAcquireUnownedPlan(DoCommandFlags flags, PlanID plan)
 	return CommandCost();
 }
 
-void PlanLineCmdData::Serialise(BufferSerialisationRef buffer) const
+void PlanLineCmdData::SerialisePayload(BufferSerialisationRef buffer) const
 {
 	buffer.Send_uint16(this->plan);
 	buffer.Send_uint32((uint32_t)this->tiles.size());

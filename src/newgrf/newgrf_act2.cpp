@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file newgrf_act2.cpp NewGRF Action 0x02 handler. */
@@ -287,7 +287,7 @@ const CallbackResultSpriteGroup *NewCallbackResultSpriteGroupNoTransform(uint16_
 	const CallbackResultSpriteGroup *&ptr = _callback_result_cache[result];
 	if (ptr == nullptr) {
 		assert(CallbackResultSpriteGroup::CanAllocateItem());
-		ptr = new CallbackResultSpriteGroup(result);
+		ptr = CallbackResultSpriteGroup::Create(result);
 	}
 	return ptr;
 }
@@ -351,7 +351,7 @@ static const SpriteGroup *CreateGroupFromGroupID(GrfSpecFeature feature, uint16_
 	assert(spriteset_start + num_sprites <= _cur_gps.spriteid);
 
 	assert(ResultSpriteGroup::CanAllocateItem());
-	return new ResultSpriteGroup(spriteset_start, num_sprites);
+	return ResultSpriteGroup::Create(spriteset_start, num_sprites);
 }
 
 static void ProcessDeterministicSpriteGroupRanges(const std::vector<DeterministicSpriteGroupRange> &ranges, std::vector<DeterministicSpriteGroupRange> &ranges_out, const SpriteGroup *default_group)
@@ -528,7 +528,7 @@ static void NewSpriteGroup(ByteReader &buf)
 			bool first_adjust = true;
 
 			assert(DeterministicSpriteGroup::CanAllocateItem());
-			DeterministicSpriteGroup *group = new DeterministicSpriteGroup();
+			DeterministicSpriteGroup *group = DeterministicSpriteGroup::Create();
 			group->nfo_line = _cur_gps.nfo_line;
 			group->feature = feature;
 			if (_action6_override_active) group->sg_flags |= SGF_ACTION6;
@@ -685,7 +685,7 @@ static void NewSpriteGroup(ByteReader &buf)
 		case STYPE_RANDOMIZED:
 		{
 			assert(RandomizedSpriteGroup::CanAllocateItem());
-			RandomizedSpriteGroup *group = new RandomizedSpriteGroup();
+			RandomizedSpriteGroup *group = RandomizedSpriteGroup::Create();
 			group->nfo_line = _cur_gps.nfo_line;
 			if (_action6_override_active) group->sg_flags |= SGF_ACTION6;
 			act_group = group;
@@ -731,6 +731,11 @@ static void NewSpriteGroup(ByteReader &buf)
 		/* Neither a variable or randomized sprite group... must be a real group */
 		case STYPE_NORMAL:
 		{
+			if (type >= 0x80) {
+				GrfMsg(0, "NewSpriteGroup: Reserved group type 0x{:02X}, skipping", type);
+				return;
+			}
+
 			switch (feature) {
 				case GSF_TRAINS:
 				case GSF_ROADVEHICLES:
@@ -801,7 +806,7 @@ static void NewSpriteGroup(ByteReader &buf)
 					}
 
 					assert(RealSpriteGroup::CanAllocateItem());
-					RealSpriteGroup *group = new RealSpriteGroup();
+					RealSpriteGroup *group = RealSpriteGroup::Create();
 					group->nfo_line = _cur_gps.nfo_line;
 					if (_action6_override_active) group->sg_flags |= SGF_ACTION6;
 					act_group = group;
@@ -831,7 +836,7 @@ static void NewSpriteGroup(ByteReader &buf)
 					uint8_t num_building_sprites = std::max((uint8_t)1, type);
 
 					assert(TileLayoutSpriteGroup::CanAllocateItem());
-					TileLayoutSpriteGroup *group = new TileLayoutSpriteGroup();
+					TileLayoutSpriteGroup *group = TileLayoutSpriteGroup::Create();
 					group->nfo_line = _cur_gps.nfo_line;
 					if (_action6_override_active) group->sg_flags |= SGF_ACTION6;
 					act_group = group;
@@ -848,7 +853,7 @@ static void NewSpriteGroup(ByteReader &buf)
 					}
 
 					assert(IndustryProductionSpriteGroup::CanAllocateItem());
-					IndustryProductionSpriteGroup *group = new IndustryProductionSpriteGroup();
+					IndustryProductionSpriteGroup *group = IndustryProductionSpriteGroup::Create();
 					group->nfo_line = _cur_gps.nfo_line;
 					if (_action6_override_active) group->sg_flags |= SGF_ACTION6;
 					act_group = group;

@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file pool_type.hpp Definition of Pool, structure used to access PoolItems, and PoolItem, base structure for Vehicle, Town, and other indexed items. */
@@ -27,6 +27,9 @@ using PoolTypes = EnumBitSet<PoolType, uint8_t>;
 static constexpr PoolTypes PT_ALL = {PoolType::Normal, PoolType::NetworkClient, PoolType::NetworkAdmin, PoolType::Data};
 
 typedef std::vector<struct PoolBase *> PoolVector; ///< Vector of pointers to PoolBase
+
+template <typename Tindex>
+using AllocationResult = std::pair<void *, Tindex>;
 
 /** Base class for base of all pools. */
 struct PoolBase {
@@ -95,6 +98,7 @@ requires std::is_base_of_v<PoolIDBase, Tindex>
 struct Pool : PoolBase {
 	using ParamType = typename Tops::Tparam_type;
 	using PtrType = typename Tops::Tptr;
+	using IndexType = Tindex;
 
 private:
 	/** Some helper functions to get the maximum value of the provided index. */
@@ -264,13 +268,21 @@ public:
 	 */
 	template <struct Pool<Titem, Tindex, Tgrowth_step, Tpool_type, Tcache, Tops> *Tpool>
 	struct PoolItem {
-		Tindex index; ///< Index of this pool item
+		using PoolItemBase = PoolItem<Tpool>;
+
+		const Tindex index; ///< Index of this pool item
+
+		/**
+		 * Construct the item.
+		 * @param index The index of this PoolItem in the pool.
+		 */
+		PoolItem(Tindex index) : index(index) {}
 
 		/** Type of the pool this item is going to be part of */
 		typedef struct Pool<Titem, Tindex, Tgrowth_step, Tpool_type, Tcache, Tops> Pool;
 
 protected:
-		static inline void *NewWithParam(size_t size, ParamType param)
+		static inline AllocationResult<Tindex> NewWithParam(size_t size, ParamType param)
 		{
 			return Tpool->GetNew(size, param);
 		}
@@ -280,17 +292,21 @@ protected:
 			return Tpool->GetNew(size, index, param);
 		}
 
-public:
-		/**
-		 * Allocates space for new Titem
-		 * @param size size of Titem
-		 * @return pointer to allocated memory
-		 * @note can never fail (return nullptr), use CanAllocate() to check first!
-		 */
-		inline void *operator new(size_t size)
+		static inline Tindex AsIndexType(size_t index)
 		{
-			return NewWithParam(size, Tops::DefaultItemParam());
+			/* MSVC complains about casting to narrower type, so first cast to the base type... then to the strong type. */
+			static_cast<Tindex>(static_cast<Tindex::BaseType>(index));
 		}
+
+public:
+		/** Do not use new PoolItem, but rather PoolItem::Create. */
+		inline void *operator new(size_t) = delete;
+
+		/** Do not use new (index) PoolItem(...), but rather PoolItem::CreateAtIndex(index, ...). */
+		inline void *operator new(size_t size, Tindex index) = delete;
+
+		/** Do not use new (address) PoolItem(...). */
+		inline void *operator new(size_t, void *ptr) = delete;
 
 		/**
 		 * Marks Titem as free. Its memory is released
@@ -299,46 +315,48 @@ public:
 		 */
 		inline void operator delete(void *p)
 		{
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wuninitialized"
+#if !defined(__clang__) && !defined(__ICC)
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
+#endif /* __GNUC__ */
 			if (p == nullptr) return;
 			Titem *pn = static_cast<Titem *>(p);
 			dbg_assert_msg(pn == Tpool->Get(Pool::GetRawIndex(pn->index)), "name: {}", Tpool->name);
 			Tpool->FreeItem(Pool::GetRawIndex(pn->index));
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif /* __GNUC__ */
 		}
 
 		/**
-		 * Allocates space for new Titem with given index
-		 * @param size size of Titem
-		 * @param index index of item
-		 * @return pointer to allocated memory
-		 * @note can never fail (return nullptr), use CanAllocate() to check first!
-		 * @pre index has to be unused! Else it will crash
+		 * Creates a new T-object in the associated pool.
+		 * @param args... The arguments to the constructor.
+		 * @return The created object.
 		 */
-		inline void *operator new(size_t size, Tindex index)
+		template <typename T = Titem, typename... Targs>
+		requires std::is_base_of_v<Titem, T>
+		static inline T *Create(Targs &&... args)
 		{
-			return NewWithParam(size, Pool::GetRawIndex(index), Tops::DefaultItemParam());
+			auto [data, index] = Tpool->GetNew(sizeof(T), Tops::DefaultItemParam());
+			return ::new (data) T(index, std::forward<Targs&&>(args)...);
 		}
 
 		/**
-		 * Allocates space for new Titem at given memory address
-		 * @param ptr where are we allocating the item?
-		 * @return pointer to allocated memory (== ptr)
-		 * @note use of this is strongly discouraged
-		 * @pre the memory must not be allocated in the Pool!
+		 * Creates a new T-object in the associated pool.
+		 * @param index The to allocate the object at.
+		 * @param args... The arguments to the constructor.
+		 * @return The created object.
 		 */
-		inline void *operator new(size_t, void *ptr)
+		template <typename T = Titem, typename... Targs>
+		requires std::is_base_of_v<Titem, T>
+		static inline T *CreateAtIndex(Tindex index, Targs &&... args)
 		{
-			for (size_t i = 0; i < Tpool->first_unused; i++) {
-				/* Don't allow creating new objects over existing.
-				 * Even if we called the destructor and reused this memory,
-				 * we don't know whether 'size' and size of currently allocated
-				 * memory are the same (because of possible inheritance).
-				 * Use { size_t index = item->index; delete item; new (index) item; }
-				 * instead to make sure destructor is called and no memory leaks. */
-				dbg_assert_msg(ptr != Tpool->data[i], "name: {}", Tpool->name);
-			}
-			return ptr;
+			void *data = Tpool->GetNew(sizeof(T), Pool::GetRawIndex(index), Tops::DefaultItemParam());
+			return ::new (data) T(index, std::forward<Targs&&>(args)...);
 		}
-
 
 		/** Helper functions so we can use PoolItem::Function() instead of _poolitem_pool.Function() */
 
@@ -455,7 +473,7 @@ private:
 	void ResizeFor(size_t index);
 	size_t FindFirstFree();
 
-	void *GetNew(size_t size, ParamType param);
+	AllocationResult<Tindex> GetNew(size_t size, ParamType param);
 	void *GetNew(size_t size, size_t index, ParamType param);
 
 	void FreeItem(size_t index);

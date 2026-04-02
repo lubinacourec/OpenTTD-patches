@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file misc.cpp Misc functions that shouldn't be here. */
@@ -53,6 +53,7 @@ extern void ClearAllSignalSpeedRestrictions();
 extern void MakeNewgameSettingsLive();
 
 extern uint64_t _station_tile_cache_hash;
+extern uint32_t _engine_seed;
 
 void InitializeSound();
 void InitializeMusic();
@@ -148,6 +149,7 @@ void InitializeGame(uint size_x, uint size_y, bool reset_date, bool reset_settin
 	_extra_aspects = 0;
 	_aspect_cfg_hash = 0;
 	_station_tile_cache_hash = 0;
+	_engine_seed = 0;
 	InitGRFGlobalVars();
 	_loadgame_DBGL_data.clear();
 	if (reset_settings) {

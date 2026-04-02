@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file terraform_gui.cpp GUI related to terraforming the map. */
@@ -153,13 +153,6 @@ static void DemolishAreaConfirmationCallback(Window *, bool confirmed) {
  */
 bool GUIPlaceProcDragXY(ViewportDragDropSelectionProcess proc, TileIndex start_tile, TileIndex end_tile)
 {
-	if (!_settings_game.construction.freeform_edges) {
-		/* When end_tile is MP_VOID, the error tile will not be visible to the
-		 * user. This happens when terraforming at the southern border. */
-		if (TileX(end_tile) == Map::MaxX()) end_tile += TileDiffXY(-1, 0);
-		if (TileY(end_tile) == Map::MaxY()) end_tile += TileDiffXY(0, -1);
-	}
-
 	switch (proc) {
 		case DDSP_DEMOLISH_AREA: {
 			_demolish_area_command = CommandContainer<CMD_CLEAR_AREA>(STR_ERROR_CAN_T_CLEAR_THIS_AREA, end_tile,

@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file dock_gui.cpp GUI to create amazing water objects. */
@@ -271,13 +271,13 @@ struct BuildDocksToolbarWindow : Window {
 					break;
 				case DDSP_CREATE_WATER:
 					if (_game_mode == GM_EDITOR) {
-						Command<CMD_BUILD_CANAL>::Post(STR_ERROR_CAN_T_BUILD_CANALS, CommandCallback::PlaySound_CONSTRUCTION_WATER, end_tile, start_tile, _ctrl_pressed ? WATER_CLASS_SEA : WATER_CLASS_CANAL, false);
+						Command<CMD_BUILD_CANAL>::Post(STR_ERROR_CAN_T_BUILD_CANALS, CommandCallback::PlaySound_CONSTRUCTION_WATER, end_tile, start_tile, _ctrl_pressed ? WaterClass::Sea : WaterClass::Canal, false);
 					} else {
-						Command<CMD_BUILD_CANAL>::Post(STR_ERROR_CAN_T_BUILD_CANALS, CommandCallback::PlaySound_CONSTRUCTION_WATER, end_tile, start_tile, WATER_CLASS_CANAL, _ctrl_pressed);
+						Command<CMD_BUILD_CANAL>::Post(STR_ERROR_CAN_T_BUILD_CANALS, CommandCallback::PlaySound_CONSTRUCTION_WATER, end_tile, start_tile, WaterClass::Canal, _ctrl_pressed);
 					}
 					break;
 				case DDSP_CREATE_RIVER:
-					Command<CMD_BUILD_CANAL>::Post(STR_ERROR_CAN_T_PLACE_RIVERS, CommandCallback::PlaySound_CONSTRUCTION_WATER, end_tile, start_tile, WATER_CLASS_RIVER, _ctrl_pressed);
+					Command<CMD_BUILD_CANAL>::Post(STR_ERROR_CAN_T_PLACE_RIVERS, CommandCallback::PlaySound_CONSTRUCTION_WATER, end_tile, start_tile, WaterClass::River, _ctrl_pressed);
 					break;
 
 				default: break;
@@ -613,8 +613,8 @@ public:
 					int y = (ir.Height() - ScaleSpriteTrad(64)) / 2;
 					int x1 = ScaleSpriteTrad(63);
 					int x2 = ScaleSpriteTrad(31);
-					DrawShipDepotSprite(x + (axis == AXIS_X ? x1 : x2), y + ScaleSpriteTrad(17), axis, DEPOT_PART_NORTH);
-					DrawShipDepotSprite(x + (axis == AXIS_X ? x2 : x1), y + ScaleSpriteTrad(33), axis, DEPOT_PART_SOUTH);
+					DrawShipDepotSprite(x + (axis == AXIS_X ? x1 : x2), y + ScaleSpriteTrad(17), axis, DepotPart::North);
+					DrawShipDepotSprite(x + (axis == AXIS_X ? x2 : x1), y + ScaleSpriteTrad(33), axis, DepotPart::South);
 				}
 				break;
 			}

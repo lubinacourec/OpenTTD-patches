@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file station_cmd.cpp Handling of station tiles. */
@@ -27,6 +27,7 @@
 #include "road_internal.h" /* For drawing catenary/checking road removal */
 #include "autoslope.h"
 #include "water.h"
+#include "tilehighlight_func.h"
 #include "strings_func.h"
 #include "clear_func.h"
 #include "date_func.h"
@@ -66,6 +67,7 @@
 #include "rail_cmd.h"
 
 #include "widgets/station_widget.h"
+#include "widgets/misc_widget.h"
 
 #include "table/strings.h"
 
@@ -780,7 +782,7 @@ static CommandCost BuildStationPart(Station **st, DoCommandFlags flags, bool reu
 		if (!Station::CanAllocateItem()) return CommandCost(STR_ERROR_TOO_MANY_STATIONS_LOADING);
 
 		if (flags.Test(DoCommandFlag::Execute)) {
-			*st = new Station(area.tile);
+			*st = Station::Create(area.tile);
 			_station_kdtree.Insert((*st)->index);
 
 			(*st)->town = ClosestTownFromTile(area.tile, UINT_MAX);
@@ -1670,6 +1672,7 @@ CommandCost CmdBuildRailStation(DoCommandFlags flags, TileIndex tile_org, RailTy
 				MakeRailStation(tile, st->owner, st->index, axis, layout & ~1, rt);
 				/* Free the spec if we overbuild something */
 				if (old_specindex != specindex) DeallocateSpecFromStation(st, old_specindex);
+				if (statspec == nullptr) DeleteNewGRFInspectWindow(GSF_STATIONS, tile.base());
 
 				SetCustomStationSpecIndex(tile, specindex);
 				SetStationTileRandomBits(tile, GB(Random(), 0, 4));
@@ -2240,7 +2243,7 @@ CommandCost CmdBuildRoadStop(DoCommandFlags flags, TileIndex tile, uint8_t width
 				st->cached_roadstop_anim_triggers.Set(roadstopspec->animation.triggers);
 			}
 
-			RoadStop *road_stop = new RoadStop(cur_tile);
+			RoadStop *road_stop = RoadStop::Create(cur_tile);
 			/* Insert into linked list of RoadStops. */
 			RoadStop **currstop = FindRoadStopSpot(is_truck_stop, st);
 			*currstop = road_stop;
@@ -2889,7 +2892,7 @@ CommandCost CmdBuildAirport(DoCommandFlags flags, TileIndex tile, uint8_t airpor
 		st->rect.BeforeAddRect(tile, w, h, StationRect::ADD_TRY);
 
 		for (AirportTileTableIterator iter(as->layouts[layout].tiles, tile); iter != INVALID_TILE; ++iter) {
-			MakeAirport(iter, st->owner, st->index, iter.GetStationGfx(), WATER_CLASS_INVALID);
+			MakeAirport(iter, st->owner, st->index, iter.GetStationGfx(), WaterClass::Invalid);
 			SetStationTileRandomBits(iter, GB(Random(), 0, 4));
 			st->airport.Add(iter);
 
@@ -3133,7 +3136,7 @@ CommandCost CmdBuildDock(DoCommandFlags flags, TileIndex tile, StationID station
 		 * This is needed as we've cleared that tile before.
 		 * Clearing object tiles may result in water tiles which are already accounted for in the water infrastructure total.
 		 * See: MakeWaterKeepingClass() */
-		if (wc == WATER_CLASS_CANAL && !(HasTileWaterClass(flat_tile) && GetWaterClass(flat_tile) == WATER_CLASS_CANAL && IsTileOwner(flat_tile, _current_company))) {
+		if (wc == WaterClass::Canal && !(HasTileWaterClass(flat_tile) && GetWaterClass(flat_tile) == WaterClass::Canal && IsTileOwner(flat_tile, _current_company))) {
 			Company::Get(st->owner)->infrastructure.water++;
 		}
 		Company::Get(st->owner)->infrastructure.station += 2;
@@ -3536,8 +3539,8 @@ static void DrawTile_Station(TileInfo *ti, DrawTileProcParams params)
 		} else {
 			assert_tile(IsDock(ti->tile), ti->tile);
 			TileIndex water_tile = ti->tile + TileOffsByDiagDir(GetDockDirection(ti->tile));
-			WaterClass wc = HasTileWaterClass(water_tile) ? GetWaterClass(water_tile) : WATER_CLASS_INVALID;
-			if (wc == WATER_CLASS_SEA) {
+			WaterClass wc = HasTileWaterClass(water_tile) ? GetWaterClass(water_tile) : WaterClass::Invalid;
+			if (wc == WaterClass::Sea) {
 				DrawShoreTile(ti->tileh);
 			} else {
 				DrawClearLandTile(ti, 3);
@@ -3952,11 +3955,11 @@ static void TileLoop_Station(TileIndex tile)
 			}
 
 			/* Adjust road ground type depending on 'new_zone' */
-			Roadside new_rs = new_zone != HouseZone::TownEdge ? ROADSIDE_PAVED : ROADSIDE_GRASS;
+			Roadside new_rs = new_zone != HouseZone::TownEdge ? Roadside::Paved : Roadside::Grass;
 			Roadside cur_rs = GetRoadWaypointRoadside(tile);
 
 			if (new_rs != cur_rs) {
-				SetRoadWaypointRoadside(tile, cur_rs == ROADSIDE_BARREN ? new_rs : ROADSIDE_BARREN);
+				SetRoadWaypointRoadside(tile, cur_rs == Roadside::Barren ? new_rs : Roadside::Barren);
 				MarkTileDirtyByTile(tile, VMDF_NOT_MAP_MODE);
 			}
 
@@ -4628,7 +4631,7 @@ void IncreaseStats(Station *st, CargoType cargo, StationID next_station_id, uint
 	if (ge1.link_graph == LinkGraphID::Invalid()) {
 		if (ge2.link_graph == LinkGraphID::Invalid()) {
 			if (LinkGraph::CanAllocateItem()) {
-				lg = new LinkGraph(cargo);
+				lg = LinkGraph::Create(cargo);
 				LinkGraphSchedule::instance.Queue(lg);
 				ge2.link_graph = lg->index;
 				ge2.node = lg->AddNode(st2);
@@ -4764,11 +4767,11 @@ static uint UpdateStationWaiting(Station *st, CargoType cargo, uint amount, Sour
 	if (amount == 0) return 0;
 
 	StationID next = ge.GetVia(st->index);
-	ge.CreateData().cargo.Append(new CargoPacket(st->index, amount, source), next);
+	ge.CreateData().cargo.Append(CargoPacket::Create(st->index, amount, source), next);
 	LinkGraph *lg = nullptr;
 	if (ge.link_graph == LinkGraphID::Invalid()) {
 		if (LinkGraph::CanAllocateItem()) {
-			lg = new LinkGraph(cargo);
+			lg = LinkGraph::Create(cargo);
 			LinkGraphSchedule::instance.Queue(lg);
 			ge.link_graph = lg->index;
 			ge.node = lg->AddNode(st);
@@ -4857,6 +4860,61 @@ CommandCost CmdRenameStation(DoCommandFlags flags, StationID station_id, bool ge
 	}
 
 	return CommandCost();
+}
+
+/**
+ * Move a station name.
+ * @param flags type of operation
+ * @param station_id id of the station
+ * @param tile to move the station name to
+ * @return the cost of this operation or an error and the station ID
+ */
+CommandCost CmdMoveStationName(DoCommandFlags flags, StationID station_id, TileIndex tile)
+{
+	Station *st = Station::GetIfValid(station_id);
+	if (st == nullptr) return CMD_ERROR;
+
+	if (st->owner != OWNER_NONE) {
+		CommandCost ret = CheckOwnership(st->owner);
+		if (ret.Failed()) return ret;
+	}
+
+	const StationRect *r = &st->rect;
+	if (!r->PtInExtendedRect(TileX(tile), TileY(tile))) {
+		return CommandCost(STR_ERROR_SITE_UNSUITABLE);
+	}
+
+	bool other_station = false;
+	/* Check if the tile is the base tile of another station */
+	ForAllStationsRadius(tile, 0, [&](BaseStation *s) {
+		if (s != nullptr) {
+			if (s != st && s->xy == tile) other_station = true;
+		}
+	});
+	if (other_station) return CommandCost(STR_ERROR_SITE_UNSUITABLE);
+
+	if (flags.Test(DoCommandFlag::Execute)) {
+		st->MoveSign(tile);
+
+		st->UpdateVirtCoord();
+	}
+	return CommandCost();
+}
+
+/**
+* Callback function that is called after a name is moved
+* @param result of the operation
+* @param station_id ID of the changed station
+*/
+void CcMoveStationName(const CommandCost &result, StationID station_id, TileIndex tile)
+{
+	{
+		if (result.Failed()) return;
+
+		ResetObjectToPlace();
+		Station *st = Station::Get(station_id);
+		SetViewportStationRect(st, false);
+	}
 }
 
 /**
@@ -5103,7 +5161,7 @@ void BuildOilRig(TileIndex tile)
 		return;
 	}
 
-	Station *st = new Station(tile);
+	Station *st = Station::Create(tile);
 	_station_kdtree.Insert(st->index);
 	st->town = ClosestTownFromTile(tile, UINT_MAX);
 
@@ -5209,7 +5267,7 @@ static void ChangeTileOwner_Station(TileIndex tile, Owner old_owner, Owner new_o
 
 			case StationType::Buoy:
 			case StationType::Dock:
-				if (GetWaterClass(tile) == WATER_CLASS_CANAL) {
+				if (GetWaterClass(tile) == WaterClass::Canal) {
 					old_company->infrastructure.water--;
 					new_company->infrastructure.water++;
 				}

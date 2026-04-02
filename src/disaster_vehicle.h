@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file disaster_vehicle.h All disaster vehicles. */
@@ -41,10 +41,10 @@ struct DisasterVehicle final : public SpecializedVehicle<DisasterVehicle, VEH_DI
 	uint16_t state = 0;                                        ///< Action stage of the disaster vehicle.
 
 	/** For use by saveload. */
-	DisasterVehicle();
-	DisasterVehicle(int x, int y, Direction direction, DisasterSubType subtype, VehicleID big_ufo_destroyer_target = VehicleID::Invalid());
+	DisasterVehicle(VehicleID index);
+	DisasterVehicle(VehicleID index, int x, int y, Direction direction, DisasterSubType subtype, VehicleID big_ufo_destroyer_target = VehicleID::Invalid());
 	/** We want to 'destruct' the right class. */
-	virtual ~DisasterVehicle();
+	~DisasterVehicle() override;
 
 	void UpdatePosition(int x, int y, int z);
 	void UpdateDeltaXY() override;

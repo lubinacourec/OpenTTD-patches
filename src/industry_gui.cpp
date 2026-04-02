@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file industry_gui.cpp GUIs related to industries. */
@@ -385,27 +385,17 @@ class BuildIndustryWindow : public Window {
 	{
 		assert(cargolist.size() == cargo_suffix.size());
 
-		std::string cargostring;
-		size_t numcargo = 0;
-		size_t firstcargo = 0;
+		format_buffer cargostring;
+		std::string_view list_separator = GetListSeparator();
 
 		for (size_t j = 0; j < cargolist.size(); j++) {
 			if (!IsValidCargoType(cargolist[j])) continue;
-			numcargo++;
-			if (numcargo == 1) {
-				firstcargo = j;
-				continue;
-			}
+			if (!cargostring.empty()) cargostring.append(list_separator);
 			AppendStringInPlace(cargostring, STR_INDUSTRY_VIEW_CARGO_LIST_EXTENSION, CargoSpec::Get(cargolist[j])->name, cargo_suffix[j].text);
 		}
 
-		if (numcargo > 0) {
-			cargostring = GetString(prefixstr, CargoSpec::Get(cargolist[firstcargo])->name, cargo_suffix[firstcargo].text) + cargostring;
-		} else {
-			cargostring = GetString(prefixstr, STR_JUST_NOTHING, std::string_view{});
-		}
-
-		return cargostring;
+		if (cargostring.empty()) AppendStringInPlace(cargostring, STR_JUST_NOTHING);
+		return GetString(prefixstr, cargostring);
 	}
 
 public:

@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file waypoint_cmd.h Command definitions related to waypoints. */
@@ -22,6 +22,7 @@ DEF_CMD_TUPLE   (CMD_BUILD_ROAD_WAYPOINT,              CmdBuildRoadWaypoint,    
 DEF_CMD_TUPLE   (CMD_REMOVE_FROM_ROAD_WAYPOINT,        CmdRemoveFromRoadWaypoint,                {}, CommandType::LandscapeConstruction, CmdDataT<TileIndex>)
 DEF_CMD_TUPLE   (CMD_BUILD_BUOY,                       CmdBuildBuoy,                       CMD_AUTO, CommandType::LandscapeConstruction, CmdDataT<>)
 DEF_CMD_TUPLE_NT(CMD_RENAME_WAYPOINT,                  CmdRenameWaypoint,                        {}, CommandType::OtherManagement,       CmdDataT<StationID, std::string>)
+DEF_CMD_TUPLE_NT(CMD_MOVE_WAYPOINT_NAME,               CmdMoveWaypointName,                      {}, CommandType::OtherManagement,       CmdDataT<StationID, TileIndex>)
 DEF_CMD_TUPLE_NT(CMD_SET_WAYPOINT_LABEL_HIDDEN,        CmdSetWaypointLabelHidden,                {}, CommandType::OtherManagement,       CmdDataT<StationID, bool>)
 DEF_CMD_TUPLE_NT(CMD_EXCHANGE_WAYPOINT_NAMES,          CmdExchangeWaypointNames,                 {}, CommandType::OtherManagement,       CmdDataT<StationID, StationID>)
 

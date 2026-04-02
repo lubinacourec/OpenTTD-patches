@@ -13,7 +13,7 @@
 # This file is part of OpenTTD.
 # OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
 # OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
 
 
 ##id 0x0000
@@ -312,6 +312,7 @@ STR_SHOW_HIDDEN_ENGINES_VEHICLE_AIRCRAFT_TOOLTIP                :{BLACK}Ved at a
 STR_BUTTON_DEFAULT                                              :{BLACK}Standard
 STR_BUTTON_CANCEL                                               :{BLACK}Annullér
 STR_BUTTON_OK                                                   :{BLACK}OK
+STR_BUTTON_MOVE                                                 :{BLACK}Flyt
 
 # On screen keyboard window
 STR_OSK_KEYBOARD_LAYOUT                                         :`1234567890-= qwertyuiop[]asdfghjkl;'#\zxcvbnm,./ .
@@ -1114,7 +1115,7 @@ STR_GAME_OPTIONS_BASE_GRF_TOOLTIP                               :Vælg det grund
 STR_GAME_OPTIONS_BASE_GRF_DESCRIPTION_TOOLTIP                   :Yderligere information om basis-grafiksættet
 
 STR_GAME_OPTIONS_BASE_SFX                                       :Basis lydsæt
-STR_GAME_OPTIONS_BASE_SFX_TOOLTIP                               :Vælg det grundlæggende lyd sæt, der skal bruges (kan ikke ændres i spillet, kun fra hovedmenuen)
+STR_GAME_OPTIONS_BASE_SFX_TOOLTIP                               :Vælg det grundlæggende lyd sæt, der skal bruges
 STR_GAME_OPTIONS_BASE_SFX_DESCRIPTION_TOOLTIP                   :Mere information om basis lydsættet
 
 STR_GAME_OPTIONS_BASE_MUSIC                                     :Basis musiksæt
@@ -1247,7 +1248,7 @@ STR_CONFIG_SETTING_EXPAND_ALL                                   :Udvid alle
 STR_CONFIG_SETTING_COLLAPSE_ALL                                 :Skjul alle
 STR_CONFIG_SETTING_RESET_ALL                                    :Nulstil alle værdier
 STR_CONFIG_SETTING_NO_EXPLANATION_AVAILABLE_HELPTEXT            :(ingen forklaring tilgængelig)
-STR_CONFIG_SETTING_VALUE                                        :{PUSH_COLOUR}{ORANGE}{STRING}{POP_COLOUR}
+STR_CONFIG_SETTING_VALUE                                        :{ORANGE}{STRING}
 STR_CONFIG_SETTING_DEFAULT_VALUE                                :{LTBLUE}Standard: {ORANGE}{STRING}
 STR_CONFIG_SETTING_TYPE                                         :{LTBLUE}Indstillingstype: {ORANGE}{STRING}
 STR_CONFIG_SETTING_TYPE_CLIENT                                  :Klient indstilling (ikke lagret i gemt spil, påvirker alle spil)
@@ -2068,7 +2069,7 @@ STR_CONFIG_SETTING_ZOOM_LVL_OUT_4X                              :4x
 STR_CONFIG_SETTING_ZOOM_LVL_OUT_8X                              :8x
 
 STR_CONFIG_SETTING_SPRITE_ZOOM_MIN                              :Højeste sprite-opløsning der må anvendes: {STRING}
-STR_CONFIG_SETTING_SPRITE_ZOOM_MIN_HELPTEXT                     :Begrænser den maksimale opløsning for sprites. Denne begrænsning vil forhindre brug af højopløsningsgrafik selv når den er tilgængelig. Dette kan bevare en ensartet fremtoning af spillet når der er en blanding af GRF filer med og uden højopløsningsgrafik
+STR_CONFIG_SETTING_SPRITE_ZOOM_MIN_HELPTEXT                     :Begrænser den maksimale opløsning for sprites. Denne begrænsning vil forhindre brug af højopløsningsgrafik selv når den er tilgængelig. Dette kan bevare en ensartet fremtoning af spillet når der er en blanding af  NewGRF filer med og uden højopløsningsgrafik
 ###length 3
 STR_CONFIG_SETTING_SPRITE_ZOOM_LVL_MIN                          :4x
 STR_CONFIG_SETTING_SPRITE_ZOOM_LVL_IN_2X                        :2x
@@ -2090,6 +2091,8 @@ STR_CONFIG_SETTING_LARGER_TOWNS_VALUE                           :1 ud af {COMMA}
 STR_CONFIG_SETTING_LARGER_TOWNS_DISABLED                        :Ingen
 STR_CONFIG_SETTING_CITY_SIZE_MULTIPLIER                         :Startværdi for bystørrelsesfaktor: {STRING}
 STR_CONFIG_SETTING_CITY_SIZE_MULTIPLIER_HELPTEXT                :Gennemsnitlig størrelse af storbyer i forhold til normale byer ved start af spillet
+STR_CONFIG_SETTING_TOWN_MIN_DISTANCE                            :Minimumsafstand mellem byer: {STRING}
+STR_CONFIG_SETTING_TOWN_MIN_DISTANCE_HELPTEXT                   :Indstil minimumsafstanden i felter mellem byer for kortgenerering og tilfældig grundlæggelse
 
 STR_CONFIG_SETTING_LINKGRAPH_RECALC_INTERVAL                    :Opdater distributionsgraf hver {STRING}{NBSP}sekund{P 0:2 "" er}
 STR_CONFIG_SETTING_LINKGRAPH_RECALC_INTERVAL_HELPTEXT           :Tid mellem efterfølgende genberegninger af linkgrafen. Hver genberegning beregner planerne for én komponent af grafen. Det betyder, at en værdi X for denne indstilling ikke betyder, at hele grafen vil blive opdateret hvert X sekund. Kun en komponent vil. Jo kortere du indstiller det, jo mere CPU-tid vil være nødvendigt for at beregne det. Jo længere du indstiller det, jo længere tid vil det tage, før godsfordelingen starter på nye ruter
@@ -2882,15 +2885,15 @@ STR_PICKER_HOUSE_TYPE_TOOLTIP                                   :Vælg en hustyp
 STR_PICKER_HOUSE_COLLECTION_TOOLTIP                             :Vælg en samling af huse, der skal vises
 
 STR_HOUSE_PICKER_CAPTION                                        :Husvalg
-STR_HOUSE_PICKER_NAME                                           :{BLACK}Navn: {ORANGE}{STRING}
-STR_HOUSE_PICKER_POPULATION                                     :{BLACK}Befolkning: {ORANGE}{NUM}
-STR_HOUSE_PICKER_YEARS                                          :{BLACK}År: {ORANGE}{NUM}-{NUM}
-STR_HOUSE_PICKER_YEARS_ANY                                      :{BLACK}År: {ORANGE}Any
-STR_HOUSE_PICKER_YEARS_FROM                                     :{BLACK}År: {ORANGE}Fra {NUM}
-STR_HOUSE_PICKER_YEARS_UNTIL                                    :{BLACK}År: {ORANGE}til {NUM}
-STR_HOUSE_PICKER_SIZE                                           :{BLACK}Størrelse: {ORANGE}{NUM}x{NUM} fliser
-STR_HOUSE_PICKER_CARGO_ACCEPTED                                 :{BLACK}Gods accepteret: {ORANGE}
-STR_HOUSE_PICKER_CARGO_PRODUCED                                 :{BLACK}Produceret last: {ORANGE}{CARGO_LIST}
+STR_HOUSE_PICKER_NAME                                           :{BLACK}Navn: {GOLD}{STRING}
+STR_HOUSE_PICKER_POPULATION                                     :{BLACK}Befolkning: {GOLD}{NUM}
+STR_HOUSE_PICKER_YEARS                                          :{BLACK}År: {GOLD}{NUM}-{NUM}
+STR_HOUSE_PICKER_YEARS_ANY                                      :{BLACK}År: {GOLD}Any
+STR_HOUSE_PICKER_YEARS_FROM                                     :{BLACK}År: {GOLD}From {NUM}
+STR_HOUSE_PICKER_YEARS_UNTIL                                    :{BLACK}År: {GOLD}til {NUM}
+STR_HOUSE_PICKER_SIZE                                           :{BLACK}Størrelse: {GOLD}{NUM}x{NUM} fliser
+STR_HOUSE_PICKER_CARGO_ACCEPTED                                 :{BLACK}Last accepteret: {GOLD}{STRING}
+STR_HOUSE_PICKER_CARGO_PRODUCED                                 :{BLACK}Produceret last: {GOLD}{CARGO_LIST}
 
 STR_HOUSE_PICKER_CLASS_ZONE1                                    :Kant
 STR_HOUSE_PICKER_CLASS_ZONE2                                    :Udkant
@@ -3178,7 +3181,7 @@ STR_LAND_AREA_INFORMATION_AIRPORT_CLASS                         :{BLACK}Lufthavn
 STR_LAND_AREA_INFORMATION_AIRPORT_NAME                          :{BLACK}Lufthavns navn: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_AIRPORTTILE_NAME                      :{BLACK}Lufthavn brik navn: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_NEWGRF_NAME                           :{BLACK}NewGRF: {LTBLUE}{STRING}
-STR_LAND_AREA_INFORMATION_CARGO_ACCEPTED                        :{BLACK}Accepteret last: {LTBLUE}
+STR_LAND_AREA_INFORMATION_CARGO_ACCEPTED                        :{BLACK}Accepteret last: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_CARGO_EIGHTS                          :({COMMA}/8 {STRING})
 STR_LANG_AREA_INFORMATION_RAIL_TYPE                             :{BLACK}Tog type: {LTBLUE}{STRING}
 STR_LANG_AREA_INFORMATION_ROAD_TYPE                             :{BLACK}Vejtype: {LTBLUE}{STRING}
@@ -3641,7 +3644,7 @@ STR_NEWGRF_ERROR_INVALID_PARAMETER                              :Ugyldig paramet
 STR_NEWGRF_ERROR_LOAD_BEFORE                                    :{1:STRING} skal indlæses inden {STRING}.
 STR_NEWGRF_ERROR_LOAD_AFTER                                     :{1:STRING} skal indlæses efter {STRING}.
 STR_NEWGRF_ERROR_OTTD_VERSION_NUMBER                            :{1:STRING} kræver OpenTTD version {STRING} eller højere.
-STR_NEWGRF_ERROR_AFTER_TRANSLATED_FILE                          :GRF filen, som den er lavet til at oversætte,
+STR_NEWGRF_ERROR_AFTER_TRANSLATED_FILE                          : NewGRF filen, som den er lavet til at oversætte,
 STR_NEWGRF_ERROR_TOO_MANY_NEWGRFS_LOADED                        :For mange NewGRF sæt er indlæst.
 STR_NEWGRF_ERROR_STATIC_GRF_CAUSES_DESYNC                       :Indlæsning af {1:STRING} som statisk NewGRF med {STRING} kan forårsage de-sykronisering.
 STR_NEWGRF_ERROR_UNEXPECTED_SPRITE                              :Uventet sprite (sprite {3:NUM})
@@ -3650,7 +3653,7 @@ STR_NEWGRF_ERROR_INVALID_ID                                     :Forsøg på at 
 STR_NEWGRF_ERROR_CORRUPT_SPRITE                                 :{YELLOW}{STRING} indeholder en ødelagt sprite. Alle ødelagte sprites vil blive vist som et rødt spørgsmålstegn (?).
 STR_NEWGRF_ERROR_MULTIPLE_ACTION_8                              :Indeholder adskillige handling 8 indgange (sprite {3:NUM})
 STR_NEWGRF_ERROR_READ_BOUNDS                                    :Læste ud over slutningen af pseudo-sprite (sprite {3:NUM})
-STR_NEWGRF_ERROR_GRM_FAILED                                     :De ønskede GRF ressourcer er ikke tilgængelige (sprite {3:NUM})
+STR_NEWGRF_ERROR_GRM_FAILED                                     :De ønskede  NewGRF ressourcer er ikke tilgængelige (sprite {3:NUM})
 STR_NEWGRF_ERROR_FORCEFULLY_DISABLED                            :{1:STRING} blev deaktiveret af {2:STRING}
 STR_NEWGRF_ERROR_INVALID_SPRITE_LAYOUT                          :Ugyldigt/ukendt sprite layoutformat (sprite {3:NUM})
 STR_NEWGRF_ERROR_LIST_PROPERTY_TOO_LONG                         :For mange elementer i værdiliste for egenskab (sprite {3:NUM}, egenskab {4:HEX})
@@ -3661,12 +3664,12 @@ STR_NEWGRF_POPUP_CAUTION_CAPTION                                :{WHITE}Advarsel
 STR_NEWGRF_CONFIRMATION_TEXT                                    :{YELLOW}Du er ved at ændre et igangværende spil; dette kan få OpenTTD til at gå ned.{}Er du helt sikker på at du vil fortsætte?
 
 STR_NEWGRF_DUPLICATE_GRFID                                      :{WHITE}Kan ikke tilføje sæt: dobbelt GRF ID
-STR_NEWGRF_COMPATIBLE_LOADED                                    :{ORANGE}Tilsvarende fil ikke fundet (kompatibel GRF indlæst)
+STR_NEWGRF_COMPATIBLE_LOADED                                    :{ORANGE}Tilsvarende fil ikke fundet (kompatibel  NewGRF indlæst)
 STR_NEWGRF_TOO_MANY_NEWGRFS                                     :{WHITE}Kan ikke tilføje fil: Grænsen for antal NewGRF filer er nået
 
 STR_NEWGRF_COMPATIBLE_LOAD_WARNING                              :{WHITE}Kompatible GRF fil(er) indlæst i stedet for manglende fil(er)
 STR_NEWGRF_DISABLED_WARNING                                     :{WHITE}Manglende GRF fil(er) er blevet slået fra
-STR_NEWGRF_UNPAUSE_WARNING_TITLE                                :{YELLOW}Manglende GRF-fil(er)
+STR_NEWGRF_UNPAUSE_WARNING_TITLE                                :{YELLOW}Manglende  NewGRF-fil(er)
 STR_NEWGRF_UNPAUSE_WARNING                                      :{WHITE}OpenTTD kan gå ned, når spillet sættes i gang igen. Undlad at indsende fejlrapporter for efterfølgende nedbrud.{}Vil du virkelig sætte spillet i gang igen?
 
 # NewGRF status
@@ -3710,7 +3713,7 @@ STR_SIGN_LIST_MATCH_CASE                                        :{BLACK}Match st
 STR_SIGN_LIST_MATCH_CASE_TOOLTIP                                :{BLACK}Vis matchende stort/lille bogstav når der sammenlignes skiltenavne med filter teksten
 
 # Sign window
-STR_EDIT_SIGN_CAPTION                                           :{WHITE}Ændre skiltets tekst
+STR_EDIT_SIGN_CAPTION                                           :{WHITE}Rediger skilt
 STR_EDIT_SIGN_LOCATION_TOOLTIP                                  :{BLACK}Centrér skærmen ved skiltets placering. Ctrl+klik åbner et nyt vindue ved skiltets placering
 STR_EDIT_SIGN_NEXT_SIGN_TOOLTIP                                 :{BLACK}Gå til næste skilt
 STR_EDIT_SIGN_PREVIOUS_SIGN_TOOLTIP                             :{BLACK}Gå til forrige skilt
@@ -3928,14 +3931,14 @@ STR_CARGO_RATING_EXCELLENT                                      :Fortrinlig
 STR_CARGO_RATING_OUTSTANDING                                    :Enestående
 
 STR_STATION_VIEW_CENTER_TOOLTIP                                 :{BLACK}Centrer skærmen over stationens lokalitet. Ctrl+Klik åbner et nyt vindue ved stationens lokalitet.
-STR_STATION_VIEW_RENAME_TOOLTIP                                 :{BLACK}Ændre stationens navn
+STR_STATION_VIEW_EDIT_TOOLTIP                                   :{BLACK}Omdøb station eller flyt skilt
 
 STR_STATION_VIEW_SCHEDULED_TRAINS_TOOLTIP                       :{BLACK}Vis alle toge, som har denne station i deres ruteplan
 STR_STATION_VIEW_SCHEDULED_ROAD_VEHICLES_TOOLTIP                :{BLACK}Vis alle køretøjer, som har denne station i deres ruteplan
 STR_STATION_VIEW_SCHEDULED_AIRCRAFT_TOOLTIP                     :{BLACK}Vis alle fly, som har denne lufthavn i deres ruteplan
 STR_STATION_VIEW_SCHEDULED_SHIPS_TOOLTIP                        :{BLACK}Vis alle skibe, som har denne station i deres ruteplan
 
-STR_STATION_VIEW_RENAME_STATION_CAPTION                         :Omdøb stationen/fragtcentralen
+STR_STATION_VIEW_EDIT_STATION_SIGN                              :{WHITE}Rediger stationsskilt
 
 STR_STATION_VIEW_CLOSE_AIRPORT                                  :{BLACK}Luk lufthavn
 STR_STATION_VIEW_CLOSE_AIRPORT_TOOLTIP                          :{BLACK}Forhindre at fly lander i denne lufthavn
@@ -3943,11 +3946,11 @@ STR_STATION_VIEW_CLOSE_AIRPORT_TOOLTIP                          :{BLACK}Forhindr
 # Waypoint/buoy view window
 STR_WAYPOINT_VIEW_CAPTION                                       :{WHITE}{WAYPOINT}
 STR_WAYPOINT_VIEW_CENTER_TOOLTIP                                :{BLACK}Centrer skærmen over rutepunktets lokalitet. Ctrl+Klik åbner et nyt vindue ved rutepunktets lokalitet.
-STR_WAYPOINT_VIEW_CHANGE_WAYPOINT_NAME                          :{BLACK}Omdøb rutepunkt
+STR_WAYPOINT_VIEW_EDIT_TOOLTIP                                  :{BLACK}Omdøb rutepunkt eller flyt skilt
 STR_BUOY_VIEW_CENTER_TOOLTIP                                    :{BLACK}Centrér skærmen ved bøjens placering. Ctrl+klik åbner et nyt vindue ved bøjens placering
 STR_BUOY_VIEW_RENAME_TOOLTIP                                    :{BLACK}Ændr navnet på bøjen
 
-STR_EDIT_WAYPOINT_NAME                                          :{WHITE}Omdøb rutepunkt
+STR_WAYPOINT_VIEW_EDIT_WAYPOINT_SIGN                            :{WHITE}Rediger rutepunkt skilt
 
 # Finances window
 STR_FINANCES_CAPTION                                            :{WHITE}{COMPANY} Finanser {BLACK}{COMPANY_NUM}
@@ -4062,7 +4065,7 @@ STR_COMPANY_INFRASTRUCTURE_VIEW_TOTAL_PERIOD                    :{WHITE}{CURRENC
 # Industry directory
 STR_INDUSTRY_DIRECTORY_CAPTION                                  :{WHITE}Industrier ({COMMA} of {COMMA})
 STR_INDUSTRY_DIRECTORY_NONE                                     :{ORANGE}- Ingen -
-STR_INDUSTRY_DIRECTORY_ITEM_INFO                                :{BLACK}{CARGO_LONG}{STRING}{YELLOW} ({COMMA}% transporteret){BLACK}
+STR_INDUSTRY_DIRECTORY_ITEM_INFO                                :{BLACK}{CARGO_LONG}{STRING}{YELLOW} ({COMMA}% transporteret)
 STR_INDUSTRY_DIRECTORY_ITEM_NOPROD                              :{ORANGE}{INDUSTRY}
 STR_INDUSTRY_DIRECTORY_ITEM_PROD1                               :{ORANGE}{INDUSTRY} {STRING}
 STR_INDUSTRY_DIRECTORY_ITEM_PROD2                               :{ORANGE}{INDUSTRY} {STRING}, {STRING}
@@ -4085,9 +4088,9 @@ STR_INDUSTRY_VIEW_CARGO_GRAPH_TOOLTIP                           :{BLACK}Viser gr
 STR_INDUSTRY_VIEW_PRODUCTION_LEVEL                              :{BLACK}Produktions niveauet: {YELLOW}{COMMA}%
 STR_INDUSTRY_VIEW_INDUSTRY_ANNOUNCED_CLOSURE                    :{YELLOW}Industrien har rapporteret øjeblikkelig nedlukning!
 
-STR_INDUSTRY_VIEW_REQUIRES_N_CARGO                              :{BLACK}Kræver: {YELLOW}{STRING}{STRING}
-STR_INDUSTRY_VIEW_PRODUCES_N_CARGO                              :{BLACK}Producerer: {YELLOW}{STRING}{STRING}
-STR_INDUSTRY_VIEW_CARGO_LIST_EXTENSION                          :, {STRING}{STRING}
+STR_INDUSTRY_VIEW_REQUIRES_N_CARGO                              :{BLACK}Kræver: {YELLOW}{STRING}
+STR_INDUSTRY_VIEW_PRODUCES_N_CARGO                              :{BLACK}Producerer: {YELLOW}{STRING}
+STR_INDUSTRY_VIEW_CARGO_LIST_EXTENSION                          :{STRING}{STRING}
 
 STR_INDUSTRY_VIEW_REQUIRES                                      :{BLACK}Kræver:
 STR_INDUSTRY_VIEW_ACCEPT_CARGO_SUFFIX                           :{YELLOW}{0:STRING}{BLACK}{3:STRING}
@@ -4621,7 +4624,7 @@ STR_VEHICLE_DETAILS_TRAIN_CAPACITIES_TOOLTIP                    :{BLACK}Vis kapa
 STR_VEHICLE_DETAIL_TAB_TOTAL_CARGO                              :{BLACK}Samlet last
 STR_VEHICLE_DETAILS_TRAIN_TOTAL_CARGO_TOOLTIP                   :{BLACK}Vis total lasteevne på toget, fordelt på lasttyper
 
-STR_VEHICLE_DETAILS_TRAIN_ARTICULATED_RV_CAPACITY               :{BLACK}Kapacitet: {LTBLUE}
+STR_VEHICLE_DETAILS_TRAIN_ARTICULATED_RV_CAPACITY               :{BLACK}Kapacitet: {LTBLUE}{STRING}
 
 # Vehicle refit
 STR_REFIT_CAPTION                                               :{WHITE}{VEHICLE} (tilpas)
@@ -4734,6 +4737,7 @@ STR_ORDERS_SKIP_BUTTON                                          :{BLACK}Spring o
 STR_ORDERS_SKIP_TOOLTIP                                         :{BLACK}Spring over den aktuelle ordre, og start den næste. Ctrl+klik for at springe til den valgte rækkefølge
 
 STR_ORDERS_DELETE_BUTTON                                        :{BLACK}Slet
+STR_ORDERS_DELETE_ALL_BUTTON                                    :{BLACK}Slet Alt
 STR_ORDERS_DELETE_TOOLTIP                                       :{BLACK}Slet den markerede ordre
 STR_ORDERS_DELETE_ALL_TOOLTIP                                   :{BLACK}Slet alle ordrer
 STR_ORDERS_STOP_SHARING_BUTTON                                  :{BLACK}Ophør med at dele
@@ -5169,6 +5173,7 @@ STR_ERROR_TOO_MANY_TRUCK_STOPS                                  :{WHITE}For mang
 STR_ERROR_TOO_CLOSE_TO_ANOTHER_DOCK                             :{WHITE}For tæt på en anden havn
 STR_ERROR_TOO_CLOSE_TO_ANOTHER_AIRPORT                          :{WHITE}For tæt på en anden lufthavn
 STR_ERROR_CAN_T_RENAME_STATION                                  :{WHITE}Kan ikke omdøbe stationen...
+STR_ERROR_CAN_T_MOVE_STATION_NAME                               :{WHITE}Kan ikke flytte stationsskiltet...
 STR_ERROR_DRIVE_THROUGH_ON_TOWN_ROAD                            :{WHITE}... denne vej er ejet af en by
 STR_ERROR_DRIVE_THROUGH_DIRECTION                               :{WHITE}... vejen peger i den forkerte retning
 STR_ERROR_DRIVE_THROUGH_CORNER                                  :{WHITE}... drive-through stops kan ikke have hjørner
@@ -5200,6 +5205,7 @@ STR_ERROR_CAN_T_BUILD_RAIL_WAYPOINT                             :{WHITE}Kan ikke
 STR_ERROR_CAN_T_BUILD_ROAD_WAYPOINT                             :{WHITE}Kan ikke bygge rutepunkt her...
 STR_ERROR_CAN_T_POSITION_BUOY_HERE                              :{WHITE}Kan ikke placere en bøje her...
 STR_ERROR_CAN_T_CHANGE_WAYPOINT_NAME                            :{WHITE}Kan ikke omdøbe rutepunkt...
+STR_ERROR_CAN_T_MOVE_WAYPOINT_NAME                              :{WHITE}Kan ikke flytte rutepunkt skiltet...
 
 STR_ERROR_CAN_T_REMOVE_RAIL_WAYPOINT                            :{WHITE}Kan ikke fjerne rutepunkt for tog her...
 STR_ERROR_CAN_T_REMOVE_ROAD_WAYPOINT                            :{WHITE}Kan ikke fjerne rutepunkt...
@@ -5993,7 +5999,8 @@ STR_LORRY                                                       :{BLACK}{LORRY}
 STR_PLANE                                                       :{BLACK}{PLANE}
 STR_SHIP                                                        :{BLACK}{SHIP}
 
-STR_TOOLBAR_RAILTYPE_VELOCITY                                   :{STRING} ({VELOCITY})
+STR_TOOLBAR_RAILTYPE_VELOCITY                                   :{STRING} {YELLOW}({VELOCITY})
+STR_TOOLBAR_ROADTYPE_VELOCITY                                   :{STRING} {YELLOW}({VELOCITY})
 
 STR_BADGE_NAME_LIST                                             :{STRING}: {GOLD}{STRING}
 STR_BADGE_CONFIG_MENU_TOOLTIP                                   :Åbn badgekonfiguration

@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file newgrf_spritegroup.h Action 2 handling. */
@@ -78,7 +78,7 @@ DECLARE_ENUM_AS_BIT_SET(SpriteGroupFlags)
 /* Common wrapper for all the different sprite group types */
 struct SpriteGroup : SpriteGroupPool::PoolItem<&_spritegroup_pool> {
 protected:
-	SpriteGroup(SpriteGroupType type) : type(type) {}
+	SpriteGroup(SpriteGroupID index, SpriteGroupType type) : PoolItemBase(index), type(type) {}
 	/** Base sprite group resolver */
 	virtual const SpriteGroup *Resolve([[maybe_unused]] ResolverObject &object) const { return this; };
 
@@ -96,12 +96,33 @@ public:
 };
 
 
+/**
+ * Class defining some overloaded accessors so we don't have to cast SpriteGroups that often
+ */
+template <class T>
+struct SpecializedSpriteGroup : public SpriteGroup {
+	inline SpecializedSpriteGroup(SpriteGroupID index) : SpriteGroup(index, T::TYPE) {}
+
+	/**
+	 * Creates a new T-object in the SpriteGroup pool.
+	 * @param args... The arguments to the constructor.
+	 * @return The created object.
+	 */
+	template <typename... Targs>
+	static inline T *Create(Targs &&... args)
+	{
+		static_assert(std::is_final_v<T>);
+		return SpriteGroup::Create<T>(std::forward<Targs&&>(args)...);
+	}
+};
+
+
 /* 'Real' sprite groups contain a list of other result or callback sprite
  * groups. */
-struct RealSpriteGroup final : SpriteGroup {
+struct RealSpriteGroup final : SpecializedSpriteGroup<RealSpriteGroup> {
 	static constexpr SpriteGroupType TYPE = SGT_REAL;
 
-	RealSpriteGroup() : SpriteGroup(SGT_REAL) {}
+	RealSpriteGroup(SpriteGroupID index) : SpecializedSpriteGroup<RealSpriteGroup>(index) {}
 
 	/* Loaded = in motion, loading = not moving
 	 * Each group contains several spritesets, for various loading stages */
@@ -489,10 +510,10 @@ enum DeterministicSpriteGroupFlags : uint16_t {
 };
 DECLARE_ENUM_AS_BIT_SET(DeterministicSpriteGroupFlags)
 
-struct DeterministicSpriteGroup final : SpriteGroup {
+struct DeterministicSpriteGroup final : SpecializedSpriteGroup<DeterministicSpriteGroup> {
 	static constexpr SpriteGroupType TYPE = SGT_DETERMINISTIC;
 
-	DeterministicSpriteGroup() : SpriteGroup(SGT_DETERMINISTIC) {}
+	DeterministicSpriteGroup(SpriteGroupID index) : SpecializedSpriteGroup<DeterministicSpriteGroup>(index) {}
 
 	VarSpriteGroupScope var_scope{};
 	VarSpriteGroupScopeOffset var_scope_count{};
@@ -523,10 +544,10 @@ enum RandomizedSpriteGroupCompareMode : uint8_t {
 	RSG_CMP_ALL,
 };
 
-struct RandomizedSpriteGroup final : SpriteGroup {
+struct RandomizedSpriteGroup final : SpecializedSpriteGroup<RandomizedSpriteGroup> {
 	static constexpr SpriteGroupType TYPE = SGT_RANDOMIZED;
 
-	RandomizedSpriteGroup() : SpriteGroup(SGT_RANDOMIZED) {}
+	RandomizedSpriteGroup(SpriteGroupID index) : SpecializedSpriteGroup<RandomizedSpriteGroup>(index) {}
 
 	VarSpriteGroupScope var_scope{};  ///< Take this object:
 	VarSpriteGroupScopeOffset var_scope_count{};
@@ -546,15 +567,19 @@ extern bool _grfs_loaded_with_sg_shadow_enable;
 
 /* This contains a callback result. A failed callback has a value of
  * CALLBACK_FAILED */
-struct CallbackResultSpriteGroup final : SpriteGroup {
+struct CallbackResultSpriteGroup final : SpecializedSpriteGroup<CallbackResultSpriteGroup> {
 	static constexpr SpriteGroupType TYPE = SGT_CALLBACK;
 
 	/**
 	 * Creates a spritegroup representing a callback result
 	 * @param result The result as returned from TransformResultValue
 	 */
+	CallbackResultSpriteGroup(SpriteGroupID index, uint16_t result) :
+		SpecializedSpriteGroup<CallbackResultSpriteGroup>(index),
+		result(result) {}
+
 	CallbackResultSpriteGroup(uint16_t result) :
-		SpriteGroup(SGT_CALLBACK),
+		SpecializedSpriteGroup<CallbackResultSpriteGroup>(SpriteGroupID::Invalid()),
 		result(result) {}
 
 	/**
@@ -580,12 +605,12 @@ struct CallbackResultSpriteGroup final : SpriteGroup {
 struct CalculatedResultSpriteGroup final : SpriteGroup {
 	static constexpr SpriteGroupType TYPE = SGT_CALCULATED_RESULT;
 
-	CalculatedResultSpriteGroup() : SpriteGroup(SGT_CALCULATED_RESULT) {}
+	CalculatedResultSpriteGroup() : SpriteGroup(SpriteGroupID::Invalid(), SGT_CALCULATED_RESULT) {}
 };
 
 /* A result sprite group returns the first SpriteID and the number of
  * sprites in the set */
-struct ResultSpriteGroup final : SpriteGroup {
+struct ResultSpriteGroup final : SpecializedSpriteGroup<ResultSpriteGroup> {
 	static constexpr SpriteGroupType TYPE = SGT_RESULT;
 
 	/**
@@ -594,12 +619,10 @@ struct ResultSpriteGroup final : SpriteGroup {
 	 * @param num_sprites The number of sprites per set.
 	 * @return A spritegroup representing the sprite number result.
 	 */
-	ResultSpriteGroup(SpriteID sprite, uint8_t num_sprites) :
-		SpriteGroup(SGT_RESULT),
+	ResultSpriteGroup(SpriteGroupID index, SpriteID sprite, uint8_t num_sprites) :
+		SpecializedSpriteGroup<ResultSpriteGroup>(index),
 		num_sprites(num_sprites),
-		sprite(sprite)
-	{
-	}
+		sprite(sprite) {}
 
 	uint8_t num_sprites = 0;
 	SpriteID sprite = 0;
@@ -608,21 +631,20 @@ struct ResultSpriteGroup final : SpriteGroup {
 /**
  * Action 2 sprite layout for houses, industry tiles, objects and airport tiles.
  */
-struct TileLayoutSpriteGroup final : SpriteGroup {
+struct TileLayoutSpriteGroup final : SpecializedSpriteGroup<TileLayoutSpriteGroup> {
 	static constexpr SpriteGroupType TYPE = SGT_TILELAYOUT;
 
-	TileLayoutSpriteGroup() : SpriteGroup(SGT_TILELAYOUT) {}
-	~TileLayoutSpriteGroup() {}
+	TileLayoutSpriteGroup(SpriteGroupID index) : SpecializedSpriteGroup<TileLayoutSpriteGroup>(index) {}
 
 	NewGRFSpriteLayout dts{};
 
 	SpriteLayoutProcessor ProcessRegisters(uint8_t *stage) const;
 };
 
-struct IndustryProductionSpriteGroup final : SpriteGroup {
+struct IndustryProductionSpriteGroup final : SpecializedSpriteGroup<IndustryProductionSpriteGroup> {
 	static constexpr SpriteGroupType TYPE = SGT_INDUSTRY_PRODUCTION;
 
-	IndustryProductionSpriteGroup() : SpriteGroup(SGT_INDUSTRY_PRODUCTION) {}
+	IndustryProductionSpriteGroup(SpriteGroupID index) : SpecializedSpriteGroup<IndustryProductionSpriteGroup>(index) {}
 
 	uint8_t version = 0; ///< Production callback version used, or 0xFF if marked invalid
 	uint8_t num_input = 0; ///< How many subtract_input values are valid

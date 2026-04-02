@@ -14,7 +14,7 @@
 # This file is part of OpenTTD.
 # OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
 # OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
 
 
 ##id 0x0000
@@ -375,6 +375,7 @@ STR_SHOW_HIDDEN_ENGINES_VEHICLE_AIRCRAFT_TOOLTIP                :{BLACK}Ezzel a 
 STR_BUTTON_DEFAULT                                              :{BLACK}Alapértelmezett
 STR_BUTTON_CANCEL                                               :{BLACK}Mégsem
 STR_BUTTON_OK                                                   :{BLACK}OK
+STR_BUTTON_MOVE                                                 :{BLACK}Mozgatás
 
 # On screen keyboard window
 STR_OSK_KEYBOARD_LAYOUT                                         :0123456789öüóqwertzuiopőúasdfghjkléáűíyxcvbnm,.- .
@@ -1178,7 +1179,7 @@ STR_GAME_OPTIONS_BASE_GRF_TOOLTIP                               :A játékhoz ha
 STR_GAME_OPTIONS_BASE_GRF_DESCRIPTION_TOOLTIP                   :További információk a grafikus alapcsomagról
 
 STR_GAME_OPTIONS_BASE_SFX                                       :Hang alapcsomag
-STR_GAME_OPTIONS_BASE_SFX_TOOLTIP                               :Használandó hang alapcsomag kiválasztása (nem módosítható a játékban, csak a főmenüben)
+STR_GAME_OPTIONS_BASE_SFX_TOOLTIP                               :Használandó hang alapcsomag kiválasztása
 STR_GAME_OPTIONS_BASE_SFX_DESCRIPTION_TOOLTIP                   :További információk a hang alapcsomagról
 
 STR_GAME_OPTIONS_BASE_MUSIC                                     :Zenei alapcsomag
@@ -1311,7 +1312,7 @@ STR_CONFIG_SETTING_EXPAND_ALL                                   :Összes kibont�
 STR_CONFIG_SETTING_COLLAPSE_ALL                                 :Összes összecsukása
 STR_CONFIG_SETTING_RESET_ALL                                    :Összes érték visszaállítása
 STR_CONFIG_SETTING_NO_EXPLANATION_AVAILABLE_HELPTEXT            :(leírás nem elérhető)
-STR_CONFIG_SETTING_VALUE                                        :{PUSH_COLOUR}{ORANGE}{STRING}{POP_COLOUR}
+STR_CONFIG_SETTING_VALUE                                        :{ORANGE}{STRING}
 STR_CONFIG_SETTING_DEFAULT_VALUE                                :{LTBLUE}Alapértelmezett érték: {ORANGE}{STRING}
 STR_CONFIG_SETTING_TYPE                                         :{LTBLUE}Beállítás típusa: {ORANGE}{STRING}
 STR_CONFIG_SETTING_TYPE_CLIENT                                  :Kliens beállítás (mentésben nem tárolva; minden játékot befolyásol)
@@ -2154,6 +2155,8 @@ STR_CONFIG_SETTING_LARGER_TOWNS_VALUE                           :1 / {COMMA}
 STR_CONFIG_SETTING_LARGER_TOWNS_DISABLED                        :nincs
 STR_CONFIG_SETTING_CITY_SIZE_MULTIPLIER                         :Kezdeti városméret-szorzó: {STRING}
 STR_CONFIG_SETTING_CITY_SIZE_MULTIPLIER_HELPTEXT                :Átlagos városméret a normál településekhez képest a játék kezdetén
+STR_CONFIG_SETTING_TOWN_MIN_DISTANCE                            :Minimum távolság a települések között: {STRING}
+STR_CONFIG_SETTING_TOWN_MIN_DISTANCE_HELPTEXT                   :Térkép generálás és véletlenszerű település alapítása során a települések közötti minimális mezőtávolság megadása
 
 STR_CONFIG_SETTING_LINKGRAPH_RECALC_INTERVAL                    :Kapcsolatgrafikon frissítése minden {STRING}
 STR_CONFIG_SETTING_LINKGRAPH_RECALC_INTERVAL_HELPTEXT           :A kapcsolatgrafikon következő újrakalkulálása között eltelt idő. Minden újrakalkulálás során egy komponens tervei kerülnek kiszámításra. Ez azt jelenti, hogy az X érték beállítása nem jelenti azt, hogy az egész grafikon X másodpercenként frissül. Csak néhány komponens lesz frissítve. Minél rövidebbre van állítva, annál több CPU időre van szükség a kiszámításhoz. Ha hosszabbra van állítva, akkor hosszabb időbe telik, amíg az áruelosztás elkezdődik az új útvonalakon.
@@ -2946,15 +2949,15 @@ STR_PICKER_HOUSE_TYPE_TOOLTIP                                   :Válassz egy h�
 STR_PICKER_HOUSE_COLLECTION_TOOLTIP                             :Jelöljön ki egy ház kollekciót a megjelenítéshez
 
 STR_HOUSE_PICKER_CAPTION                                        :Ház kiválasztása
-STR_HOUSE_PICKER_NAME                                           :{BLACK}Név: {ORANGE}{STRING}
-STR_HOUSE_PICKER_POPULATION                                     :{BLACK}Lakosság: {ORANGE}{NUM}
-STR_HOUSE_PICKER_YEARS                                          :{BLACK}Év: {ORANGE}{NUM}-{NUM}
-STR_HOUSE_PICKER_YEARS_ANY                                      :{BLACK}Év: {ORANGE}Bármelyik
-STR_HOUSE_PICKER_YEARS_FROM                                     :{BLACK}Év: {ORANGE}{NUM} óta
-STR_HOUSE_PICKER_YEARS_UNTIL                                    :{BLACK}Év: {ORANGE}{NUM}-ig
-STR_HOUSE_PICKER_SIZE                                           :{BLACK}Méret: {ORANGE}{NUM}x{NUM} négyzet
-STR_HOUSE_PICKER_CARGO_ACCEPTED                                 :{BLACK}Rakomány elfogadva: {ORANGE}
-STR_HOUSE_PICKER_CARGO_PRODUCED                                 :{BLACK}Előállított rakomány: {ORANGE}{CARGO_LIST}
+STR_HOUSE_PICKER_NAME                                           :{BLACK}Név: {GOLD}{STRING}
+STR_HOUSE_PICKER_POPULATION                                     :{BLACK}Lakosság: {GOLD}{NUM}
+STR_HOUSE_PICKER_YEARS                                          :{BLACK}Év: {GOLD}{NUM}-{NUM}
+STR_HOUSE_PICKER_YEARS_ANY                                      :{BLACK}Év: {GOLD}Bármelyik
+STR_HOUSE_PICKER_YEARS_FROM                                     :{BLACK}Év: {GOLD}{NUM} óta
+STR_HOUSE_PICKER_YEARS_UNTIL                                    :{BLACK}Év: {GOLD}{NUM}-ig
+STR_HOUSE_PICKER_SIZE                                           :{BLACK}Méret: {GOLD}{NUM}x{NUM} négyzet
+STR_HOUSE_PICKER_CARGO_ACCEPTED                                 :{BLACK}Rakomány elfogadva: {GOLD}{STRING}
+STR_HOUSE_PICKER_CARGO_PRODUCED                                 :{BLACK}Előállított rakomány: {GOLD}{CARGO_LIST}
 
 STR_HOUSE_PICKER_CLASS_ZONE1                                    :Szél
 STR_HOUSE_PICKER_CLASS_ZONE2                                    :Külváros
@@ -3242,7 +3245,7 @@ STR_LAND_AREA_INFORMATION_AIRPORT_CLASS                         :{BLACK}Repülő
 STR_LAND_AREA_INFORMATION_AIRPORT_NAME                          :{BLACK}Repülőtér név: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_AIRPORTTILE_NAME                      :{BLACK}Repülőtér mező név: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_NEWGRF_NAME                           :{BLACK}NewGRF: {LTBLUE}{STRING}
-STR_LAND_AREA_INFORMATION_CARGO_ACCEPTED                        :{BLACK}Elfogad: {LTBLUE}
+STR_LAND_AREA_INFORMATION_CARGO_ACCEPTED                        :{BLACK}Elfogad: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_CARGO_EIGHTS                          :({COMMA}/8 {STRING})
 STR_LANG_AREA_INFORMATION_RAIL_TYPE                             :{BLACK}Vasút típusa: {LTBLUE}{STRING}
 STR_LANG_AREA_INFORMATION_ROAD_TYPE                             :{BLACK}Út típusa: {LTBLUE}{STRING}
@@ -3705,7 +3708,7 @@ STR_NEWGRF_ERROR_INVALID_PARAMETER                              :Hibás paramét
 STR_NEWGRF_ERROR_LOAD_BEFORE                                    :{1:STRING} muszáj, hogy betöltődjön ezelőtt: {2:STRING}
 STR_NEWGRF_ERROR_LOAD_AFTER                                     :{1:STRING} muszáj, hogy ezután töltődjön be: {2:STRING}
 STR_NEWGRF_ERROR_OTTD_VERSION_NUMBER                            :{1:STRING} csak a {2:STRING} vagy újabb verziójú OpenTTD-vel működik
-STR_NEWGRF_ERROR_AFTER_TRANSLATED_FILE                          :az adott GRF fájl célja egy másik lefordítása
+STR_NEWGRF_ERROR_AFTER_TRANSLATED_FILE                          :az adott NewGRF fájl célja egy másik lefordítása
 STR_NEWGRF_ERROR_TOO_MANY_NEWGRFS_LOADED                        :Túl sok NewGRF van betöltve
 STR_NEWGRF_ERROR_STATIC_GRF_CAUSES_DESYNC                       :{1:STRING} betöltése mint statikus NewGRF {2:STRING} mellett ütközést okozhat
 STR_NEWGRF_ERROR_UNEXPECTED_SPRITE                              :Váratlan sprite (sprite {3:NUM})
@@ -3714,7 +3717,7 @@ STR_NEWGRF_ERROR_INVALID_ID                                     :Érvénytelen I
 STR_NEWGRF_ERROR_CORRUPT_SPRITE                                 :{YELLOW}{STRING} hibás sprite-ot tartalmaz. Minden hibás sprite piros kérdőjellel (?) kerül jelölésre
 STR_NEWGRF_ERROR_MULTIPLE_ACTION_8                              :Több Action 8 bejegyzést tartalmaz (sprite {3:NUM})
 STR_NEWGRF_ERROR_READ_BOUNDS                                    :Ál-sprite távoli végének olvasása (sprite {3:NUM})
-STR_NEWGRF_ERROR_GRM_FAILED                                     :Kért GRF források nem elérhetőek (sprite {3:NUM})
+STR_NEWGRF_ERROR_GRM_FAILED                                     :Kért NewGRF erforrások nem elérhetőek (sprite {3:NUM})
 STR_NEWGRF_ERROR_FORCEFULLY_DISABLED                            :{1:STRING} kikapcsolva {STRING} által
 STR_NEWGRF_ERROR_INVALID_SPRITE_LAYOUT                          :Érvénytelen/ismeretlen sprite szerkezet formátum (sprite {3:NUM})
 STR_NEWGRF_ERROR_LIST_PROPERTY_TOO_LONG                         :Túl sok érték a tulajdonságlistában (sprite {3:NUM}, property {4:HEX})
@@ -3725,12 +3728,12 @@ STR_NEWGRF_POPUP_CAUTION_CAPTION                                :{WHITE}Figyelem
 STR_NEWGRF_CONFIRMATION_TEXT                                    :{YELLOW}Te éppen egy jelenleg futó játékon akarsz változtatni; ettől elszállhat az OpenTTD. Ezekről ne tegyél hibajelentést.{}Teljesen biztos vagy ebben?
 
 STR_NEWGRF_DUPLICATE_GRFID                                      :{WHITE}Nem lehetséges a fájl hozzáadása: duplikált GRF azonosító
-STR_NEWGRF_COMPATIBLE_LOADED                                    :{ORANGE}Pontosan megegyező fájlt nem találtam (kompatibilis GRF-fel helyettesítve)
+STR_NEWGRF_COMPATIBLE_LOADED                                    :{ORANGE} Egyező fájlt nem található (kompatibilis NewGRF-fel helyettesítve)
 STR_NEWGRF_TOO_MANY_NEWGRFS                                     :{WHITE}Nem adhatod hozzá: Elérted a NewGRF fájlok maximális számát
 
 STR_NEWGRF_COMPATIBLE_LOAD_WARNING                              :{WHITE}Kompatibilis GRFek betöltve a hiányzó fájlok helyett
 STR_NEWGRF_DISABLED_WARNING                                     :{WHITE}Hiányzó GRF fájlokat kikapcsoltam
-STR_NEWGRF_UNPAUSE_WARNING_TITLE                                :{YELLOW}Hiányzó GRF fájlok
+STR_NEWGRF_UNPAUSE_WARNING_TITLE                                :{YELLOW}Hiányzó NewGRF fájl(ok)
 STR_NEWGRF_UNPAUSE_WARNING                                      :{WHITE}A játék folytatásától az OpenTTD lefagyhat.{}Ne jelentsd be az ismétlődő lefagyásokat egyesével.{}Biztosan folytatni akarod?
 
 # NewGRF status
@@ -3774,7 +3777,7 @@ STR_SIGN_LIST_MATCH_CASE                                        :{BLACK}Kis- és
 STR_SIGN_LIST_MATCH_CASE_TOOLTIP                                :{BLACK}Kis- és nagybetűk megkülönböztetése a feliratok szövegei és a szűrő kulcsszó összehasonlítása közben
 
 # Sign window
-STR_EDIT_SIGN_CAPTION                                           :{WHITE}Felirat szerkesztése
+STR_EDIT_SIGN_CAPTION                                           :{WHITE}Tábla szerkesztése
 STR_EDIT_SIGN_LOCATION_TOOLTIP                                  :{BLACK}A fő nézetet a felirat helyére állítja. Ctrl+kattintással új nézet nyílik a felirat helyzeténél
 STR_EDIT_SIGN_NEXT_SIGN_TOOLTIP                                 :{BLACK}Következő felirat
 STR_EDIT_SIGN_PREVIOUS_SIGN_TOOLTIP                             :{BLACK}Előző felirat
@@ -3992,14 +3995,14 @@ STR_CARGO_RATING_EXCELLENT                                      :kiváló
 STR_CARGO_RATING_OUTSTANDING                                    :kimagasló
 
 STR_STATION_VIEW_CENTER_TOOLTIP                                 :{BLACK}A fő nézetet az állomásra állítja. Ctrl+kattintással új nézet nyílik az állomás helyzeténél
-STR_STATION_VIEW_RENAME_TOOLTIP                                 :{BLACK}Az állomás nevének megváltoztatása
+STR_STATION_VIEW_EDIT_TOOLTIP                                   :{BLACK}Nevezze át az állomást vagy mozgassa a táblát
 
 STR_STATION_VIEW_SCHEDULED_TRAINS_TOOLTIP                       :{BLACK}Kilistázza az összes vonatot, aminek a menetrendjében szerepel ez az állomás
 STR_STATION_VIEW_SCHEDULED_ROAD_VEHICLES_TOOLTIP                :{BLACK}Kilistázza az összes közúti járművet, aminek a menetrendjében szerepel ez az állomás
 STR_STATION_VIEW_SCHEDULED_AIRCRAFT_TOOLTIP                     :{BLACK}Kilistázza az összes repülőt, aminek a menetrendjében szerepel ez az állomás
 STR_STATION_VIEW_SCHEDULED_SHIPS_TOOLTIP                        :{BLACK}Kilistázza az összes hajót, aminek a menetrendjében szerepel ez az állomás
 
-STR_STATION_VIEW_RENAME_STATION_CAPTION                         :Állomás/rakodóhely átnevezése
+STR_STATION_VIEW_EDIT_STATION_SIGN                              :{WHITE}Állomás tábla szerkesztése
 
 STR_STATION_VIEW_CLOSE_AIRPORT                                  :{BLACK}Reptér bezárása
 STR_STATION_VIEW_CLOSE_AIRPORT_TOOLTIP                          :{BLACK}Repülőgép leszállásának megakadályozása ezen a reptéren
@@ -4007,11 +4010,11 @@ STR_STATION_VIEW_CLOSE_AIRPORT_TOOLTIP                          :{BLACK}Repülő
 # Waypoint/buoy view window
 STR_WAYPOINT_VIEW_CAPTION                                       :{WHITE}{WAYPOINT}
 STR_WAYPOINT_VIEW_CENTER_TOOLTIP                                :{BLACK}A fő nézetet az ellenőrzőpontra állítja. Ctrl+kattintással új nézet nyílik az ellenőrzőpontnál
-STR_WAYPOINT_VIEW_CHANGE_WAYPOINT_NAME                          :{BLACK}Ellenőrzőpont nevének megváltoztatása
+STR_WAYPOINT_VIEW_EDIT_TOOLTIP                                  :{BLACK}Nevezze át az ellenőrző pontot vagy mozgassa el a táblát
 STR_BUOY_VIEW_CENTER_TOOLTIP                                    :{BLACK}A fő nézetet a bójára állítja. Ctrl+kattintással új nézet nyílik a bója helyzeténél
 STR_BUOY_VIEW_RENAME_TOOLTIP                                    :{BLACK}Bója nevének megváltoztatása
 
-STR_EDIT_WAYPOINT_NAME                                          :{WHITE}Ellenőrző pont nevének módosítása
+STR_WAYPOINT_VIEW_EDIT_WAYPOINT_SIGN                            :{WHITE}Ellenőrzőpont tábla szerkesztése
 
 # Finances window
 STR_FINANCES_CAPTION                                            :{WHITE}{COMPANY} pénzügyei {BLACK}{COMPANY_NUM}
@@ -4126,7 +4129,7 @@ STR_COMPANY_INFRASTRUCTURE_VIEW_TOTAL_PERIOD                    :{WHITE}{CURRENC
 # Industry directory
 STR_INDUSTRY_DIRECTORY_CAPTION                                  :{WHITE}Gazdasági épületek ({COMMA}, {COMMA})
 STR_INDUSTRY_DIRECTORY_NONE                                     :{ORANGE}- Nincs -
-STR_INDUSTRY_DIRECTORY_ITEM_INFO                                :{BLACK}{CARGO_LONG}{STRING}{YELLOW} ({COMMA}% elszállítva){BLACK}
+STR_INDUSTRY_DIRECTORY_ITEM_INFO                                :{BLACK}{CARGO_LONG}{STRING}{YELLOW} ({COMMA}% elszállítva)
 STR_INDUSTRY_DIRECTORY_ITEM_NOPROD                              :{ORANGE}{INDUSTRY}
 STR_INDUSTRY_DIRECTORY_ITEM_PROD1                               :{ORANGE}{INDUSTRY} {STRING}
 STR_INDUSTRY_DIRECTORY_ITEM_PROD2                               :{ORANGE}{INDUSTRY} {STRING}, {STRING}
@@ -4149,9 +4152,9 @@ STR_INDUSTRY_VIEW_CARGO_GRAPH_TOOLTIP                           :{BLACK}Megmutat
 STR_INDUSTRY_VIEW_PRODUCTION_LEVEL                              :{BLACK}Termelési szint: {YELLOW}{COMMA}%
 STR_INDUSTRY_VIEW_INDUSTRY_ANNOUNCED_CLOSURE                    :{YELLOW}A gyár bejelentette a közelgő bezárását!
 
-STR_INDUSTRY_VIEW_REQUIRES_N_CARGO                              :{BLACK}Elfogad: {YELLOW}{STRING}{STRING}
-STR_INDUSTRY_VIEW_PRODUCES_N_CARGO                              :{BLACK}Termel: {YELLOW}{STRING}{STRING}
-STR_INDUSTRY_VIEW_CARGO_LIST_EXTENSION                          :, {STRING}{STRING}
+STR_INDUSTRY_VIEW_REQUIRES_N_CARGO                              :{BLACK}Elfogad: {YELLOW}{STRING}
+STR_INDUSTRY_VIEW_PRODUCES_N_CARGO                              :{BLACK}Termel: {YELLOW}{STRING}
+STR_INDUSTRY_VIEW_CARGO_LIST_EXTENSION                          :{STRING}{STRING}
 
 STR_INDUSTRY_VIEW_REQUIRES                                      :{BLACK}Elfogad:
 STR_INDUSTRY_VIEW_ACCEPT_CARGO_SUFFIX                           :{YELLOW}{0:STRING}{BLACK}{3:STRING}
@@ -4685,7 +4688,7 @@ STR_VEHICLE_DETAILS_TRAIN_CAPACITIES_TOOLTIP                    :{BLACK}Az egyes
 STR_VEHICLE_DETAIL_TAB_TOTAL_CARGO                              :{BLACK}Teljes rakomány
 STR_VEHICLE_DETAILS_TRAIN_TOTAL_CARGO_TOOLTIP                   :{BLACK}Megmutatja a vonat teljes kapacitását, rakománytípusokra lebontva
 
-STR_VEHICLE_DETAILS_TRAIN_ARTICULATED_RV_CAPACITY               :{BLACK}Kapacitás: {LTBLUE}
+STR_VEHICLE_DETAILS_TRAIN_ARTICULATED_RV_CAPACITY               :{BLACK}Kapacitás: {LTBLUE}{STRING}
 
 # Vehicle refit
 STR_REFIT_CAPTION                                               :{WHITE}{VEHICLE} átalakítása
@@ -4798,6 +4801,7 @@ STR_ORDERS_SKIP_BUTTON                                          :{BLACK}Kihagy
 STR_ORDERS_SKIP_TOOLTIP                                         :{BLACK}Jelenlegi utasítás átugrása, és a következő aktiválása. Ctrl+kattintásra a kiválasztott utasításra ugrik
 
 STR_ORDERS_DELETE_BUTTON                                        :{BLACK}Töröl
+STR_ORDERS_DELETE_ALL_BUTTON                                    :{BLACK}Összes törlése
 STR_ORDERS_DELETE_TOOLTIP                                       :{BLACK}A kijelölt utasítás törlése
 STR_ORDERS_DELETE_ALL_TOOLTIP                                   :{BLACK}Összes utasítás törlése
 STR_ORDERS_STOP_SHARING_BUTTON                                  :{BLACK}Megosztás vége
@@ -5233,6 +5237,7 @@ STR_ERROR_TOO_MANY_TRUCK_STOPS                                  :{WHITE}Túl sok
 STR_ERROR_TOO_CLOSE_TO_ANOTHER_DOCK                             :{WHITE}Túl közel van egy másik kikötőhöz
 STR_ERROR_TOO_CLOSE_TO_ANOTHER_AIRPORT                          :{WHITE}Túl közel van egy másik repülőtérhez
 STR_ERROR_CAN_T_RENAME_STATION                                  :{WHITE}Nem nevezheted át az állomást...
+STR_ERROR_CAN_T_MOVE_STATION_NAME                               :{WHITE}Az állomás tábla nem mozgatható
 STR_ERROR_DRIVE_THROUGH_ON_TOWN_ROAD                            :{WHITE}... városi tulajdonban lévő út
 STR_ERROR_DRIVE_THROUGH_DIRECTION                               :{WHITE}... az út a másik irányba vezet
 STR_ERROR_DRIVE_THROUGH_CORNER                                  :{WHITE}... áthaladó megállóhelyeken nem lehet kanyar
@@ -5264,6 +5269,7 @@ STR_ERROR_CAN_T_BUILD_RAIL_WAYPOINT                             :{WHITE}Ide nem 
 STR_ERROR_CAN_T_BUILD_ROAD_WAYPOINT                             :{WHITE}Ide nem lehet útpontot építeni...
 STR_ERROR_CAN_T_POSITION_BUOY_HERE                              :{WHITE}Nem rakhatsz ide bóját...
 STR_ERROR_CAN_T_CHANGE_WAYPOINT_NAME                            :{WHITE}Nem lehet megváltoztatni az ellenőrző pont nevét...
+STR_ERROR_CAN_T_MOVE_WAYPOINT_NAME                              :{WHITE}Az ellenőrzőpont tábla nem mozgatható...
 
 STR_ERROR_CAN_T_REMOVE_RAIL_WAYPOINT                            :{WHITE}Nem lehet eltávolítani az ellenőrző pontot...
 STR_ERROR_CAN_T_REMOVE_ROAD_WAYPOINT                            :{WHITE}Nem lehet innen útpontot eltávolítani...
@@ -6098,7 +6104,8 @@ STR_LORRY                                                       :{BLACK}{LORRY}
 STR_PLANE                                                       :{BLACK}{PLANE}
 STR_SHIP                                                        :{BLACK}{SHIP}
 
-STR_TOOLBAR_RAILTYPE_VELOCITY                                   :{STRING} ({VELOCITY})
+STR_TOOLBAR_RAILTYPE_VELOCITY                                   :{STRING} {YELLOW}({VELOCITY})
+STR_TOOLBAR_ROADTYPE_VELOCITY                                   :{STRING} {YELLOW}({VELOCITY})
 
 STR_BADGE_NAME_LIST                                             :{STRING}: {GOLD}{STRING}
 STR_BADGE_CONFIG_MENU_TOOLTIP                                   :Jelvény beállítások megnyitása

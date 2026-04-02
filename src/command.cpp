@@ -2,20 +2,18 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file command.cpp Handling of commands. */
-
-#define CMD_DEFINE
 
 #include "stdafx.h"
 #include "landscape.h"
 #include "error.h"
 #include "gui.h"
 #include "command_func.h"
-#include "command_serialisation.h"
 #include "command_settings_type.h"
+#include "command_table.h"
 #include "network/network_type.h"
 #include "network/network.h"
 #include "genworld.h"
@@ -40,309 +38,11 @@
 #include "order_backup.h"
 #include "core/checksum_func.hpp"
 #include "3rdparty/cpp-ring-buffer/ring_buffer.hpp"
-#include "3rdparty/nlohmann/json.hpp"
-#include "3rdparty/fmt/std.h"
 #include <array>
-#include <typeinfo>
-
-#include "autoreplace_cmd.h"
-#include "company_cmd.h"
-#include "depot_cmd.h"
-#include "engine_cmd.h"
-#include "goal_cmd.h"
-#include "group_cmd.h"
-#include "industry_cmd.h"
-#include "landscape_cmd.h"
-#include "league_cmd.h"
-#include "misc_cmd.h"
-#include "news_cmd.h"
-#include "object_cmd.h"
-#include "order_cmd.h"
-#include "plans_cmd.h"
-#include "programmable_signals_cmd.h"
-#include "rail_cmd.h"
-#include "road_cmd.h"
-#include "settings_cmd.h"
-#include "signs_cmd.h"
-#include "station_cmd.h"
-#include "story_cmd.h"
-#include "subsidy_cmd.h"
-#include "tbtr_template_vehicle_cmd.h"
-#include "terraform_cmd.h"
-#include "timetable_cmd.h"
-#include "town_cmd.h"
-#include "tracerestrict_cmd.h"
-#include "train_cmd.h"
-#include "tree_cmd.h"
-#include "tunnelbridge_cmd.h"
-#include "vehicle_cmd.h"
-#include "viewport_cmd.h"
-#include "water_cmd.h"
-#include "waypoint_cmd.h"
 
 #include "table/strings.h"
 
 #include "safeguards.h"
-
-using CommandExecTrampoline = CommandCost(const CommandExecData &);
-
-template <typename T, CommandProcDirect<T> proc, bool no_tile>
-static constexpr CommandExecTrampoline *MakeTrampoline()
-{
-	return [](const CommandExecData &exec_data) -> CommandCost
-	{
-		const T &data = static_cast<const T &>(exec_data.payload);
-		return proc(exec_data.flags, exec_data.tile, data);
-	};
-}
-
-template <typename T, CommandProcDirectNoTile<T> proc, bool no_tile>
-static constexpr CommandExecTrampoline *MakeTrampoline()
-{
-	return [](const CommandExecData &exec_data) -> CommandCost
-	{
-		const T &data = static_cast<const T &>(exec_data.payload);
-		return proc(exec_data.flags, data);
-	};
-}
-
-template <bool no_tile, typename F, typename T, size_t... Tindices>
-CommandCost CommandExecTrampolineTuple(F proc, TileIndex tile, DoCommandFlags flags, const T &payload, std::index_sequence<Tindices...>)
-{
-	if constexpr (no_tile) {
-		return proc(flags, std::get<Tindices>(payload.GetValues())...);
-	} else {
-		return proc(flags, tile, std::get<Tindices>(payload.GetValues())...);
-	}
-}
-
-template <typename T, auto &proc, bool no_tile, typename = std::enable_if_t<std::is_base_of_v<BaseTupleCmdDataTag, T>>>
-static constexpr CommandExecTrampoline *MakeTrampoline()
-{
-	return [](const CommandExecData &exec_data) -> CommandCost
-	{
-		const T &data = static_cast<const T &>(exec_data.payload);
-		return CommandExecTrampolineTuple<no_tile>(proc, exec_data.tile, exec_data.flags, data, std::make_index_sequence<std::tuple_size_v<typename T::Tuple>>{});
-	};
-}
-
-template <typename T>
-static constexpr CommandPayloadDeserialiser *MakePayloadDeserialiser()
-{
-	return [](DeserialisationBuffer &buffer, StringValidationSettings default_string_validation) -> std::unique_ptr<CommandPayloadBase>
-	{
-		auto payload = std::make_unique<T>();
-		if (!payload->Deserialise(buffer, default_string_validation)) payload = nullptr;
-		return payload;
-	};
-}
-
-enum CommandIntlFlags : uint8_t {
-	CIF_NONE                = 0x0, ///< no flag is set
-	CIF_NO_OUTPUT_TILE      = 0x1, ///< command does not take a tile at the output side (omit when logging)
-};
-DECLARE_ENUM_AS_BIT_SET(CommandIntlFlags)
-
-struct CommandInfo {
-	CommandExecTrampoline *exec;                      ///< Command proc exec trampoline function
-	CommandPayloadDeserialiser *payload_deserialiser; ///< Command payload deserialiser
-	const std::type_info &payload_type_info;          ///< Command payload type info
-	const char *name;                                 ///< A human readable name for the procedure
-	CommandFlags flags;                               ///< The (command) flags to that apply to this command
-	CommandType type;                                 ///< The type of command
-	CommandIntlFlags intl_flags;                      ///< Internal flags
-};
-
-/* Helpers to generate the master command table from the command traits. */
-template <typename T, typename H>
-inline constexpr CommandInfo CommandFromTrait() noexcept
-{
-	using Payload = typename T::PayloadType;
-	static_assert(std::is_final_v<Payload>);
-	return { MakeTrampoline<Payload, H::proc, T::output_no_tile>(), MakePayloadDeserialiser<Payload>(), typeid(Payload), H::name, T::flags, T::type, T::output_no_tile ? CIF_NO_OUTPUT_TILE : CIF_NONE };
-};
-
-template <typename T, T... i>
-inline constexpr auto MakeCommandsFromTraits(std::integer_sequence<T, i...>) noexcept {
-	return std::array<CommandInfo, sizeof...(i)>{{ CommandFromTrait<CommandTraits<static_cast<Commands>(i)>, CommandHandlerTraits<static_cast<Commands>(i)>>()... }};
-}
-
-/**
- * The master command table
- *
- * This table contains all possible CommandProc functions with
- * the flags which belongs to it. The indices are the same
- * as the value from the CMD_* enums.
- */
-static constexpr auto _command_proc_table = MakeCommandsFromTraits(std::make_integer_sequence<std::underlying_type_t<Commands>, CMD_END>{});
-
-
-/**
- * Define a callback function for the client, after the command is finished.
- *
- * Functions of this type are called after the command is finished. The parameters
- * are from the #CommandProc callback type. The boolean parameter indicates if the
- * command succeeded or failed.
- *
- * @param result The result of the executed command
- * @param cmd Executed command ID
- * @param tile The tile of the command action
- * @param payload Command payload
- */
-using GeneralCommandCallback = void(const CommandCost &result, Commands cmd, TileIndex tile, const CommandPayloadBase &payload, CallbackParameter param);
-using ResultTileCommandCallback = void(const CommandCost &result, TileIndex tile);
-using ResultCommandCallback = void(const CommandCost &result);
-
-template <typename T>
-using ResultPayloadCommandCallback = void(const CommandCost &result, const T &payload);
-
-using CommandCallbackTrampoline = bool(const CommandCost &result, Commands cmd, TileIndex tile, const CommandPayloadBase &payload, CallbackParameter param);
-
-template <CommandCallback Tcb> struct CommandCallbackTraits;
-
-#define DEF_CB_GENERAL(cb_) \
-GeneralCommandCallback Cc ## cb_; \
-template <> struct CommandCallbackTraits<CommandCallback::cb_> { \
-	static constexpr CommandCallbackTrampoline *handler = [](const CommandCost &result, Commands cmd, TileIndex tile, const CommandPayloadBase &payload, CallbackParameter param) { \
-		Cc ## cb_(result, cmd, tile, payload, param); \
-		return true; \
-	}; \
-};
-
-#define DEF_CB_RES_TILE(cb_) \
-ResultTileCommandCallback Cc ## cb_; \
-template <> struct CommandCallbackTraits<CommandCallback::cb_> { \
-	static constexpr CommandCallbackTrampoline *handler = [](const CommandCost &result, Commands cmd, TileIndex tile, const CommandPayloadBase &payload, CallbackParameter param) { \
-		Cc ## cb_(result, tile); \
-		return true; \
-	}; \
-};
-
-#define DEF_CB_RES(cb_) \
-ResultCommandCallback Cc ## cb_; \
-template <> struct CommandCallbackTraits<CommandCallback::cb_> { \
-	static constexpr CommandCallbackTrampoline *handler = [](const CommandCost &result, Commands cmd, TileIndex tile, const CommandPayloadBase &payload, CallbackParameter param) { \
-		Cc ## cb_(result); \
-		return true; \
-	}; \
-};
-
-#define DEF_CB_RES_PAYLOAD(cb_, cmd_) \
-ResultPayloadCommandCallback<CmdPayload<cmd_>> Cc ## cb_; \
-template <> struct CommandCallbackTraits<CommandCallback::cb_> { \
-	static constexpr CommandCallbackTrampoline *handler = [](const CommandCost &result, Commands cmd, TileIndex tile, const CommandPayloadBase &payload, CallbackParameter param) { \
-		Cc ## cb_(result, static_cast<const CmdPayload<cmd_> &>(payload)); \
-		return true; \
-	}; \
-};
-
-template <Commands Tcmd, typename S> struct CommandCallbackTupleHelper;
-
-template <Commands Tcmd, typename... Targs>
-struct CommandCallbackTupleHelper<Tcmd, std::tuple<Targs...>> {
-	using ResultTupleCommandCallback = void(const CommandCost &, typename CommandProcTupleAdapter::with_ref_params<std::remove_cvref_t<Targs>>...);
-	using ResultTileTupleCommandCallback = void(const CommandCost &, TileIndex, typename CommandProcTupleAdapter::with_ref_params<std::remove_cvref_t<Targs>>...);
-
-	static inline bool ResultExecute(ResultTupleCommandCallback *cb, Commands cmd, const CommandCost &result, const CommandPayloadBase &payload)
-	{
-		if (cmd != Tcmd) return false;
-		auto handler = [&]<size_t... Tindices>(std::index_sequence<Tindices...>) {
-			cb(result, std::get<Tindices>(static_cast<const CmdPayload<Tcmd> &>(payload).GetValues())...);
-		};
-		handler(std::index_sequence_for<Targs...>{});
-		return true;
-	}
-
-	static inline bool ResultTileExecute(ResultTileTupleCommandCallback *cb, Commands cmd, const CommandCost &result, TileIndex tile, const CommandPayloadBase &payload)
-	{
-		if (cmd != Tcmd) return false;
-		auto handler = [&]<size_t... Tindices>(std::index_sequence<Tindices...>) {
-			cb(result, tile, std::get<Tindices>(static_cast<const CmdPayload<Tcmd> &>(payload).GetValues())...);
-		};
-		handler(std::index_sequence_for<Targs...>{});
-		return true;
-	}
-};
-
-#define DEF_CB_RES_TUPLE(cb_, cmd_) \
-namespace cmd_detail { using cc_helper_ ## cb_ = CommandCallbackTupleHelper<cmd_, std::remove_cvref_t<decltype(std::declval<CmdPayload<cmd_>>().GetValues())>>; } \
-typename cmd_detail::cc_helper_ ## cb_ ::ResultTupleCommandCallback Cc ## cb_; \
-template <> struct CommandCallbackTraits<CommandCallback::cb_> { \
-	static constexpr CommandCallbackTrampoline *handler = [](const CommandCost &result, Commands cmd, TileIndex tile, const CommandPayloadBase &payload, CallbackParameter param) { \
-		return cmd_detail::cc_helper_ ## cb_ ::ResultExecute(Cc ## cb_, cmd, result, payload); \
-	}; \
-};
-
-#define DEF_CB_RES_TILE_TUPLE(cb_, cmd_) \
-namespace cmd_detail { using cc_helper_ ## cb_ = CommandCallbackTupleHelper<cmd_, std::remove_cvref_t<decltype(std::declval<CmdPayload<cmd_>>().GetValues())>>; } \
-typename cmd_detail::cc_helper_ ## cb_ ::ResultTileTupleCommandCallback Cc ## cb_; \
-template <> struct CommandCallbackTraits<CommandCallback::cb_> { \
-	static constexpr CommandCallbackTrampoline *handler = [](const CommandCost &result, Commands cmd, TileIndex tile, const CommandPayloadBase &payload, CallbackParameter param) { \
-		return cmd_detail::cc_helper_ ## cb_ ::ResultTileExecute(Cc ## cb_, cmd, result, tile, payload); \
-	}; \
-};
-
-DEF_CB_RES(BuildPrimaryVehicle)
-DEF_CB_RES_TILE(BuildAirport)
-DEF_CB_RES_TILE_TUPLE(BuildBridge, CMD_BUILD_BRIDGE)
-DEF_CB_RES_TILE(PlaySound_CONSTRUCTION_WATER)
-DEF_CB_RES_TILE(BuildDocks)
-DEF_CB_RES_TILE(FoundTown)
-DEF_CB_RES_TILE(BuildRoadTunnel)
-DEF_CB_RES_TILE(BuildRailTunnel)
-DEF_CB_RES_TILE(BuildWagon)
-DEF_CB_RES_TILE_TUPLE(RoadDepot, CMD_BUILD_ROAD_DEPOT)
-DEF_CB_RES_TILE_TUPLE(RailDepot, CMD_BUILD_TRAIN_DEPOT)
-DEF_CB_RES(PlaceSign)
-DEF_CB_RES_TILE(PlaySound_EXPLOSION)
-DEF_CB_RES_TILE(PlaySound_CONSTRUCTION_OTHER)
-DEF_CB_RES_TILE(PlaySound_CONSTRUCTION_RAIL)
-DEF_CB_RES_TILE(Station)
-DEF_CB_RES_TILE(Terraform)
-DEF_CB_GENERAL(AI)
-DEF_CB_RES(CloneVehicle)
-DEF_CB_RES_TUPLE(GiveMoney, CMD_GIVE_MONEY)
-DEF_CB_RES_TUPLE(CreateGroup, CMD_CREATE_GROUP)
-DEF_CB_RES(FoundRandomTown)
-DEF_CB_RES_TILE_TUPLE(RoadStop, CMD_BUILD_ROAD_STOP)
-DEF_CB_RES_TUPLE(StartStopVehicle, CMD_START_STOP_VEHICLE)
-DEF_CB_GENERAL(Game)
-DEF_CB_RES(AddVehicleNewGroup)
-DEF_CB_RES_PAYLOAD(InsertOrder, CMD_INSERT_ORDER)
-DEF_CB_RES_TUPLE(InsertOrdersFromVehicle, CMD_INSERT_ORDERS_FROM_VEH)
-DEF_CB_RES(AddPlan)
-DEF_CB_RES(SetVirtualTrain)
-DEF_CB_RES(VirtualTrainWagonsMoved)
-DEF_CB_RES_TUPLE(DeleteVirtualTrain, CMD_SELL_VIRTUAL_VEHICLE)
-DEF_CB_RES(AddVirtualEngine)
-DEF_CB_RES(MoveNewVirtualEngine)
-DEF_CB_RES_TUPLE(AddNewSchDispatchSchedule, CMD_SCH_DISPATCH_ADD_NEW_SCHEDULE)
-DEF_CB_RES_TUPLE(SwapSchDispatchSchedules, CMD_SCH_DISPATCH_SWAP_SCHEDULES)
-DEF_CB_RES_TUPLE(AdjustSchDispatch, CMD_SCH_DISPATCH_ADJUST)
-DEF_CB_RES_TUPLE(AdjustSchDispatchSlot, CMD_SCH_DISPATCH_ADJUST_SLOT)
-DEF_CB_RES(CreateTraceRestrictSlot)
-DEF_CB_RES(CreateTraceRestrictCounter)
-
-template <size_t... i>
-inline constexpr auto MakeCommandCallbackTable(std::index_sequence<i...>) noexcept {
-	return std::array<CommandCallbackTrampoline *, sizeof...(i)>{{ CommandCallbackTraits<static_cast<CommandCallback>(i + 1)>::handler... }};
-}
-
-/**
- * The master callback table
- *
- * No entry for CommandCallback::None, so length reduced by 1.
- */
-static constexpr auto _command_callback_table = MakeCommandCallbackTable(std::make_index_sequence<static_cast<size_t>(CommandCallback::End) - 1>{});
-
-static void ExecuteCallback(CommandCallback callback, CallbackParameter callback_param, const CommandCost &result, Commands cmd, TileIndex tile, const CommandPayloadBase &payload)
-{
-	if (callback != CommandCallback::None && to_underlying(callback) < to_underlying(CommandCallback::End)) {
-		if (_command_callback_table[to_underlying(callback) - 1](result, cmd, tile, payload, callback_param)) return;
-	}
-
-	Debug(misc, 0, "Failed to execute callback: {}, {}", callback, payload);
-}
 
 ClientID _cmd_client_id = INVALID_CLIENT_ID;
 
@@ -546,14 +246,14 @@ bool IsCommandAllowedWhilePaused(Commands cmd)
 bool IsCorrectCommandPayloadType(Commands cmd, const CommandPayloadBase &payload)
 {
 	assert(IsValidCommand(cmd));
-	return typeid(payload) == _command_proc_table[cmd].payload_type_info;
+	return &payload.GetOperations() == &_command_proc_table[cmd].operations;
 }
 
 static int _docommand_recursive = 0;
 
 /**
- * This function executes a given command with the parameters from the #CommandProc parameter list.
- * Depending on the flags parameter it execute or test a command.
+ * This function executes a given command with the parameters from the command payload.
+ * Depending on the flags parameter it executes or tests a command.
  *
  * @param cmd The command-id to execute (a value of the CMD_* enums)
  * @param tile The tile to apply the command on
@@ -569,7 +269,7 @@ CommandCost DoCommandImplementation(Commands cmd, TileIndex tile, const CommandP
 	FunctorScopeStackRecord scope_print([=, &payload](format_target &output) {
 		output.format("DoCommand: tile: {}, flags: 0x{:X}, intl_flags: 0x{:X}, company: {}, cmd: 0x{:X} {}, payload: ",
 				tile, flags, intl_flags, CompanyInfoDumper(_current_company), cmd, GetCommandName(cmd));
-		payload.FormatDebugSummary(output);
+		payload.fmt_format_value(output);
 	});
 #endif
 
@@ -625,7 +325,7 @@ CommandCost DoCommandImplementation(Commands cmd, TileIndex tile, const CommandP
 
 	/* if toplevel, subtract the money. */
 	if (--_docommand_recursive == 0 && !flags.Test(DoCommandFlag::Bankrupt)) {
-		SubtractMoneyFromCompany(res);
+		SubtractMoneyFromCompany(_current_company, res);
 	}
 
 	return res;
@@ -648,7 +348,7 @@ static void AppendCommandLogEntry(const CommandCost &res, TileIndex tile, Comman
 	CommandLog &cmd_log = GetCommandFlags(cmd).Test(CommandFlag::LogAux) ? _command_log_aux : _command_log;
 
 	format_buffer summary;
-	payload.FormatDebugSummary(summary);
+	payload.fmt_format_value(summary);
 	if (res.HasAnyResultData()) {
 		summary.format(" --> {}", res.GetUntypedResultData());
 	}
@@ -679,32 +379,6 @@ static void AppendCommandLogEntry(const CommandCost &res, TileIndex tile, Comman
 }
 
 /**
- * Set client ID for this command payload using the field returned by Payload::GetClientIDField().
- * This provided payload must have already been type-checked as valid for cmd.
- * Not many commands set CMD_CLIENT_ID so a series of ifs is not too onerous.
- */
-void SetPreCheckedCommandPayloadClientID(Commands cmd, CommandPayloadBase &payload, ClientID client_id)
-{
-	static_assert(INVALID_CLIENT_ID == (ClientID)0);
-
-	auto cmd_check = [&]<Commands Tcmd>() -> bool {
-		if constexpr (CommandTraits<Tcmd>::flags.Test(CommandFlag::ClientID)) {
-			if (cmd == Tcmd) {
-				SetCommandPayloadClientID(static_cast<CmdPayload<Tcmd> &>(payload), client_id);
-				return true;
-			}
-		}
-		return false;
-	};
-
-	using Tseq = std::underlying_type_t<Commands>;
-	auto cmd_loop = [&]<Tseq... Tindices>(std::integer_sequence<Tseq, Tindices...>) {
-		(cmd_check.template operator()<static_cast<Commands>(Tindices)>() || ...);
-	};
-	cmd_loop(std::make_integer_sequence<Tseq, static_cast<Tseq>(CMD_END)>{});
-}
-
-/**
  * Toplevel network safe docommand function for the current company. Must not be called recursively.
  * The callback is called when the command succeeded or failed.
  *
@@ -724,7 +398,7 @@ bool DoCommandPImplementation(Commands cmd, TileIndex tile, const CommandPayload
 	FunctorScopeStackRecord scope_print([=, &orig_payload](format_target &output) {
 		output.format("DoCommandP: tile: {}, intl_flags: 0x{:X}, company: {}, cmd: 0x{:X} {}, payload: ",
 				tile, intl_flags, CompanyInfoDumper(_current_company), cmd, GetCommandName(cmd));
-		orig_payload.FormatDebugSummary(output);
+		orig_payload.fmt_format_value(output);
 	});
 #endif
 
@@ -760,7 +434,7 @@ bool DoCommandPImplementation(Commands cmd, TileIndex tile, const CommandPayload
 		return false;
 	}
 
-	std::unique_ptr<CommandPayloadBase> modified_payload;
+	CommandPayloadBaseUniquePtr modified_payload;
 	const CommandPayloadBase *use_payload = &orig_payload;
 
 	/* Only set client ID when the command does not come from the network. */
@@ -809,7 +483,8 @@ bool DoCommandPImplementation(Commands cmd, TileIndex tile, const CommandPayload
 	}
 
 	if (!estimate_only && !only_sending && callback != CommandCallback::None) {
-		ExecuteCallback(callback, callback_param, res, cmd, tile, *use_payload);
+		extern void ExecuteCommandCallback(CommandCallback callback, CallbackParameter callback_param, const CommandCost &result, Commands cmd, TileIndex tile, const CommandPayloadBase &payload);
+		ExecuteCommandCallback(callback, callback_param, res, cmd, tile, *use_payload);
 	}
 
 	return res.Succeeded();
@@ -942,7 +617,7 @@ CommandCost DoCommandPInternal(Commands cmd, TileIndex tile, const CommandPayloa
 		format_buffer buffer;
 		buffer.format("Random seed changed in test command: company: {:02x}; tile: {:06x} ({} x {}); cmd: {:03x}; {}; payload: ",
 				_current_company, tile, TileX(tile), TileY(tile), cmd, GetCommandName(cmd));
-		payload.FormatDebugSummary(buffer);
+		payload.fmt_format_value(buffer);
 		Debug(desync, 0, "msg: {}; {}", debug_date_dumper().HexDate(), buffer);
 		LogDesyncMsg(buffer.to_string());
 	}
@@ -1047,7 +722,7 @@ CommandCost DoCommandPInternal(Commands cmd, TileIndex tile, const CommandPayloa
 		if (c != nullptr) c->last_build_coordinate = tile;
 	}
 
-	SubtractMoneyFromCompany(res2);
+	SubtractMoneyFromCompany(_current_company, res2);
 	if (_networking) UpdateStateChecksum(res2.GetCost());
 
 	/* update signals if needed */
@@ -1062,24 +737,10 @@ CommandCost DoCommandPInternal(Commands cmd, TileIndex tile, const CommandPayloa
 
 CommandLargeResultBase::~CommandLargeResultBase() {}
 
-CommandCost::CommandCost(const CommandCost &other)
+void CommandCost::CopyFromHandleAuxiliary()
 {
-	*this = other;
-}
-
-CommandCost &CommandCost::operator=(const CommandCost &other)
-{
-	this->cost = other.cost;
-	this->expense_type = other.expense_type;
-	this->flags = other.flags;
-	this->owner = other.owner;
-	this->message = other.message;
-	if (other.GetInlineType() == CommandCostInlineType::AuxiliaryData) {
-		this->inl.aux_data = new CommandCostAuxiliaryData(*other.inl.aux_data);
-	} else {
-		this->inl = other.inl;
-	}
-	return *this;
+	/* Clone auxiliary data after CommandCost copy init/assignment */
+	this->inl.aux_data = new CommandCostAuxiliaryData(*this->inl.aux_data);
 }
 
 /**
@@ -1273,7 +934,14 @@ const char *DynBaseCommandContainer::Deserialise(DeserialisationBuffer &buffer)
 
 	uint16_t payload_size = buffer.Recv_uint16();
 	size_t expected_offset = buffer.GetDeserialisationPosition() + payload_size;
-	this->payload = _command_proc_table[this->cmd].payload_deserialiser(buffer, default_settings);
+	const CommandInfo &cmdinfo = _command_proc_table[this->cmd];
+	if (cmdinfo.payload_deserialiser != nullptr) {
+		this->payload = cmdinfo.payload_deserialiser(buffer, default_settings);
+	} else {
+		/* Simple path for deserialisation */
+		extern CommandPayloadBaseUniquePtr DeserialiseSimpleCommandPayload(const CommandPayloadBase::Operations &ops, DeserialisationBuffer &buffer, StringValidationSettings default_string_validation);
+		this->payload = DeserialiseSimpleCommandPayload(cmdinfo.operations, buffer, default_settings);
+	}
 	if (this->payload == nullptr || expected_offset != buffer.GetDeserialisationPosition()) return "failed to deserialise command payload";
 
 	return nullptr;

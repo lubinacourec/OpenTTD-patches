@@ -2,13 +2,13 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /**
- * @file saveload.cpp
- * All actions handling saving and loading goes on in this file. The general actions
- * are as follows for saving a game (loading is analogous):
+ * @file saveload.cpp All actions handling saving and loading goes on in this file.
+ *
+ * The general actions are as follows for saving a game (loading is analogous):
  * <ol>
  * <li>initialize the writer by creating a temporary memory-buffer for it
  * <li>go through all to-be saved elements, each 'chunk' (#ChunkHandler) prefixed by a label
@@ -888,6 +888,7 @@ static void SlString(void *ptr, size_t length, VarType conv)
 			}
 
 			size_t len = SlReadArrayLength();
+			char *str = nullptr;
 
 			switch (GetVarMemType(conv)) {
 				default: NOT_REACHED();
@@ -901,14 +902,14 @@ static void SlString(void *ptr, size_t length, VarType conv)
 						*(char **)ptr = nullptr;
 						return;
 					} else {
-						*(char **)ptr = MallocT<char>(len + 1); // terminating '\0'
-						ptr = *(char **)ptr;
-						SlCopyBytes(ptr, len);
+						str = MallocT<char>(len + 1); // terminating '\0'
+						*(char **)ptr = str;
+						SlCopyBytesRead(str, len);
+						str[len] = '\0'; // properly terminate the string
 					}
 					break;
 			}
 
-			((char *)ptr)[len] = '\0'; // properly terminate the string
 			StringValidationSettings settings = StringValidationSetting::ReplaceWithQuestionMark;
 			if ((conv & SLF_ALLOW_CONTROL) != 0) {
 				settings.Set(StringValidationSetting::AllowControlCode);
@@ -919,7 +920,7 @@ static void SlString(void *ptr, size_t length, VarType conv)
 			if ((conv & SLF_REPLACE_TABCRLF) != 0) {
 				settings.Set(StringValidationSetting::ReplaceTabCrNlWithSpace);
 			}
-			StrMakeValidInPlace((char *)ptr, (char *)ptr + len, settings);
+			StrMakeValidInPlace(str, str + len, settings);
 			break;
 		}
 		case SLA_PTRS: break;
@@ -1829,7 +1830,7 @@ std::vector<SaveLoad> SlTableHeader(const SaveLoadTable &slt)
 					}
 
 					/* We don't know this field, so read to nothing. */
-					saveloads.emplace_back(std::move(key), saveload_type, ((VarType)type & SLE_FILE_TYPE_MASK) | SLE_VAR_NULL, 1, SL_MIN_VERSION, SL_MAX_VERSION, nullptr, 0, std::move(handler));
+					saveloads.push_back({ std::move(key), saveload_type, static_cast<VarType>(((VarType)type & SLE_FILE_TYPE_MASK) | SLE_VAR_NULL), 1, SL_MIN_VERSION, SL_MAX_VERSION, { .address = nullptr }, std::move(handler) });
 					continue;
 				}
 
@@ -1936,7 +1937,7 @@ std::vector<SaveLoad> SlCompatTableHeader(const SaveLoadTable &slt, const SaveLo
 			/* In old savegames there can be data we no longer care for. We
 			 * skip this by simply reading the amount of bytes indicated and
 			 * send those to /dev/null. */
-			saveloads.emplace_back("", SL_NULL, GetVarFileType(slc.null_type) | SLE_VAR_NULL, slc.null_length, slc.version_from, slc.version_to, nullptr, 0, nullptr);
+			saveloads.push_back({ "", SL_NULL, static_cast<VarType>(GetVarFileType(slc.null_type) | SLE_VAR_NULL), slc.null_length, slc.version_from, slc.version_to, { .address = nullptr }, nullptr });
 		} else {
 			auto sld_it = key_lookup.find(slc.name);
 			/* If this branch triggers, it means that an entry in the

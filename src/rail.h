@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file rail.h Rail specific functions. */
@@ -13,10 +13,8 @@
 #include "rail_type.h"
 #include "track_type.h"
 #include "gfx_type.h"
-#include "core/bitmath_func.hpp"
 #include "core/enum_type.hpp"
 #include "core/flatset_type.hpp"
-#include "economy_func.h"
 #include "slope_type.h"
 #include "strings_type.h"
 #include "date_type.h"
@@ -537,28 +535,8 @@ inline Money RailConvertCost(RailType from, RailType to)
 	return rebuildcost;
 }
 
-/**
- * Calculates the maintenance cost of a number of track bits.
- * @param railtype The railtype to get the cost of.
- * @param num Number of track bits of this railtype.
- * @param total_num Total number of track bits of all railtypes.
- * @return Total cost.
- */
-inline Money RailMaintenanceCost(RailType railtype, uint32_t num, uint32_t total_num)
-{
-	dbg_assert(railtype < RAILTYPE_END);
-	return (_price[PR_INFRASTRUCTURE_RAIL] * GetRailTypeInfo(railtype)->maintenance_multiplier * num * (1 + IntSqrt(total_num))) >> 11; // 4 bits fraction for the multiplier and 7 bits scaling.
-}
-
-/**
- * Calculates the maintenance cost of a number of signals.
- * @param num Number of signals.
- * @return Total cost.
- */
-inline Money SignalMaintenanceCost(uint32_t num)
-{
-	return (_price[PR_INFRASTRUCTURE_RAIL] * 15 * num * (1 + IntSqrt(num))) >> 8; // 1 bit fraction for the multiplier and 7 bits scaling.
-}
+Money RailMaintenanceCost(RailType railtype, uint32_t num, uint32_t total_num);
+Money SignalMaintenanceCost(uint32_t num);
 
 void MarkSingleSignalDirty(TileIndex tile, Trackdir td);
 void MarkSingleSignalDirtyAtZ(TileIndex tile, Trackdir td, bool opposite_side, uint z);

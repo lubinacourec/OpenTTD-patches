@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file stdafx.h Definition of base types and functions in a cross-platform compatible way. */
@@ -210,7 +210,7 @@
  * inlining. However, the performance benefit can be enormous; when forcing
  * inlining for the previously mentioned top 5, the debug build ran about 15%
  * quicker.
- * The following debug_inline annotation may be added to functions comply
+ * The following debug_inline attribute may be added to functions comply
  * with the following preconditions:
  *  1: the function takes more than 0.5% of a profiled debug runtime
  *  2: the function does not modify the game state
@@ -218,7 +218,7 @@
  *     i.e. no if, switch, for, do, while, etcetera.
  *  4: the function is one line of code, excluding assertions.
  *  5: the function is defined in a header file.
- * The debug_inline annotation must be placed in front of the function, i.e.
+ * The debug_inline attribute must be placed in front of the function, i.e.
  * before the optional static or constexpr modifier.
  */
 #if !defined(_DEBUG) || defined(NO_DEBUG_INLINE)
@@ -226,16 +226,16 @@
  * Do not force inlining when not in debug. This way we do not work against
  * any carefully designed compiler optimizations.
  */
-#define debug_inline inline
+#define debug_inline
 #elif defined(__clang__) || defined(__GNUC__)
-#define debug_inline [[gnu::always_inline]] inline
+#define debug_inline gnu::always_inline
 #else
 /*
  * MSVC explicitly disables inlining, even forced inlining, in debug builds
  * so __forceinline makes no difference compared to inline. Other unknown
  * compilers can also just fallback to a normal inline.
  */
-#define debug_inline inline
+#define debug_inline
 #endif
 
 /* This is already defined in unix, but not in QNX Neutrino (6.x) or Cygwin. */
@@ -293,9 +293,8 @@ char (&ArraySizeHelper(T (&array)[N]))[N];
  */
 #define lastof(x) (&x[lengthof(x) - 1])
 
-#define cpp_offsetof(s, m)   (((size_t)&reinterpret_cast<const volatile char&>((((s*)(char*)8)->m))) - 8)
 #if !defined(offsetof)
-#	define offsetof(s, m) cpp_offsetof(s, m)
+#	define offsetof(s, m) (((size_t)&reinterpret_cast<const volatile char&>((((s*)(char*)8)->m))) - 8)
 #endif /* offsetof */
 
 /**
@@ -343,6 +342,12 @@ inline void builtin_assume(bool condition)
 	if (!condition) __builtin_unreachable();
 #endif
 }
+
+#if defined(__has_builtin)
+#define HAS_BUILTIN(...) __has_builtin(__VA_ARGS__)
+#else
+#define HAS_BUILTIN(...) 0
+#endif
 
 #if defined(__GNUC__) || defined(__clang__)
 __attribute__((aligned(1))) typedef uint16_t unaligned_uint16;
@@ -413,27 +418,6 @@ inline void free(const void *ptr)
 {
 	free(const_cast<void *>(ptr));
 }
-
-#if defined(_MSC_VER) && !defined(_DEBUG)
-#	define IGNORE_UNINITIALIZED_WARNING_START __pragma(warning(push)) __pragma(warning(disable:4700))
-#	define IGNORE_UNINITIALIZED_WARNING_STOP __pragma(warning(pop))
-#elif defined(__GNUC__) && !defined(_DEBUG)
-#	define HELPER0(x) #x
-#	define HELPER1(x) HELPER0(GCC diagnostic ignored x)
-#	define HELPER2(y) HELPER1(#y)
-#if (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6))
-#	define IGNORE_UNINITIALIZED_WARNING_START \
-		_Pragma("GCC diagnostic push") \
-		_Pragma(HELPER2(-Wuninitialized)) \
-		_Pragma(HELPER2(-Wmaybe-uninitialized))
-#	define IGNORE_UNINITIALIZED_WARNING_STOP _Pragma("GCC diagnostic pop")
-#endif
-#endif
-
-#ifndef IGNORE_UNINITIALIZED_WARNING_START
-#	define IGNORE_UNINITIALIZED_WARNING_START
-#	define IGNORE_UNINITIALIZED_WARNING_STOP
-#endif
 
 /**
  * Using _mm_prefetch() with gcc implies the compile flag -msse.

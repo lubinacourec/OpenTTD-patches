@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file linkgraphjob.cpp Definition of link graph job classes used for cargo distribution. */
@@ -36,9 +36,11 @@ static ScaledTickCounter GetLinkGraphJobJoinTick(uint duration_multiplier)
  * Create a link graph job from a link graph. The link graph will be copied so
  * that the calculations don't interfere with the normal operations on the
  * original. The job is immediately started.
+ * @param index Index into the LinkGraphJob pool.
  * @param orig Original LinkGraph to be copied.
  */
-LinkGraphJob::LinkGraphJob(const LinkGraph &orig, uint duration_multiplier) :
+LinkGraphJob::LinkGraphJob(LinkGraphJobID index, const LinkGraph &orig, uint duration_multiplier) :
+		PoolItemBase(index),
 		/* Copying the link graph here also copies its index member.
 		 * This is on purpose. */
 		link_graph(orig),

@@ -2,10 +2,10 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
-/** @file linkgraph_sl.cpp Code handling saving and loading of link graphs */
+/** @file linkgraph_sl.cpp Code handling saving and loading of link graphs. */
 
 #include "../stdafx.h"
 
@@ -223,7 +223,7 @@ struct LGRPChunkHandler : ChunkHandler {
 
 		int index;
 		while ((index = SlIterateArray()) != -1) {
-			LinkGraph *lg = new (LinkGraphID(index)) LinkGraph();
+			LinkGraph *lg = LinkGraph::CreateAtIndex(LinkGraphID(index));
 			SlObject(lg, slt);
 		}
 	}
@@ -251,7 +251,7 @@ struct LGRJChunkHandler : ChunkHandler {
 
 		int index;
 		while ((index = SlIterateArray()) != -1) {
-			LinkGraphJob *lgj = new (LinkGraphJobID(index)) LinkGraphJob();
+			LinkGraphJob *lgj = LinkGraphJob::CreateAtIndex(LinkGraphJobID(index));
 			SlObject(lgj, slt);
 
 			GetLinkGraphJobDayLengthScaleAfterLoad(lgj);

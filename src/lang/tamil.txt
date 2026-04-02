@@ -13,7 +13,7 @@
 # This file is part of OpenTTD.
 # OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
 # OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
 
 
 ##id 0x0000
@@ -2778,7 +2778,7 @@ STR_LAND_AREA_INFORMATION_AIRPORT_CLASS                         :{BLACK}வி�
 STR_LAND_AREA_INFORMATION_AIRPORT_NAME                          :{BLACK}விமான நிலைய பெயர்: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_AIRPORTTILE_NAME                      :{BLACK}விமான நிலைய பெயர்: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_NEWGRF_NAME                           :{BLACK}NewGRF: {LTBLUE}{STRING}
-STR_LAND_AREA_INFORMATION_CARGO_ACCEPTED                        :{BLACK}ஏற்றுக்கொள்ளப்படும் சரக்குகள்: {LTBLUE}
+STR_LAND_AREA_INFORMATION_CARGO_ACCEPTED                        :{BLACK}ஏற்றுக்கொள்ளப்படும் சரக்குகள்: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_CARGO_EIGHTS                          :({COMMA}/8 {STRING})
 STR_LANG_AREA_INFORMATION_RAIL_TYPE                             :{BLACK}இரயில் வகை: {LTBLUE}{STRING}
 STR_LANG_AREA_INFORMATION_ROAD_TYPE                             :{BLACK}சாலை வகை: {LTBLUE}{STRING}
@@ -3432,24 +3432,20 @@ STR_CARGO_RATING_EXCELLENT                                      :சிறப்
 STR_CARGO_RATING_OUTSTANDING                                    :மிகச்சிறப்பு
 
 STR_STATION_VIEW_CENTER_TOOLTIP                                 :{BLACK}நிலைய இருப்பிடத்தின் மையக் காட்சி. Ctrl + Click நிலைய இருப்பிடத்தில் புதிய காட்சிப்பலகையைத் திறக்கிறது
-STR_STATION_VIEW_RENAME_TOOLTIP                                 :{BLACK}நிலையத்தின் பெயரை மாற்று
 
 STR_STATION_VIEW_SCHEDULED_TRAINS_TOOLTIP                       :{BLACK}இந்த நிலையத்தினை அட்டவணையில் வைத்துள்ள அனைத்து இரயில்களையும் காட்டு
 STR_STATION_VIEW_SCHEDULED_ROAD_VEHICLES_TOOLTIP                :{BLACK}இந்த நிலையத்தினை அட்டவணையில் வைத்துள்ள அனைத்து சாலை வாகனங்களையும் காட்டு
 STR_STATION_VIEW_SCHEDULED_AIRCRAFT_TOOLTIP                     :{BLACK}இந்த நிலையத்தினை அட்டவணையில் வைத்துள்ள அனைத்து விமானங்களையும் காட்டு
 STR_STATION_VIEW_SCHEDULED_SHIPS_TOOLTIP                        :{BLACK}இந்த நிலையத்தினை அட்டவணையில் வைத்துள்ள அனைத்து கப்பல்களையும் காட்டு
 
-STR_STATION_VIEW_RENAME_STATION_CAPTION                         :நிலையம்/சரக்கேற்றும் பகுதியின் பெயரினை மாற்றவும்
 
 STR_STATION_VIEW_CLOSE_AIRPORT                                  :{BLACK}விமான நிலையத்தினை மூடு
 STR_STATION_VIEW_CLOSE_AIRPORT_TOOLTIP                          :{BLACK}விமானத்தை இந்த விமான நிலையத்தில் தரையிரங்க அனுமதிக்காதே
 
 # Waypoint/buoy view window
 STR_WAYPOINT_VIEW_CAPTION                                       :{WHITE}{WAYPOINT}
-STR_WAYPOINT_VIEW_CHANGE_WAYPOINT_NAME                          :{BLACK}பாதைப்புள்ளியின் பெயரை மாற்று
 STR_BUOY_VIEW_RENAME_TOOLTIP                                    :{BLACK}மிதவையின் பெயரை மாற்று
 
-STR_EDIT_WAYPOINT_NAME                                          :{WHITE}பாதைப்புள்ளியின் பெயரை திருத்து
 
 # Finances window
 STR_FINANCES_CAPTION                                            :{WHITE}{COMPANY} நிதிநிலைமை {BLACK}{COMPANY_NUM}
@@ -3560,7 +3556,7 @@ STR_COMPANY_INFRASTRUCTURE_VIEW_TOTAL_PERIOD                    :{WHITE}{CURRENC
 # Industry directory
 STR_INDUSTRY_DIRECTORY_CAPTION                                  :{WHITE}தொழிற்சாலைகள் ({1:COMMA}இல் {0:COMMA})
 STR_INDUSTRY_DIRECTORY_NONE                                     :{ORANGE}- ஒன்றுமில்லை -
-STR_INDUSTRY_DIRECTORY_ITEM_INFO                                :{BLACK}{CARGO_LONG}{STRING}{YELLOW} ({COMMA}% கொண்டு செல்லப்பட்டது){BLACK}
+STR_INDUSTRY_DIRECTORY_ITEM_INFO                                :{BLACK}{CARGO_LONG}{STRING}{YELLOW} ({COMMA}% கொண்டு செல்லப்பட்டது)
 STR_INDUSTRY_DIRECTORY_ITEM_NOPROD                              :{ORANGE}{INDUSTRY}
 STR_INDUSTRY_DIRECTORY_ITEM_PROD1                               :{ORANGE}{INDUSTRY} {STRING}
 STR_INDUSTRY_DIRECTORY_ITEM_PROD2                               :{ORANGE}{INDUSTRY} {STRING}, {STRING}
@@ -3580,9 +3576,9 @@ STR_INDUSTRY_VIEW_TRANSPORTED                                   :{YELLOW}{CARGO_
 STR_INDUSTRY_VIEW_PRODUCTION_LEVEL                              :{BLACK}தயாரிப்பு அளவு: {YELLOW}{COMMA}%
 STR_INDUSTRY_VIEW_INDUSTRY_ANNOUNCED_CLOSURE                    :{YELLOW}தொழிற்சாலை உடனடியாக மூடப்படும் என்று அறிவிக்கப்பட்டுள்ளது!
 
-STR_INDUSTRY_VIEW_REQUIRES_N_CARGO                              :{BLACK}வேண்டியவன: {YELLOW}{STRING}{STRING}
-STR_INDUSTRY_VIEW_PRODUCES_N_CARGO                              :{BLACK}உற்பத்தி: {YELLOW}{STRING}{STRING}
-STR_INDUSTRY_VIEW_CARGO_LIST_EXTENSION                          :, {STRING}{STRING}
+STR_INDUSTRY_VIEW_REQUIRES_N_CARGO                              :{BLACK}வேண்டியவன: {YELLOW}{STRING}
+STR_INDUSTRY_VIEW_PRODUCES_N_CARGO                              :{BLACK}உற்பத்தி: {YELLOW}{STRING}
+STR_INDUSTRY_VIEW_CARGO_LIST_EXTENSION                          :{STRING}{STRING}
 
 STR_INDUSTRY_VIEW_REQUIRES                                      :{BLACK}வேண்டியவன:
 
@@ -4063,7 +4059,7 @@ STR_VEHICLE_DETAILS_TRAIN_CAPACITIES_TOOLTIP                    :{BLACK}ஒவ�
 STR_VEHICLE_DETAIL_TAB_TOTAL_CARGO                              :{BLACK}மொத்த சரக்கு
 STR_VEHICLE_DETAILS_TRAIN_TOTAL_CARGO_TOOLTIP                   :{BLACK}இரயிலின் மொத்தக் கொள்ளளவினைக் காட்டு, சரக்கு வகைப்படி பிரித்தவாறு
 
-STR_VEHICLE_DETAILS_TRAIN_ARTICULATED_RV_CAPACITY               :{BLACK}கொள்ளளவு: {LTBLUE}
+STR_VEHICLE_DETAILS_TRAIN_ARTICULATED_RV_CAPACITY               :{BLACK}கொள்ளளவு: {LTBLUE}{STRING}
 
 # Vehicle refit
 STR_REFIT_CAPTION                                               :{WHITE}{VEHICLE} (மாற்றியமை)

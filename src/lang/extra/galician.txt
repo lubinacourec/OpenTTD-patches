@@ -541,11 +541,6 @@ STR_CONFIG_SETTING_SHARING_PAYMENT_IN_DEBT                      :Permitir as com
 STR_CONFIG_SETTING_SHARING_USED_BY_VEHICLES                     :Non se pode cambiar esta opción, hai vehículos usando infraestrutura compartida.
 STR_CONFIG_SETTING_SHARING_ORDERS_TO_OTHERS                     :Non sep ode cambiar esta opción, hai vehículos con ordes a destinos doutras compañías.
 
-STR_CONFIG_SETTING_INFRA_OTHERS_BUY_IN_DEPOT_RAIL               :Permitir os competidores comprar e anovar trens nos depósitos: {STRING}
-STR_CONFIG_SETTING_INFRA_OTHERS_BUY_IN_DEPOT_ROAD               :Permitir os competidores comprar e anovar vehículos de estrada nos depósitos: {STRING}
-STR_CONFIG_SETTING_INFRA_OTHERS_BUY_IN_DEPOT_WATER              :Permitir os competidores comprar e anovar barcos nos depósitos: {STRING}
-STR_CONFIG_SETTING_INFRA_OTHERS_BUY_IN_DEPOT_AIR                :Permitir os competidores comprar e anovar avións nos haganres: {STRING}
-
 STR_CONFIG_SETTING_TRAIN_SPEED_ADAPTATION                       :Habilitar adaptación da velocidade do tren: {STRING}
 STR_CONFIG_SETTING_TRAIN_SPEED_ADAPTATION_HELPTEXT              :Cando se habilita, os trens máis rápidos axustan a súa velocidade para igualala cos trens lentos que teñan diante.
 
@@ -670,9 +665,6 @@ STR_CONFIG_SETTING_CARGO_PAYMENT_ALGORITHM                      :Algoritmo de pa
 STR_CONFIG_SETTING_CARGO_PAYMENT_ALGORITHM_HELPTEXT             :O algoritmo que se utiliza para calcular canto diñeiro se paga por levar mercadorías o seu destino.
 STR_CONFIG_SETTING_CARGO_PAYMENT_ALGORITHM_TRADITIONAL          :Tradicional
 STR_CONFIG_SETTING_CARGO_PAYMENT_ALGORITHM_MODERN               :Moderno
-
-STR_CONFIG_SETTING_TOWN_MIN_DISTANCE                            :Distancia mínima entre vilas: {STRING}
-STR_CONFIG_SETTING_TOWN_MIN_DISTANCE_HELPTEXT                   :Fixa a distancia mínima en cadros entre cidades para a xeración do mapa e as fundacións aleatorias
 
 STR_CONFIG_SETTING_DISTRIBUTION_PER_CARGO                       :Modo de distribución para esta carga: {STRING}
 STR_CONFIG_SETTING_DISTRIBUTION_PER_CARGO_PARAM                 :Anulación do modo de distribución para {STRING}: {STRING}
@@ -974,8 +966,7 @@ STR_TRACE_RESTRICT_SLOT_GROUP_NAME_DOWN                         :{DOWN_ARROW} {T
 STR_TRACE_RESTRICT_SLOT_GROUP_NAME_DOWN_PREFIXED                :{DOWN_ARROW} [{STRING}] {TRSLOTGROUP}
 STR_TRACE_RESTRICT_SLOT_GROUP_EMPTY_WARNING                     :{TRSLOTGROUP} {PUSH_COLOUR}{RED}(ten slots){POP_COLOUR}
 STR_TRACE_RESTRICT_SLOT_GROUP_NON_PUBLIC_WARNING                :{TRSLOTGROUP} {PUSH_COLOUR}{RED}(ten slots non públicos inusables){POP_COLOUR}
-STR_TRACE_RESTRICT_SLOT_LIST_HEADER                             :{BLACK}Slot{CONSUME_ARG}{P "" s}: {LTBLUE}
-STR_TRACE_RESTRICT_SLOT_LIST_SEPARATOR                          :{BLACK}, {LTBLUE}
+STR_TRACE_RESTRICT_SLOT_LIST_HEADER                             :{BLACK}Slot{CONSUME_ARG}{P "" s}:{SPACE}
 STR_TRACE_RESTRICT_COUNTER_NAME                                 :{TRCOUNTER}
 STR_TRACE_RESTRICT_COUNTER_INCREASE                             :Incrementar
 STR_TRACE_RESTRICT_COUNTER_DECREASE                             :Disminuir
@@ -1287,7 +1278,7 @@ STR_SAVELOAD_DIFFERENT_ID                                       :{YELLOW}Este ar
 STR_SAVELOAD_OVERWRITE_TITLE_DIFFERENT_ID                       :{WHITE}Sobreescribir arquivo (Diferente partida)
 STR_SAVELOAD_OVERWRITE_TITLE_DIFFERENT_VERSION_SUFFIX           :{STRING} (Diferente versión)
 STR_SAVELOAD_OVERWRITE_WARNING_DIFFERENT_ID                     :{YELLOW}Estás seguro de que queres sobreescrivir o arquivo existente?{}{}Este arquivo é de outra partida.
-STR_SAVELOAD_OVERWRITE_WARNING_DIFFERENT_VERSION_SUFFIX         :{STRING}{}{}O arquivo é dunha versión distinta{STRING}.{}Se sobreescribe o ficheiro non será lexible pola versión orixinal
+STR_SAVELOAD_OVERWRITE_WARNING_DIFFERENT_VERSION_SUFFIX         :{YELLOW}{STRING}{}{}O arquivo é dunha versión distinta{STRING}.{}Se sobreescribe o ficheiro non será lexible pola versión orixinal
 STR_SAVELOAD_OVERWRITE_WARNING_VERSION_NAME                     : ({STRING})
 
 STR_SAVELOAD_SAVE_ORDERLIST                                     :{WHITE}Gardar lista de ordes
@@ -1581,7 +1572,7 @@ STR_VEHICLE_VIEW_SHOW_ORDERS_TOOLTIP_EXTRA                      :{STRING}{BLACK}
 
 STR_VEHICLE_VIEW_ORDER_NUMBER                                   :{COMMA}:{SPACE}
 
-STR_VEHICLE_STATUS_LOADING_UNLOADING_ADVANCE                    :{STRING}, {VELOCITY}
+STR_VEHICLE_STATUS_LOADING_UNLOADING_ADVANCE                    :{LTBLUE}{STRING}, {VELOCITY}
 STR_VEHICLE_STATUS_BROKEN_DOWN_VEL                              :{RED}Avariado - {STRING}, {LTBLUE} {VELOCITY}
 STR_VEHICLE_STATUS_BROKEN_DOWN_VEL_SHORT                        :{RED}Avariado - {STRING}
 STR_VEHICLE_STATUS_TRAIN_STUCK_WAIT_RESTRICTION                 :{ORANGE}Agardando debido a restrición de ruta
@@ -1643,7 +1634,7 @@ STR_VEHICLE_INFO_MAX_SPEED_LOADED                               :{BLACK}Velocida
 
 STR_VEHICLE_INFO_AGE_RUNNING_COST_ORIG_YR                       :{BLACK}Idade: {LTBLUE}{STRING}{BLACK}   Custo de mantemento: {LTBLUE}{CURRENCY_LONG}/ano orixinal
 
-STR_VEHICLE_INFO_PROFIT_THIS_YEAR_LAST_YEAR_LIFETIME            :{STRING} (vida útil: {CURRENCY_LONG})
+STR_VEHICLE_INFO_PROFIT_THIS_YEAR_LAST_YEAR_LIFETIME            :{STRING} {LTBLUE}(vida útil: {CURRENCY_LONG})
 
 STR_VEHICLE_INFO_GROUP                                          :{BLACK}Grupo: {LTBLUE}{GROUP}
 

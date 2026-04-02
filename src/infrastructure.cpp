@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file infrastructure.cpp Implementation of infrastructure sharing */
@@ -164,10 +164,7 @@ static void RemoveAndSellVehicle(Vehicle *v, bool give_money)
 		for (Vehicle *u = v->First(); u != nullptr; u = u->Next()) {
 			value += u->value;
 		}
-		CompanyID old = _current_company;
-		_current_company = v->owner;
-		SubtractMoneyFromCompany(CommandCost(EXPENSES_NEW_VEHICLES, -value));
-		_current_company = old;
+		SubtractMoneyFromCompany(v->owner, CommandCost(EXPENSES_NEW_VEHICLES, -value));
 	}
 
 	/* take special measures for trains, but not when sharing is disabled or when the train is a free wagon chain */

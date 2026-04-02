@@ -14,7 +14,7 @@
 # This file is part of OpenTTD.
 # OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
 # OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
 
 
 ##id 0x0000
@@ -313,6 +313,7 @@ STR_SHOW_HIDDEN_ENGINES_VEHICLE_AIRCRAFT_TOOLTIP                :{BLACK}Activant
 STR_BUTTON_DEFAULT                                              :{BLACK}Predeterminat
 STR_BUTTON_CANCEL                                               :{BLACK}Cancel·la
 STR_BUTTON_OK                                                   :{BLACK}D'acord
+STR_BUTTON_MOVE                                                 :{BLACK}Mou
 
 # On screen keyboard window
 STR_OSK_KEYBOARD_LAYOUT                                         :`1234567890-= qwertyuiop[]asdfghjkl;'#\zxcvbnm,./ .
@@ -1115,7 +1116,7 @@ STR_GAME_OPTIONS_BASE_GRF_TOOLTIP                               :Selecciona el c
 STR_GAME_OPTIONS_BASE_GRF_DESCRIPTION_TOOLTIP                   :Informació addicional sobre el conjunt de gràfics base
 
 STR_GAME_OPTIONS_BASE_SFX                                       :Conjunt de sons base
-STR_GAME_OPTIONS_BASE_SFX_TOOLTIP                               :Selecciona un conjunt de sons base a utilitzar (no es pot canviar des de dins de la partida; s'ha de canviar des del menú principal).
+STR_GAME_OPTIONS_BASE_SFX_TOOLTIP                               :Selecciona un conjunt de sons base a reproduir.
 STR_GAME_OPTIONS_BASE_SFX_DESCRIPTION_TOOLTIP                   :Informació addicional sobre el joc de sons base
 
 STR_GAME_OPTIONS_BASE_MUSIC                                     :Conjunt de peces de música base
@@ -1248,7 +1249,7 @@ STR_CONFIG_SETTING_EXPAND_ALL                                   :Desplega-ho tot
 STR_CONFIG_SETTING_COLLAPSE_ALL                                 :Plega-ho tot
 STR_CONFIG_SETTING_RESET_ALL                                    :Restableix tots els valors
 STR_CONFIG_SETTING_NO_EXPLANATION_AVAILABLE_HELPTEXT            :(cap explicació disponible)
-STR_CONFIG_SETTING_VALUE                                        :{PUSH_COLOUR}{ORANGE}{STRING}{POP_COLOUR}
+STR_CONFIG_SETTING_VALUE                                        :{ORANGE}{STRING}
 STR_CONFIG_SETTING_DEFAULT_VALUE                                :{LTBLUE}Valor per defecte: {ORANGE}{STRING}
 STR_CONFIG_SETTING_TYPE                                         :{LTBLUE}Tipus de paràmetre: {ORANGE}{STRING}
 STR_CONFIG_SETTING_TYPE_CLIENT                                  :Paràmetre del client (no s'emmagatzema a les partides; afecta a totes les partides)
@@ -2069,7 +2070,7 @@ STR_CONFIG_SETTING_ZOOM_LVL_OUT_4X                              :4x
 STR_CONFIG_SETTING_ZOOM_LVL_OUT_8X                              :8x
 
 STR_CONFIG_SETTING_SPRITE_ZOOM_MIN                              :Resolució de sprites màxima que es pot usar: {STRING}
-STR_CONFIG_SETTING_SPRITE_ZOOM_MIN_HELPTEXT                     :Limita la resolució màxima dels sprites que s'empraran. Aquest límit pot evitar que s'usin els sprites amb resolució elevada quan estiguin disponibles. Això pot ajudar a millorar l'aparença general quan s'empren diferents fitxers GRF amb gràfics de diferents resolucions màximes.
+STR_CONFIG_SETTING_SPRITE_ZOOM_MIN_HELPTEXT                     :Limita la resolució màxima dels sprites que s'empraran. Aquest límit pot evitar que s'usin els sprites amb resolució elevada quan estiguin disponibles. Això pot ajudar a millorar l'aparença general quan s'empren diferents fitxers NewGRF amb gràfics de diferents resolucions màximes.
 ###length 3
 STR_CONFIG_SETTING_SPRITE_ZOOM_LVL_MIN                          :x4
 STR_CONFIG_SETTING_SPRITE_ZOOM_LVL_IN_2X                        :x2
@@ -2091,6 +2092,8 @@ STR_CONFIG_SETTING_LARGER_TOWNS_VALUE                           :1 de cada {COMM
 STR_CONFIG_SETTING_LARGER_TOWNS_DISABLED                        :Cap
 STR_CONFIG_SETTING_CITY_SIZE_MULTIPLIER                         :Multiplicador de mida inicial de ciutats: {STRING}
 STR_CONFIG_SETTING_CITY_SIZE_MULTIPLIER_HELPTEXT                :La grandària mitjana de les ciutats en relació als pobles a l'inici de la partida.
+STR_CONFIG_SETTING_TOWN_MIN_DISTANCE                            :Distància mínima entre poblacions: {STRING}
+STR_CONFIG_SETTING_TOWN_MIN_DISTANCE_HELPTEXT                   :Estableix la distància mínima en caselles entre poblacions per a la generació del mapa i per a la fundació aleatòria de poblacions.
 
 STR_CONFIG_SETTING_LINKGRAPH_RECALC_INTERVAL                    :Actualitza el graf de distribució cada {STRING}
 STR_CONFIG_SETTING_LINKGRAPH_RECALC_INTERVAL_HELPTEXT           :Temps entre actualitzacions de les arestes del graf de distribució. Cada vegada es calcularan els plans d'un dels components del graf. Això vol dir que un valor X d'aquesta opció no significa que es recalculi el graf sencer cada X segons. Només ho farà algun component. Com més curt sigui, farà falta més temps de CPU per a calcular-lo. Com més llarg sigui, més es trigarà a què la distribució de càrrega s'apliqui a les rutes noves.
@@ -2861,30 +2864,37 @@ STR_PICKER_COLLECTION_DELETE_TOOLTIP                            :Esborra la col�
 STR_PICKER_COLLECTION_RENAME_QUERY                              :Reanomena aquesta col·lecció
 STR_PICKER_COLLECTION_DELETE_QUERY                              :Esborra la col·lecció
 STR_PICKER_COLLECTION_DELETE_QUERY_TEXT                         :{YELLOW}Esteu segur que voleu esborrar aquesta col·lecció?
+STR_PICKER_COLLECTION_DELETE_QUERY_DISABLED_TEXT                :{YELLOW}Esteu segur que voleu esborrar aquesta col·lecció? Hi ha elements de fitxers NewGRF desactivats.
 
 STR_PICKER_STATION_CLASS_TOOLTIP                                :Trieu quina classe d'estació voleu veure.
 STR_PICKER_STATION_TYPE_TOOLTIP                                 :Trieu quin tipus d'estació voleu construir. Amb Ctrl+clic, s'afegeix o es trau l'element de la llista de desats.
+STR_PICKER_STATION_COLLECTION_TOOLTIP                           :Seleccioneu quina col·lecció d'estacions voleu veure.
 STR_PICKER_WAYPOINT_CLASS_TOOLTIP                               :Trieu quina classe de punts de control voleu veure.
 STR_PICKER_WAYPOINT_TYPE_TOOLTIP                                :Trieu quin tipus de punt de control voleu construir. Amb Ctrl+clic, s'afegeix o es trau l'element de la llista de desats.
+STR_PICKER_WAYPOINT_COLLECTION_TOOLTIP                          :Seleccioneu quina col·lecció de punts de pas voleu veure.
 STR_PICKER_ROADSTOP_BUS_CLASS_TOOLTIP                           :Trieu quina classe d'estacions d'autobús voleu veure.
 STR_PICKER_ROADSTOP_BUS_TYPE_TOOLTIP                            :Trieu quin tipus d'estació d'autobús voleu construir. Amb Ctrl+clic, s'afegeix o es trau l'element de la llista de desats.
+STR_PICKER_ROADSTOP_BUS_COLLECTION_TOOLTIP                      :Seleccioneu quina col·lecció d'estacions d'autobús voleu veure.
 STR_PICKER_ROADSTOP_TRUCK_CLASS_TOOLTIP                         :Trieu quina classe d'estació de camions voleu veure.
 STR_PICKER_ROADSTOP_TRUCK_TYPE_TOOLTIP                          :Trieu un tipus d'estació de camió a construir. Amb Ctrl+clic, s'afegeix o es trau l'element de la llista de desats.
+STR_PICKER_ROADSTOP_TRUCK_COLLECTION_TOOLTIP                    :Seleccioneu quina col·lecció d'estacions de camions voleu veure.
 STR_PICKER_OBJECT_CLASS_TOOLTIP                                 :Trieu quina classe d'objectes voleu veure.
 STR_PICKER_OBJECT_TYPE_TOOLTIP                                  :Trieu quin tipus d'objecte voleu construir. Amb Ctrl+clic, s'afegeix o es trau l'element de la llista de desats. Amb Ctrl+clic+arrossega es selecciona l'àrea en diagonal. Amb Maj, només es mostrarà el cost estimat de l'acció.
+STR_PICKER_OBJECT_COLLECTION_TOOLTIP                            :Seleccioneu quina col·lecció d'objectes voleu veure.
 STR_PICKER_HOUSE_CLASS_TOOLTIP                                  :Trieu quina zona de població voleu veure.
 STR_PICKER_HOUSE_TYPE_TOOLTIP                                   :Trieu quin tipus de casa construir. Amb Ctrl+clic, s'afegeix o es trau l'element de la llista de desats.
+STR_PICKER_HOUSE_COLLECTION_TOOLTIP                             :Seleccioneu quina col·lecció de cases voleu veure.
 
 STR_HOUSE_PICKER_CAPTION                                        :Selecció de cases
-STR_HOUSE_PICKER_NAME                                           :{BLACK}Nom: {ORANGE}{STRING}
-STR_HOUSE_PICKER_POPULATION                                     :{BLACK}Habitants: {ORANGE}{NUM}
-STR_HOUSE_PICKER_YEARS                                          :{BLACK}Anys: {ORANGE}{NUM}-{NUM}
-STR_HOUSE_PICKER_YEARS_ANY                                      :{BLACK}Anys: {ORANGE}Qualssevol
-STR_HOUSE_PICKER_YEARS_FROM                                     :{BLACK}Anys: {ORANGE}De {NUM}
-STR_HOUSE_PICKER_YEARS_UNTIL                                    :{BLACK}Anys: {ORANGE}Fins al {NUM}
-STR_HOUSE_PICKER_SIZE                                           :{BLACK}Mida: {ORANGE}{NUM}x{NUM} caselles
-STR_HOUSE_PICKER_CARGO_ACCEPTED                                 :{BLACK}Càrrega acceptada: {ORANGE}
-STR_HOUSE_PICKER_CARGO_PRODUCED                                 :{BLACK}Càrrega produïda: {ORANGE}{CARGO_LIST}
+STR_HOUSE_PICKER_NAME                                           :{BLACK}Nom: {GOLD}{STRING}
+STR_HOUSE_PICKER_POPULATION                                     :{BLACK}Habitants: {GOLD}{NUM}
+STR_HOUSE_PICKER_YEARS                                          :{BLACK}Anys: {GOLD}{NUM}-{NUM}
+STR_HOUSE_PICKER_YEARS_ANY                                      :{BLACK}Anys: {GOLD}Qualssevol
+STR_HOUSE_PICKER_YEARS_FROM                                     :{BLACK}Anys: {GOLD}De {NUM}
+STR_HOUSE_PICKER_YEARS_UNTIL                                    :{BLACK}Anys: {GOLD}Fins al {NUM}
+STR_HOUSE_PICKER_SIZE                                           :{BLACK}Mida: {GOLD}{NUM}x{NUM} caselles
+STR_HOUSE_PICKER_CARGO_ACCEPTED                                 :{BLACK}Càrrega acceptada: {GOLD}{STRING}
+STR_HOUSE_PICKER_CARGO_PRODUCED                                 :{BLACK}Càrrega produïda: {GOLD}{CARGO_LIST}
 
 STR_HOUSE_PICKER_CLASS_ZONE1                                    :Vora
 STR_HOUSE_PICKER_CLASS_ZONE2                                    :Afores
@@ -3172,7 +3182,7 @@ STR_LAND_AREA_INFORMATION_AIRPORT_CLASS                         :{BLACK}Classe d
 STR_LAND_AREA_INFORMATION_AIRPORT_NAME                          :{BLACK}Nom de l'aeroport: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_AIRPORTTILE_NAME                      :{BLACK}Nom de la cel·la d'Aeroport: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_NEWGRF_NAME                           :{BLACK}NewGRF: {LTBLUE}{STRING}
-STR_LAND_AREA_INFORMATION_CARGO_ACCEPTED                        :{BLACK}Càrrega acceptada: {LTBLUE}
+STR_LAND_AREA_INFORMATION_CARGO_ACCEPTED                        :{BLACK}Càrrega acceptada: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_CARGO_EIGHTS                          :({COMMA}/8 {STRING})
 STR_LANG_AREA_INFORMATION_RAIL_TYPE                             :{BLACK}Tipus de via: {LTBLUE}{STRING}
 STR_LANG_AREA_INFORMATION_ROAD_TYPE                             :{BLACK}Tipus de carretera: {LTBLUE}{STRING}
@@ -3635,7 +3645,7 @@ STR_NEWGRF_ERROR_INVALID_PARAMETER                              :Paràmetre no v
 STR_NEWGRF_ERROR_LOAD_BEFORE                                    :{1:STRING} s'ha de carregar abans de {2:STRING}
 STR_NEWGRF_ERROR_LOAD_AFTER                                     :{1:STRING} s'ha de carregar després de {2:STRING}
 STR_NEWGRF_ERROR_OTTD_VERSION_NUMBER                            :{1:STRING} necessita la versió {2:STRING} de l'OpenTTD o posterior
-STR_NEWGRF_ERROR_AFTER_TRANSLATED_FILE                          :l'arxiu GRF dissenyat està pendent de traduir
+STR_NEWGRF_ERROR_AFTER_TRANSLATED_FILE                          :el fitxer NewGRF que havia de traduir
 STR_NEWGRF_ERROR_TOO_MANY_NEWGRFS_LOADED                        :Hi ha massa fitxers NewGRF carregats
 STR_NEWGRF_ERROR_STATIC_GRF_CAUSES_DESYNC                       :Si es carrega {1:STRING} com a NewGRF estàtic amb {2:STRING}, pot provocar desincronitzacions
 STR_NEWGRF_ERROR_UNEXPECTED_SPRITE                              :Sprite inesperat (sprite {3:NUM})
@@ -3644,7 +3654,7 @@ STR_NEWGRF_ERROR_INVALID_ID                                     :Intent d'utilit
 STR_NEWGRF_ERROR_CORRUPT_SPRITE                                 :{YELLOW}{STRING} conté un sprite corrupte. Tots els sprites corruptes seran mostrats amb un interrogant vermell (?)
 STR_NEWGRF_ERROR_MULTIPLE_ACTION_8                              :Conté múltiples entrades d'acció 8 (sprite {3:NUM})
 STR_NEWGRF_ERROR_READ_BOUNDS                                    :S'ha llegit després del final d'un pseudo-sprite (sprite {3:NUM})
-STR_NEWGRF_ERROR_GRM_FAILED                                     :Els recursos GRF demanats no estan disponibles (sprite {3:NUM})
+STR_NEWGRF_ERROR_GRM_FAILED                                     :Els recursos NewGRF demanats no estan disponibles (sprite {3:NUM})
 STR_NEWGRF_ERROR_FORCEFULLY_DISABLED                            :{1:STRING} ha estat desactivat per {STRING}
 STR_NEWGRF_ERROR_INVALID_SPRITE_LAYOUT                          :Format de disposició de sprite no vàlid o desconegut (sprite {3:NUM}).
 STR_NEWGRF_ERROR_LIST_PROPERTY_TOO_LONG                         :Hi ha massa elements a la llista de valors de propietats (sprite {3:NUM}, propietat {4:HEX})
@@ -3655,12 +3665,12 @@ STR_NEWGRF_POPUP_CAUTION_CAPTION                                :{WHITE}Alerta!
 STR_NEWGRF_CONFIRMATION_TEXT                                    :{YELLOW}Esteu a punt de fer canvis en una partida activa que poden fer que l'OpenTTD falli. No envieu cap informe d'error produït després d'efectuar aquests canvis crítics.{}Esteu completament segur que voleu fer-los?
 
 STR_NEWGRF_DUPLICATE_GRFID                                      :{WHITE}No es pot afegir l'arxiu: ID GRF duplicada
-STR_NEWGRF_COMPATIBLE_LOADED                                    :{ORANGE}No s'ha trobat un arxiu coincident (els GRF compatibles s'han carregat)
+STR_NEWGRF_COMPATIBLE_LOADED                                    :{ORANGE}El fitxer coincident no s'ha trobat (els NewGRF compatibles s'han carregat)
 STR_NEWGRF_TOO_MANY_NEWGRFS                                     :{WHITE}No es pot afegir el fitxer: Límit de fitxers NewGRF assolit
 
 STR_NEWGRF_COMPATIBLE_LOAD_WARNING                              :{WHITE}S'han carregat els GRF compatibles pels arxius faltants
 STR_NEWGRF_DISABLED_WARNING                                     :{WHITE}Els fitxers GRF faltants han estat desactivats
-STR_NEWGRF_UNPAUSE_WARNING_TITLE                                :{YELLOW}Falten fitxers GRF
+STR_NEWGRF_UNPAUSE_WARNING_TITLE                                :{YELLOW}Falten fitxers NewGRF
 STR_NEWGRF_UNPAUSE_WARNING                                      :{WHITE}Reprendre la partida pot provocar errors de l'OpenTTD. No informeu errors de fallades posteriors d'aquesta partida.{}Esteu segur de reprendre la partida?
 
 # NewGRF status
@@ -3922,14 +3932,14 @@ STR_CARGO_RATING_EXCELLENT                                      :Excel·lent
 STR_CARGO_RATING_OUTSTANDING                                    :Excepcional
 
 STR_STATION_VIEW_CENTER_TOOLTIP                                 :{BLACK}Centra la vista principal al lloc de l'estació. Amb Ctrl+clic, s'obre una vista al lloc de l'estació.
-STR_STATION_VIEW_RENAME_TOOLTIP                                 :{BLACK}Canvia el nom de l'estació
+STR_STATION_VIEW_EDIT_TOOLTIP                                   :{BLACK}Canvia el nom de l'estació o mou-ne el senyal.
 
 STR_STATION_VIEW_SCHEDULED_TRAINS_TOOLTIP                       :{BLACK}Mostra tots els trens que tinguin aquesta estació en el seu itinerari
 STR_STATION_VIEW_SCHEDULED_ROAD_VEHICLES_TOOLTIP                :{BLACK}Mostra tots els vehicles que tinguin aquesta estació en el seu itinerari
 STR_STATION_VIEW_SCHEDULED_AIRCRAFT_TOOLTIP                     :{BLACK}Mostra tots els avions que tinguin aquest aeroport en el seu itinerari
 STR_STATION_VIEW_SCHEDULED_SHIPS_TOOLTIP                        :{BLACK}Mostra tots els vaixells que tinguin aquest port en el seu itinerari
 
-STR_STATION_VIEW_RENAME_STATION_CAPTION                         :Canvia el nom de l'estació/àrea de càrrega
+STR_STATION_VIEW_EDIT_STATION_SIGN                              :{WHITE}Edita el senyal de l'estació
 
 STR_STATION_VIEW_CLOSE_AIRPORT                                  :{BLACK}Tanca l'aeroport
 STR_STATION_VIEW_CLOSE_AIRPORT_TOOLTIP                          :{BLACK}Evita que els avions aterrin en aquest aeroport
@@ -3937,11 +3947,11 @@ STR_STATION_VIEW_CLOSE_AIRPORT_TOOLTIP                          :{BLACK}Evita qu
 # Waypoint/buoy view window
 STR_WAYPOINT_VIEW_CAPTION                                       :{WHITE}{WAYPOINT}
 STR_WAYPOINT_VIEW_CENTER_TOOLTIP                                :{BLACK}Centra la vista principal al lloc del punt de pas. Amb Ctrl+clic, s'obre una vista al lloc del punt de pas.
-STR_WAYPOINT_VIEW_CHANGE_WAYPOINT_NAME                          :{BLACK}Canvia el nom del punt de pas
+STR_WAYPOINT_VIEW_EDIT_TOOLTIP                                  :{BLACK}Canvia el nom del punt de pas o mou-ne el senyal.
 STR_BUOY_VIEW_CENTER_TOOLTIP                                    :{BLACK}Centra la vista principal en la boia. Amb Ctrl+clic, s'obre una vista centrada a la boia.
 STR_BUOY_VIEW_RENAME_TOOLTIP                                    :{BLACK}Canvia el nom de la boia
 
-STR_EDIT_WAYPOINT_NAME                                          :{WHITE}Edita el nom del punt de pas
+STR_WAYPOINT_VIEW_EDIT_WAYPOINT_SIGN                            :{WHITE}Edita el senyal del punt de pas
 
 # Finances window
 STR_FINANCES_CAPTION                                            :{WHITE}Finances de {COMPANY} {BLACK}{COMPANY_NUM}
@@ -4056,7 +4066,7 @@ STR_COMPANY_INFRASTRUCTURE_VIEW_TOTAL_PERIOD                    :{WHITE}{CURRENC
 # Industry directory
 STR_INDUSTRY_DIRECTORY_CAPTION                                  :{WHITE}Indústries ({COMMA} de {COMMA})
 STR_INDUSTRY_DIRECTORY_NONE                                     :{ORANGE}- Cap -
-STR_INDUSTRY_DIRECTORY_ITEM_INFO                                :{BLACK}{CARGO_LONG}{STRING}{YELLOW} (transportat: {COMMA}{NBSP}%){BLACK}
+STR_INDUSTRY_DIRECTORY_ITEM_INFO                                :{BLACK}{CARGO_LONG}{STRING}{YELLOW} (transportat: {COMMA}{NBSP}%)
 STR_INDUSTRY_DIRECTORY_ITEM_NOPROD                              :{ORANGE}{INDUSTRY}
 STR_INDUSTRY_DIRECTORY_ITEM_PROD1                               :{ORANGE}{INDUSTRY} {STRING}
 STR_INDUSTRY_DIRECTORY_ITEM_PROD2                               :{ORANGE}{INDUSTRY} {STRING}, {STRING}
@@ -4079,9 +4089,9 @@ STR_INDUSTRY_VIEW_CARGO_GRAPH_TOOLTIP                           :{BLACK}Mostra e
 STR_INDUSTRY_VIEW_PRODUCTION_LEVEL                              :{BLACK}Nivell de producció: {YELLOW}{COMMA}{NBSP}%
 STR_INDUSTRY_VIEW_INDUSTRY_ANNOUNCED_CLOSURE                    :{YELLOW}La indústria ha anunciat la seva clausura imminent!
 
-STR_INDUSTRY_VIEW_REQUIRES_N_CARGO                              :{BLACK}Requereix: {YELLOW}{STRING}{STRING}
-STR_INDUSTRY_VIEW_PRODUCES_N_CARGO                              :{BLACK}Produeix: {YELLOW}{STRING}{STRING}
-STR_INDUSTRY_VIEW_CARGO_LIST_EXTENSION                          :, {STRING}{STRING}
+STR_INDUSTRY_VIEW_REQUIRES_N_CARGO                              :{BLACK}Requereix: {YELLOW}{STRING}
+STR_INDUSTRY_VIEW_PRODUCES_N_CARGO                              :{BLACK}Produeix: {YELLOW}{STRING}
+STR_INDUSTRY_VIEW_CARGO_LIST_EXTENSION                          :{STRING}{STRING}
 
 STR_INDUSTRY_VIEW_REQUIRES                                      :{BLACK}Necessita:
 STR_INDUSTRY_VIEW_ACCEPT_CARGO_SUFFIX                           :{YELLOW}{0:STRING}{BLACK}{3:STRING}
@@ -4374,10 +4384,13 @@ STR_DEPOT_SELL_CONFIRMATION_TEXT                                :{YELLOW}Estàs 
 
 # Engine preview window
 STR_ENGINE_PREVIEW_CAPTION                                      :{WHITE}Missatge del fabricant de vehicles
+STR_ENGINE_PREVIEW_CAPTION_COUNT                                :{WHITE}Missatge del fabricant de vehicles ({COMMA} de {COMMA})
 STR_ENGINE_PREVIEW_MESSAGE                                      :{GOLD}Acabem de dissenyar {G un una} {G nou nova} {STRING}. Esteu interessats en fer ús exclusiu d'aquest vehicle durant un any, per veure com va, abans del seu llançament mundial?
 
 STR_ENGINE_PREVIEW_PREVIOUS                                     :Anterior
+STR_ENGINE_PREVIEW_PREVIOUS_TOOLTIP                             :Feu-hi clic per a passar al vehicle nou anterior.
 STR_ENGINE_PREVIEW_NEXT                                         :Següent
+STR_ENGINE_PREVIEW_NEXT_TOOLTIP                                 :Feu-hi clic per a passar al vehicle nou següent.
 STR_ENGINE_PREVIEW_ENGINE_LIST                                  :{COMMA}: {ENGINE}
 STR_ENGINE_PREVIEW_ENGINE_LIST_TOOLTIP                          :Feu-hi clic per a saltar a un vehicle nou.
 
@@ -4612,7 +4625,7 @@ STR_VEHICLE_DETAILS_TRAIN_CAPACITIES_TOOLTIP                    :{BLACK}Mostra l
 STR_VEHICLE_DETAIL_TAB_TOTAL_CARGO                              :{BLACK}Càrrega Total
 STR_VEHICLE_DETAILS_TRAIN_TOTAL_CARGO_TOOLTIP                   :{BLACK}Mostra la capacitat total del tren, separada per tipus de càrrega
 
-STR_VEHICLE_DETAILS_TRAIN_ARTICULATED_RV_CAPACITY               :{BLACK}Capacitat: {LTBLUE}
+STR_VEHICLE_DETAILS_TRAIN_ARTICULATED_RV_CAPACITY               :{BLACK}Capacitat: {LTBLUE}{STRING}
 
 # Vehicle refit
 STR_REFIT_CAPTION                                               :{WHITE}{VEHICLE} (Remodela)
@@ -5160,6 +5173,7 @@ STR_ERROR_TOO_MANY_TRUCK_STOPS                                  :{WHITE}Masses e
 STR_ERROR_TOO_CLOSE_TO_ANOTHER_DOCK                             :{WHITE}Massa prop d'un altre moll
 STR_ERROR_TOO_CLOSE_TO_ANOTHER_AIRPORT                          :{WHITE}Massa prop d'un altre aeroport
 STR_ERROR_CAN_T_RENAME_STATION                                  :{WHITE}No es pot canviar el nom de l'estació...
+STR_ERROR_CAN_T_MOVE_STATION_NAME                               :{WHITE}El senyal de l'estació no es pot moure...
 STR_ERROR_DRIVE_THROUGH_ON_TOWN_ROAD                            :{WHITE}... aquesta carretera és propietat d'una població.
 STR_ERROR_DRIVE_THROUGH_DIRECTION                               :{WHITE}... sentit de la carretera en la direcció incorrecta
 STR_ERROR_DRIVE_THROUGH_CORNER                                  :{WHITE}... les estacions d'autobús de pas no poden tenir cantonades
@@ -5191,6 +5205,7 @@ STR_ERROR_CAN_T_BUILD_RAIL_WAYPOINT                             :{WHITE}Aquí no
 STR_ERROR_CAN_T_BUILD_ROAD_WAYPOINT                             :{WHITE}Aquí no es pot construir un punt de pas de carretera...
 STR_ERROR_CAN_T_POSITION_BUOY_HERE                              :{WHITE}Aquí no es pot situar una boia...
 STR_ERROR_CAN_T_CHANGE_WAYPOINT_NAME                            :{WHITE}No es pot canviar el nom del punt de pas...
+STR_ERROR_CAN_T_MOVE_WAYPOINT_NAME                              :{WHITE}El senyal del punt de pas no es pot moure...
 
 STR_ERROR_CAN_T_REMOVE_RAIL_WAYPOINT                            :{WHITE}Aquí no es pot treure un punt de pas de tren...
 STR_ERROR_CAN_T_REMOVE_ROAD_WAYPOINT                            :{WHITE}Aquí no es pot traure cap punt de pas de carretera...
@@ -5984,7 +5999,8 @@ STR_LORRY                                                       :{BLACK}{LORRY}
 STR_PLANE                                                       :{BLACK}{PLANE}
 STR_SHIP                                                        :{BLACK}{SHIP}
 
-STR_TOOLBAR_RAILTYPE_VELOCITY                                   :{STRING} ({VELOCITY})
+STR_TOOLBAR_RAILTYPE_VELOCITY                                   :{STRING} {YELLOW}({VELOCITY})
+STR_TOOLBAR_ROADTYPE_VELOCITY                                   :{STRING} {YELLOW}({VELOCITY})
 
 STR_BADGE_NAME_LIST                                             :{STRING}: {GOLD}{STRING}
 STR_BADGE_CONFIG_MENU_TOOLTIP                                   :Obre la configuració d'insígnies

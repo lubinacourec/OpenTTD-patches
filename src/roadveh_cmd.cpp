@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file roadveh_cmd.cpp Handling of road vehicles. */
@@ -287,7 +287,7 @@ CommandCost CmdBuildRoadVehicle(TileIndex tile, DoCommandFlags flags, const Engi
 	if (flags.Test(DoCommandFlag::Execute)) {
 		const RoadVehicleInfo *rvi = &e->VehInfo<RoadVehicleInfo>();
 
-		RoadVehicle *v = new RoadVehicle();
+		RoadVehicle *v = RoadVehicle::Create();
 		*ret = v;
 		v->direction = DiagDirToDir(GetRoadDepotDirection(tile));
 		v->owner = _current_company;

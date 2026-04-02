@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file road_func.h Functions related to roads. */
@@ -12,7 +12,6 @@
 
 #include "core/bitmath_func.hpp"
 #include "road.h"
-#include "economy_func.h"
 #include "transparency.h"
 #include "settings_type.h"
 
@@ -115,20 +114,6 @@ inline RoadBits AxisToRoadBits(Axis a)
 	return a == AXIS_X ? ROAD_X : ROAD_Y;
 }
 
-
-/**
- * Calculates the maintenance cost of a number of road bits.
- * @param roadtype Road type to get the cost for.
- * @param num Number of road bits.
- * @param total_num Total number of road bits of all road/tram-types.
- * @return Total cost.
- */
-inline Money RoadMaintenanceCost(RoadType roadtype, uint32_t num, uint32_t total_num)
-{
-	dbg_assert(roadtype < ROADTYPE_END);
-	return (_price[PR_INFRASTRUCTURE_ROAD] * GetRoadTypeInfo(roadtype)->maintenance_multiplier * num * (1 + IntSqrt(total_num))) >> 12;
-}
-
 /**
  * Test if a road type has catenary
  * @param roadtype Road type to test
@@ -161,6 +146,7 @@ bool IsCrossingOccupiedByRoadVehicle(TileIndex t);
 
 void UpdateRoadCachedOneWayStatesAroundTile(TileIndex tile);
 void UpdateCompanyRoadInfrastructure(RoadType rt, Owner o, int count);
+Money RoadMaintenanceCost(RoadType roadtype, uint32_t num, uint32_t total_num);
 
 struct TileInfo;
 void DrawRoadOverlays(const TileInfo *ti, PaletteID pal, const RoadTypeInfo *road_rti, const RoadTypeInfo *tram_rit, uint road_offset, uint tram_offset, bool draw_underlay = true);

@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file order_sl.cpp Code handling saving and loading of orders */
@@ -214,7 +214,7 @@ static void Load_ORDR()
 			SlArray(orders, len, SLE_UINT16);
 
 			for (uint32_t i = 0; i < (uint32_t)len; ++i) {
-				OrderPoolItem *o = new (OrderID(i)) OrderPoolItem();
+				OrderPoolItem *o = OrderPoolItem::CreateAtIndex(OrderID(i));
 				o->order.AssignOrder(UnpackVersion4Order(orders[i]));
 			}
 
@@ -226,7 +226,7 @@ static void Load_ORDR()
 			SlArray(orders, len, SLE_UINT32);
 
 			for (uint32_t i = 0; i < (uint32_t)len; ++i) {
-				OrderPoolItem *o = new (OrderID(i)) OrderPoolItem();
+				OrderPoolItem *o = OrderPoolItem::CreateAtIndex(OrderID(i));
 				o->order.AssignOrder(UnpackVersion5Order(orders[i]));
 			}
 
@@ -251,7 +251,7 @@ static void Load_ORDR()
 
 		int index;
 		while ((index = SlIterateArray()) != -1) {
-			OrderPoolItem *item = new (OrderID(index)) OrderPoolItem();
+			OrderPoolItem *item = OrderPoolItem::CreateAtIndex(OrderID(index));
 			SlObjectLoadFiltered(&item->order, slt);
 			item->next_ref = _order_item_ref;
 		}
@@ -589,7 +589,7 @@ static void Load_ORDL()
 	int index;
 	while ((index = SlIterateArray()) != -1) {
 		/* set num_orders to 0 so it's a valid OrderList */
-		OrderList *list = new (OrderListID(index)) OrderList();
+		OrderList *list = OrderList::CreateAtIndex(OrderListID(index));
 		SlObjectLoadFiltered(list, slt);
 		if (SlXvIsFeaturePresent(XSLFI_JOKERPP)) {
 			if (_jokerpp_separation_mode == 0) {
@@ -648,7 +648,7 @@ void Load_BKOR()
 		int index;
 		while ((index = SlIterateArray()) != -1) {
 			/* set num_orders to 0 so it's a valid OrderList */
-			OrderBackup *ob = new (OrderBackupID(index)) OrderBackup();
+			OrderBackup *ob = OrderBackup::CreateAtIndex(OrderBackupID(index));
 			SlObjectLoadFiltered(ob, slt);
 		}
 		return;
@@ -660,7 +660,7 @@ void Load_BKOR()
 	int index;
 	while ((index = SlIterateArray()) != -1) {
 		/* set num_orders to 0 so it's a valid OrderList */
-		OrderBackup *ob = new (OrderBackupID(index)) OrderBackup();
+		OrderBackup *ob = OrderBackup::CreateAtIndex(OrderBackupID(index));
 		SlObjectLoadFiltered(ob, slt);
 		if (SlXvIsFeaturePresent(XSLFI_SCHEDULED_DISPATCH, 3)) {
 			uint count = SlReadUint32();

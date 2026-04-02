@@ -2,12 +2,12 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /**
- * @file elrail.cpp
- * This file deals with displaying wires and pylons for electric railways.
+ * @file elrail.cpp This file deals with displaying wires and pylons for electric railways.
+ *
  * <h2>Basics</h2>
  *
  * <h3>Tile Types</h3>
@@ -30,7 +30,7 @@
  * A Pylon Control Point (PCP) is a position where a wire (or rather two)
  * is mounted onto a pylon.
  * Each NRT does contain 4 PCPs which are bitmapped to a byte
- * variable and are represented by the DiagDirection enum
+ * variable and are represented by the DiagDirection enum.
  *
  * Each track ends on two PCPs and thus requires one pylon on each end. However,
  * there is one exception: Straight-and-level tracks only have one pylon every
@@ -41,9 +41,9 @@
  * in question, both tiles get it).
  *
  * <h4>Position Points</h4>
- * A Pylon Position Point (PPP) is a position where a pylon is located on the
- * ground.  Each PCP owns 8 in (45 degree steps) PPPs that are located around
- * it. PPPs are represented using the Direction enum. Each track bit has PPPs
+ * A Pylon Position Point (PPP) is a position where a pylon is located on the ground.
+ * Each PCP owns 8 in (45 degree steps) PPPs that are located around it.
+ * PPPs are represented using the Direction enum. Each track bit has PPPs
  * that are impossible (because the pylon would be situated on the track) and
  * some that are preferred (because the pylon would be rectangular to the track).
  *
@@ -96,7 +96,7 @@ static DualTrackBits GetRailTrackBitsUniversal(TileIndex t, DiagDirections *over
 	switch (GetTileType(t)) {
 		case MP_RAILWAY: {
 			switch (GetRailTileType(t)) {
-				case RAIL_TILE_NORMAL: case RAIL_TILE_SIGNALS: {
+				case RailTileType::Normal: case RailTileType::Signals: {
 					RailType secondary = GetTileSecondaryRailTypeIfValid(t);
 					TrackBits present_bits = GetTrackBits(t);
 					if (secondary != INVALID_RAILTYPE) {

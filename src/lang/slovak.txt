@@ -15,7 +15,7 @@
 # This file is part of OpenTTD.
 # OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
 # OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
 
 
 ##id 0x0000
@@ -3118,7 +3118,7 @@ STR_LAND_AREA_INFORMATION_AIRPORT_CLASS                         :{BLACK}Trieda l
 STR_LAND_AREA_INFORMATION_AIRPORT_NAME                          :{BLACK}Názov letiska: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_AIRPORTTILE_NAME                      :{BLACK}Názov letiska: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_NEWGRF_NAME                           :{BLACK}NewGRF: {LTBLUE}{STRING}
-STR_LAND_AREA_INFORMATION_CARGO_ACCEPTED                        :{BLACK}Prijíma náklad: {LTBLUE}
+STR_LAND_AREA_INFORMATION_CARGO_ACCEPTED                        :{BLACK}Prijíma náklad: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_CARGO_EIGHTS                          :({COMMA}/8 {STRING})
 STR_LANG_AREA_INFORMATION_RAIL_TYPE                             :{BLACK}Typ železnice: {LTBLUE}{STRING}
 STR_LANG_AREA_INFORMATION_ROAD_TYPE                             :{BLACK}Typ cesty: {LTBLUE}{STRING}
@@ -3835,14 +3835,12 @@ STR_CARGO_RATING_EXCELLENT                                      :Výborné
 STR_CARGO_RATING_OUTSTANDING                                    :Perfektné
 
 STR_STATION_VIEW_CENTER_TOOLTIP                                 :{BLACK}Vycentrovať pohľad na pozíciu stanice. Ctrl+Klik otvorí nové okno s pohľadom na stanicu
-STR_STATION_VIEW_RENAME_TOOLTIP                                 :{BLACK}Zmeniť názov stanice
 
 STR_STATION_VIEW_SCHEDULED_TRAINS_TOOLTIP                       :{BLACK}Zobraziť všetky vlaky, ktoré majú túto stanicu v cestovnom poriadku
 STR_STATION_VIEW_SCHEDULED_ROAD_VEHICLES_TOOLTIP                :{BLACK}Zobraziť všetky autá, ktoré majú túto stanicu v cestovnom poriadku
 STR_STATION_VIEW_SCHEDULED_AIRCRAFT_TOOLTIP                     :{BLACK}Zobraziť všetky lietadlá, ktoré majú túto stanicu v cestovnom poriadku
 STR_STATION_VIEW_SCHEDULED_SHIPS_TOOLTIP                        :{BLACK}Zobraziť všetky lode, ktoré majú túto stanicu v cestovnom poriadku
 
-STR_STATION_VIEW_RENAME_STATION_CAPTION                         :Premenovať stanicu/vykládku
 
 STR_STATION_VIEW_CLOSE_AIRPORT                                  :{BLACK}Uzavri letisko
 STR_STATION_VIEW_CLOSE_AIRPORT_TOOLTIP                          :{BLACK}Zakáž lietadlám pristávať na tomto letisku
@@ -3850,11 +3848,9 @@ STR_STATION_VIEW_CLOSE_AIRPORT_TOOLTIP                          :{BLACK}Zakáž 
 # Waypoint/buoy view window
 STR_WAYPOINT_VIEW_CAPTION                                       :{WHITE}{WAYPOINT}
 STR_WAYPOINT_VIEW_CENTER_TOOLTIP                                :{BLACK}Vycentrovať pohľad na pozíciu smerového bodu. Ctrl+Klik otvorí nové okno s pohľadom na smerový bod
-STR_WAYPOINT_VIEW_CHANGE_WAYPOINT_NAME                          :{BLACK}Zmeniť meno smerového bodu
 STR_BUOY_VIEW_CENTER_TOOLTIP                                    :{BLACK}Vycentrovať pohľad na pozíciu bóje. Ctrl+Klik otvorí nové okno s pohľadom na bóju
 STR_BUOY_VIEW_RENAME_TOOLTIP                                    :{BLACK}Zmeniť meno bóje
 
-STR_EDIT_WAYPOINT_NAME                                          :{WHITE}Upraviť názvy smerových bodov
 
 # Finances window
 STR_FINANCES_CAPTION                                            :{WHITE}Financie spoločnosti {COMPANY} {BLACK}{COMPANY_NUM}
@@ -3967,7 +3963,7 @@ STR_COMPANY_INFRASTRUCTURE_VIEW_TOTAL_PERIOD                    :{WHITE}{CURRENC
 
 # Industry directory
 STR_INDUSTRY_DIRECTORY_NONE                                     :{ORANGE}- Nič -
-STR_INDUSTRY_DIRECTORY_ITEM_INFO                                :{BLACK}{CARGO_LONG}{STRING}{YELLOW} ({COMMA}% prepraven{P é é ých}){BLACK}
+STR_INDUSTRY_DIRECTORY_ITEM_INFO                                :{BLACK}{CARGO_LONG}{STRING}{YELLOW} ({COMMA}% prepraven{P é é ých})
 STR_INDUSTRY_DIRECTORY_ITEM_NOPROD                              :{ORANGE}{INDUSTRY}
 STR_INDUSTRY_DIRECTORY_ITEM_PROD1                               :{ORANGE}{INDUSTRY} {STRING}
 STR_INDUSTRY_DIRECTORY_ITEM_PROD2                               :{ORANGE}{INDUSTRY} {STRING}, {STRING}
@@ -3988,9 +3984,9 @@ STR_INDUSTRY_VIEW_LOCATION_TOOLTIP                              :{BLACK}Vycentro
 STR_INDUSTRY_VIEW_PRODUCTION_LEVEL                              :{BLACK}Úroveň produkcie: {YELLOW}{COMMA}%
 STR_INDUSTRY_VIEW_INDUSTRY_ANNOUNCED_CLOSURE                    :{YELLOW}Priemysel oznámil blížiace sa uzatvorenie!
 
-STR_INDUSTRY_VIEW_REQUIRES_N_CARGO                              :{BLACK}Vyžaduje: {YELLOW}{STRING}{STRING}
-STR_INDUSTRY_VIEW_PRODUCES_N_CARGO                              :{BLACK}Produkuje: {YELLOW}{STRING}{STRING}
-STR_INDUSTRY_VIEW_CARGO_LIST_EXTENSION                          :, {STRING}{STRING}
+STR_INDUSTRY_VIEW_REQUIRES_N_CARGO                              :{BLACK}Vyžaduje: {YELLOW}{STRING}
+STR_INDUSTRY_VIEW_PRODUCES_N_CARGO                              :{BLACK}Produkuje: {YELLOW}{STRING}
+STR_INDUSTRY_VIEW_CARGO_LIST_EXTENSION                          :{STRING}{STRING}
 
 STR_INDUSTRY_VIEW_REQUIRES                                      :{BLACK}Vyžaduje:
 
@@ -4511,7 +4507,7 @@ STR_VEHICLE_DETAILS_TRAIN_CAPACITIES_TOOLTIP                    :{BLACK}Zobrazi�
 STR_VEHICLE_DETAIL_TAB_TOTAL_CARGO                              :{BLACK}Celkový náklad
 STR_VEHICLE_DETAILS_TRAIN_TOTAL_CARGO_TOOLTIP                   :{BLACK}Zobraziť celkovú kapacitu vlaku, rozdelenú podľa typu nákladu
 
-STR_VEHICLE_DETAILS_TRAIN_ARTICULATED_RV_CAPACITY               :{BLACK}Kapacita: {LTBLUE}
+STR_VEHICLE_DETAILS_TRAIN_ARTICULATED_RV_CAPACITY               :{BLACK}Kapacita: {LTBLUE}{STRING}
 
 # Vehicle refit
 STR_REFIT_CAPTION                                               :{WHITE}{VEHICLE} (Prestavať)

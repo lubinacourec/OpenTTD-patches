@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file tbtr_template_vehicle.h Template-based train replacement: template vehicle header. */
@@ -121,9 +121,9 @@ public:
 	TemplateVehicleImageDimensions image_dimensions{}; ///< NOSAVE: image dimensions
 	SpriteID colourmap{};                              ///< NOSAVE: cached colour mapping
 
-	TemplateVehicle(VehicleType type = VEH_INVALID, EngineID e = EngineID::Invalid(), Owner = _local_company);
+	TemplateVehicle(TemplateID index, VehicleType type = VEH_INVALID, EngineID e = EngineID::Invalid(), Owner = _local_company);
 
-	TemplateVehicle(EngineID eid) : first(this), engine_type(eid)
+	TemplateVehicle(TemplateID index, EngineID eid) : PoolItemBase(index), first(this), engine_type(eid)
 	{
 		this->sprite_seq.count = 1;
 	}
@@ -139,7 +139,6 @@ public:
 	void SetFirst(TemplateVehicle *v);
 
 	TemplateVehicle *GetNextUnit() const;
-	TemplateVehicle *GetPrevUnit();
 
 	bool IsSetReuseDepotVehicles() const { return this->reuse_depot_vehicles; }
 	bool IsSetKeepRemainingVehicles() const { return this->keep_remaining_vehicles; }

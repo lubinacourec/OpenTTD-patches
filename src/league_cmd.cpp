@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file league_cmd.cpp Handling of league tables. */
@@ -62,7 +62,7 @@ static std::tuple<CommandCost, LeagueTableID> CmdCreateLeagueTableImpl(DoCommand
 	if (title.empty()) return { CMD_ERROR, LeagueTableID::Invalid() };
 
 	if (flags.Test(DoCommandFlag::Execute)) {
-		LeagueTable *lt = new LeagueTable(title, header, footer);
+		LeagueTable *lt = LeagueTable::Create(title, header, footer);
 		return { CommandCost(), lt->index };
 	}
 
@@ -81,7 +81,7 @@ CommandCost CmdCreateLeagueTable(DoCommandFlags flags, const EncodedString &titl
  * @param flags type of operation
  * @param table Id of the league table this element belongs to
  * @param rating Value that elements are ordered by
- * @param company Company to show the color blob for or CompanyID::Invalid()
+ * @param company Company to show the colour blob for or CompanyID::Invalid()
  * @param text Text of the element
  * @param score String representation of the score associated with the element
  * @param link_type Type of the referenced object
@@ -97,7 +97,7 @@ static std::tuple<CommandCost, LeagueTableElementID> CmdCreateLeagueTableElement
 	if (company != CompanyID::Invalid() && !Company::IsValidID(company)) return { CMD_ERROR, LeagueTableElementID::Invalid() };
 
 	if (flags.Test(DoCommandFlag::Execute)) {
-		LeagueTableElement *lte = new LeagueTableElement(table, rating, company, text, score, link);
+		LeagueTableElement *lte = LeagueTableElement::Create(table, rating, company, text, score, link);
 		InvalidateWindowData(WC_COMPANY_LEAGUE, table);
 		return { CommandCost(), lte->index };
 	}
@@ -115,7 +115,7 @@ CommandCost CmdCreateLeagueTableElement(DoCommandFlags flags, LeagueTableID tabl
  * Update the attributes of a league table element.
  * @param flags type of operation
  * @param element Id of the element to update
- * @param company Company to show the color blob for or CompanyID::Invalid()
+ * @param company Company to show the colour blob for or CompanyID::Invalid()
  * @param text Text of the element
  * @param link_type Type of the referenced object
  * @param link_target Id of the referenced object

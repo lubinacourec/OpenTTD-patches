@@ -2,13 +2,10 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
-/**
- * @file aircraft_cmd.cpp
- * This file deals with aircraft and airport movements functionalities
- */
+/** @file aircraft_cmd.cpp This file deals with aircraft and airport movements functionalities. */
 
 #include "stdafx.h"
 #include "aircraft.h"
@@ -292,8 +289,8 @@ CommandCost CmdBuildAircraft(TileIndex tile, DoCommandFlags flags, const Engine 
 	tile = st->airport.GetHangarTile(st->airport.GetHangarNum(tile));
 
 	if (flags.Test(DoCommandFlag::Execute)) {
-		Aircraft *v = new Aircraft(); // aircraft
-		Aircraft *u = new Aircraft(); // shadow
+		Aircraft *v = Aircraft::Create(); // aircraft
+		Aircraft *u = Aircraft::Create(); // shadow
 		*ret = v;
 
 		v->direction = DIR_SE;
@@ -388,7 +385,7 @@ CommandCost CmdBuildAircraft(TileIndex tile, DoCommandFlags flags, const Engine 
 
 		/* Aircraft with 3 vehicles (chopper)? */
 		if (v->subtype == AIR_HELICOPTER) {
-			Aircraft *w = new Aircraft();
+			Aircraft *w = Aircraft::Create();
 			w->engine_type = e->index;
 			w->direction = DIR_N;
 			w->owner = _current_company;
@@ -1028,7 +1025,7 @@ static bool AircraftController(Aircraft *v)
 	}
 
 	/* Get distance from destination pos to current pos. */
-	uint dist = abs(x + amd.x - v->x_pos) +  abs(y + amd.y - v->y_pos);
+	uint dist = abs(x + amd.x - v->x_pos) + abs(y + amd.y - v->y_pos);
 
 	/* Need exact position? */
 	if (!amd.flags.Test(AirportMovingDataFlag::ExactPosition) && dist <= (amd.flags.Test(AirportMovingDataFlag::SlowTurn) ? 8U : 4U)) return true;
@@ -1061,10 +1058,21 @@ static bool AircraftController(Aircraft *v)
 	uint speed_limit = SPEED_LIMIT_TAXI;
 	bool hard_limit = true;
 
-	if (amd.flags.Test(AirportMovingDataFlag::NoSpeedClamp)) speed_limit = SPEED_LIMIT_NONE;
-	if (amd.flags.Test(AirportMovingDataFlag::Hold)) { speed_limit = SPEED_LIMIT_HOLD;     hard_limit = false; }
-	if (amd.flags.Test(AirportMovingDataFlag::Land)) { speed_limit = SPEED_LIMIT_APPROACH; hard_limit = false; }
-	if (amd.flags.Test(AirportMovingDataFlag::Brake)) { speed_limit = SPEED_LIMIT_TAXI;     hard_limit = false; }
+	if (amd.flags.Test(AirportMovingDataFlag::NoSpeedClamp)) {
+		speed_limit = SPEED_LIMIT_NONE;
+	}
+	if (amd.flags.Test(AirportMovingDataFlag::Hold)) {
+		speed_limit = SPEED_LIMIT_HOLD;
+		hard_limit = false;
+	}
+	if (amd.flags.Test(AirportMovingDataFlag::Land)) {
+		speed_limit = SPEED_LIMIT_APPROACH;
+		hard_limit = false;
+	}
+	if (amd.flags.Test(AirportMovingDataFlag::Brake)) {
+		speed_limit = SPEED_LIMIT_TAXI;
+		hard_limit = false;
+	}
 
 	int count = UpdateAircraftSpeed(v, speed_limit, hard_limit);
 	if (count == 0) return false;
@@ -1267,7 +1275,7 @@ static bool HandleCrashedAircraft(Aircraft *v)
 	Station *st = GetTargetAirportIfValid(v);
 
 	/* make aircraft crash down to the ground */
-	if (v->crashed_counter < 500 && st == nullptr && ((v->crashed_counter % 3) == 0) ) {
+	if (v->crashed_counter < 500 && st == nullptr && ((v->crashed_counter % 3) == 0)) {
 		int z = GetSlopePixelZ(Clamp(v->x_pos, 0, Map::MaxX() * TILE_SIZE), Clamp(v->y_pos, 0, Map::MaxY() * TILE_SIZE));
 		v->z_pos -= 1;
 		if (v->z_pos <= z) {
@@ -1434,7 +1442,7 @@ static void CrashAirplane(Aircraft *v)
 	v->cargo.Truncate();
 	v->Next()->cargo.Truncate();
 	const Station *st = GetTargetAirportIfValid(v);
-	TileIndex vt = TileVirtXY(v->x_pos, v->y_pos);
+	TileIndex vt = TileVirtXYClampedToMap(v->x_pos, v->y_pos);
 
 	EncodedString headline;
 	if (st == nullptr) {
@@ -1919,7 +1927,7 @@ static bool AirportMove(Aircraft *v, const AirportFTAClass *apc)
 {
 	/* error handling */
 	if (v->pos >= apc->nofelements) {
-		Debug(misc, 0, "[Ap] position {} is not valid for current airport. Max position is {}", v->pos, apc->nofelements-1);
+		Debug(misc, 0, "[Ap] position {} is not valid for current airport. Max position is {}", v->pos, apc->nofelements - 1);
 		assert(v->pos < apc->nofelements);
 	}
 

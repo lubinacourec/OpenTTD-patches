@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file strings.cpp Handling of translated strings. */
@@ -68,7 +68,21 @@ char32_t _decimal_separator_char; ///< For GetDecimalSeparatorChar.
 
 std::string _temp_special_strings[16];
 
-static void FormatString(StringBuilder builder, std::string_view str, StringParameters &args, uint case_index = 0, bool game_script = false, bool dry_run = false);
+enum class FormatStringRunMode : uint8_t {
+	Normal,         ///< Normal mode of operation for top-level calls.
+	NoDryRun,       ///< Disable dry-run, but still do colour push/pop.
+	DryRun,         ///< Internally triggered dry-run.
+	DryRunTopLevel, ///< Same as DryRun, except skip the string scan.
+	Direct,         ///< Disable dry-run and auto colour push/pop, single-pass operation with direct output.
+};
+
+static void FormatString(StringBuilder builder, std::string_view str, StringParameters &args,
+		uint case_index = 0, bool game_script = false, FormatStringRunMode run_mode = FormatStringRunMode::Normal);
+
+inline void FormatStringDirect(StringBuilder builder, std::string_view str, StringParameters &args, uint case_index = 0)
+{
+	FormatString(builder, str, args, case_index, false, FormatStringRunMode::Direct);
+}
 
 /**
  * Get the next parameter from our parameters.
@@ -326,12 +340,23 @@ static bool GetSpecialNameString(StringBuilder builder, StringID string, StringP
  * @param params The span of parameters to pass.
  * @param case_index The current case index.
  * @param game_script True when doing GameScript text processing.
- * @param dry_run True when the args' type data is not yet initialized.
+ * @param run_mode FormatStringRunMode::DryRun when the args' type data is not yet initialized.
  */
-static void FormatString(StringBuilder builder, std::string_view str, std::span<StringParameter> params, uint case_index = 0, bool game_script = false, bool dry_run = false)
+static void FormatString(StringBuilder builder, std::string_view str, std::span<StringParameter> params, uint case_index = 0, bool game_script = false, FormatStringRunMode run_mode = FormatStringRunMode::Normal)
 {
 	StringParameters tmp_params{params};
-	FormatString(builder, str, tmp_params, case_index, game_script, dry_run);
+	FormatString(builder, str, tmp_params, case_index, game_script, run_mode);
+}
+
+inline void FormatStringDirect(StringBuilder builder, std::string_view str, std::span<StringParameter> params, uint case_index = 0)
+{
+	return FormatString(builder, str, params, case_index, false, FormatStringRunMode::Direct);
+}
+
+inline void FormatRawString(StringBuilder builder, std::string_view str)
+{
+	StringParameters tmp_params{};
+	FormatString(builder, str, tmp_params, 0, false, FormatStringRunMode::NoDryRun);
 }
 
 struct LanguagePack : public LanguagePackHeader {
@@ -654,7 +679,7 @@ static void FormatStateTicksHHMMString(StringBuilder builder, StateTicks ticks, 
 	format_to_fixed_z::format_to(hour,   lastof(hour),   "{:02}", minutes.ClockHour());
 	format_to_fixed_z::format_to(minute, lastof(minute), "{:02}", minutes.ClockMinute());
 	auto tmp_params = MakeParameters(hour, minute);
-	FormatString(builder, GetStringPtr(STR_FORMAT_DATE_MINUTES), tmp_params, case_index);
+	FormatStringDirect(builder, GetStringPtr(STR_FORMAT_DATE_MINUTES), tmp_params, case_index);
 }
 
 static void FormatTimeHHMMString(StringBuilder builder, uint time, uint case_index)
@@ -663,7 +688,7 @@ static void FormatTimeHHMMString(StringBuilder builder, uint time, uint case_ind
 	format_to_fixed_z::format_to(hour,   lastof(hour),   "{:02}", (int) time / 100);
 	format_to_fixed_z::format_to(minute, lastof(minute), "{:02}", (int) time % 100);
 	auto tmp_params = MakeParameters(hour, minute);
-	return FormatString(builder, GetStringPtr(STR_FORMAT_DATE_MINUTES), tmp_params, case_index);
+	FormatStringDirect(builder, GetStringPtr(STR_FORMAT_DATE_MINUTES), tmp_params, case_index);
 }
 
 static void FormatYmdString(StringBuilder builder, CalTime::Date date, uint case_index)
@@ -671,7 +696,7 @@ static void FormatYmdString(StringBuilder builder, CalTime::Date date, uint case
 	CalTime::YearMonthDay ymd = CalTime::ConvertDateToYMD(date);
 
 	auto tmp_params = MakeParameters(STR_DAY_NUMBER_1ST + ymd.day - 1, STR_MONTH_ABBREV_JAN + ymd.month, ymd.year);
-	FormatString(builder, GetStringPtr(STR_FORMAT_DATE_LONG), tmp_params, case_index);
+	FormatStringDirect(builder, GetStringPtr(STR_FORMAT_DATE_LONG), tmp_params, case_index);
 }
 
 static void FormatMonthAndYear(StringBuilder builder, CalTime::Date date, uint case_index)
@@ -679,7 +704,7 @@ static void FormatMonthAndYear(StringBuilder builder, CalTime::Date date, uint c
 	CalTime::YearMonthDay ymd = CalTime::ConvertDateToYMD(date);
 
 	auto tmp_params = MakeParameters(STR_MONTH_JAN + ymd.month, ymd.year);
-	FormatString(builder, GetStringPtr(STR_FORMAT_DATE_SHORT), tmp_params, case_index);
+	FormatStringDirect(builder, GetStringPtr(STR_FORMAT_DATE_SHORT), tmp_params, case_index);
 }
 
 static void FormatTinyOrISODate(StringBuilder builder, CalTime::Date date, StringID str)
@@ -688,7 +713,7 @@ static void FormatTinyOrISODate(StringBuilder builder, CalTime::Date date, Strin
 
 	/* Day and month are zero-padded with ZEROFILL_NUM, hence the two 2s. */
 	auto tmp_params = MakeParameters(ymd.day, 2, ymd.month + 1, 2, ymd.year);
-	FormatString(builder, GetStringPtr(str), tmp_params);
+	FormatStringDirect(builder, GetStringPtr(str), tmp_params, 0);
 }
 
 static void FormatGenericCurrency(StringBuilder builder, const CurrencySpec *spec, Money number, bool compact)
@@ -738,7 +763,7 @@ static void FormatGenericCurrency(StringBuilder builder, const CurrencySpec *spe
 	if (separator.empty()) separator = _langpack.langpack->digit_group_separator_currency;
 	FormatNumber(builder, number, separator);
 	if (number_str != STR_NULL) {
-		FormatString(builder, GetStringPtr(number_str), {});
+		FormatStringDirect(builder, GetStringPtr(number_str), {});
 	}
 
 	/* Add suffix part, following symbol_pos specification.
@@ -1265,7 +1290,7 @@ static void FormatUnitWeightRatio(StringBuilder builder, const Units &unit, int6
 	DecimalValue dv = ConvertWeightRatioToDisplay(unit, raw_value);
 
 	auto tmp_params = MakeParameters(dv.value, dv.decimals);
-	FormatString(builder, tmp_buffer, tmp_params);
+	FormatStringDirect(builder, tmp_buffer, tmp_params);
 }
 
 /**
@@ -1409,31 +1434,110 @@ static void DecodeEncodedString(StringConsumer &consumer, bool game_script, Stri
 }
 
 /**
+ * Test if a string contains colour codes, and is not wrapped by push/pop codes.
+ * @param buffer String to test.
+ * @return True iff the string is colour safe.
+ */
+static bool IsColourSafe(std::string_view buffer)
+{
+	int safety = 0;
+	for (char32_t ch : Utf8View(buffer)) {
+		if (ch == SCC_PUSH_COLOUR) {
+			++safety;
+		} else if (ch == SCC_POP_COLOUR) {
+			--safety;
+			if (safety < 0) return false;
+		} else if ((ch >= SCC_BLUE && ch <= SCC_BLACK) || ch == SCC_COLOUR) {
+			if (safety == 0) return false;
+		}
+	}
+	return true;
+}
+
+/**
+ * Test if a string is trivial and does not need any special processing.
+ * @param buffer String to test.
+ * @return True iff the string is trivial.
+ */
+static bool IsStringTrivial(std::string_view buffer)
+{
+	while (!buffer.empty()) {
+		/* Use DecodeUtf8 instead of Utf8View so that UTF-8 decode errors (len == 0) can be detected (return false). */
+		auto [len, c] = DecodeUtf8(buffer);
+		if (len == 0 || c == 0) return false;
+		if (c >= SCC_CONTROL_START && c <= SCC_CONTROL_END) return false;
+		buffer.remove_prefix(len);
+	}
+
+	return true;
+}
+
+/**
  * Parse most format codes within a string and write the result to a buffer.
  * @param builder The string builder to write the final string to.
  * @param str_arg The original string with format codes.
  * @param args    Pointer to extra arguments used by various string codes.
- * @param dry_run True when the args' type data is not yet initialized.
+ * @param run_mode FormatStringRunMode::DryRun when the args' type data is not yet initialized.
  */
-static void FormatString(StringBuilder builder, std::string_view str_arg, StringParameters &args, uint orig_case_index, bool game_script, bool dry_run)
+static void FormatString(StringBuilder builder, std::string_view str_arg, StringParameters &args, uint orig_case_index, bool game_script, FormatStringRunMode run_mode)
 {
-	size_t orig_first_param_offset = args.GetOffset();
+	if (run_mode == FormatStringRunMode::DryRunTopLevel) {
+		/* Don't do the IsStringTrivial scan, as it has already been done for this string. */
+		run_mode = FormatStringRunMode::DryRun;
+	} else if (run_mode != FormatStringRunMode::Direct && IsStringTrivial(str_arg)) {
+		/* String has no string codes at all, copy it to the output with minimum overhead. */
+		builder.Put(str_arg);
+		return;
+	}
 
-	if (!dry_run) {
+	size_t orig_first_param_offset = args.GetOffset();
+	bool emit_automatic_push_pop = false;
+
+	static uint32_t dry_run_gender_read_count = 0;
+
+	if (run_mode == FormatStringRunMode::Normal) {
 		/*
-		 * This function is normally called with `dry_run` false, then we call this function again
-		 * with `dry_run` being true. The dry run is required for the gender formatting. For the
+		 * This function is normally called with `run_mode` `Normal`, then we call this function again
+		 * with `run_mode` being `DryRun`. The dry run is required for the gender formatting. For the
 		 * gender determination we need to format a sub string to get the gender, but for that we
 		 * need to know as what string control code type the specific parameter is encoded. Since
 		 * gendered words can be before the "parameter" words, this needs to be determined before
 		 * the actual formatting.
 		 */
+		const uint32_t start_dry_run_gender_read_count = dry_run_gender_read_count;
 		format_buffer buffer;
 		StringBuilder dry_run_builder(buffer);
-		FormatString(dry_run_builder, str_arg, args, orig_case_index, game_script, true);
+		FormatString(dry_run_builder, str_arg, args, orig_case_index, game_script, FormatStringRunMode::DryRunTopLevel);
+		emit_automatic_push_pop = !IsColourSafe(buffer);
+
+		if (start_dry_run_gender_read_count == dry_run_gender_read_count) {
+			/* No gender reads encountered when performing the dry run, so the dry run result is the same as the final result, so just append the dry run result. */
+			if (emit_automatic_push_pop) builder.PutUtf8(SCC_PUSH_COLOUR);
+			builder.Put(buffer);
+			if (emit_automatic_push_pop) builder.PutUtf8(SCC_POP_COLOUR);
+			return;
+		} else {
+			/* Continue with second pass string formatting. Reset dry_run_gender_read_count so that any parent FormatString does not unnecessarily also do a second pass. */
+			dry_run_gender_read_count = start_dry_run_gender_read_count;
+		}
+
 		/* We have to restore the original offset here to to read the correct values. */
 		args.SetOffset(orig_first_param_offset);
+
+		/* A dry-run has already been done, so no more are required. */
+		run_mode = FormatStringRunMode::NoDryRun;
+	} else if (run_mode == FormatStringRunMode::NoDryRun) {
+		/* Disable dry-run, but still do automatic colour push/pop, using a format_buffer. */
+		format_buffer buffer;
+		StringBuilder direct_run_builder(buffer);
+		FormatString(direct_run_builder, str_arg, args, orig_case_index, game_script, FormatStringRunMode::Direct);
+		emit_automatic_push_pop = !IsColourSafe(buffer);
+		if (emit_automatic_push_pop) builder.PutUtf8(SCC_PUSH_COLOUR);
+		builder.Put(buffer);
+		if (emit_automatic_push_pop) builder.PutUtf8(SCC_POP_COLOUR);
+		return;
 	}
+
 	uint next_substr_case_index = 0;
 	struct StrStackItem {
 		StringConsumer consumer;
@@ -1446,6 +1550,8 @@ static void FormatString(StringBuilder builder, std::string_view str_arg, String
 	};
 	std::stack<StrStackItem, std::vector<StrStackItem>> str_stack;
 	str_stack.emplace(str_arg, orig_first_param_offset, orig_case_index);
+
+	if (emit_automatic_push_pop) builder.PutUtf8(SCC_PUSH_COLOUR);
 
 	for (;;) {
 		try {
@@ -1507,13 +1613,15 @@ static void FormatString(StringBuilder builder, std::string_view str_arg, String
 				}
 
 				case SCC_GENDER_LIST: { // {G 0 Der Die Das}
+					if (run_mode == FormatStringRunMode::DryRun) dry_run_gender_read_count++; // Record that a gender read occured, for dry run handling.
+
 					/* First read the meta data from the language file. */
 					size_t offset = ref_param_offset + consumer.ReadUint8();
 					uint8_t gender = 0;
 					if (offset >= args.GetNumParameters()) {
 						/* The offset may come from an external NewGRF, and be invalid. */
 						builder += "(invalid GENDER parameter)";
-					} else if (!dry_run && args.GetTypeAtOffset(offset) != 0) {
+					} else if (run_mode != FormatStringRunMode::DryRun && args.GetTypeAtOffset(offset) != 0) {
 						/* Now we need to figure out what text to resolve, i.e.
 						 * what do we need to draw? So get the actual raw string
 						 * first using the control code to get said string. */
@@ -1524,7 +1632,7 @@ static void FormatString(StringBuilder builder, std::string_view str_arg, String
 							AutoRestoreBackup sgd_backup(_scan_for_gender_data, true);
 							StringBuilder tmp_builder(buffer);
 							StringParameters tmp_params = args.GetRemainingParameters(offset);
-							FormatString(tmp_builder, std::string_view(input.first, input.second), tmp_params);
+							FormatString(tmp_builder, std::string_view(input.first, input.second), tmp_params, 0, false, FormatStringRunMode::Direct);
 						}
 
 						/* The gender is stored at the start of the formatted string. */
@@ -1604,7 +1712,7 @@ static void FormatString(StringBuilder builder, std::string_view str_arg, String
 					break;
 
 				case SCC_RAW_STRING_POINTER: // {RAW_STRING}
-					FormatString(builder, args.GetNextParameterString(), args);
+					FormatString(builder, args.GetNextParameterString(), args, 0, false, run_mode);
 					break;
 
 				case SCC_STRING: {// {STRING}
@@ -1730,7 +1838,7 @@ static void FormatString(StringBuilder builder, std::string_view str_arg, String
 							assert(_settings_game.locale.units_weight < lengthof(_units_weight));
 							const auto &x = _units_weight[_settings_game.locale.units_weight];
 							auto tmp_params = MakeParameters(x.c.ToDisplay(amount), x.decimal_places);
-							FormatString(builder, GetStringPtr(x.l), tmp_params);
+							FormatStringDirect(builder, GetStringPtr(x.l), tmp_params);
 							break;
 						}
 
@@ -1738,7 +1846,7 @@ static void FormatString(StringBuilder builder, std::string_view str_arg, String
 							assert(_settings_game.locale.units_volume < lengthof(_units_volume));
 							const auto &x = _units_volume[_settings_game.locale.units_volume];
 							auto tmp_params = MakeParameters(x.c.ToDisplay(amount), x.decimal_places);
-							FormatString(builder, GetStringPtr(x.l), tmp_params);
+							FormatStringDirect(builder, GetStringPtr(x.l), tmp_params);
 							break;
 						}
 
@@ -1825,7 +1933,7 @@ static void FormatString(StringBuilder builder, std::string_view str_arg, String
 				case SCC_TT_TICKS_LONG: // {TT_TICKS_LONG}
 					if (_settings_client.gui.timetable_in_ticks) {
 						auto tmp_params = MakeParameters(args.GetNextParameter<int64_t>());
-						FormatString(builder, GetStringPtr(STR_UNITS_TICKS), tmp_params);
+						FormatStringDirect(builder, GetStringPtr(STR_UNITS_TICKS), tmp_params);
 					} else {
 						StringID str;
 						if (_settings_time.time_in_minutes) {
@@ -1840,7 +1948,7 @@ static void FormatString(StringBuilder builder, std::string_view str_arg, String
 						const int64_t units = ticks / ratio;
 						const int64_t leftover = (_settings_client.gui.timetable_leftover_time != TLT_OFF) ? ticks % ratio : 0;
 						auto tmp_params = MakeParameters(units);
-						FormatString(builder, GetStringPtr(str), tmp_params);
+						FormatStringDirect(builder, GetStringPtr(str), tmp_params);
 						if (b == SCC_TT_TICKS_LONG && _settings_time.time_in_minutes && units > 59) {
 							int64_t hours = units / 60;
 							int64_t minutes = units % 60;
@@ -1849,7 +1957,7 @@ static void FormatString(StringBuilder builder, std::string_view str_arg, String
 								hours,
 								minutes
 							);
-							FormatString(builder, GetStringPtr(STR_TIMETABLE_MINUTES_SUFFIX), tmp_params);
+							FormatStringDirect(builder, GetStringPtr(STR_TIMETABLE_MINUTES_SUFFIX), tmp_params);
 						}
 						if (leftover != 0 && _settings_client.gui.timetable_leftover_time != TLT_OFF) {
 							StringID leftover_str;
@@ -1863,7 +1971,7 @@ static void FormatString(StringBuilder builder, std::string_view str_arg, String
 								leftover_str = STR_TIMETABLE_LEFTOVER_TICKS;
 							}
 							auto leftover_params = MakeParameters(leftover_value);
-							FormatString(builder, GetStringPtr(leftover_str), leftover_params);
+							FormatStringDirect(builder, GetStringPtr(leftover_str), leftover_params);
 						}
 					}
 					break;
@@ -1876,7 +1984,7 @@ static void FormatString(StringBuilder builder, std::string_view str_arg, String
 						StateTicks tick = args.GetNextParameter<StateTicks>();
 						StateTicksDelta offset = tick - _state_ticks;
 						auto tmp_params = MakeParameters(offset / TICKS_PER_SECOND);
-						FormatString(builder, GetStringPtr(STR_UNITS_SECONDS_SHORT), tmp_params);
+						FormatStringDirect(builder, GetStringPtr(STR_UNITS_SECONDS_SHORT), tmp_params);
 					} else {
 						FormatTinyOrISODate(builder, StateTicksToCalendarDate(args.GetNextParameter<StateTicks>()), STR_FORMAT_DATE_TINY);
 					}
@@ -1887,7 +1995,7 @@ static void FormatString(StringBuilder builder, std::string_view str_arg, String
 					assert(_settings_game.locale.units_force < lengthof(_units_force));
 					const auto &x = _units_force[_settings_game.locale.units_force];
 					auto tmp_params = MakeParameters(x.c.ToDisplay(args.GetNextParameter<int64_t>()), x.decimal_places);
-					FormatString(builder, GetStringPtr(x.s), tmp_params);
+					FormatStringDirect(builder, GetStringPtr(x.s), tmp_params);
 					break;
 				}
 
@@ -1895,7 +2003,7 @@ static void FormatString(StringBuilder builder, std::string_view str_arg, String
 					assert(_settings_game.locale.units_height < lengthof(_units_height));
 					const auto &x = _units_height[_settings_game.locale.units_height];
 					auto tmp_params = MakeParameters(x.c.ToDisplay(args.GetNextParameter<int64_t>()), x.decimal_places);
-					FormatString(builder, GetStringPtr(x.s), tmp_params);
+					FormatStringDirect(builder, GetStringPtr(x.s), tmp_params);
 					break;
 				}
 
@@ -1903,7 +2011,7 @@ static void FormatString(StringBuilder builder, std::string_view str_arg, String
 					assert(_settings_game.locale.units_power < lengthof(_units_power));
 					const auto &x = _units_power[_settings_game.locale.units_power];
 					auto tmp_params = MakeParameters(x.c.ToDisplay(args.GetNextParameter<int64_t>()), x.decimal_places);
-					FormatString(builder, GetStringPtr(x.s), tmp_params);
+					FormatStringDirect(builder, GetStringPtr(x.s), tmp_params);
 					break;
 				}
 
@@ -1912,7 +2020,7 @@ static void FormatString(StringBuilder builder, std::string_view str_arg, String
 					assert(setting < lengthof(_units_power_to_weight));
 					const auto &x = _units_power_to_weight[setting];
 					auto tmp_params = MakeParameters(x.c.ToDisplay(args.GetNextParameter<int64_t>()), x.decimal_places);
-					FormatString(builder, GetStringPtr(x.s), tmp_params);
+					FormatStringDirect(builder, GetStringPtr(x.s), tmp_params);
 					break;
 				}
 
@@ -1922,7 +2030,7 @@ static void FormatString(StringBuilder builder, std::string_view str_arg, String
 					VehicleType vt = static_cast<VehicleType>(GB(arg, 56, 8));
 					const auto &x = GetVelocityUnits(vt);
 					auto tmp_params = MakeParameters(ConvertKmhishSpeedToDisplaySpeed(GB(arg, 0, 56), vt), x.decimal_places);
-					FormatString(builder, GetStringPtr(x.s), tmp_params);
+					FormatStringDirect(builder, GetStringPtr(x.s), tmp_params);
 					break;
 				}
 
@@ -1930,7 +2038,7 @@ static void FormatString(StringBuilder builder, std::string_view str_arg, String
 					assert(_settings_game.locale.units_volume < lengthof(_units_volume));
 					const auto &x = _units_volume[_settings_game.locale.units_volume];
 					auto tmp_params = MakeParameters(x.c.ToDisplay(args.GetNextParameter<int64_t>()), x.decimal_places);
-					FormatString(builder, GetStringPtr(x.s), tmp_params);
+					FormatStringDirect(builder, GetStringPtr(x.s), tmp_params);
 					break;
 				}
 
@@ -1938,7 +2046,7 @@ static void FormatString(StringBuilder builder, std::string_view str_arg, String
 					assert(_settings_game.locale.units_volume < lengthof(_units_volume));
 					const auto &x = _units_volume[_settings_game.locale.units_volume];
 					auto tmp_params = MakeParameters(x.c.ToDisplay(args.GetNextParameter<int64_t>()), x.decimal_places);
-					FormatString(builder, GetStringPtr(x.l), tmp_params);
+					FormatStringDirect(builder, GetStringPtr(x.l), tmp_params);
 					break;
 				}
 
@@ -1946,7 +2054,7 @@ static void FormatString(StringBuilder builder, std::string_view str_arg, String
 					assert(_settings_game.locale.units_weight < lengthof(_units_weight));
 					const auto &x = _units_weight[_settings_game.locale.units_weight];
 					auto tmp_params = MakeParameters(x.c.ToDisplay(args.GetNextParameter<int64_t>()), x.decimal_places);
-					FormatString(builder, GetStringPtr(x.s), tmp_params);
+					FormatStringDirect(builder, GetStringPtr(x.s), tmp_params);
 					break;
 				}
 
@@ -1954,7 +2062,7 @@ static void FormatString(StringBuilder builder, std::string_view str_arg, String
 					assert(_settings_game.locale.units_weight < lengthof(_units_weight));
 					const auto &x = _units_weight[_settings_game.locale.units_weight];
 					auto tmp_params = MakeParameters(x.c.ToDisplay(args.GetNextParameter<int64_t>()), x.decimal_places);
-					FormatString(builder, GetStringPtr(x.l), tmp_params);
+					FormatStringDirect(builder, GetStringPtr(x.l), tmp_params);
 					break;
 				}
 
@@ -1980,7 +2088,7 @@ static void FormatString(StringBuilder builder, std::string_view str_arg, String
 					int64_t duration = args.GetNextParameter<int64_t>();
 					if (realtime) duration *= DayLengthFactor();
 					auto tmp_params = MakeParameters(x.c.ToDisplay(duration), x.decimal_places);
-					FormatString(builder, GetStringPtr(x.s), tmp_params);
+					FormatStringDirect(builder, GetStringPtr(x.s), tmp_params);
 					break;
 				}
 
@@ -1989,7 +2097,7 @@ static void FormatString(StringBuilder builder, std::string_view str_arg, String
 					if (realtime > 0 && ReplaceWallclockMinutesUnit()) realtime++;
 					const auto &x = _units_time_months_or_minutes[realtime];
 					auto tmp_params = MakeParameters(x.c.ToDisplay(args.GetNextParameter<int64_t>()), x.decimal_places);
-					FormatString(builder, GetStringPtr(x.s), tmp_params);
+					FormatStringDirect(builder, GetStringPtr(x.s), tmp_params);
 					break;
 				}
 
@@ -1997,7 +2105,7 @@ static void FormatString(StringBuilder builder, std::string_view str_arg, String
 					uint8_t realtime = EconTime::UsingWallclockUnits(_game_mode == GM_MENU);
 					const auto &x = _units_time_years_or_periods[realtime];
 					auto tmp_params = MakeParameters(x.c.ToDisplay(args.GetNextParameter<int64_t>()), x.decimal_places);
-					FormatString(builder, GetStringPtr(x.s), tmp_params);
+					FormatStringDirect(builder, GetStringPtr(x.s), tmp_params);
 					break;
 				}
 
@@ -2006,7 +2114,7 @@ static void FormatString(StringBuilder builder, std::string_view str_arg, String
 					if (realtime > 0 && ReplaceWallclockMinutesUnit()) realtime++;
 					const auto &x = _units_time_years_or_minutes[realtime];
 					auto tmp_params = MakeParameters(x.c.ToDisplay(args.GetNextParameter<int64_t>()), x.decimal_places);
-					FormatString(builder, GetStringPtr(x.s), tmp_params);
+					FormatStringDirect(builder, GetStringPtr(x.s), tmp_params);
 					break;
 				}
 
@@ -2015,8 +2123,7 @@ static void FormatString(StringBuilder builder, std::string_view str_arg, String
 					if (c == nullptr) break;
 
 					if (!c->name.empty()) {
-						auto tmp_params = MakeReferenceParameters(c->name);
-						GetStringWithArgs(builder, STR_JUST_RAW_STRING, tmp_params);
+						FormatRawString(builder, c->name);
 					} else {
 						auto tmp_params = MakeReferenceParameters(c->name_2);
 						GetStringWithArgs(builder, c->name_1, tmp_params);
@@ -2045,8 +2152,7 @@ static void FormatString(StringBuilder builder, std::string_view str_arg, String
 
 					const Depot *d = Depot::Get(args.GetNextParameter<DepotID>());
 					if (!d->name.empty()) {
-						auto tmp_params = MakeReferenceParameters(d->name);
-						GetStringWithArgs(builder, STR_JUST_RAW_STRING, tmp_params);
+						FormatRawString(builder, d->name);
 					} else {
 						auto tmp_params = MakeParameters(d->town->index, d->town_cn + 1);
 						GetStringWithArgs(builder, STR_FORMAT_DEPOT_NAME_TRAIN + 2 * vt + (d->town_cn == 0 ? 0 : 1), tmp_params);
@@ -2060,8 +2166,7 @@ static void FormatString(StringBuilder builder, std::string_view str_arg, String
 					if (e == nullptr) break;
 
 					if (!e->name.empty() && e->IsEnabled()) {
-						auto tmp_params = MakeReferenceParameters(e->name);
-						GetStringWithArgs(builder, STR_JUST_RAW_STRING, tmp_params);
+						FormatRawString(builder, e->name);
 						break;
 					}
 
@@ -2101,8 +2206,7 @@ static void FormatString(StringBuilder builder, std::string_view str_arg, String
 							GetStringWithArgs(builder, STR_HIERARCHY_SEPARATOR, tmp_params);
 						}
 						if (!g->name.empty()) {
-							auto tmp_params = MakeReferenceParameters(g->name);
-							GetStringWithArgs(builder, STR_JUST_RAW_STRING, tmp_params);
+							FormatRawString(builder, g->name);
 						} else {
 							auto tmp_params = MakeParameters(g->number);
 							GetStringWithArgs(builder, STR_FORMAT_GROUP_NAME, tmp_params);
@@ -2120,14 +2224,14 @@ static void FormatString(StringBuilder builder, std::string_view str_arg, String
 					if (_scan_for_gender_data) {
 						/* Gender is defined by the industry type.
 						 * STR_FORMAT_INDUSTRY_NAME may have the town first, so it would result in the gender of the town name */
-						FormatString(builder, GetStringPtr(GetIndustrySpec(i->type)->name), {}, next_substr_case_index);
+						FormatString(builder, GetStringPtr(GetIndustrySpec(i->type)->name), {}, next_substr_case_index, false, run_mode);
 					} else if (use_cache) { // Use cached version if first call
 						AutoRestoreBackup cache_backup(use_cache, false);
 						builder += i->GetCachedName();
 					} else {
 						/* First print the town name and the industry type name. */
 						auto tmp_params = MakeParameters(i->town->index, GetIndustrySpec(i->type)->name);
-						FormatString(builder, GetStringPtr(STR_FORMAT_INDUSTRY_NAME), tmp_params, next_substr_case_index);
+						FormatString(builder, GetStringPtr(STR_FORMAT_INDUSTRY_NAME), tmp_params, next_substr_case_index, false, run_mode);
 					}
 					next_substr_case_index = 0;
 					break;
@@ -2138,8 +2242,7 @@ static void FormatString(StringBuilder builder, std::string_view str_arg, String
 					if (c == nullptr) break;
 
 					if (!c->president_name.empty()) {
-						auto tmp_params = MakeReferenceParameters(c->president_name);
-						GetStringWithArgs(builder, STR_JUST_RAW_STRING, tmp_params);
+						FormatRawString(builder, c->president_name);
 					} else {
 						auto tmp_params = MakeParameters(c->president_name_2);
 						GetStringWithArgs(builder, c->president_name_1, tmp_params);
@@ -2164,8 +2267,7 @@ static void FormatString(StringBuilder builder, std::string_view str_arg, String
 						AutoRestoreBackup cache_backup(use_cache, false);
 						builder += st->GetCachedName();
 					} else if (!st->name.empty()) {
-						auto tmp_params = MakeReferenceParameters(st->name);
-						GetStringWithArgs(builder, STR_JUST_RAW_STRING, tmp_params);
+						FormatRawString(builder, st->name);
 					} else {
 						StringID string_id = st->string_id;
 						if (st->indtype != IT_INVALID) {
@@ -2198,8 +2300,7 @@ static void FormatString(StringBuilder builder, std::string_view str_arg, String
 						AutoRestoreBackup cache_backup(use_cache, false);
 						builder += t->GetCachedName();
 					} else if (!t->name.empty()) {
-						auto tmp_params = MakeReferenceParameters(t->name);
-						GetStringWithArgs(builder, STR_JUST_RAW_STRING, tmp_params);
+						FormatRawString(builder, t->name);
 					} else {
 						GetTownName(builder, t);
 					}
@@ -2224,8 +2325,7 @@ static void FormatString(StringBuilder builder, std::string_view str_arg, String
 					if (wp == nullptr) break;
 
 					if (!wp->name.empty()) {
-						auto tmp_params = MakeReferenceParameters(wp->name);
-						GetStringWithArgs(builder, STR_JUST_RAW_STRING, tmp_params);
+						FormatRawString(builder, wp->name);
 					} else {
 						auto tmp_params = MakeParameters(wp->town->index, wp->town_cn + 1);
 						StringID string_id = ((wp->string_id == STR_SV_STNAME_BUOY) ? STR_FORMAT_BUOY_NAME : STR_FORMAT_WAYPOINT_NAME);
@@ -2248,8 +2348,7 @@ static void FormatString(StringBuilder builder, std::string_view str_arg, String
 					if (v == nullptr) break;
 
 					if (!v->name.empty()) {
-						auto tmp_params = MakeReferenceParameters(v->name);
-						GetStringWithArgs(builder, STR_JUST_RAW_STRING, tmp_params);
+						FormatRawString(builder, v->name);
 					} else if (v->group_id != DEFAULT_GROUP && vehicle_names != 0 && v->type < VEH_COMPANY_END) {
 						/* The vehicle has no name, but is member of a group, so print group name */
 						uint32_t group_name = v->group_id.base();
@@ -2281,8 +2380,7 @@ static void FormatString(StringBuilder builder, std::string_view str_arg, String
 					if (si == nullptr) break;
 
 					if (!si->name.empty()) {
-						auto tmp_params = MakeReferenceParameters(si->name);
-						GetStringWithArgs(builder, STR_JUST_RAW_STRING, tmp_params);
+						FormatRawString(builder, si->name);
 					} else {
 						GetStringWithArgs(builder, STR_DEFAULT_SIGN_NAME, {});
 					}
@@ -2292,24 +2390,21 @@ static void FormatString(StringBuilder builder, std::string_view str_arg, String
 				case SCC_TR_SLOT_NAME: { // {TRSLOT}
 					const TraceRestrictSlot *slot = TraceRestrictSlot::GetIfValid(args.GetNextParameter<uint32_t>());
 					if (slot == nullptr) break;
-					auto tmp_params = MakeReferenceParameters(slot->name);
-					GetStringWithArgs(builder, STR_JUST_RAW_STRING, tmp_params);
+					FormatRawString(builder, slot->name);
 					break;
 				}
 
 				case SCC_TR_SLOT_GROUP_NAME: { // {TRSLOTGROUP}
 					const TraceRestrictSlotGroup *slot = TraceRestrictSlotGroup::GetIfValid(args.GetNextParameter<uint32_t>());
 					if (slot == nullptr) break;
-					auto tmp_params = MakeReferenceParameters(slot->name);
-					GetStringWithArgs(builder, STR_JUST_RAW_STRING, tmp_params);
+					FormatRawString(builder, slot->name);
 					break;
 				}
 
 				case SCC_TR_COUNTER_NAME: { // {TRCOUNTER}
 					const TraceRestrictCounter *ctr = TraceRestrictCounter::GetIfValid(args.GetNextParameter<uint32_t>());
 					if (ctr == nullptr) break;
-					auto tmp_params = MakeReferenceParameters(ctr->name);
-					GetStringWithArgs(builder, STR_JUST_RAW_STRING, tmp_params);
+					FormatRawString(builder, ctr->name);
 					break;
 				}
 
@@ -2337,6 +2432,8 @@ static void FormatString(StringBuilder builder, std::string_view str_arg, String
 			builder += "(invalid parameter)";
 		}
 	}
+
+	if (emit_automatic_push_pop) builder.PutUtf8(SCC_POP_COLOUR);
 }
 
 

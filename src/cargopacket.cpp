@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file cargopacket.cpp Implementation of the cargo packets. */
@@ -103,20 +103,23 @@ std::string DumpCargoPacketDeferredPaymentStats()
 
 /**
  * Create a new packet for savegame loading.
+ * @param index Index into the cargo packet pool.
  */
-CargoPacket::CargoPacket()
+CargoPacket::CargoPacket(CargoPacketID index) : PoolItemBase(index)
 {
 }
 
 /**
  * Creates a new cargo packet.
  *
+ * @param index Index into the cargo packet pool.
  * @param first_station Source station of the packet.
  * @param count         Number of cargo entities to put in this packet.
  * @param source        Source of the packet (for subsidies).
  * @pre count != 0
  */
-CargoPacket::CargoPacket(StationID first_station,uint16_t count, Source source) :
+CargoPacket::CargoPacket(CargoPacketID index, StationID first_station,uint16_t count, Source source) :
+		PoolItemBase(index),
 		count(count),
 		source(source),
 		first_station(first_station)
@@ -127,13 +130,15 @@ CargoPacket::CargoPacket(StationID first_station,uint16_t count, Source source) 
 /**
  * Create a new cargo packet. Used for older savegames to load in their partial data.
  *
+ * @param index Index into the cargo packet pool.
  * @param count              Number of cargo entities to put in this packet.
  * @param periods_in_transit Number of cargo aging periods the cargo has been in transit.
  * @param first_station      Station the cargo was initially loaded.
  * @param source_xy          Station location the cargo was initially loaded.
  * @param feeder_share       Feeder share the packet has already accumulated.
  */
-CargoPacket::CargoPacket(uint16_t count, uint16_t periods_in_transit, StationID first_station, TileIndex source_xy, Money feeder_share) :
+CargoPacket::CargoPacket(CargoPacketID index, uint16_t count, uint16_t periods_in_transit, StationID first_station, TileIndex source_xy, Money feeder_share) :
+		PoolItemBase(index),
 		count(count),
 		periods_in_transit(periods_in_transit),
 		feeder_share(feeder_share),
@@ -146,11 +151,13 @@ CargoPacket::CargoPacket(uint16_t count, uint16_t periods_in_transit, StationID 
 /**
  * Creates a new cargo packet. Used when loading or splitting packets.
  *
+ * @param index Index into the cargo packet pool.
  * @param count         Number of cargo entities to put in this packet.
  * @param feeder_share  Feeder share the packet has already accumulated.
  * @param original      The original packet we are splitting.
  */
-CargoPacket::CargoPacket(uint16_t count, Money feeder_share, const CargoPacket &original) :
+CargoPacket::CargoPacket(CargoPacketID index, uint16_t count, Money feeder_share, const CargoPacket &original) :
+		PoolItemBase(index),
 		count(count),
 		periods_in_transit(original.periods_in_transit),
 		feeder_share(feeder_share),
@@ -186,7 +193,7 @@ CargoPacket *CargoPacket::Split(uint new_size)
 	if (!CargoPacket::CanAllocateItem()) return nullptr;
 
 	Money fs = this->GetFeederShare(new_size);
-	CargoPacket *cp_new = new CargoPacket(new_size, fs, *this);
+	CargoPacket *cp_new = CargoPacket::Create(new_size, fs, *this);
 	this->feeder_share -= fs;
 
 	if (this->flags & CPF_HAS_DEFERRED_PAYMENT) {
@@ -257,8 +264,6 @@ void CargoPacket::PayDeferredPayments()
 {
 	if (this->flags & CPF_HAS_DEFERRED_PAYMENT) {
 		IterateCargoPacketDeferredPayments(this->index, true, [&](Money &payment, CompanyID cid, VehicleType type) {
-			Backup<CompanyID> cur_company(_current_company, cid, FILE_LINE);
-
 			ExpensesType exp;
 			switch (type) {
 				case VEH_TRAIN: exp = EXPENSES_TRAIN_REVENUE; break;
@@ -267,9 +272,7 @@ void CargoPacket::PayDeferredPayments()
 				case VEH_AIRCRAFT: exp = EXPENSES_AIRCRAFT_REVENUE; break;
 				default: NOT_REACHED();
 			}
-			SubtractMoneyFromCompany(CommandCost(exp, -payment));
-
-			cur_company.Restore();
+			SubtractMoneyFromCompany(cid, CommandCost(exp, -payment));
 		});
 		this->flags &= ~CPF_HAS_DEFERRED_PAYMENT;
 	}

@@ -13,7 +13,7 @@
 # This file is part of OpenTTD.
 # OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
 # OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
 
 
 ##id 0x0000
@@ -312,6 +312,7 @@ STR_SHOW_HIDDEN_ENGINES_VEHICLE_AIRCRAFT_TOOLTIP                :{BLACK}启用�
 STR_BUTTON_DEFAULT                                              :{BLACK}默认
 STR_BUTTON_CANCEL                                               :{BLACK}取消
 STR_BUTTON_OK                                                   :{BLACK}确定
+STR_BUTTON_MOVE                                                 :{BLACK}移动
 
 # On screen keyboard window
 STR_OSK_KEYBOARD_LAYOUT                                         :`1234567890-=\qwertyuiop[]asdfghjkl;'  zxcvbnm,./ .
@@ -1114,7 +1115,7 @@ STR_GAME_OPTIONS_BASE_GRF_TOOLTIP                               :选择使用的
 STR_GAME_OPTIONS_BASE_GRF_DESCRIPTION_TOOLTIP                   :关于基础图形组的额外信息
 
 STR_GAME_OPTIONS_BASE_SFX                                       :基础音效组
-STR_GAME_OPTIONS_BASE_SFX_TOOLTIP                               :选择使用的基础音效组（无法在游戏中更改，只能在主菜单更改）
+STR_GAME_OPTIONS_BASE_SFX_TOOLTIP                               :选择使用的基础音效组
 STR_GAME_OPTIONS_BASE_SFX_DESCRIPTION_TOOLTIP                   :关于基础音效组的额外信息
 
 STR_GAME_OPTIONS_BASE_MUSIC                                     :基础音乐组
@@ -1247,7 +1248,7 @@ STR_CONFIG_SETTING_EXPAND_ALL                                   :展开全部
 STR_CONFIG_SETTING_COLLAPSE_ALL                                 :折叠全部
 STR_CONFIG_SETTING_RESET_ALL                                    :重置所有数值
 STR_CONFIG_SETTING_NO_EXPLANATION_AVAILABLE_HELPTEXT            :（没有可用的提示）
-STR_CONFIG_SETTING_VALUE                                        :{PUSH_COLOUR}{ORANGE}{STRING}{POP_COLOUR}
+STR_CONFIG_SETTING_VALUE                                        :{ORANGE}{STRING}
 STR_CONFIG_SETTING_DEFAULT_VALUE                                :{LTBLUE}默认值：{ORANGE}{STRING}
 STR_CONFIG_SETTING_TYPE                                         :{LTBLUE}设置类型：{ORANGE}{STRING}
 STR_CONFIG_SETTING_TYPE_CLIENT                                  :当前客户端设置（不保存，影响所有游戏）
@@ -2068,7 +2069,7 @@ STR_CONFIG_SETTING_ZOOM_LVL_OUT_4X                              :4 倍
 STR_CONFIG_SETTING_ZOOM_LVL_OUT_8X                              :8 倍
 
 STR_CONFIG_SETTING_SPRITE_ZOOM_MIN                              :贴图的最高分辨率：{STRING}
-STR_CONFIG_SETTING_SPRITE_ZOOM_MIN_HELPTEXT                     :限制贴图的最高分辨率。限制贴图分辨率将避免使用高分辨率贴图，即使它们可用。有助于在混用有/无高分辨率图形的 GRF 文件时保持游戏外观的统一
+STR_CONFIG_SETTING_SPRITE_ZOOM_MIN_HELPTEXT                     :限制贴图的最高分辨率。限制贴图分辨率将避免使用高分辨率贴图，即使它们可用。有助于在混用有/无高分辨率图形的 NewGRF 文件时保持游戏外观的统一
 ###length 3
 STR_CONFIG_SETTING_SPRITE_ZOOM_LVL_MIN                          :4 倍
 STR_CONFIG_SETTING_SPRITE_ZOOM_LVL_IN_2X                        :2 倍
@@ -2090,6 +2091,8 @@ STR_CONFIG_SETTING_LARGER_TOWNS_VALUE                           :1 / {COMMA}
 STR_CONFIG_SETTING_LARGER_TOWNS_DISABLED                        :无
 STR_CONFIG_SETTING_CITY_SIZE_MULTIPLIER                         :初始都市规模系数：{STRING}
 STR_CONFIG_SETTING_CITY_SIZE_MULTIPLIER_HELPTEXT                :游戏开局时，城市的平均规模相对于普通城镇的比值
+STR_CONFIG_SETTING_TOWN_MIN_DISTANCE                            :城镇间最小距离：{STRING}
+STR_CONFIG_SETTING_TOWN_MIN_DISTANCE_HELPTEXT                   :设定生成地图与随机建设城镇时城镇间的最小距离
 
 STR_CONFIG_SETTING_LINKGRAPH_RECALC_INTERVAL                    :客货流更新周期：{STRING}
 STR_CONFIG_SETTING_LINKGRAPH_RECALC_INTERVAL_HELPTEXT           :重新计算客货流的周期。由于重新计算时仅会计算部分客货流，此处设定的数值并不代表所有客货流会按照此周期更新。设定赋值越小，重新计算客货流所需的 CPU 时间越多；设定赋值越大，线路改变时货物再分配所需时间越长
@@ -2882,15 +2885,15 @@ STR_PICKER_HOUSE_TYPE_TOOLTIP                                   :选择建造的
 STR_PICKER_HOUSE_COLLECTION_TOOLTIP                             :选择展示的房屋收藏夹
 
 STR_HOUSE_PICKER_CAPTION                                        :房屋选择
-STR_HOUSE_PICKER_NAME                                           :{BLACK}名称：{ORANGE}{STRING}
-STR_HOUSE_PICKER_POPULATION                                     :{BLACK}人口：{ORANGE}{NUM}
-STR_HOUSE_PICKER_YEARS                                          :{BLACK}可用年份：{ORANGE}{NUM}-{NUM}
-STR_HOUSE_PICKER_YEARS_ANY                                      :{BLACK}可用年份：{ORANGE}不限
-STR_HOUSE_PICKER_YEARS_FROM                                     :{BLACK}可用年份：{ORANGE}自 {NUM} 年起可用
-STR_HOUSE_PICKER_YEARS_UNTIL                                    :{BLACK}可用年份：{ORANGE}至 {NUM} 年前可用
-STR_HOUSE_PICKER_SIZE                                           :{BLACK}大小：{ORANGE}{NUM}×{NUM} 格
-STR_HOUSE_PICKER_CARGO_ACCEPTED                                 :{BLACK}接受货物：{ORANGE}
-STR_HOUSE_PICKER_CARGO_PRODUCED                                 :{BLACK}产出货物：{ORANGE}{CARGO_LIST}
+STR_HOUSE_PICKER_NAME                                           :{BLACK}名称：{GOLD}{STRING}
+STR_HOUSE_PICKER_POPULATION                                     :{BLACK}人口：{GOLD}{NUM}
+STR_HOUSE_PICKER_YEARS                                          :{BLACK}可用年份：{GOLD}{NUM}-{NUM}
+STR_HOUSE_PICKER_YEARS_ANY                                      :{BLACK}可用年份：{GOLD}不限
+STR_HOUSE_PICKER_YEARS_FROM                                     :{BLACK}可用年份：{GOLD}自 {NUM} 年起可用
+STR_HOUSE_PICKER_YEARS_UNTIL                                    :{BLACK}可用年份：{GOLD}至 {NUM} 年前可用
+STR_HOUSE_PICKER_SIZE                                           :{BLACK}大小：{GOLD}{NUM}×{NUM} 格
+STR_HOUSE_PICKER_CARGO_ACCEPTED                                 :{BLACK}接受货物：{GOLD}{STRING}
+STR_HOUSE_PICKER_CARGO_PRODUCED                                 :{BLACK}产出货物：{GOLD}{CARGO_LIST}
 
 STR_HOUSE_PICKER_CLASS_ZONE1                                    :城镇边缘
 STR_HOUSE_PICKER_CLASS_ZONE2                                    :郊区边缘
@@ -3178,7 +3181,7 @@ STR_LAND_AREA_INFORMATION_AIRPORT_CLASS                         :{BLACK}机场�
 STR_LAND_AREA_INFORMATION_AIRPORT_NAME                          :{BLACK}机场名称：{LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_AIRPORTTILE_NAME                      :{BLACK}机场区域名称：{LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_NEWGRF_NAME                           :{BLACK}NewGRF：{LTBLUE}{STRING}
-STR_LAND_AREA_INFORMATION_CARGO_ACCEPTED                        :{BLACK}接受货物：{LTBLUE}
+STR_LAND_AREA_INFORMATION_CARGO_ACCEPTED                        :{BLACK}接受货物：{LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_CARGO_EIGHTS                          :({COMMA}/8 {STRING})
 STR_LANG_AREA_INFORMATION_RAIL_TYPE                             :{BLACK}铁轨类型：{LTBLUE}{STRING}
 STR_LANG_AREA_INFORMATION_ROAD_TYPE                             :{BLACK}道路类型：{LTBLUE}{STRING}
@@ -3641,7 +3644,7 @@ STR_NEWGRF_ERROR_INVALID_PARAMETER                              :{1:STRING} 具�
 STR_NEWGRF_ERROR_LOAD_BEFORE                                    :{1:STRING} 必须在 {2:STRING} 之前加载
 STR_NEWGRF_ERROR_LOAD_AFTER                                     :{1:STRING} 必须在 {2:STRING} 后加载
 STR_NEWGRF_ERROR_OTTD_VERSION_NUMBER                            :{1:STRING} 需要 OpenTTD {2:STRING} 或更高版本
-STR_NEWGRF_ERROR_AFTER_TRANSLATED_FILE                          :GRF 文件翻译后出现错误
+STR_NEWGRF_ERROR_AFTER_TRANSLATED_FILE                          :NewGRF 文件翻译后出现错误
 STR_NEWGRF_ERROR_TOO_MANY_NEWGRFS_LOADED                        :加载的 NewGRF 太多
 STR_NEWGRF_ERROR_STATIC_GRF_CAUSES_DESYNC                       :载入 {1:STRING} 为静态 NewGRF 时载入 {2:STRING} 可能造成同步错误
 STR_NEWGRF_ERROR_UNEXPECTED_SPRITE                              :未预期的 sprite（sprite {3:NUM}）
@@ -3650,7 +3653,7 @@ STR_NEWGRF_ERROR_INVALID_ID                                     :尝试使用非
 STR_NEWGRF_ERROR_CORRUPT_SPRITE                                 :{YELLOW}{STRING} 含有损坏的图形元素{}所有损坏的图形元素{}将显示为红色的问号（？）
 STR_NEWGRF_ERROR_MULTIPLE_ACTION_8                              :具有多个 Action 8（sprite {3:NUM}）
 STR_NEWGRF_ERROR_READ_BOUNDS                                    :读取 pseudo-sprite 时越界（sprite {3:NUM}）
-STR_NEWGRF_ERROR_GRM_FAILED                                     :请求的 GRF 资源不可用（sprite {3:NUM}）
+STR_NEWGRF_ERROR_GRM_FAILED                                     :请求的 NewGRF 资源不可用（sprite {3:NUM}）
 STR_NEWGRF_ERROR_FORCEFULLY_DISABLED                            :{1:STRING} 被 {STRING} 禁用
 STR_NEWGRF_ERROR_INVALID_SPRITE_LAYOUT                          :错误或未知的 sprite layout 格式（sprite {3:NUM}）
 STR_NEWGRF_ERROR_LIST_PROPERTY_TOO_LONG                         :属性数值列表中元素过多（sprite {3:NUM}，属性 {4:HEX}）
@@ -3661,12 +3664,12 @@ STR_NEWGRF_POPUP_CAUTION_CAPTION                                :{WHITE}注意�
 STR_NEWGRF_CONFIRMATION_TEXT                                    :{YELLOW}此操作将改变一个进行中的游戏，可能导致游戏崩溃或破坏游戏资料。修改后遇到错误时请不要向开发者报告。{}真的确定继续吗？
 
 STR_NEWGRF_DUPLICATE_GRFID                                      :{WHITE}不能添加文件：重复的 GRF ID
-STR_NEWGRF_COMPATIBLE_LOADED                                    :{ORANGE}未找到匹配的文件（已载入兼容的 GRF）
+STR_NEWGRF_COMPATIBLE_LOADED                                    :{ORANGE}未找到匹配的文件（已载入兼容的 NewGRF）
 STR_NEWGRF_TOO_MANY_NEWGRFS                                     :{WHITE}加入的 NewGRF 文件达到上限，不能再新增
 
 STR_NEWGRF_COMPATIBLE_LOAD_WARNING                              :{WHITE}已为缺失的文件载入兼容的 GRF
 STR_NEWGRF_DISABLED_WARNING                                     :{WHITE}已禁用缺失的 GRF 文件
-STR_NEWGRF_UNPAUSE_WARNING_TITLE                                :{YELLOW}无法找到 GRF 文件
+STR_NEWGRF_UNPAUSE_WARNING_TITLE                                :{YELLOW}无法找到 NewGRF 文件
 STR_NEWGRF_UNPAUSE_WARNING                                      :{WHITE}取消暂停可能造成 OpenTTD 游戏错误，请不要将向开发人员报告接下来可能出现的错误情形。{}真的确定取消暂停吗？
 
 # NewGRF status
@@ -3710,7 +3713,7 @@ STR_SIGN_LIST_MATCH_CASE                                        :{BLACK}符合�
 STR_SIGN_LIST_MATCH_CASE_TOOLTIP                                :{BLACK}显示大小写符合过滤字符串的标志列表
 
 # Sign window
-STR_EDIT_SIGN_CAPTION                                           :{WHITE}标记标志文字
+STR_EDIT_SIGN_CAPTION                                           :{WHITE}编辑标志
 STR_EDIT_SIGN_LOCATION_TOOLTIP                                  :{BLACK}将屏幕中心移动到标志所在的位置。按住 <Ctrl> 单击会在新视点中显示目标位置
 STR_EDIT_SIGN_NEXT_SIGN_TOOLTIP                                 :{BLACK}前往下个标记
 STR_EDIT_SIGN_PREVIOUS_SIGN_TOOLTIP                             :{BLACK}前往上个标记
@@ -3928,14 +3931,14 @@ STR_CARGO_RATING_EXCELLENT                                      :卓越
 STR_CARGO_RATING_OUTSTANDING                                    :完美（最高评价）
 
 STR_STATION_VIEW_CENTER_TOOLTIP                                 :{BLACK}将屏幕中心移动到车站所在的位置。按住 <Ctrl> 单击会在新视点中显示目标位置
-STR_STATION_VIEW_RENAME_TOOLTIP                                 :{BLACK}重命名车站
+STR_STATION_VIEW_EDIT_TOOLTIP                                   :{BLACK}重命名车站或移动车站标志
 
 STR_STATION_VIEW_SCHEDULED_TRAINS_TOOLTIP                       :{BLACK}显示所有调度计划中含有此车站的列车
 STR_STATION_VIEW_SCHEDULED_ROAD_VEHICLES_TOOLTIP                :{BLACK}显示所有调度计划中含有此车站的汽车
 STR_STATION_VIEW_SCHEDULED_AIRCRAFT_TOOLTIP                     :{BLACK}显示所有调度计划中含有此机场的飞机
 STR_STATION_VIEW_SCHEDULED_SHIPS_TOOLTIP                        :{BLACK}显示所有调度计划中含有此码头的船只
 
-STR_STATION_VIEW_RENAME_STATION_CAPTION                         :重命名车站
+STR_STATION_VIEW_EDIT_STATION_SIGN                              :{WHITE}编辑车站标志
 
 STR_STATION_VIEW_CLOSE_AIRPORT                                  :{BLACK}关闭机场
 STR_STATION_VIEW_CLOSE_AIRPORT_TOOLTIP                          :{BLACK}禁止飞机降落本场
@@ -3943,11 +3946,11 @@ STR_STATION_VIEW_CLOSE_AIRPORT_TOOLTIP                          :{BLACK}禁止�
 # Waypoint/buoy view window
 STR_WAYPOINT_VIEW_CAPTION                                       :{WHITE}{WAYPOINT}
 STR_WAYPOINT_VIEW_CENTER_TOOLTIP                                :{BLACK}将屏幕中心移动到路点所在的位置。按住 <Ctrl> 单击会在新视点中显示路点
-STR_WAYPOINT_VIEW_CHANGE_WAYPOINT_NAME                          :{BLACK}修改路点名
+STR_WAYPOINT_VIEW_EDIT_TOOLTIP                                  :{BLACK}重命名路点或移动路点标志
 STR_BUOY_VIEW_CENTER_TOOLTIP                                    :{BLACK}将屏幕中心移动到浮标所在的位置。按住 <Ctrl> 单击会在新视点中显示目标位置
 STR_BUOY_VIEW_RENAME_TOOLTIP                                    :{BLACK}修改浮标名
 
-STR_EDIT_WAYPOINT_NAME                                          :{WHITE}编辑路点名称
+STR_WAYPOINT_VIEW_EDIT_WAYPOINT_SIGN                            :{WHITE}编辑路点标志
 
 # Finances window
 STR_FINANCES_CAPTION                                            :{WHITE}{COMPANY} 财务报表 {BLACK}{COMPANY_NUM}
@@ -4062,7 +4065,7 @@ STR_COMPANY_INFRASTRUCTURE_VIEW_TOTAL_PERIOD                    :{WHITE}{CURRENC
 # Industry directory
 STR_INDUSTRY_DIRECTORY_CAPTION                                  :{WHITE}工业（{COMMA} 座，共 {COMMA} 座）
 STR_INDUSTRY_DIRECTORY_NONE                                     :{ORANGE}- 没有 -
-STR_INDUSTRY_DIRECTORY_ITEM_INFO                                :{BLACK}{CARGO_LONG}{STRING}{YELLOW}（已运输 {COMMA}%）{BLACK}
+STR_INDUSTRY_DIRECTORY_ITEM_INFO                                :{BLACK}{CARGO_LONG}{STRING}{YELLOW}（已运输 {COMMA}%）
 STR_INDUSTRY_DIRECTORY_ITEM_NOPROD                              :{ORANGE}{INDUSTRY}
 STR_INDUSTRY_DIRECTORY_ITEM_PROD1                               :{ORANGE}{INDUSTRY} {STRING}
 STR_INDUSTRY_DIRECTORY_ITEM_PROD2                               :{ORANGE}{INDUSTRY} {STRING}、{STRING}
@@ -4085,9 +4088,9 @@ STR_INDUSTRY_VIEW_CARGO_GRAPH_TOOLTIP                           :{BLACK}显示�
 STR_INDUSTRY_VIEW_PRODUCTION_LEVEL                              :{BLACK}生产等级：{YELLOW}{COMMA}%
 STR_INDUSTRY_VIEW_INDUSTRY_ANNOUNCED_CLOSURE                    :{YELLOW}此工业已经宣布即刻停业倒闭！
 
-STR_INDUSTRY_VIEW_REQUIRES_N_CARGO                              :{BLACK}需要：{YELLOW}{STRING}{STRING}
-STR_INDUSTRY_VIEW_PRODUCES_N_CARGO                              :{BLACK}产出：{YELLOW}{STRING}{STRING}
-STR_INDUSTRY_VIEW_CARGO_LIST_EXTENSION                          :，{STRING}{STRING}
+STR_INDUSTRY_VIEW_REQUIRES_N_CARGO                              :{BLACK}需要：{YELLOW}{STRING}
+STR_INDUSTRY_VIEW_PRODUCES_N_CARGO                              :{BLACK}产出：{YELLOW}{STRING}
+STR_INDUSTRY_VIEW_CARGO_LIST_EXTENSION                          :{STRING}{STRING}
 
 STR_INDUSTRY_VIEW_REQUIRES                                      :{BLACK}需要：
 STR_INDUSTRY_VIEW_ACCEPT_CARGO_SUFFIX                           :{YELLOW}{0:STRING}{BLACK}{3:STRING}
@@ -4621,7 +4624,7 @@ STR_VEHICLE_DETAILS_TRAIN_CAPACITIES_TOOLTIP                    :{BLACK}显示�
 STR_VEHICLE_DETAIL_TAB_TOTAL_CARGO                              :{BLACK}全部货物
 STR_VEHICLE_DETAILS_TRAIN_TOTAL_CARGO_TOOLTIP                   :{BLACK}显示列车的总容量，依货物分类
 
-STR_VEHICLE_DETAILS_TRAIN_ARTICULATED_RV_CAPACITY               :{BLACK}容量：{LTBLUE}
+STR_VEHICLE_DETAILS_TRAIN_ARTICULATED_RV_CAPACITY               :{BLACK}容量：{LTBLUE}{STRING}
 
 # Vehicle refit
 STR_REFIT_CAPTION                                               :{WHITE}{VEHICLE}（改装）
@@ -5169,6 +5172,7 @@ STR_ERROR_TOO_MANY_TRUCK_STOPS                                  :{WHITE}汽车�
 STR_ERROR_TOO_CLOSE_TO_ANOTHER_DOCK                             :{WHITE}距离另一码头过近
 STR_ERROR_TOO_CLOSE_TO_ANOTHER_AIRPORT                          :{WHITE}距离另一机场过近
 STR_ERROR_CAN_T_RENAME_STATION                                  :{WHITE}不能重命名车站……
+STR_ERROR_CAN_T_MOVE_STATION_NAME                               :{WHITE}无法移动车站标志……
 STR_ERROR_DRIVE_THROUGH_ON_TOWN_ROAD                            :{WHITE}……道路由城镇所有
 STR_ERROR_DRIVE_THROUGH_DIRECTION                               :{WHITE}……道路方向不对
 STR_ERROR_DRIVE_THROUGH_CORNER                                  :{WHITE}……途中型车站不能建在转角处
@@ -5200,6 +5204,7 @@ STR_ERROR_CAN_T_BUILD_RAIL_WAYPOINT                             :{WHITE}不能�
 STR_ERROR_CAN_T_BUILD_ROAD_WAYPOINT                             :{WHITE}不能在这里设置路点……
 STR_ERROR_CAN_T_POSITION_BUOY_HERE                              :{WHITE}不能将浮标放置在这里……
 STR_ERROR_CAN_T_CHANGE_WAYPOINT_NAME                            :{WHITE}不能更改路点名称……
+STR_ERROR_CAN_T_MOVE_WAYPOINT_NAME                              :{WHITE}无法移动路点标志……
 
 STR_ERROR_CAN_T_REMOVE_RAIL_WAYPOINT                            :{WHITE}不能拆除此处的铁路路点……
 STR_ERROR_CAN_T_REMOVE_ROAD_WAYPOINT                            :{WHITE}不能拆除此处的道路路点……

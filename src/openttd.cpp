@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file openttd.cpp Functions related to starting OpenTTD. */
@@ -139,6 +139,7 @@ extern void ShowOSErrorBox(std::string_view buf, bool system);
 [[noreturn]] extern void DoOSAbort();
 extern std::string _config_file;
 extern uint64_t _station_tile_cache_hash;
+extern uint32_t _engine_seed;
 
 bool _save_config = false;
 bool _request_newgrf_scan = false;
@@ -461,6 +462,7 @@ static void ShutdownGame()
 	_extra_aspects = 0;
 	_aspect_cfg_hash = 0;
 	_station_tile_cache_hash = 0;
+	_engine_seed = 0;
 	InitGRFGlobalVars();
 	_loadgame_DBGL_data.clear();
 	_loadgame_DBGC_data.clear();
@@ -515,6 +517,9 @@ void MakeNewgameSettingsLive()
 	_settings_game = _settings_newgame;
 	_settings_time = _settings_game.game_time = (TimeSettings)_settings_client.gui;
 	_old_vds = _settings_client.company.vehicle;
+
+	/* Unconditionally set freeform_edges, this is set to false by vanilla infinite water, so might end up false in shared config files. */
+	_settings_game.construction.freeform_edges = true;
 
 	UpdateEffectiveDayLengthFactor();
 }
@@ -1113,7 +1118,7 @@ static void MakeNewGameDone()
 	Company *c = Company::Get(CompanyID::Begin());
 	c->settings = _settings_client.company;
 
-	/* Overwrite color from settings if needed
+	/* Overwrite colour from settings if needed
 	 * COLOUR_END corresponds to Random colour */
 
 	if (_settings_client.gui.starting_colour != COLOUR_END) {
@@ -1483,11 +1488,7 @@ void WriteVehicleInfo(format_target &buffer, const Vehicle *u, const Vehicle *v,
 {
 	buffer.format(": type {}, vehicle {} ({}), company {}, unit number {}, wagon {}, engine: ",
 			u->type, u->index, v->index, u->owner, v->unitnumber, length);
-	{
-		format_buffer engname;
-		AppendStringInPlace(engname, STR_ENGINE_NAME, u->engine_type);
-		buffer.append(engname);
-	}
+	AppendStringInPlace(buffer, STR_ENGINE_NAME, u->engine_type);
 	uint32_t grfid = u->GetGRFID();
 	if (grfid) {
 		buffer.format(", GRF:{:08X}", std::byteswap(grfid));

@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file newgrf.h Base for the NewGRF implementation. */
@@ -464,7 +464,7 @@ template <typename... T>
 void GrfMsgIntl(int severity, fmt::format_string<T...> msg, T&&... args)
 {
 	extern void GrfInfoVFmt(int severity, fmt::string_view msg, fmt::format_args args);
-	GrfInfoVFmt(severity, msg, fmt::make_format_args(args...));
+	GrfInfoVFmt(severity, msg, make_preprocessed_format_args(args...));
 }
 
 #define GrfMsg(severity, format_string, ...) do { if ((severity) == 0 || GetDebugLevel(DebugLevelID::grf) >= (severity)) GrfMsgIntl(severity, FMT_STRING(format_string) __VA_OPT__(,) __VA_ARGS__); } while(false)

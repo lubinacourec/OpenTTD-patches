@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file freetypefontcache.cpp FreeType font cache implementation. */
@@ -40,7 +40,7 @@ private:
 
 public:
 	FreeTypeFontCache(FontSize fs, FT_Face face, int pixels);
-	~FreeTypeFontCache();
+	~FreeTypeFontCache() override;
 	void ClearFontCache() override;
 	GlyphID MapCharToGlyph(char32_t key, bool allow_fallback = true) override;
 	std::string GetFontName() override { return fmt::format("{}, {}", face->family_name, face->style_name); }
@@ -216,7 +216,7 @@ class FreeTypeFontCacheFactory : public FontCacheFactory {
 public:
 	FreeTypeFontCacheFactory() : FontCacheFactory("freetype", "FreeType font provider") {}
 
-	virtual ~FreeTypeFontCacheFactory()
+	~FreeTypeFontCacheFactory() override
 	{
 		FT_Done_FreeType(_ft_library);
 		_ft_library = nullptr;

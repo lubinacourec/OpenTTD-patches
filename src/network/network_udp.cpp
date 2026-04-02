@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /**
@@ -72,7 +72,7 @@ public:
 	 * @param addresses The addresses to bind on.
 	 */
 	ServerNetworkUDPSocketHandler(NetworkAddressList *addresses) : NetworkUDPSocketHandler(addresses) {}
-	virtual ~ServerNetworkUDPSocketHandler() = default;
+	~ServerNetworkUDPSocketHandler() override = default;
 };
 
 void ServerNetworkUDPSocketHandler::Receive_CLIENT_FIND_SERVER(Packet &p, NetworkAddress &client_addr)
@@ -107,7 +107,7 @@ protected:
 	void Receive_SERVER_RESPONSE(Packet &p, NetworkAddress &client_addr) override;
 	void Receive_EX_SERVER_RESPONSE(Packet &p, NetworkAddress &client_addr) override;
 public:
-	virtual ~ClientNetworkUDPSocketHandler() = default;
+	~ClientNetworkUDPSocketHandler() override = default;
 };
 
 void ClientNetworkUDPSocketHandler::Receive_SERVER_RESPONSE(Packet &, NetworkAddress &client_addr)

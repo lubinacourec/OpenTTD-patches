@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file toolbar_gui.cpp Code related to the (main) toolbar. */
@@ -107,9 +107,10 @@ enum CallBackFunction : uint8_t {
 
 static CallBackFunction _last_started_action = CBF_NONE; ///< Last started user action.
 
-inline DropDownModeFlags ToolbarDropdownMode()
+static DropDownOptions GetToolbarDropDownOptions()
 {
-	return _settings_client.gui.toolbar_dropdown_autoselect ? DDMF_INSTANT_CLOSE : DDMF_NONE;
+	if (_settings_client.gui.toolbar_dropdown_autoselect) return DropDownOption::InstantClose;
+	return {};
 }
 
 /**
@@ -142,7 +143,7 @@ std::unique_ptr<DropDownListItem> MakeCompanyDropDownListItem(CompanyID cid, boo
  */
 static void PopupMainToolbarMenu(Window *w, WidgetID widget, DropDownList &&list, int def)
 {
-	ShowDropDownList(w, std::move(list), def, widget, 0, ToolbarDropdownMode());
+	ShowDropDownList(w, std::move(list), def, widget, 0, GetToolbarDropDownOptions());
 }
 
 /**
@@ -323,7 +324,7 @@ static CallBackFunction ToolbarOptionsClick(Window *w)
 	list.push_back(MakeDropDownListCheckedItem(IsTransparencySet(TO_SIGNS),                    STR_SETTINGS_MENU_TRANSPARENT_SIGNS,       OME_SHOW_STATIONSIGNS, false));
 	list.push_back(MakeDropDownListCheckedItem(HasBit(_extra_display_opt, XDO_SHOW_MONEY_TEXT_EFFECTS), STR_SETTINGS_MENU_MONEY_TEXT_EFFECTS, OME_SHOW_MONEYTEXT, false));
 
-	ShowDropDownList(w, std::move(list), 0, WID_TN_SETTINGS, 140, ToolbarDropdownMode());
+	ShowDropDownList(w, std::move(list), 0, WID_TN_SETTINGS, 140, GetToolbarDropDownOptions());
 	return CBF_NONE;
 }
 
@@ -722,7 +723,7 @@ static CallBackFunction ToolbarGraphsClick(Window *w)
 
 	if (_toolbar_mode != TB_NORMAL) AddDropDownLeagueTableOptions(list);
 
-	ShowDropDownList(w, std::move(list), GRMN_OPERATING_PROFIT_GRAPH, WID_TN_GRAPHS, 140, ToolbarDropdownMode());
+	ShowDropDownList(w, std::move(list), GRMN_OPERATING_PROFIT_GRAPH, WID_TN_GRAPHS, 140, GetToolbarDropDownOptions());
 
 	return CBF_NONE;
 }
@@ -734,7 +735,7 @@ static CallBackFunction ToolbarLeagueClick(Window *w)
 	AddDropDownLeagueTableOptions(list);
 
 	int selected = list[0]->result;
-	ShowDropDownList(w, std::move(list), selected, WID_TN_LEAGUE, 140, ToolbarDropdownMode());
+	ShowDropDownList(w, std::move(list), selected, WID_TN_LEAGUE, 140, GetToolbarDropDownOptions());
 
 	return CBF_NONE;
 }
@@ -912,7 +913,7 @@ static CallBackFunction ToolbarZoomOutClick(Window *w)
 
 static CallBackFunction ToolbarBuildRailClick(Window *w)
 {
-	ShowDropDownList(w, GetRailTypeDropDownList(), _last_built_railtype, WID_TN_RAILS, 140, ToolbarDropdownMode());
+	ShowDropDownList(w, GetRailTypeDropDownList(), _last_built_railtype, WID_TN_RAILS, 140, GetToolbarDropDownOptions());
 	return CBF_NONE;
 }
 
@@ -933,7 +934,7 @@ static CallBackFunction MenuClickBuildRail(int index)
 
 static CallBackFunction ToolbarBuildRoadClick(Window *w)
 {
-	ShowDropDownList(w, GetRoadTypeDropDownList(RTTB_ROAD), _last_built_roadtype, WID_TN_ROADS, 140, ToolbarDropdownMode());
+	ShowDropDownList(w, GetRoadTypeDropDownList(RTTB_ROAD), _last_built_roadtype, WID_TN_ROADS, 140, GetToolbarDropDownOptions());
 	return CBF_NONE;
 }
 
@@ -954,7 +955,7 @@ static CallBackFunction MenuClickBuildRoad(int index)
 
 static CallBackFunction ToolbarBuildTramClick(Window *w)
 {
-	ShowDropDownList(w, GetRoadTypeDropDownList(RTTB_TRAM), _last_built_tramtype, WID_TN_TRAMS, 140, ToolbarDropdownMode());
+	ShowDropDownList(w, GetRoadTypeDropDownList(RTTB_TRAM), _last_built_tramtype, WID_TN_TRAMS, 140, GetToolbarDropDownOptions());
 	return CBF_NONE;
 }
 
@@ -977,7 +978,7 @@ static CallBackFunction ToolbarBuildWaterClick(Window *w)
 {
 	DropDownList list;
 	list.push_back(MakeDropDownListIconItem(SPR_IMG_BUILD_CANAL, PAL_NONE, STR_WATERWAYS_MENU_WATERWAYS_CONSTRUCTION, 0, false));
-	ShowDropDownList(w, std::move(list), 0, WID_TN_WATER, 140, ToolbarDropdownMode());
+	ShowDropDownList(w, std::move(list), 0, WID_TN_WATER, 140, GetToolbarDropDownOptions());
 	return CBF_NONE;
 }
 
@@ -998,7 +999,7 @@ static CallBackFunction ToolbarBuildAirClick(Window *w)
 {
 	DropDownList list;
 	list.push_back(MakeDropDownListIconItem(SPR_IMG_AIRPORT, PAL_NONE, STR_AIRCRAFT_MENU_AIRPORT_CONSTRUCTION, 0, false));
-	ShowDropDownList(w, std::move(list), 0, WID_TN_AIR, 140, ToolbarDropdownMode());
+	ShowDropDownList(w, std::move(list), 0, WID_TN_AIR, 140, GetToolbarDropDownOptions());
 	return CBF_NONE;
 }
 
@@ -1021,7 +1022,7 @@ static CallBackFunction ToolbarForestClick(Window *w)
 	list.push_back(MakeDropDownListIconItem(SPR_IMG_LANDSCAPING, PAL_NONE, STR_LANDSCAPING_MENU_LANDSCAPING, 0, false));
 	list.push_back(MakeDropDownListIconItem(SPR_IMG_PLANTTREES, PAL_NONE, STR_LANDSCAPING_MENU_PLANT_TREES, 1, false));
 	list.push_back(MakeDropDownListIconItem(SPR_IMG_SIGN, PAL_NONE, STR_LANDSCAPING_MENU_PLACE_SIGN, 2, false));
-	ShowDropDownList(w, std::move(list), 0, WID_TN_LANDSCAPE, 100, ToolbarDropdownMode());
+	ShowDropDownList(w, std::move(list), 0, WID_TN_LANDSCAPE, 100, GetToolbarDropDownOptions());
 	return CBF_NONE;
 }
 
@@ -1188,7 +1189,7 @@ static void UsePickerTool(TileIndex tile)
 			} else if (IsRiver(tile) && (_settings_game.construction.enable_build_river || _game_mode == GM_EDITOR)) {
 				ShowBuildDocksToolbarFromTile(tile);
 			/* Depots for now only opens waterways toolbar like other depots */
-			} else if (GetWaterTileType(tile) == WATER_TILE_DEPOT) {
+			} else if (GetWaterTileType(tile) == WaterTileType::Depot) {
 				ShowBuildDocksToolbarFromTile(tile);
 			}
 			/* Sea & coast tiles are ignored*/
@@ -1457,7 +1458,7 @@ static CallBackFunction ToolbarScenGenIndustry(Window *w)
 
 static CallBackFunction ToolbarScenBuildRoadClick(Window *w)
 {
-	ShowDropDownList(w, GetScenRoadTypeDropDownList(RTTB_ROAD, true), _last_built_roadtype, WID_TE_ROADS, 140, ToolbarDropdownMode());
+	ShowDropDownList(w, GetScenRoadTypeDropDownList(RTTB_ROAD, true), _last_built_roadtype, WID_TE_ROADS, 140, GetToolbarDropDownOptions());
 	return CBF_NONE;
 }
 
@@ -1476,7 +1477,7 @@ static CallBackFunction ToolbarScenBuildRoad(int index)
 
 static CallBackFunction ToolbarScenBuildTramClick(Window *w)
 {
-	ShowDropDownList(w, GetScenRoadTypeDropDownList(RTTB_TRAM, true), _last_built_tramtype, WID_TE_TRAMS, 140, ToolbarDropdownMode());
+	ShowDropDownList(w, GetScenRoadTypeDropDownList(RTTB_TRAM, true), _last_built_tramtype, WID_TE_TRAMS, 140, GetToolbarDropDownOptions());
 	return CBF_NONE;
 }
 

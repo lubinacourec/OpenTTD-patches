@@ -2,13 +2,17 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file format.hpp String formatting functions and helpers. */
 
 #ifndef FORMAT_HPP
 #define FORMAT_HPP
+
+/* The std::variant in fmt is not very useful as it doesn't indicate which value is being formatted.
+ * Use our own variant formatter in format_variant.hpp. */
+#define FMT_CPP_LIB_VARIANT 0
 
 #if defined(__GNUC__) && (__GNUC__ >= 12)
 #pragma GCC diagnostic push
@@ -37,37 +41,11 @@ namespace format_detail {
 	concept FmtAsTileIndex = T::fmt_as_tile_index || false;
 };
 
-template <typename E, typename Char>
-struct fmt::formatter<E, Char, std::enable_if_t<std::is_enum<E>::value>> : fmt::formatter<typename std::underlying_type<E>::type> {
-	using underlying_type = typename std::underlying_type<E>::type;
-	using parent = typename fmt::formatter<underlying_type>;
+template <typename T> requires std::is_enum_v<std::remove_cvref_t<T>>
+constexpr inline auto format_as(const T &t) { return to_underlying(t); }
 
-	constexpr fmt::format_parse_context::iterator parse(fmt::format_parse_context &ctx)
-	{
-		return parent::parse(ctx);
-	}
-
-	fmt::format_context::iterator format(const E &e, format_context &ctx) const
-	{
-		return parent::format(underlying_type(e), ctx);
-	}
-};
-
-template <typename T, typename Char>
-struct fmt::formatter<T, Char, std::enable_if_t<format_detail::FmtAsBase<T>>> : fmt::formatter<typename T::BaseType> {
-	using underlying_type = typename T::BaseType;
-	using parent = typename fmt::formatter<underlying_type>;
-
-	constexpr fmt::format_parse_context::iterator parse(fmt::format_parse_context &ctx)
-	{
-		return parent::parse(ctx);
-	}
-
-	fmt::format_context::iterator format(const T &t, format_context &ctx) const
-	{
-		return parent::format(t.base(), ctx);
-	}
-};
+template <typename T> requires format_detail::FmtAsBase<T>
+constexpr inline const typename T::BaseType &format_as(const T &t) { return t.base_ref(); }
 
 extern fmt::format_context::iterator FmtTileIndexValueIntl(fmt::format_context &ctx, uint32_t value);
 
@@ -143,6 +121,41 @@ public:
 	constexpr trivial_appender operator++(int) { return *this; }
 };
 
+namespace format_detail {
+	template <typename T> requires (!std::is_enum_v<T>)
+	constexpr auto &preprocess_format_arg(T &arg)
+	{
+		if constexpr (FmtAsBase<T>) {
+			return arg.base_ref();
+		} else {
+			return arg;
+		}
+	}
+
+	template <typename T> requires std::is_enum_v<T>
+	constexpr auto preprocess_format_arg(T &arg)
+	{
+		return to_underlying(arg);
+	}
+
+	template<class T>
+	constexpr T &unmove_helper(T &&t)
+	{
+		/* Cast to lvalue, as this is required by fmt::make_format_args.
+		 * This is for the enum to_underlying above. */
+		return static_cast<T &>(t);
+	}
+};
+
+/**
+ * fmt::make_format_args wrapper which unwraps trivial types (FmtAsBase).
+ */
+template <typename... T>
+constexpr auto make_preprocessed_format_args(T&... args)
+{
+	return fmt::make_format_args(format_detail::unmove_helper(format_detail::preprocess_format_arg(args))...);
+}
+
 /**
  * Base fmt format target class. Users should take by reference.
  * Not directly instantiable, use format_to_buffer, format_buffer, format_buffer_sized, format_to_fixed or format_to_fixed_z.
@@ -180,7 +193,7 @@ public:
 	template <typename... T>
 	void format(fmt::format_string<T...> fmtstr, T&&... args)
 	{
-		fmt::detail::vformat_to(this->buffer, fmt::string_view(fmtstr), fmt::make_format_args(args...), {});
+		fmt::detail::vformat_to(this->buffer, fmt::string_view(fmtstr), make_preprocessed_format_args(args...), {});
 	}
 
 	void vformat(fmt::string_view fmtstr, fmt::format_args args)
@@ -478,7 +491,7 @@ struct format_to_fixed_z final : public format_to_fixed_base {
 			return dst;
 		}
 		format_to_fixed_z buf(dst, last);
-		buf.vformat(fmtstr, fmt::make_format_args(args...));
+		buf.vformat(fmtstr, make_preprocessed_format_args(args...));
 		return buf.finalise();
 	}
 };

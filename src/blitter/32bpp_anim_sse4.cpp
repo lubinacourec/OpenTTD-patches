@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file 32bpp_anim_sse4.cpp Implementation of the SSE4 32 bpp blitter with animation support. */
@@ -28,7 +28,6 @@ static FBlitter_32bppSSE4_Anim iFBlitter_32bppSSE4_Anim;
  * @param bp further blitting parameters
  * @param zoom zoom level at which we are drawing
  */
-IGNORE_UNINITIALIZED_WARNING_START
 template <BlitterMode mode, Blitter_32bppSSE2::ReadMode read_mode, Blitter_32bppSSE2::BlockType bt_last, bool translucent, bool animated>
 GNU_TARGET("sse4.1")
 inline void Blitter_32bppSSE4_Anim::Draw(const BlitterParams *bp, ZoomLevel zoom)
@@ -442,7 +441,6 @@ next_line:
 		anim_line += this->anim_buf_pitch;
 	}
 }
-IGNORE_UNINITIALIZED_WARNING_STOP
 
 /**
  * Draws a sprite to a (screen) buffer. Calls adequate templated function.

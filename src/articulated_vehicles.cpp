@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file articulated_vehicles.cpp Implementation of articulated vehicles. */
@@ -24,8 +24,6 @@
 #include "table/strings.h"
 
 #include "safeguards.h"
-
-static const uint MAX_ARTICULATED_PARTS = 100; ///< Maximum of articulated parts per vehicle, i.e. when to abort calling the articulated vehicle callback.
 
 /**
  * Determines the next articulated part to attach
@@ -77,64 +75,23 @@ bool IsArticulatedEngine(EngineID engine_type)
 /**
  * Count the number of articulated parts of an engine.
  * @param engine_type The engine to get the number of parts of.
- * @param purchase_window Whether we are in the scope of the purchase window or not, i.e. whether we cannot allocate vehicles.
  * @return The number of parts.
  */
-uint CountArticulatedParts(EngineID engine_type, bool purchase_window)
+uint CountArticulatedParts(EngineID engine_type)
 {
 	if (!EngInfo(engine_type)->callback_mask.Test(VehicleCallbackMask::ArticEngine)) return 0;
 
-	/* If we can't allocate a vehicle now, we can't allocate it in the command
-	 * either, so it doesn't matter how many articulated parts there are. */
-	if (!Vehicle::CanAllocateItem()) return 0;
-
-	std::unique_ptr<Vehicle> v;
-	if (!purchase_window) {
-		v = std::make_unique<Vehicle>();
-		v->engine_type = engine_type;
-		v->owner = _current_company;
-	}
+	Vehicle v(VehicleID::Invalid());
+	v.engine_type = engine_type;
+	v.owner = _current_company;
 
 	uint i;
 	for (i = 1; i < MAX_ARTICULATED_PARTS; i++) {
-		if (GetNextArticulatedPart(i, engine_type, v.get()) == EngineID::Invalid()) break;
+		if (GetNextArticulatedPart(i, engine_type, &v) == EngineID::Invalid()) break;
 	}
 
 	return i - 1;
 }
-
-/**
- * Count the number of articulated parts of an engine.
- * @param engine_type The engine to get the number of parts of.
- * @param purchase_window Whether we are in the scope of the purchase window or not, i.e. whether we cannot allocate vehicles.
- * @param ids [Out] The list of engine IDs.
- */
-void GetArticulatedPartsEngineIDs(EngineID engine_type, bool purchase_window, std::vector<EngineID> &ids)
-{
-	ids.clear();
-	if (!EngInfo(engine_type)->callback_mask.Test(VehicleCallbackMask::ArticEngine)) return;
-
-	/* If we can't allocate a vehicle now, we can't allocate it in the command
-	 * either, so it doesn't matter how many articulated parts there are. */
-	if (!Vehicle::CanAllocateItem()) return;
-
-	Vehicle *v = nullptr;
-	if (!purchase_window) {
-		v = new Vehicle();
-		v->engine_type = engine_type;
-		v->owner = _current_company;
-	}
-
-	uint i;
-	for (i = 1; i < MAX_ARTICULATED_PARTS; i++) {
-		EngineID id = GetNextArticulatedPart(i, engine_type, v);
-		if (id == EngineID::Invalid()) break;
-		ids.push_back(id);
-	}
-
-	delete v;
-}
-
 
 /**
  * Returns the default (non-refitted) cargo and capacity of a specific EngineID.
@@ -447,7 +404,7 @@ void AddArticulatedParts(Vehicle *first)
 
 			case VEH_TRAIN: {
 				Train *front = Train::From(first);
-				Train *t = new Train();
+				Train *t = Train::Create();
 				v->SetNext(t);
 				v = t;
 
@@ -473,7 +430,7 @@ void AddArticulatedParts(Vehicle *first)
 
 			case VEH_ROAD: {
 				RoadVehicle *front = RoadVehicle::From(first);
-				RoadVehicle *rv = new RoadVehicle();
+				RoadVehicle *rv = RoadVehicle::Create();
 				v->SetNext(rv);
 				v = rv;
 
@@ -501,7 +458,7 @@ void AddArticulatedParts(Vehicle *first)
 
 			case VEH_SHIP: {
 				Ship *front = Ship::From(first);
-				Ship *s = new Ship();
+				Ship *s = Ship::Create();
 				v->SetNext(s);
 				v = s;
 

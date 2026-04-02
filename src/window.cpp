@@ -2,10 +2,10 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
-/** @file window.cpp Windowing system, widgets and events */
+/** @file window.cpp Windowing system, widgets and events. */
 
 #include "stdafx.h"
 #include "company_func.h"
@@ -593,6 +593,9 @@ void Window::RaiseButtons(bool autoraise)
  */
 void Window::SetWidgetDirty(WidgetID widget_index)
 {
+	/* If the whole window is already dirty then don't set the widget dirty as well. */
+	if (this->flags.Test(WindowFlag::Dirty)) return;
+
 	/* Sometimes this function is called before the window is even fully initialized */
 	auto it = this->widget_lookup.find(widget_index);
 	if (it == std::end(this->widget_lookup)) return;

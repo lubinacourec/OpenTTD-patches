@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file network_gui.cpp Implementation of the Network related GUIs. */
@@ -1631,7 +1631,7 @@ private:
 		wi_rect.bottom = pt.y;
 
 		w->dd_client_id = client_id;
-		ShowDropDownListAt(w, std::move(list), -1, WID_CL_MATRIX, wi_rect, COLOUR_GREY, DDMF_INSTANT_CLOSE);
+		ShowDropDownListAt(w, std::move(list), -1, WID_CL_MATRIX, wi_rect, COLOUR_GREY, DropDownOption::InstantClose);
 	}
 
 	/**
@@ -1653,7 +1653,7 @@ private:
 		wi_rect.bottom = pt.y;
 
 		w->dd_company_id = company_id;
-		ShowDropDownListAt(w, std::move(list), -1, WID_CL_MATRIX, wi_rect, COLOUR_GREY, DDMF_INSTANT_CLOSE);
+		ShowDropDownListAt(w, std::move(list), -1, WID_CL_MATRIX, wi_rect, COLOUR_GREY, DropDownOption::InstantClose);
 	}
 	/**
 	 * Chat button on a Client is clicked.

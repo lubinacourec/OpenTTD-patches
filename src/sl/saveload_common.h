@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file saveload_common.h Common functions/types for saving and loading games. */
@@ -477,19 +477,19 @@ void SlWriteUint64(uint64_t v);
 
 inline void SlWriteByte(const SlIsPrimitiveType auto &data)
 {
-	static_assert(sizeof(data.base()) == 1);
+	static_assert(sizeof(decltype(data.base())) == 1);
 	SlWriteByte((uint8_t)data.base());
 }
 
 inline void SlWriteUint16(const SlIsPrimitiveType auto &data)
 {
-	static_assert(sizeof(data.base()) <= 2);
+	static_assert(sizeof(decltype(data.base())) <= 2);
 	SlWriteUint16((uint16_t)data.base());
 }
 
 inline void SlWriteUint32(const SlIsPrimitiveType auto &data)
 {
-	static_assert(sizeof(data.base()) <= 4);
+	static_assert(sizeof(decltype(data.base())) <= 4);
 	SlWriteUint32((uint32_t)data.base());
 }
 

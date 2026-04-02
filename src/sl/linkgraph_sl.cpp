@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file linkgraph_sl.cpp Code handling saving and loading of link graphs */
@@ -327,7 +327,7 @@ static void Load_LGRP()
 			/* Impossible as they have been present in previous game. */
 			NOT_REACHED();
 		}
-		LinkGraph *lg = new (LinkGraphID(index)) LinkGraph();
+		LinkGraph *lg = LinkGraph::CreateAtIndex(LinkGraphID(index));
 		SlObjectLoadFiltered(lg, slt);
 		if (!is_table) {
 			lg->Init(_num_nodes);
@@ -353,7 +353,7 @@ static void Load_LGRJ()
 			/* Impossible as they have been present in previous game. */
 			NOT_REACHED();
 		}
-		LinkGraphJob *lgj = new (LinkGraphJobID(index)) LinkGraphJob();
+		LinkGraphJob *lgj = LinkGraphJob::CreateAtIndex(LinkGraphJobID(index));
 		SlObjectLoadFiltered(lgj, slt);
 		if (SlXvIsFeatureMissing(XSLFI_LINKGRAPH_DAY_SCALE)) {
 			extern void GetLinkGraphJobDayLengthScaleAfterLoad(LinkGraphJob *lgj);

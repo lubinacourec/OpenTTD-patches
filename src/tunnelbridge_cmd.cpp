@@ -2,13 +2,12 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /**
- * @file tunnelbridge_cmd.cpp
- * This file deals with tunnels and bridges (non-gui stuff)
- * @todo separate this file into two
+ * @file tunnelbridge_cmd.cpp This file deals with tunnels and bridges (non-gui stuff).
+ * @todo separate this file into two.
  */
 
 #include "stdafx.h"
@@ -958,7 +957,6 @@ static inline CommandCost CanBuildChunnel(TileIndex tile, DiagDirection directio
 				/* Pass the water and find a proper shore tile that potentially
 				 * could have a tunnel portal behind. */
 				for (;;) {
-					end_tileh = GetTileSlope(tile);
 					if (direction == DIAGDIR_NE && (end_tileh & SLOPE_NE) == SLOPE_NE) break;
 					if (direction == DIAGDIR_SE && (end_tileh & SLOPE_SE) == SLOPE_SE) break;
 					if (direction == DIAGDIR_SW && (end_tileh & SLOPE_SW) == SLOPE_SW) break;
@@ -975,6 +973,7 @@ static inline CommandCost CanBuildChunnel(TileIndex tile, DiagDirection directio
 
 					tile += delta;
 					if (!IsValidTile(tile)) return CommandCost(STR_ERROR_CHUNNEL_THROUGH_MAP_BORDER);
+					end_tileh = GetTileSlope(tile);
 					_build_tunnel_endtile = tile;
 					sea_tiles++;
 				}
@@ -1178,7 +1177,7 @@ CommandCost CmdBuildTunnel(DoCommandFlags flags, TileIndex start_tile, Transport
 
 		if (!Tunnel::CanAllocateItem()) return CommandCost(STR_ERROR_TUNNEL_TOO_MANY);
 		const int height = TileHeight(tn);
-		const Tunnel *t = new Tunnel(tn, ts, height, is_chunnel);
+		const Tunnel *t = Tunnel::Create(tn, ts, height, is_chunnel);
 		ViewportMapStoreTunnel(tn, ts, height, true);
 
 		if (transport_type == TRANSPORT_RAIL) {
@@ -1506,9 +1505,9 @@ static CommandCost DoClearBridge(TileIndex tile, DoCommandFlags flags)
 		if (removeendtile) RemoveDockingTile(endtile);
 		for (TileIndex c = tile + delta; c != endtile; c += delta) {
 			/* do not let trees appear from 'nowhere' after removing bridge */
-			if (IsNormalRoadTile(c) && GetRoadside(c) == ROADSIDE_TREES) {
+			if (IsNormalRoadTile(c) && GetRoadside(c) == Roadside::Trees) {
 				int minz = GetTileMaxZ(c) + 3;
-				if (height < minz) SetRoadside(c, ROADSIDE_PAVED);
+				if (height < minz) SetRoadside(c, Roadside::Paved);
 			}
 			ClearBridgeMiddle(c);
 			MarkTileDirtyByTile(c, VMDF_NOT_MAP_MODE, height - TileHeight(c));
@@ -2425,7 +2424,7 @@ static void DrawTile_TunnelBridge(TileInfo *ti, DrawTileProcParams params)
 
 		if (!ice) {
 			TileIndex next = ti->tile + TileOffsByDiagDir(tunnelbridge_direction);
-			if (ti->tileh != SLOPE_FLAT && ti->z == 0 && HasTileWaterClass(next) && GetWaterClass(next) == WATER_CLASS_SEA) {
+			if (ti->tileh != SLOPE_FLAT && ti->z == 0 && HasTileWaterClass(next) && GetWaterClass(next) == WaterClass::Sea) {
 				DrawShoreTile(ti->tileh);
 			} else {
 				DrawClearLandTile(ti, 3);
@@ -2858,41 +2857,41 @@ static void GetTileDesc_TunnelBridge(TileIndex tile, TileDesc &td)
 
 static const RailGroundType _tunnel_bridge_fence_table[4][5] = {
 	{ // DIAGDIR_NE
-		RAIL_GROUND_FENCE_NW,
-		RAIL_GROUND_FENCE_SE,
-		RAIL_GROUND_FENCE_SW,
-		RAIL_GROUND_FENCE_VERT2,
-		RAIL_GROUND_FENCE_HORIZ1,
+		RailGroundType::FenceNW,
+		RailGroundType::FenceSE,
+		RailGroundType::FenceSW,
+		RailGroundType::FenceVert2,
+		RailGroundType::FenceHoriz1,
 	},
 	{ // DIAGDIR_SE
-		RAIL_GROUND_FENCE_NW,
-		RAIL_GROUND_FENCE_NE,
-		RAIL_GROUND_FENCE_SW,
-		RAIL_GROUND_FENCE_VERT2,
-		RAIL_GROUND_FENCE_HORIZ2,
+		RailGroundType::FenceNW,
+		RailGroundType::FenceNE,
+		RailGroundType::FenceSW,
+		RailGroundType::FenceVert2,
+		RailGroundType::FenceHoriz2,
 	},
 	{ // DIAGDIR_SW
-		RAIL_GROUND_FENCE_NW,
-		RAIL_GROUND_FENCE_SE,
-		RAIL_GROUND_FENCE_NE,
-		RAIL_GROUND_FENCE_VERT1,
-		RAIL_GROUND_FENCE_HORIZ2,
+		RailGroundType::FenceNW,
+		RailGroundType::FenceSE,
+		RailGroundType::FenceNE,
+		RailGroundType::FenceVert1,
+		RailGroundType::FenceHoriz2,
 	},
 	{ // DIAGDIR_NW
-		RAIL_GROUND_FENCE_SE,
-		RAIL_GROUND_FENCE_NE,
-		RAIL_GROUND_FENCE_SW,
-		RAIL_GROUND_FENCE_VERT1,
-		RAIL_GROUND_FENCE_HORIZ1,
+		RailGroundType::FenceSE,
+		RailGroundType::FenceNE,
+		RailGroundType::FenceSW,
+		RailGroundType::FenceVert1,
+		RailGroundType::FenceHoriz1,
 	},
 };
 
 RailGroundType GetTunnelBridgeGroundType(TileIndex tile)
 {
 	uint8_t ground_bits = GetTunnelBridgeGroundBits(tile);
-	if (ground_bits == 0) return RAIL_GROUND_GRASS;
-	if (ground_bits == 1) return RAIL_GROUND_ICE_DESERT;
-	if (ground_bits == 2) return RAIL_GROUND_BARREN;
+	if (ground_bits == 0) return RailGroundType::Grass;
+	if (ground_bits == 1) return RailGroundType::SnowOrDesert;
+	if (ground_bits == 2) return RailGroundType::Barren;
 	return _tunnel_bridge_fence_table[GetTunnelBridgeDirection(tile)][ground_bits - 3];
 }
 
@@ -2900,41 +2899,41 @@ static uint8_t MapTunnelBridgeGroundTypeBits(TileIndex tile, RailGroundType type
 {
 	uint8_t ground_bits;
 	switch (type) {
-		case RAIL_GROUND_BARREN:
+		case RailGroundType::Barren:
 			ground_bits = 2;
 			break;
 
-		case RAIL_GROUND_GRASS:
+		case RailGroundType::Grass:
 			ground_bits = 0;
 			break;
 
-		case RAIL_GROUND_FENCE_NW:
+		case RailGroundType::FenceNW:
 			ground_bits = 3;
 			break;
 
-		case RAIL_GROUND_FENCE_SE:
+		case RailGroundType::FenceSE:
 			ground_bits = GetTunnelBridgeDirection(tile) == DIAGDIR_NW ? 3 : 4;
 			break;
 
-		case RAIL_GROUND_FENCE_NE:
+		case RailGroundType::FenceNE:
 			ground_bits = GetTunnelBridgeDirection(tile) == DIAGDIR_SW ? 5 : 4;
 			break;
 
-		case RAIL_GROUND_FENCE_SW:
+		case RailGroundType::FenceSW:
 			ground_bits = 5;
 			break;
 
-		case RAIL_GROUND_FENCE_VERT1:
-		case RAIL_GROUND_FENCE_VERT2:
+		case RailGroundType::FenceVert1:
+		case RailGroundType::FenceVert2:
 			ground_bits = 6;
 			break;
 
-		case RAIL_GROUND_FENCE_HORIZ1:
-		case RAIL_GROUND_FENCE_HORIZ2:
+		case RailGroundType::FenceHoriz1:
+		case RailGroundType::FenceHoriz2:
 			ground_bits = 7;
 			break;
 
-		case RAIL_GROUND_ICE_DESERT:
+		case RailGroundType::SnowOrDesert:
 			ground_bits = 1;
 			break;
 
@@ -2971,9 +2970,9 @@ static void TileLoop_TunnelBridge(TileIndex tile)
 
 	RailGroundType new_ground;
 	if (snow_or_desert) {
-		new_ground = RAIL_GROUND_ICE_DESERT;
+		new_ground = RailGroundType::SnowOrDesert;
 	} else {
-		new_ground = RAIL_GROUND_GRASS;
+		new_ground = RailGroundType::Grass;
 		if (IsRailCustomBridgeHeadTile(tile) && old_ground_bits != 2) { // wait until bottom is green
 			/* determine direction of fence */
 			TrackBits rail = GetCustomBridgeHeadTrackBits(tile);

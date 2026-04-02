@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file landscape.h Functions related to OTTD's landscape. */
@@ -65,7 +65,7 @@ inline uint8_t LowestTreePlacementSnowLine()
 
 int GetSlopeZInCorner(Slope tileh, Corner corner);
 Slope UpdateFoundationSlopeFromTileSlope(TileIndex tile, Slope tileh, int &tilez);
-std::tuple<Slope, int> GetFoundationSlope(TileIndex tile);
+std::pair<Slope, int> GetFoundationSlope(TileIndex tile);
 
 uint GetPartialPixelZ(int x, int y, Slope corners);
 int GetSlopePixelZ(int x, int y, bool ground_vehicle = false);
@@ -93,7 +93,7 @@ inline int GetSlopePixelZInCorner(Slope tileh, Corner corner)
  * @param tile The tile of interest.
  * @return The slope on top of the foundation and the z of the foundation.
  */
-inline std::tuple<Slope, int> GetFoundationPixelSlope(TileIndex tile)
+inline std::pair<Slope, int> GetFoundationPixelSlope(TileIndex tile)
 {
 	auto [s, z] = GetFoundationSlope(tile);
 	return {s, z * TILE_HEIGHT};

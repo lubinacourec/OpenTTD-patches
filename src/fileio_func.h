@@ -2,10 +2,10 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
-/** @file fileio_func.h Functions for Standard In/Out file operations */
+/** @file fileio_func.h Functions for standard in/out file operations. */
 
 #ifndef FILEIO_FUNC_H
 #define FILEIO_FUNC_H
@@ -43,7 +43,7 @@ extern std::vector<Searchpath> _valid_searchpaths_excluding_cwd;
 /** Helper for scanning for files with a given name */
 class FileScanner {
 protected:
-	Subdirectory subdir; ///< The current sub directory we are searching through
+	Subdirectory subdir{}; ///< The current sub directory we are searching through
 public:
 	/** Destruct the proper one... */
 	virtual ~FileScanner() = default;

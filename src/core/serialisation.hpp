@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file serialisation.hpp Functions related to (de)serialisation of buffers */
@@ -51,7 +51,7 @@ struct BufferSerialisationHelper {
 
 	void Send_uint8(const SerialisationAsBase auto &data)
 	{
-		static_assert(sizeof(data.base()) == 1);
+		static_assert(sizeof(decltype(data.base())) == 1);
 		this->Send_uint8((uint8_t)data.base());
 	}
 
@@ -63,7 +63,7 @@ struct BufferSerialisationHelper {
 
 	void Send_uint16(const SerialisationAsBase auto &data)
 	{
-		static_assert(sizeof(data.base()) <= 2);
+		static_assert(sizeof(decltype(data.base())) <= 2);
 		this->Send_uint16((uint16_t)data.base());
 	}
 
@@ -75,7 +75,7 @@ struct BufferSerialisationHelper {
 
 	void Send_uint32(const SerialisationAsBase auto &data)
 	{
-		static_assert(sizeof(data.base()) <= 4);
+		static_assert(sizeof(decltype(data.base())) <= 4);
 		this->Send_uint32((uint32_t)data.base());
 	}
 
@@ -134,15 +134,17 @@ struct BufferSerialisationHelper {
 	template <typename V>
 	void Send_generic_integer(const V &data)
 	{
+		using Integral = typename std::conditional_t<std::is_enum_v<V>, std::underlying_type<V>, std::type_identity<V>>::type;
+		static_assert(std::is_integral_v<Integral>);
 		static_assert(sizeof(V) <= 8);
 		if constexpr (sizeof(V) <= 1) {
 			this->Send_uint8(static_cast<uint8_t>(data));
 		} else if constexpr (sizeof(V) == 2) {
 			this->Send_uint16(static_cast<uint16_t>(data));
 		} else {
-			if constexpr (std::is_signed<V>::value) {
+			if constexpr (std::is_signed<Integral>::value) {
 				/* Zig-zag encode */
-				using U = typename std::make_unsigned<V>::type;
+				using U = typename std::make_unsigned<Integral>::type;
 				U zigzag = (static_cast<U>(data) << 1);
 				if (data < 0) zigzag = ~zigzag;
 				this->Send_varuint(zigzag);
@@ -159,8 +161,8 @@ struct BufferSerialisationHelper {
 			this->Send_string(data);
 		} else if constexpr (SerialisationAsBase<V>) {
 			this->Send_generic_integer(data.base());
-		} else if constexpr (requires { data.Serialise(*this); }) {
-			data.Serialise(*this);
+		} else if constexpr (requires { data.Serialise(*static_cast<T *>(this)); }) {
+			data.Serialise(*static_cast<T *>(this));
 		} else {
 			this->Send_generic_integer(data);
 		}
@@ -200,6 +202,15 @@ struct BufferSerialisationHelper {
 	void Send_generic_seq(const V&... data)
 	{
 		(this->Send_generic(data), ...);
+	}
+
+	template <typename V, typename... X>
+	void Send_generic_member_ptrs(const V& object, std::tuple<X V::*...> ptrs)
+	{
+		auto handler = [&]<size_t... Tindices>(std::index_sequence<Tindices...>) {
+			((this->Send_generic(object.*std::get<Tindices>(ptrs))), ...);
+		};
+		handler(std::index_sequence_for<X...>{});
 	}
 
 	size_t GetSendOffset() const
@@ -475,9 +486,11 @@ public:
 	template <typename V>
 	void Recv_generic_integer(V &data)
 	{
+		using Integral = typename std::conditional_t<std::is_enum_v<V>, std::underlying_type<V>, std::type_identity<V>>::type;
+		static_assert(std::is_integral_v<Integral>);
 		static_assert(sizeof(V) <= 8);
-		if constexpr (std::is_same_v<V, bool>) {
-			data = this->Recv_bool();
+		if constexpr (std::is_same_v<Integral, bool>) {
+			data = static_cast<V>(this->Recv_bool());
 		} else if constexpr (sizeof(V) <= 1) {
 			data = static_cast<V>(this->Recv_uint8());
 		} else if constexpr (sizeof(V) == 2) {
@@ -485,9 +498,9 @@ public:
 		} else {
 			uint64_t val = this->Recv_varuint();
 			if (unlikely((val & GetBitMaskSC<uint64_t>(0, sizeof(V) * 8)) != val)) this->RaiseRecvError();
-			if constexpr (std::is_signed<V>::value) {
+			if constexpr (std::is_signed<Integral>::value) {
 				/* Zig-zag decode */
-				using U = typename std::make_unsigned<V>::type;
+				using U = typename std::make_unsigned<Integral>::type;
 				data = static_cast<V>((static_cast<U>(val) >> 1) ^ static_cast<U>(-(static_cast<V>(val) & 1)));
 			} else {
 				data = static_cast<V>(val);
@@ -502,8 +515,8 @@ public:
 			this->Recv_string(data, settings);
 		} else if constexpr (SerialisationAsBase<V>) {
 			this->Recv_generic_integer(data.edit_base());
-		} else if constexpr (requires { data.Deserialise(*this, settings); }) {
-			data.Deserialise(*this, settings);
+		} else if constexpr (requires { data.Deserialise(*static_cast<T *>(this), settings); }) {
+			data.Deserialise(*static_cast<T *>(this), settings);
 		} else {
 			this->Recv_generic_integer(data);
 		}
@@ -525,9 +538,8 @@ public:
 		const size_t idx = Recv_uint8();
 		auto subhandler = [&]<size_t Tidx>() {
 			if (idx == Tidx) {
-				std::variant_alternative_t<Tidx, std::variant<V...>> value;
+				std::variant_alternative_t<Tidx, std::variant<V...>> &value = data.template emplace<Tidx>();
 				this->Recv_generic(value, settings);
-				data = value;
 			}
 		};
 		auto handler = [&]<size_t... Tindices>(std::index_sequence<Tindices...>) {
@@ -545,6 +557,15 @@ public:
 	void Recv_generic_seq(StringValidationSettings settings, V&... data)
 	{
 		(this->Recv_generic(data, settings), ...);
+	}
+
+	template <typename V, typename... X>
+	void Recv_generic_member_ptrs(V& object, std::tuple<X V::*...> ptrs, StringValidationSettings settings = StringValidationSetting::ReplaceWithQuestionMark)
+	{
+		auto handler = [&]<size_t... Tindices>(std::index_sequence<Tindices...>) {
+			((this->Recv_generic(object.*std::get<Tindices>(ptrs))), ...);
+		};
+		handler(std::index_sequence_for<X...>{});
 	}
 
 	struct DeserialisationBuffer BorrowAsDeserialisationBuffer();
@@ -625,75 +646,10 @@ void BufferDeserialisationHelper<T>::ReturnDeserialisationBuffer(Deserialisation
 	b.buffer = nullptr;
 }
 
-template <typename T>
-struct TupleTypeAdapter {
-private:
-	template <typename H> struct TupleHelper;
-
-	template <typename... Targs>
-	struct TupleHelper<std::tuple<Targs...>> {
-		using Value = std::tuple<std::remove_cvref_t<Targs>...>;
-		using Reference = std::tuple<std::remove_cvref_t<Targs> &...>;
-		using ConstReference = std::tuple<const std::remove_cvref_t<Targs> &...>;
-	};
-	using Helper = TupleHelper<T>;
-
-public:
-	using Value = typename Helper::Value;
-	using Reference = typename Helper::Reference;
-	using ConstReference = typename Helper::ConstReference;
-};
-
-namespace TupleDetail {
-	template <typename TFind, typename... T>
-	constexpr size_t GetTypePackIndexIgnoreCvRefOrSize()
-	{
-		constexpr size_t count = sizeof...(T);
-		constexpr bool found[count] = { std::is_same_v<std::remove_cvref_t<T>, TFind> ... };
-		size_t n = count;
-		for (size_t i = 0; i < count; ++i) {
-			if (found[i]) {
-				if (n < count) return count; // more than one TFind found
-				n = i;
-			}
-		}
-		return n;
-	}
-}
-
-/**
- * Returns the index of type TFind in typename pack T..., ignoring all cvref qualifiers.
- * static_asserts unless exactly one instance of TFind is found.
- */
-template <typename TFind, typename... T>
-constexpr size_t GetTypePackIndexIgnoreCvRef()
-{
-	constexpr size_t result = TupleDetail::GetTypePackIndexIgnoreCvRefOrSize<TFind, T...>();
-	static_assert(result < sizeof...(T));
-	return result;
-}
-
-namespace TupleDetail {
-	template <typename TFind, typename H> struct GetTupleIndexIgnoreCvRefHelper;
-
-	template <typename TFind, typename... Targs>
-	struct GetTupleIndexIgnoreCvRefHelper<TFind, std::tuple<Targs...>> {
-		static constexpr size_t Get()
-		{
-			return GetTypePackIndexIgnoreCvRef<TFind, Targs...>();
-		}
-	};
-}
-
-/**
- * Returns the index of type TFind in std::tuple type T, ignoring all cvref qualifiers.
- * static_asserts unless exactly one instance of TFind is found.
- */
-template <typename TFind, typename T>
-constexpr size_t GetTupleIndexIgnoreCvRef()
-{
-	using Helper = typename TupleDetail::GetTupleIndexIgnoreCvRefHelper<TFind, std::remove_cvref_t<T>>;
-	return Helper::Get();
-}
+extern template struct BufferDeserialisationHelper<struct DeserialisationBuffer>;
+extern template struct BufferDeserialisationHelper<struct Packet>;
+extern template struct BufferDeserialisationHelper<struct SubPacketDeserialiser>;
+extern template struct BufferSerialisationHelper<struct BufferSerialisationRef>;
+extern template struct BufferSerialisationHelper<struct Packet>;
 
 #endif /* SERIALISATION_HPP */

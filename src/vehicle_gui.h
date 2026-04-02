@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file vehicle_gui.h Functions related to the vehicle's GUIs. */
@@ -28,6 +28,7 @@ enum TrainDetailsWindowTabs : uint8_t {
 	TDW_TAB_INFO,      ///< Tab with name and value of the vehicles
 	TDW_TAB_CAPACITY,  ///< Tab with cargo capacity of the vehicles
 	TDW_TAB_TOTALS,    ///< Tab with sum of total cargo transported
+	TDW_TAB_PERF,      ///< Tab with empty/full train performance statistics
 };
 DECLARE_ENUM_AS_ADDABLE(TrainDetailsWindowTabs)
 

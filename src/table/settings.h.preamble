@@ -2,10 +2,10 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
-/** @file table/settings.h Settings to save in the savegame and config file. */
+/** @file settings.h Settings to save in the savegame and config file. */
 
 #include "table/strings.h"
 
@@ -21,6 +21,17 @@ static void UpdateTimeSettings(int32_t new_value);
 
 /* Callback function used for various settings */
 static bool CheckTTDPatchSettingFlag(uint flag);
+
+template <typename T>
+static void SettingMarkWholeScreenDirty(T new_value)
+{
+	MarkWholeScreenDirty();
+}
+
+static void InvalidateSettingsWindows(int32_t new_value)
+{
+	InvalidateWindowClassesData(WC_GAME_OPTIONS);
+}
 
 /****************************
  * OTTD specific INI stuff
@@ -78,7 +89,13 @@ constexpr auto STUnwrap(T value)
 	}
 }
 
-#define NSD(type, ...) std::unique_ptr<const SettingDesc>(new type##SettingDesc(__VA_ARGS__))
+#if USE_CONSTEXPR_CPPOFFSET_OF
+#define SDEF(id) static constinit const auto id =
+#else
+#define SDEF(id) static const auto id =
+#endif
+
+#define NSD(type, ...) type##SettingDesc(__VA_ARGS__)
 
 /* Macros for various objects to go in the configuration file.
  * This section is for global variables */

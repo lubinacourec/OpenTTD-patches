@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file waypoint_cmd.cpp %Command Handling for waypoints. */
@@ -17,20 +17,25 @@
 #include "waypoint_base.h"
 #include "pathfinder/yapf/yapf_cache.h"
 #include "pathfinder/water_regions.h"
+#include "tilehighlight_func.h"
 #include "strings_func.h"
 #include "viewport_func.h"
 #include "viewport_kdtree.h"
+#include "station_kdtree.h"
 #include "window_func.h"
 #include "date_func.h"
 #include "vehicle_func.h"
 #include "string_func.h"
 #include "company_func.h"
+#include "newgrf_debug.h"
 #include "newgrf_station.h"
 #include "newgrf_roadstop.h"
 #include "company_base.h"
 #include "water.h"
 #include "company_gui.h"
 #include "waypoint_cmd.h"
+
+#include "widgets/misc_widget.h"
 
 #include "table/strings.h"
 
@@ -104,7 +109,7 @@ Axis GetAxisForNewWaypoint(TileIndex tile)
 	if (IsRailWaypointTile(tile)) return GetRailStationAxis(tile);
 
 	/* Non-plain rail type, no valid axis for waypoints. */
-	if (!IsTileType(tile, MP_RAILWAY) || GetRailTileType(tile) != RAIL_TILE_NORMAL) return INVALID_AXIS;
+	if (!IsTileType(tile, MP_RAILWAY) || GetRailTileType(tile) != RailTileType::Normal) return INVALID_AXIS;
 
 	switch (GetTrackBits(tile)) {
 		case TRACK_BIT_X: return AXIS_X;
@@ -275,7 +280,7 @@ CommandCost CmdBuildRailWaypoint(DoCommandFlags flags, TileIndex start_tile, Axi
 
 	if (flags.Test(DoCommandFlag::Execute)) {
 		if (wp == nullptr) {
-			wp = new Waypoint(start_tile);
+			wp = Waypoint::Create(start_tile);
 		} else if (!wp->IsInUse()) {
 			/* Move existing (recently deleted) waypoint to the new location */
 			wp->xy = start_tile;
@@ -313,6 +318,7 @@ CommandCost CmdBuildRailWaypoint(DoCommandFlags flags, TileIndex start_tile, Axi
 			SetRailStationReservation(tile, reserved);
 			MarkTileDirtyByTile(tile, VMDF_NOT_MAP_MODE);
 
+			if (spec == nullptr) DeleteNewGRFInspectWindow(GSF_STATIONS, tile.base());
 			YapfNotifyTrackLayoutChange(tile, AxisToTrack(axis));
 		}
 		DirtyCompanyInfrastructureWindows(wp->owner);
@@ -400,7 +406,7 @@ CommandCost CmdBuildRoadWaypoint(DoCommandFlags flags, TileIndex start_tile, Axi
 
 	if (flags.Test(DoCommandFlag::Execute)) {
 		if (wp == nullptr) {
-			wp = new Waypoint(start_tile);
+			wp = Waypoint::Create(start_tile);
 			SetBit(wp->waypoint_flags, WPF_ROAD);
 		} else if (!wp->IsInUse()) {
 			/* Move existing (recently deleted) waypoint to the new location */
@@ -504,7 +510,7 @@ CommandCost CmdBuildBuoy(DoCommandFlags flags, TileIndex tile)
 
 	if (flags.Test(DoCommandFlag::Execute)) {
 		if (wp == nullptr) {
-			wp = new Waypoint(tile);
+			wp = Waypoint::Create(tile);
 		} else {
 			/* Move existing (recently deleted) buoy to the new location */
 			wp->xy = tile;
@@ -622,6 +628,59 @@ CommandCost CmdRenameWaypoint(DoCommandFlags flags, StationID waypoint_id, const
 		wp->UpdateVirtCoord();
 	}
 	return CommandCost();
+}
+
+/**
+ * Move a waypoint name.
+ * @param flags type of operation
+ * @param waypoint_id id of waypoint
+ * @param tile to move the waypoint name to
+ * @return the cost of this operation or an error and the waypoint ID
+ */
+CommandCost CmdMoveWaypointName(DoCommandFlags flags, StationID waypoint_id, TileIndex tile)
+{
+	Waypoint *wp = Waypoint::GetIfValid(waypoint_id);
+	if (wp == nullptr) return CMD_ERROR;
+
+	if (wp->owner != OWNER_NONE) {
+		CommandCost ret = CheckOwnership(wp->owner);
+		if (ret.Failed()) return ret;
+	}
+
+	const StationRect *r = &wp->rect;
+	if (!r->PtInExtendedRect(TileX(tile), TileY(tile))) {
+		return CommandCost(STR_ERROR_SITE_UNSUITABLE);
+	}
+
+	bool other_station = false;
+	/* Check if the tile is the base tile of another station */
+	ForAllStationsRadius(tile, 0, [&](BaseStation *st) {
+		if (st != nullptr) {
+			if (st != wp && st->xy == tile) other_station = true;
+		}
+	});
+	if (other_station) return CommandCost(STR_ERROR_SITE_UNSUITABLE);
+
+	if (flags.Test(DoCommandFlag::Execute)) {
+		wp->MoveSign(tile);
+
+		wp->UpdateVirtCoord();
+	}
+	return CommandCost();
+}
+
+/**
+ * Callback function that is called after a name is moved
+ * @param result of the operation
+ * @param waypoint_id ID of the changed waypoint
+ */
+void CcMoveWaypointName(const CommandCost &result, StationID waypoint_id, TileIndex tile)
+{
+	if (result.Failed()) return;
+
+	ResetObjectToPlace();
+	Waypoint *wp = Waypoint::Get(waypoint_id);
+	SetViewportCatchmentWaypoint(wp, false);
 }
 
 /**

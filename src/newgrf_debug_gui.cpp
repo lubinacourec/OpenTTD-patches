@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file newgrf_debug_gui.cpp GUIs for debugging NewGRFs. */
@@ -209,7 +209,7 @@ struct NIExtraInfoOutput {
 	template <typename... T>
 	void Print(fmt::format_string<T...> fmtstr, T&&... args)
 	{
-		this->PrintV(fmtstr, fmt::make_format_args(args...));
+		this->PrintV(fmtstr, make_preprocessed_format_args(args...));
 	}
 };
 
@@ -532,7 +532,7 @@ struct NewGRFInspectWindow final : Window {
 	template <typename... T>
 	void DrawString(const Rect &r, int offset, fmt::format_string<T...> fmtstr, T&&... args) const
 	{
-		this->DrawStringV(r, offset, fmtstr, fmt::make_format_args(args...));
+		this->DrawStringV(r, offset, fmtstr, make_preprocessed_format_args(args...));
 	}
 
 	void DrawWidget(const Rect &r, WidgetID widget) const override

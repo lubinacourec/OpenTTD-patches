@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file vehicle_gui.cpp The base GUI for all vehicles. */
@@ -2148,7 +2148,7 @@ void BaseVehicleListWindow::DrawVehicleListItems(VehicleID selected_vehicle, int
 			}
 
 			DrawVehicleImage(v, {image_left, ir.top, image_right, ir.bottom}, selected_vehicle, EIT_IN_LIST, 0);
-			DrawString(tr.left, tr.right, ir.top + line_height - GetCharacterHeight(FS_SMALL) - WidgetDimensions::scaled.framerect.bottom - 1, GetStringWithArgs(str, params));
+			DrawString(tr.left, tr.right, ir.top + line_height - GetCharacterHeight(FS_SMALL) - WidgetDimensions::scaled.framerect.bottom - 1, GetStringWithArgs(str, params), TC_BLACK);
 
 			/* company colour stripe along vehicle description row */
 			if (_settings_client.gui.show_vehicle_list_company_colour && v->owner != this->vli.company) {
@@ -2190,7 +2190,7 @@ void BaseVehicleListWindow::DrawVehicleListItems(VehicleID selected_vehicle, int
 					break;
 			}
 
-			DrawString(tr.left, tr.right, ir.bottom - GetCharacterHeight(FS_SMALL) - WidgetDimensions::scaled.framerect.bottom, GetStringWithArgs(str, params));
+			DrawString(tr.left, tr.right, ir.bottom - GetCharacterHeight(FS_SMALL) - WidgetDimensions::scaled.framerect.bottom, GetStringWithArgs(str, params), TC_BLACK);
 		}
 
 		DrawVehicleProfitButton(vehgroup.GetOldestVehicleAge(), vehgroup.GetDisplayProfitLastYear(), vehgroup.NumVehicles(), vehicle_button_x, ir.top + GetCharacterHeight(FS_NORMAL) + WidgetDimensions::scaled.vsep_normal);
@@ -2939,6 +2939,7 @@ static_assert(WID_VD_DETAILS_CARGO_CARRIED    == WID_VD_DETAILS_CARGO_CARRIED + 
 static_assert(WID_VD_DETAILS_TRAIN_VEHICLES   == WID_VD_DETAILS_CARGO_CARRIED + TDW_TAB_INFO    );
 static_assert(WID_VD_DETAILS_CAPACITY_OF_EACH == WID_VD_DETAILS_CARGO_CARRIED + TDW_TAB_CAPACITY);
 static_assert(WID_VD_DETAILS_TOTAL_CARGO      == WID_VD_DETAILS_CARGO_CARRIED + TDW_TAB_TOTALS  );
+static_assert(WID_VD_DETAILS_PERFORMANCE      == WID_VD_DETAILS_CARGO_CARRIED + TDW_TAB_PERF  );
 
 /** Vehicle details widgets (other than train). */
 static constexpr std::initializer_list<NWidgetPart> _nested_nontrain_vehicle_details_widgets = {
@@ -2988,15 +2989,17 @@ static constexpr std::initializer_list<NWidgetPart> _nested_train_vehicle_detail
 				SetStringTip(STR_EMPTY, STR_SERVICE_INTERVAL_DROPDOWN_TOOLTIP),
 		NWidget(WWT_PANEL, COLOUR_GREY, WID_VD_SERVICING_INTERVAL), SetFill(1, 1), SetResize(1, 0), EndContainer(),
 	EndContainer(),
-	NWidget(NWID_HORIZONTAL),
-		NWidget(WWT_PUSHTXTBTN, COLOUR_GREY, WID_VD_DETAILS_CARGO_CARRIED), SetMinimalSize(96, 12),
+	NWidget(NWID_HORIZONTAL, NWidContainerFlag::EqualSize),
+		NWidget(WWT_PUSHTXTBTN, COLOUR_GREY, WID_VD_DETAILS_CARGO_CARRIED), SetMinimalSize(80, 12),
 				SetStringTip(STR_VEHICLE_DETAIL_TAB_CARGO, STR_VEHICLE_DETAILS_TRAIN_CARGO_TOOLTIP), SetFill(1, 0), SetResize(1, 0),
-		NWidget(WWT_PUSHTXTBTN, COLOUR_GREY, WID_VD_DETAILS_TRAIN_VEHICLES), SetMinimalSize(99, 12),
+		NWidget(WWT_PUSHTXTBTN, COLOUR_GREY, WID_VD_DETAILS_TRAIN_VEHICLES), SetMinimalSize(80, 12),
 				SetStringTip(STR_VEHICLE_DETAIL_TAB_INFORMATION, STR_VEHICLE_DETAILS_TRAIN_INFORMATION_TOOLTIP), SetFill(1, 0), SetResize(1, 0),
-		NWidget(WWT_PUSHTXTBTN, COLOUR_GREY, WID_VD_DETAILS_CAPACITY_OF_EACH), SetMinimalSize(99, 12),
+		NWidget(WWT_PUSHTXTBTN, COLOUR_GREY, WID_VD_DETAILS_CAPACITY_OF_EACH), SetMinimalSize(80, 12),
 				SetStringTip(STR_VEHICLE_DETAIL_TAB_CAPACITIES, STR_VEHICLE_DETAILS_TRAIN_CAPACITIES_TOOLTIP), SetFill(1, 0), SetResize(1, 0),
-		NWidget(WWT_PUSHTXTBTN, COLOUR_GREY, WID_VD_DETAILS_TOTAL_CARGO), SetMinimalSize(99, 12),
+		NWidget(WWT_PUSHTXTBTN, COLOUR_GREY, WID_VD_DETAILS_TOTAL_CARGO), SetMinimalSize(80, 12),
 				SetStringTip(STR_VEHICLE_DETAIL_TAB_TOTAL_CARGO, STR_VEHICLE_DETAILS_TRAIN_TOTAL_CARGO_TOOLTIP), SetFill(1, 0), SetResize(1, 0),
+		NWidget(WWT_PUSHTXTBTN, COLOUR_GREY, WID_VD_DETAILS_PERFORMANCE), SetMinimalSize(80, 12),
+				SetStringTip(STR_VEHICLE_DETAIL_TAB_PERFORMANCE, STR_VEHICLE_DETAILS_TRAIN_PERFORMANCE_TOOLTIP), SetFill(1, 0), SetResize(1, 0),
 		NWidget(WWT_RESIZEBOX, COLOUR_GREY),
 	EndContainer(),
 };
@@ -3440,8 +3443,15 @@ struct VehicleDetailsWindow : Window {
 					format_buffer buffer;
 					AppendStringInPlace(buffer, STR_TRACE_RESTRICT_SLOT_LIST_HEADER, slots.size());
 
+					std::string_view list_separator;
+					if (slots.size() > 1) list_separator = GetListSeparator();
+
 					for (size_t i = 0; i < slots.size(); i++) {
-						if (i != 0) AppendStringInPlace(buffer, STR_TRACE_RESTRICT_SLOT_LIST_SEPARATOR);
+						if (i != 0) {
+							buffer.push_back_utf8(SCC_BLACK);
+							buffer.append(list_separator);
+						}
+						buffer.push_back_utf8(SCC_LTBLUE);
 						buffer.append(TraceRestrictSlot::Get(slots[i])->name);
 					}
 					DrawString(tr, buffer);
@@ -3590,11 +3600,13 @@ struct VehicleDetailsWindow : Window {
 			case WID_VD_DETAILS_TRAIN_VEHICLES:
 			case WID_VD_DETAILS_CAPACITY_OF_EACH:
 			case WID_VD_DETAILS_TOTAL_CARGO:
+			case WID_VD_DETAILS_PERFORMANCE:
 				this->SetWidgetsLoweredState(false,
 					WID_VD_DETAILS_CARGO_CARRIED,
 					WID_VD_DETAILS_TRAIN_VEHICLES,
 					WID_VD_DETAILS_CAPACITY_OF_EACH,
-					WID_VD_DETAILS_TOTAL_CARGO);
+					WID_VD_DETAILS_TOTAL_CARGO,
+					WID_VD_DETAILS_PERFORMANCE);
 
 				this->tab = (TrainDetailsWindowTabs)(widget - WID_VD_DETAILS_CARGO_CARRIED);
 				this->SetDirty();
@@ -3755,8 +3767,10 @@ static constexpr std::initializer_list<NWidgetPart> _nested_vehicle_view_widgets
 				NWidget(WWT_PUSHIMGBTN, COLOUR_GREY, WID_VV_CLONE), SetMinimalSize(18, 18), SetSpriteTip(SPR_EMPTY /* filled later */),
 			EndContainer(),
 			/* For trains only, 'ignore signal' button. */
-			NWidget(WWT_PUSHIMGBTN, COLOUR_GREY, WID_VV_FORCE_PROCEED), SetMinimalSize(18, 18),
+			NWidget(NWID_SELECTION, INVALID_COLOUR, WID_VV_FORCE_PROCEED_SEL),
+				NWidget(WWT_PUSHIMGBTN, COLOUR_GREY, WID_VV_FORCE_PROCEED), SetMinimalSize(18, 18),
 											SetSpriteTip(SPR_IGNORE_SIGNALS, STR_VEHICLE_VIEW_TRAIN_IGNORE_SIGNAL_TOOLTIP),
+			EndContainer(),
 			NWidget(NWID_SELECTION, INVALID_COLOUR, WID_VV_SELECT_REFIT_TURN),
 				NWidget(WWT_PUSHIMGBTN, COLOUR_GREY, WID_VV_REFIT), SetMinimalSize(18, 18), SetSpriteTip(SPR_REFIT_VEHICLE),
 				NWidget(WWT_PUSHIMGBTN, COLOUR_GREY, WID_VV_TURN_AROUND), SetMinimalSize(18, 18),
@@ -3985,13 +3999,16 @@ public:
 		switch (v->type) {
 			case VEH_TRAIN:
 				this->GetWidget<NWidgetCore>(WID_VV_TURN_AROUND)->SetToolTip(STR_VEHICLE_VIEW_TRAIN_REVERSE_TOOLTIP);
+				this->GetWidget<NWidgetStacked>(WID_VV_FORCE_PROCEED_SEL)->SetDisplayedPlane(0);
 				break;
 
 			case VEH_ROAD:
+				this->GetWidget<NWidgetStacked>(WID_VV_FORCE_PROCEED_SEL)->SetDisplayedPlane(SZSP_NONE);
 				break;
 
 			case VEH_SHIP:
 			case VEH_AIRCRAFT:
+				this->GetWidget<NWidgetStacked>(WID_VV_FORCE_PROCEED_SEL)->SetDisplayedPlane(SZSP_NONE);
 				this->SelectPlane(SEL_RT_REFIT);
 				break;
 
@@ -4378,7 +4395,7 @@ public:
 					add_colour(COLOUR_RED);
 				}
 
-				ShowDropDownList(this, std::move(list), -1, widget, 0, DDMF_NONE, DDSF_SHARED);
+				ShowDropDownList(this, std::move(list), -1, widget, 0, DropDownOptions{}, DDSF_SHARED);
 				break;
 			}
 
@@ -4395,7 +4412,7 @@ public:
 					list.push_back(MakeDropDownListStringItem(BaseVehicleListWindow::vehicle_depot_name[v->type], DepotCommandFlags{DepotCommandFlag::DontCancel}.base(), flags == ODATFB_HALT));
 					list.push_back(MakeDropDownListStringItem(BaseVehicleListWindow::vehicle_depot_sell_name[v->type], DepotCommandFlags{DepotCommandFlag::Sell, DepotCommandFlag::DontCancel}.base(), flags == (ODATFB_HALT | ODATFB_SELL)));
 					list.push_back(MakeDropDownListStringItem(STR_VEHICLE_LIST_CANCEL_DEPOT_SERVICE, DepotCommandFlags{DepotCommandFlag::Cancel}.base(), false));
-					ShowDropDownList(this, std::move(list), -1, widget, 0, DDMF_NONE, DDSF_SHARED);
+					ShowDropDownList(this, std::move(list), -1, widget, 0, DropDownOptions{}, DDSF_SHARED);
 				} else {
 					this->HandleButtonClick(WID_VV_GOTO_DEPOT);
 					Command<CMD_SEND_VEHICLE_TO_DEPOT>::Post(GetCmdSendToDepotMsg(v), v->index, _ctrl_pressed ? DepotCommandFlag::Service : DepotCommandFlags{}, {});

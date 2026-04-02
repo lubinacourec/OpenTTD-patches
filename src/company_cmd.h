@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file company_cmd.h Command definitions related to companies. */
@@ -24,10 +24,11 @@ struct CmdCompanyCtrlInnerData {
 	CompanyID to_merge_id;
 
 	/* This must include all fields */
-	auto GetRefTuple() { return std::tie(this->cca, this->company_id, this->reason, this->client_id, this->to_merge_id); }
+	using Self = CmdCompanyCtrlInnerData;
+	static constexpr auto GetTupleFields() { return std::make_tuple(&Self::cca, &Self::company_id, &Self::reason, &Self::client_id, &Self::to_merge_id); }
 };
 struct CmdCompanyCtrlData final : public TupleRefCmdData<CmdCompanyCtrlData, CmdCompanyCtrlInnerData> {
-	void FormatDebugSummary(struct format_target &) const override;
+	void FormatDebugSummary(struct format_target &) const;
 };
 
 DEF_CMD_TUPLE_NT (CMD_COMPANY_CTRL,             CmdCompanyCtrl,           CMD_SPECTATOR | CMD_CLIENT_ID | CMD_NO_EST, CommandType::ServerSetting,   CmdCompanyCtrlData)

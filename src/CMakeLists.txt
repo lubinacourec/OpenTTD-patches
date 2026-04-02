@@ -108,10 +108,13 @@ add_files(
     clear_func.h
     clear_map.h
     command.cpp
+    command_callback.cpp
     command_func.h
     command_log.h
     command_serialisation.h
     command_settings_type.h
+    command_table.cpp
+    command_table.h
     command_type.h
     company_base.h
     company_cmd.cpp
@@ -276,6 +279,7 @@ add_files(
     livery.h
     load_check.h
     main_gui.cpp
+    maintenance_func.h
     map.cpp
     map_func.h
     map_type.h
@@ -465,6 +469,8 @@ add_files(
     settings_gui.cpp
     settings_gui.h
     settings_internal.h
+    settings_table.cpp
+    settings_table.h
     settings_type.h
     ship.h
     ship_cmd.cpp
@@ -594,6 +600,7 @@ add_files(
     townname_type.h
     tracerestrict.cpp
     tracerestrict.h
+    tracerestrict_backup.h
     tracerestrict_cmd.h
     tracerestrict_id_type.h
     tracerestrict_gui.cpp

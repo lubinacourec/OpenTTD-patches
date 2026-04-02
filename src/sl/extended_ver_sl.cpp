@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file extended_ver_sl.cpp Functions related to handling save/load extended version info.
@@ -77,7 +77,7 @@ static uint32_t saveSTC(const SlxiSubChunkInfo &info, bool dry_run);
 const std::initializer_list<SlxiSubChunkInfo> _sl_xv_sub_chunk_infos = {
 	{ XSLFI_VERSION_LABEL,                    XSCF_IGNORABLE_ALL,       1,   1, "version_label",                    saveVL,  loadVL,  nullptr          },
 	{ XSLFI_UPSTREAM_VERSION,                 XSCF_NULL,                2,   2, "upstream_version",                 saveUV,  loadUV,  nullptr          },
-	{ XSLFI_TRACE_RESTRICT,                   XSCF_NULL,               21,  21, "tracerestrict",                    nullptr, nullptr, "TRRM,TRRP,TRRS,TRRG" },
+	{ XSLFI_TRACE_RESTRICT,                   XSCF_NULL,               22,  22, "tracerestrict",                    nullptr, nullptr, "TRRM,TRRP,TRRS,TRRG,TRRB" },
 	{ XSLFI_TRACE_RESTRICT_OWNER,             XSCF_NULL,                1,   1, "tracerestrict_owner",              nullptr, nullptr, nullptr          },
 	{ XSLFI_TRACE_RESTRICT_ORDRCND,           XSCF_NULL,                4,   4, "tracerestrict_order_cond",         nullptr, nullptr, nullptr          },
 	{ XSLFI_TRACE_RESTRICT_STATUSCND,         XSCF_NULL,                2,   2, "tracerestrict_status_cond",        nullptr, nullptr, nullptr          },

@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file autoreplace_base.h Base class for autoreplaces/autorenews. */
@@ -38,9 +38,9 @@ struct EngineRenew : EngineRenewPool::PoolItem<&_enginerenew_pool> {
 	GroupID group_id = GroupID::Invalid();
 	bool replace_when_old = false; ///< Do replacement only when vehicle is old.
 
-	EngineRenew() {}
-	EngineRenew(EngineID from, EngineID to, GroupID group_id, bool replace_when_old, EngineRenew *next) :
-		from(from), to(to), next(next), group_id(group_id), replace_when_old(replace_when_old) {}
+	EngineRenew(EngineRenewID index) : PoolItemBase(index) {}
+	EngineRenew(EngineRenewID index, EngineID from, EngineID to, GroupID group_id, bool replace_when_old, EngineRenew *next) :
+		PoolItemBase(index), from(from), to(to), next(next), group_id(group_id), replace_when_old(replace_when_old) {}
 	~EngineRenew() {}
 };
 

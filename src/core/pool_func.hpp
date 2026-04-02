@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file pool_func.hpp Some methods of Pool are placed here in order to reduce compilation time and binary size. */
@@ -106,17 +106,16 @@ DEFINE_POOL_METHOD(inline void *)::AllocateItem(size_t size, size_t index, Pool:
 	this->data[index] = Tops::PutPtr(item, param);
 	SetBit(this->free_bitmap[index / 64], index % 64);
 	/* MSVC complains about casting to narrower type, so first cast to the base type... then to the strong type. */
-	item->index = static_cast<Tindex>(static_cast<Tindex::BaseType>(index));
 	return item;
 }
 
 /**
  * Allocates new item
  * @param size size of item
- * @return pointer to allocated item
+ * @return pointer to allocated item and the index of said item.
  * @note FatalError() on failure! (no free item)
  */
-DEFINE_POOL_METHOD(void *)::GetNew(size_t size, Pool::ParamType param)
+DEFINE_POOL_METHOD(AllocationResult<Tindex>)::GetNew(size_t size, Pool::ParamType param)
 {
 	size_t index = this->FindFirstFree();
 
@@ -130,7 +129,7 @@ DEFINE_POOL_METHOD(void *)::GetNew(size_t size, Pool::ParamType param)
 	}
 
 	this->first_free = index + 1;
-	return this->AllocateItem(size, index, param);
+	return { this->AllocateItem(size, index, param), static_cast<Tindex>(static_cast<Tindex::BaseType>(index)) };
 }
 
 /**
@@ -217,7 +216,7 @@ DEFINE_POOL_METHOD(void)::CleanPool()
  * forcefully instantiated.
  */
 #define INSTANTIATE_POOL_METHODS(name) \
-	template void * name ## Pool::GetNew(size_t size, name ## Pool::ParamType param); \
+	template AllocationResult<name ## Pool::IndexType> name ## Pool::GetNew(size_t size, name ## Pool::ParamType param); \
 	template void * name ## Pool::GetNew(size_t size, size_t index, name ## Pool::ParamType param); \
 	template void name ## Pool::FreeItem(size_t index); \
 	template void name ## Pool::CleanPool();

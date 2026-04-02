@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file linkgraphjob.h Declaration of link graph job classes used for cargo distribution. */
@@ -30,7 +30,7 @@ extern LinkGraphJobPool _link_graph_job_pool;
 /**
  * Class for calculation jobs to be run on link graphs.
  */
-class LinkGraphJob : public LinkGraphJobPool::PoolItem<&_link_graph_job_pool>{
+class LinkGraphJob : public LinkGraphJobPool::PoolItem<&_link_graph_job_pool> {
 public:
 	/**
 	 * Annotation for a link graph demand edge.
@@ -267,10 +267,10 @@ public:
 	 * Bare constructor, only for save/load. link_graph, join_date and actually
 	 * settings have to be brutally const-casted in order to populate them.
 	 */
-	LinkGraphJob() : settings(_settings_game.linkgraph),
+	LinkGraphJob(LinkGraphJobID index) : PoolItemBase(index), link_graph(LinkGraphID::Invalid()), settings(_settings_game.linkgraph),
 			join_tick(0), start_tick(0), day_length_factor(1), job_completed(false), job_aborted(false) {}
 
-	LinkGraphJob(const LinkGraph &orig, uint duration_multiplier);
+	LinkGraphJob(LinkGraphJobID index, const LinkGraph &orig, uint duration_multiplier);
 	~LinkGraphJob();
 
 	void Init();

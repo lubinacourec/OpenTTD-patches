@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file network_admin.cpp Server part of the admin network protocol. */
@@ -64,9 +64,11 @@ static_assert(lengthof(_admin_update_type_frequencies) == ADMIN_UPDATE_END);
 
 /**
  * Create a new socket for the server side of the admin network.
+ * @param index The index in the admin pool.
  * @param s The socket to connect with.
  */
-ServerNetworkAdminSocketHandler::ServerNetworkAdminSocketHandler(SOCKET s) : NetworkAdminSocketHandler(s)
+ServerNetworkAdminSocketHandler::ServerNetworkAdminSocketHandler(AdminID index, SOCKET s) :
+	PoolItemBase(index), NetworkAdminSocketHandler(s)
 {
 	this->status = ADMIN_STATUS_INACTIVE;
 	this->connect_time = std::chrono::steady_clock::now();
@@ -117,7 +119,7 @@ ServerNetworkAdminSocketHandler::~ServerNetworkAdminSocketHandler()
  */
 /* static */ void ServerNetworkAdminSocketHandler::AcceptConnection(SOCKET s, const NetworkAddress &address)
 {
-	ServerNetworkAdminSocketHandler *as = new ServerNetworkAdminSocketHandler(s);
+	ServerNetworkAdminSocketHandler *as = ServerNetworkAdminSocketHandler::Create(s);
 	as->address = address; // Save the IP of the client
 }
 

@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file station.cpp Implementation of the station base class. */
@@ -14,6 +14,8 @@
 #include "viewport_func.h"
 #include "viewport_kdtree.h"
 #include "date_func.h"
+#include "economy_func.h"
+#include "maintenance_func.h"
 #include "command_func.h"
 #include "news_func.h"
 #include "aircraft.h"
@@ -72,8 +74,8 @@ BaseStation::~BaseStation()
 	CloseStationDeparturesWindow(this->index);
 }
 
-Station::Station(TileIndex tile) :
-	SpecializedStation<Station, false>(tile),
+Station::Station(StationID index, TileIndex tile) :
+	SpecializedStation<Station, false>(index, tile),
 	bus_station(INVALID_TILE, 0, 0),
 	truck_station(INVALID_TILE, 0, 0),
 	ship_station(INVALID_TILE, 0, 0),
@@ -744,6 +746,17 @@ StationRect& StationRect::operator = (const Rect &src)
 	this->right = src.right;
 	this->bottom = src.bottom;
 	return *this;
+}
+
+/**
+ * Calculates the maintenance cost of a number of station tiles.
+ * @param num Number of station tiles.
+ * @return Total cost.
+ */
+Money StationMaintenanceCost(uint32_t num)
+{
+	/* 7 bits scaling. 23 is roughly equivalent to the polynomial maint cost at 500 pieces. */
+	return (_price[PR_INFRASTRUCTURE_STATION] * num * GetMaintenanceCostScale(num, 23)) >> 7;
 }
 
 /**

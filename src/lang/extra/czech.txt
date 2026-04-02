@@ -441,11 +441,6 @@ STR_CONFIG_SETTING_SHARING_PAYMENT_IN_DEBT                      :Povolit zadluž
 STR_CONFIG_SETTING_SHARING_USED_BY_VEHICLES                     :Nastavení nelze změnit, některá vozidla používají sdílenou infrastrukturu.
 STR_CONFIG_SETTING_SHARING_ORDERS_TO_OTHERS                     :Nastavení nelze změnit, některá vozidla mají příkazy do stanic cizí infrastruktury.
 
-STR_CONFIG_SETTING_INFRA_OTHERS_BUY_IN_DEPOT_RAIL               :Povolit konkurentům nakupovat a nahrazovat vlaky v depech: {STRING}
-STR_CONFIG_SETTING_INFRA_OTHERS_BUY_IN_DEPOT_ROAD               :Povolit konkurentům nakupovat a nahrazovat silniční vozidla v depech: {STRING}
-STR_CONFIG_SETTING_INFRA_OTHERS_BUY_IN_DEPOT_WATER              :Povolit konkurentům nakupovat a nahrazovat lodě v docích: {STRING}
-STR_CONFIG_SETTING_INFRA_OTHERS_BUY_IN_DEPOT_AIR                :Povolit konkurentům nakupovat a nahrazovat letadla v hangárech: {STRING}
-
 STR_CONFIG_SETTING_TRAIN_SPEED_ADAPTATION                       :Povolit adaptaci rychlosti vlaku: {STRING}
 STR_CONFIG_SETTING_TRAIN_SPEED_ADAPTATION_HELPTEXT              :Je-li zapnuto, rychlejší vlaky budou přizpůsobovat svou rychlost, aby se shodovala s rychlostmi pomalejších vlaků jedoucích před nimi.
 
@@ -541,9 +536,6 @@ STR_CONFIG_SETTING_CARGO_PAYMENT_ALGORITHM                      :Algoritmus plat
 STR_CONFIG_SETTING_CARGO_PAYMENT_ALGORITHM_HELPTEXT             :Algoritmus, podle nějž se počítá suma peněz vyplácená za doručení nákladu do jeho cíle.
 STR_CONFIG_SETTING_CARGO_PAYMENT_ALGORITHM_TRADITIONAL          :tradiční
 STR_CONFIG_SETTING_CARGO_PAYMENT_ALGORITHM_MODERN               :moderní
-
-STR_CONFIG_SETTING_TOWN_MIN_DISTANCE                            :Minimální vzdálenost mezi městy: {STRING}
-STR_CONFIG_SETTING_TOWN_MIN_DISTANCE_HELPTEXT                   :Nastaví minimální počet políček mezi městy při generování mapy a náhodném zakládání měst
 
 STR_CONFIG_SETTING_DISTRIBUTION_PER_CARGO                       :Prolomit mód distribuce pro tento náklad: {STRING}
 STR_CONFIG_SETTING_DISTRIBUTION_PER_CARGO_PARAM                 :Prolomit mód distribuce pro {STRING}: {STRING}
@@ -802,8 +794,7 @@ STR_TRACE_RESTRICT_SLOT_PBS_RES_END_TRY_ACQUIRE_ITEM            :PBS rezervace k
 STR_TRACE_RESTRICT_SLOT_PBS_RES_END_RELEASE_ITEM                :PBS rezervace končící zde: uvolnit slot {PUSH_COLOUR}{STRING}{POP_COLOUR} a pokračovat,
 STR_TRACE_RESTRICT_SLOT_NAME                                    :{TRSLOT}
 STR_TRACE_RESTRICT_SLOT_NAME_PREFIXED                           :[{STRING}] {TRSLOT}
-STR_TRACE_RESTRICT_SLOT_LIST_HEADER                             :{BLACK}Slot{CONSUME_ARG}{P "" y ů}: {LTBLUE}
-STR_TRACE_RESTRICT_SLOT_LIST_SEPARATOR                          :{BLACK}, {LTBLUE}
+STR_TRACE_RESTRICT_SLOT_LIST_HEADER                             :{BLACK}Slot{CONSUME_ARG}{P "" y ů}:{SPACE}
 STR_TRACE_RESTRICT_COUNTER_NAME                                 :{TRCOUNTER}
 STR_TRACE_RESTRICT_COUNTER_INCREASE                             :zvýšit
 STR_TRACE_RESTRICT_COUNTER_DECREASE                             :snížit
@@ -1089,7 +1080,7 @@ STR_SAVELOAD_DIFFERENT_ID                                       :{YELLOW}Tento s
 STR_SAVELOAD_OVERWRITE_TITLE_DIFFERENT_ID                       :{WHITE}Přepsat soubor (z jiné hry)
 STR_SAVELOAD_OVERWRITE_TITLE_DIFFERENT_VERSION_SUFFIX           :{STRING} (odlišná verze)
 STR_SAVELOAD_OVERWRITE_WARNING_DIFFERENT_ID                     :{YELLOW}Opravdu chceš přepsat existující soubor?{}{}Soubor pochází z jiné hry.
-STR_SAVELOAD_OVERWRITE_WARNING_DIFFERENT_VERSION_SUFFIX         :{STRING}{}{}Soubor pochází z jiné verze.{STRING}.{}Bude-li přepsán, soubor už nebude zpracovatelný v původní verzi.
+STR_SAVELOAD_OVERWRITE_WARNING_DIFFERENT_VERSION_SUFFIX         :{YELLOW}{STRING}{}{}Soubor pochází z jiné verze.{STRING}.{}Bude-li přepsán, soubor už nebude zpracovatelný v původní verzi.
 STR_SAVELOAD_OVERWRITE_WARNING_VERSION_NAME                     : ({STRING})
 
 STR_MAPGEN_SNOW_LINE_HEIGHT                                     :{BLACK}Výška sněžné čáry:
@@ -1324,7 +1315,7 @@ STR_QUERY_RENAME_TRAIN_TYPE_WAGON_CAPTION                       :{WHITE}Přejmen
 STR_VEHICLE_VIEW_SEND_TO_DEPOT_TOOLTIP_SHIFT                    :{STRING}. Shift+kliknutím vyber, do kterého
 STR_VEHICLE_VIEW_SEND_TO_DEPOT_MENU                             :{BLACK}Zrušit odeslání vozidla do depa/hangáru. Ctrl+kliknutí otevře nabídku. Shift+kliknutí pro výběr depa/hangáru
 
-STR_VEHICLE_STATUS_LOADING_UNLOADING_ADVANCE                    :{STRING}, {VELOCITY}
+STR_VEHICLE_STATUS_LOADING_UNLOADING_ADVANCE                    :{LTBLUE}{STRING}, {VELOCITY}
 STR_VEHICLE_STATUS_BROKEN_DOWN_VEL                              :{RED}Porucha - {STRING}, {LTBLUE} {VELOCITY}
 STR_VEHICLE_STATUS_BROKEN_DOWN_VEL_SHORT                        :{RED}Porucha - {STRING}
 STR_VEHICLE_STATUS_TRAIN_STUCK_WAIT_RESTRICTION                 :{ORANGE}Čeká kvůli omezení směrování
@@ -1373,7 +1364,7 @@ STR_VEHICLE_INFO_TE_WEIGHT_RATIO                                :{BLACK}Max. ta�
 STR_VEHICLE_INFO_FULL_WEIGHT_WITH_RATIOS                        :{BLACK}Hmotnost: {LTBLUE}{WEIGHT_SHORT} {STRING}
 STR_VEHICLE_INFO_MAX_SPEED_LOADED                               :{BLACK}Maximální rychlost (plně obsazené soupravy): {LTBLUE}{VELOCITY}
 
-STR_VEHICLE_INFO_PROFIT_THIS_YEAR_LAST_YEAR_LIFETIME            :{STRING} (od zahájení provozu: {CURRENCY_LONG})
+STR_VEHICLE_INFO_PROFIT_THIS_YEAR_LAST_YEAR_LIFETIME            :{STRING} {LTBLUE}(od zahájení provozu: {CURRENCY_LONG})
 
 STR_VEHICLE_INFO_GROUP                                          :{BLACK}Skupina: {LTBLUE}{GROUP}
 

@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file town_cmd.h Command definitions related to towns. */
@@ -25,27 +25,8 @@ struct HouseIDCmdVector {
 
 	std::vector<HouseID> ids;
 
-	template <typename T>
-	void Serialise(T &&buffer) const
-	{
-		buffer.Send_generic_integer(this->ids.size());
-		for (HouseID id : this->ids) {
-			buffer.Send_generic_integer(id);
-		}
-	}
-
-	template <typename T>
-	bool Deserialise(T &buffer, StringValidationSettings default_string_validation)
-	{
-		size_t size{};
-		buffer.Recv_generic_integer(size);
-		if (size > MAX_HOUSE_IDS) return false;
-		this->ids.resize(size);
-		for (HouseID &id : this->ids) {
-			buffer.Recv_generic_integer(id);
-		}
-		return true;
-	}
+	void Serialise(BufferSerialisationRef buffer) const;
+	bool Deserialise(DeserialisationBuffer &buffer, StringValidationSettings default_string_validation);
 
 	void fmt_format_value(struct format_target &) const;
 };

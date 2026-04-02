@@ -13,7 +13,7 @@
 # This file is part of OpenTTD.
 # OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
 # OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
 
 
 ##id 0x0000
@@ -312,6 +312,7 @@ STR_SHOW_HIDDEN_ENGINES_VEHICLE_AIRCRAFT_TOOLTIP                :{BLACK}Khi bậ
 STR_BUTTON_DEFAULT                                              :{BLACK}Mặc định
 STR_BUTTON_CANCEL                                               :{BLACK}Hủy bỏ
 STR_BUTTON_OK                                                   :{BLACK}Đồng ý
+STR_BUTTON_MOVE                                                 :{BLACK}Di chuyển
 
 # On screen keyboard window
 STR_OSK_KEYBOARD_LAYOUT                                         :`1234567890-= qwertyuiop[]asdfghjkl;'#\zxcvbnm,./ .
@@ -1114,7 +1115,7 @@ STR_GAME_OPTIONS_BASE_GRF_TOOLTIP                               :Chọn gói đ�
 STR_GAME_OPTIONS_BASE_GRF_DESCRIPTION_TOOLTIP                   :Thông tin thêm về gói đồ họa
 
 STR_GAME_OPTIONS_BASE_SFX                                       :Bộ âm thanh chuẩn
-STR_GAME_OPTIONS_BASE_SFX_TOOLTIP                               :Chọn bộ âm thanh chuẩn để dùng (không thể thay đổi khi trong ván chơi, chỉ đổi được khi ở menu chính)
+STR_GAME_OPTIONS_BASE_SFX_TOOLTIP                               :Chọn bộ âm thanh chuẩn để dùng
 STR_GAME_OPTIONS_BASE_SFX_DESCRIPTION_TOOLTIP                   :Thông tin thêm về bộ âm thanh chuẩn
 
 STR_GAME_OPTIONS_BASE_MUSIC                                     :Gói nhạc chuẩn
@@ -1247,7 +1248,7 @@ STR_CONFIG_SETTING_EXPAND_ALL                                   :Mở xuống t�
 STR_CONFIG_SETTING_COLLAPSE_ALL                                 :Đóng lại tất cả
 STR_CONFIG_SETTING_RESET_ALL                                    :Thiết lập lại tất cả
 STR_CONFIG_SETTING_NO_EXPLANATION_AVAILABLE_HELPTEXT            :(hiện không có giải thích nào)
-STR_CONFIG_SETTING_VALUE                                        :{PUSH_COLOUR}{ORANGE}{STRING}{POP_COLOUR}
+STR_CONFIG_SETTING_VALUE                                        :{ORANGE}{STRING}
 STR_CONFIG_SETTING_DEFAULT_VALUE                                :{LTBLUE}Giá trị mặc định: {ORANGE}{STRING}
 STR_CONFIG_SETTING_TYPE                                         :{LTBLUE}Kiểu thiết lập: {ORANGE}{STRING}
 STR_CONFIG_SETTING_TYPE_CLIENT                                  :Cấu hình máy khách (không được lưu trong save; tác động tới tất cả các ván chơi)
@@ -2090,6 +2091,8 @@ STR_CONFIG_SETTING_LARGER_TOWNS_VALUE                           :1 trong {COMMA}
 STR_CONFIG_SETTING_LARGER_TOWNS_DISABLED                        :Không
 STR_CONFIG_SETTING_CITY_SIZE_MULTIPLIER                         :Hệ số quy mô đô thị coi là thành phố: {STRING}
 STR_CONFIG_SETTING_CITY_SIZE_MULTIPLIER_HELPTEXT                :Kích thước trung bình của thành phố tỉ lệ với đô thị lúc bắt đầu trò chơi
+STR_CONFIG_SETTING_TOWN_MIN_DISTANCE                            :Khoảng cách tối thiểu giữa các thị trấn: {STRING}
+STR_CONFIG_SETTING_TOWN_MIN_DISTANCE_HELPTEXT                   :Thiết lập khoảng cách tối thiểu (tính bằng ô) giữa các thị trấn trong quá trình khởi tạo bản đồ và thành lập ngẫu nhiên
 
 STR_CONFIG_SETTING_LINKGRAPH_RECALC_INTERVAL                    :Cập nhật biểu đồ phân phối mỗi {STRING}
 STR_CONFIG_SETTING_LINKGRAPH_RECALC_INTERVAL_HELPTEXT           :Thời gian giữa các lần tính toán lại tiếp theo của biểu đồ liên kết. Mỗi lần tính toán lại sẽ tính toán các kế hoạch cho một thành phần của biểu đồ. Điều đó có nghĩa là giá trị X cho cài đặt này không có nghĩa là toàn bộ biểu đồ sẽ được cập nhật X giây một lần. Chỉ một số thành phần sẽ làm như vậy. Bạn đặt nó càng ngắn thì càng cần nhiều thời gian CPU để tính toán nó. Bạn đặt càng lâu thì càng mất nhiều thời gian cho đến khi việc phân phối hàng hóa bắt đầu trên các tuyến đường mới
@@ -2882,15 +2885,15 @@ STR_PICKER_HOUSE_TYPE_TOOLTIP                                   :Chọn kiểu n
 STR_PICKER_HOUSE_COLLECTION_TOOLTIP                             :Chọn một nhóm nhà cửa để hiển thị
 
 STR_HOUSE_PICKER_CAPTION                                        :Chọn Kiểu Nhà
-STR_HOUSE_PICKER_NAME                                           :{BLACK}Tên: {ORANGE}{STRING}
-STR_HOUSE_PICKER_POPULATION                                     :{BLACK}Dân số: {ORANGE}{NUM}
-STR_HOUSE_PICKER_YEARS                                          :{BLACK}Năm: {ORANGE}{NUM}-{NUM}
-STR_HOUSE_PICKER_YEARS_ANY                                      :{BLACK}Năm: {ORANGE}Tất cả
-STR_HOUSE_PICKER_YEARS_FROM                                     :{BLACK}Năm: {ORANGE}Từ {NUM}
-STR_HOUSE_PICKER_YEARS_UNTIL                                    :{BLACK}Năm: {ORANGE}Đến {NUM}
-STR_HOUSE_PICKER_SIZE                                           :{BLACK}Kích thước: {ORANGE}{NUM}x{NUM} ô
-STR_HOUSE_PICKER_CARGO_ACCEPTED                                 :{BLACK}Hàng hóa được chấp nhận: {ORANGE}
-STR_HOUSE_PICKER_CARGO_PRODUCED                                 :{BLACK}Hàng hóa cung cấp: {ORANGE}{CARGO_LIST}
+STR_HOUSE_PICKER_NAME                                           :{BLACK}Tên: {GOLD}{STRING}
+STR_HOUSE_PICKER_POPULATION                                     :{BLACK}Dân số: {GOLD}{NUM}
+STR_HOUSE_PICKER_YEARS                                          :{BLACK}Năm: {GOLD}{NUM}-{NUM}
+STR_HOUSE_PICKER_YEARS_ANY                                      :{BLACK}Năm: {GOLD}Tất cả
+STR_HOUSE_PICKER_YEARS_FROM                                     :{BLACK}Năm: {GOLD}Từ {NUM}
+STR_HOUSE_PICKER_YEARS_UNTIL                                    :{BLACK}Năm: {GOLD}Đến {NUM}
+STR_HOUSE_PICKER_SIZE                                           :{BLACK}Kích thước: {GOLD}{NUM}x{NUM} ô
+STR_HOUSE_PICKER_CARGO_ACCEPTED                                 :{BLACK}Hàng hóa được chấp nhận: {GOLD}{STRING}
+STR_HOUSE_PICKER_CARGO_PRODUCED                                 :{BLACK}Hàng hóa cung cấp: {GOLD}{CARGO_LIST}
 
 STR_HOUSE_PICKER_CLASS_ZONE1                                    :Ngoài rìa
 STR_HOUSE_PICKER_CLASS_ZONE2                                    :Ngoại ô
@@ -3178,7 +3181,7 @@ STR_LAND_AREA_INFORMATION_AIRPORT_CLASS                         :{BLACK}Loại s
 STR_LAND_AREA_INFORMATION_AIRPORT_NAME                          :{BLACK}Tên sân bay: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_AIRPORTTILE_NAME                      :{BLACK}Tên sân bay vị trí này: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_NEWGRF_NAME                           :{BLACK}NewGRF: {LTBLUE}{STRING}
-STR_LAND_AREA_INFORMATION_CARGO_ACCEPTED                        :{BLACK}Hàng hoá chấp nhận: {LTBLUE}
+STR_LAND_AREA_INFORMATION_CARGO_ACCEPTED                        :{BLACK}Hàng hoá chấp nhận: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_CARGO_EIGHTS                          :({COMMA}/8 {STRING})
 STR_LANG_AREA_INFORMATION_RAIL_TYPE                             :{BLACK}Kiểu đường ray: {LTBLUE}{STRING}
 STR_LANG_AREA_INFORMATION_ROAD_TYPE                             :{BLACK}Kiểu đường: {LTBLUE}{STRING}
@@ -3666,7 +3669,7 @@ STR_NEWGRF_TOO_MANY_NEWGRFS                                     :{WHITE}Không t
 
 STR_NEWGRF_COMPATIBLE_LOAD_WARNING                              :{WHITE}GRF tương thích được nạp thay cho các file thiếu.
 STR_NEWGRF_DISABLED_WARNING                                     :{WHITE}Các GRF file thiếu bị bỏ qua
-STR_NEWGRF_UNPAUSE_WARNING_TITLE                                :{YELLOW}Thiếu GRF file
+STR_NEWGRF_UNPAUSE_WARNING_TITLE                                :{YELLOW}Thiếu NewGRF file
 STR_NEWGRF_UNPAUSE_WARNING                                      :{WHITE}Tiếp tục có thể làm treo OpenTTD. Không nên báo cáo lỗi sau khi bị treo.{}Bạn có chắc là tiếp tục chơi?
 
 # NewGRF status
@@ -3928,14 +3931,14 @@ STR_CARGO_RATING_EXCELLENT                                      :Tuyệt vời
 STR_CARGO_RATING_OUTSTANDING                                    :Hoàn hảo
 
 STR_STATION_VIEW_CENTER_TOOLTIP                                 :{BLACK}Xem trung tâm ga, bến, cảng. Ctrl+Click mở cửa sổ mới để xem
-STR_STATION_VIEW_RENAME_TOOLTIP                                 :{BLACK}Đổi tên ga, bến, cảng
+STR_STATION_VIEW_EDIT_TOOLTIP                                   :{BLACK}Đổi tên trạm hoặc di chuyển biển hiệu
 
 STR_STATION_VIEW_SCHEDULED_TRAINS_TOOLTIP                       :{BLACK}Hiện lên tất cả các đoàn tàu có lộ trình đi qua ga này
 STR_STATION_VIEW_SCHEDULED_ROAD_VEHICLES_TOOLTIP                :{BLACK}Hiện lên tất cả các xe có lộ trình đi qua bến này
 STR_STATION_VIEW_SCHEDULED_AIRCRAFT_TOOLTIP                     :{BLACK}Hiện tất cả các máy bay có lộ trình đi qua sân bay này
 STR_STATION_VIEW_SCHEDULED_SHIPS_TOOLTIP                        :{BLACK}Hiện tất cả tàu thuỷ có lộ trình đi qua cảng này.
 
-STR_STATION_VIEW_RENAME_STATION_CAPTION                         :Đổi tên ga, bến, cảng
+STR_STATION_VIEW_EDIT_STATION_SIGN                              :{WHITE}Sửa biển hiệu của trạm
 
 STR_STATION_VIEW_CLOSE_AIRPORT                                  :{BLACK}Đóng cửa sân bay
 STR_STATION_VIEW_CLOSE_AIRPORT_TOOLTIP                          :{BLACK}Không cho máy bay hạ cánh ở sân bay này
@@ -3943,11 +3946,11 @@ STR_STATION_VIEW_CLOSE_AIRPORT_TOOLTIP                          :{BLACK}Không c
 # Waypoint/buoy view window
 STR_WAYPOINT_VIEW_CAPTION                                       :{WHITE}{WAYPOINT}
 STR_WAYPOINT_VIEW_CENTER_TOOLTIP                                :{BLACK}Xem vị trí của điểm mốc. Ctrl+Click để mở cửa sổ mới cho điểm mốc
-STR_WAYPOINT_VIEW_CHANGE_WAYPOINT_NAME                          :{BLACK}Đổi tên điểm mốc
+STR_WAYPOINT_VIEW_EDIT_TOOLTIP                                  :{BLACK}Đổi tên điểm mốc hoặc di chuyển biển hiệu
 STR_BUOY_VIEW_CENTER_TOOLTIP                                    :{BLACK}Xem vị trí phao hàng hải. Ctrl+Click mở cửa sổ mới vị trí phao
 STR_BUOY_VIEW_RENAME_TOOLTIP                                    :{BLACK}Đổi tên phao
 
-STR_EDIT_WAYPOINT_NAME                                          :{WHITE}Sửa tên điểm mốc
+STR_WAYPOINT_VIEW_EDIT_WAYPOINT_SIGN                            :{WHITE}Đổi biển hiệu điểm mốc
 
 # Finances window
 STR_FINANCES_CAPTION                                            :{WHITE}Tài Chính Công Ty {COMPANY} {BLACK}{COMPANY_NUM}
@@ -4062,7 +4065,7 @@ STR_COMPANY_INFRASTRUCTURE_VIEW_TOTAL_PERIOD                    :{WHITE}{CURRENC
 # Industry directory
 STR_INDUSTRY_DIRECTORY_CAPTION                                  :{WHITE}Nhà máy ({COMMA} đến {COMMA})
 STR_INDUSTRY_DIRECTORY_NONE                                     :{ORANGE}- Không Có -
-STR_INDUSTRY_DIRECTORY_ITEM_INFO                                :{BLACK}{CARGO_LONG}{STRING}{YELLOW} ({COMMA}% đã vận chuyển){BLACK}
+STR_INDUSTRY_DIRECTORY_ITEM_INFO                                :{BLACK}{CARGO_LONG}{STRING}{YELLOW} ({COMMA}% đã vận chuyển)
 STR_INDUSTRY_DIRECTORY_ITEM_NOPROD                              :{ORANGE}{INDUSTRY}
 STR_INDUSTRY_DIRECTORY_ITEM_PROD1                               :{ORANGE}{INDUSTRY} {STRING}
 STR_INDUSTRY_DIRECTORY_ITEM_PROD2                               :{ORANGE}{INDUSTRY} {STRING}, {STRING}
@@ -4085,9 +4088,9 @@ STR_INDUSTRY_VIEW_CARGO_GRAPH_TOOLTIP                           :{BLACK}Xem đ�
 STR_INDUSTRY_VIEW_PRODUCTION_LEVEL                              :{BLACK}Mức sản lượng: {YELLOW}{COMMA}%
 STR_INDUSTRY_VIEW_INDUSTRY_ANNOUNCED_CLOSURE                    :{YELLOW}Nhà máy này đã thông báo sắp đóng cửa!
 
-STR_INDUSTRY_VIEW_REQUIRES_N_CARGO                              :{BLACK}Yêu cầu: {YELLOW}{STRING}{STRING}
-STR_INDUSTRY_VIEW_PRODUCES_N_CARGO                              :{BLACK}Sản lượng: {YELLOW}{STRING}{STRING}
-STR_INDUSTRY_VIEW_CARGO_LIST_EXTENSION                          :, {STRING}{STRING}
+STR_INDUSTRY_VIEW_REQUIRES_N_CARGO                              :{BLACK}Yêu cầu: {YELLOW}{STRING}
+STR_INDUSTRY_VIEW_PRODUCES_N_CARGO                              :{BLACK}Sản lượng: {YELLOW}{STRING}
+STR_INDUSTRY_VIEW_CARGO_LIST_EXTENSION                          :{STRING}{STRING}
 
 STR_INDUSTRY_VIEW_REQUIRES                                      :{BLACK}Cần cung cấp:
 STR_INDUSTRY_VIEW_ACCEPT_CARGO_SUFFIX                           :{YELLOW}{0:STRING}{BLACK}{3:STRING}
@@ -4621,7 +4624,7 @@ STR_VEHICLE_DETAILS_TRAIN_CAPACITIES_TOOLTIP                    :{BLACK}Hiện s
 STR_VEHICLE_DETAIL_TAB_TOTAL_CARGO                              :{BLACK}Tổng sức chứa
 STR_VEHICLE_DETAILS_TRAIN_TOTAL_CARGO_TOOLTIP                   :{BLACK}Xem tổng sức chứa của tàu, phân chia bởi loại hàng hoá
 
-STR_VEHICLE_DETAILS_TRAIN_ARTICULATED_RV_CAPACITY               :{BLACK}Sức chứa: {LTBLUE}
+STR_VEHICLE_DETAILS_TRAIN_ARTICULATED_RV_CAPACITY               :{BLACK}Sức chứa: {LTBLUE}{STRING}
 
 # Vehicle refit
 STR_REFIT_CAPTION                                               :{WHITE}{VEHICLE} (Cải biến)
@@ -5169,6 +5172,7 @@ STR_ERROR_TOO_MANY_TRUCK_STOPS                                  :{WHITE}Quá nhi
 STR_ERROR_TOO_CLOSE_TO_ANOTHER_DOCK                             :{WHITE}Quá sát với hải cảng khác
 STR_ERROR_TOO_CLOSE_TO_ANOTHER_AIRPORT                          :{WHITE}Quá sát với sân bay khác
 STR_ERROR_CAN_T_RENAME_STATION                                  :{WHITE}Không thể đổi tên ga, bến,cảng...
+STR_ERROR_CAN_T_MOVE_STATION_NAME                               :{WHITE}Không thể di chuyển biển hiệu của trạm...
 STR_ERROR_DRIVE_THROUGH_ON_TOWN_ROAD                            :{WHITE}... đây là đường sở hữu bởi địa phương
 STR_ERROR_DRIVE_THROUGH_DIRECTION                               :{WHITE}... đường quay mặt sai hướng
 STR_ERROR_DRIVE_THROUGH_CORNER                                  :{WHITE}... đi qua điểm dừng không thể đi qua góc
@@ -5200,6 +5204,7 @@ STR_ERROR_CAN_T_BUILD_RAIL_WAYPOINT                             :{WHITE}Không t
 STR_ERROR_CAN_T_BUILD_ROAD_WAYPOINT                             :{WHITE}Không thể xây điểm mốc đường bộ ở đây...
 STR_ERROR_CAN_T_POSITION_BUOY_HERE                              :{WHITE}Không thể xây phao hàng hải ở đây...
 STR_ERROR_CAN_T_CHANGE_WAYPOINT_NAME                            :{WHITE}Không thể thay đổi tên điểm mốc...
+STR_ERROR_CAN_T_MOVE_WAYPOINT_NAME                              :{WHITE}Không thể di chuyển biển hiệu của điểm mốc...
 
 STR_ERROR_CAN_T_REMOVE_RAIL_WAYPOINT                            :{WHITE}Không thể xoá bỏ điểm mốc tàu hoả...
 STR_ERROR_CAN_T_REMOVE_ROAD_WAYPOINT                            :{WHITE}Không thể xóa điểm mốc đường bộ ở đây...

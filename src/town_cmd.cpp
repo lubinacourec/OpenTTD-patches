@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file town_cmd.cpp Handling of town tiles. */
@@ -117,7 +117,7 @@ static bool TestTownOwnsBridge(TileIndex tile, const Town *t)
 	return town_owned;
 }
 
-Town::Town(TileIndex tile) : xy(tile) {}
+Town::Town(TownID index, TileIndex tile) : PoolItemBase(index), xy(tile) {}
 
 Town::~Town()
 {
@@ -2366,7 +2366,7 @@ static CommandCost TownCanBePlacedHere(TileIndex tile, bool city, bool check_sur
 	uint min_land_area = city ? _settings_game.economy.min_city_land_area : _settings_game.economy.min_town_land_area;
 	if (min_land_area > 0) {
 		if (!EnoughContiguousTilesMatchingCondition(tile, min_land_area, [](TileIndex t, void *data) -> bool {
-			if (!HasTileWaterClass(t) || GetWaterClass(t) == WATER_CLASS_INVALID) return true;
+			if (!HasTileWaterClass(t) || GetWaterClass(t) == WaterClass::Invalid) return true;
 			if (IsCoastTile(t) && !IsSlopeWithOneCornerRaised(GetTileSlope(t))) return true;
 			return false;
 		}, nullptr)) {
@@ -2467,7 +2467,7 @@ CommandCost CmdFoundTown(DoCommandFlags flags, TileIndex tile, TownSize size, bo
 		if (random_location) {
 			t = CreateRandomTown(20, townnameparts, size, city, layout);
 		} else {
-			t = new Town(tile);
+			t = Town::Create(tile);
 			DoCreateTown(t, tile, townnameparts, size, city, layout, true);
 		}
 
@@ -2676,7 +2676,7 @@ static Town *CreateRandomTown(uint attempts, uint32_t townnameparts, TownSize si
 		}
 
 		/* Allocate a town struct */
-		Town *t = new Town(tile);
+		Town *t = Town::Create(tile);
 
 		DoCreateTown(t, tile, townnameparts, size, city, layout, false);
 
@@ -2732,7 +2732,7 @@ bool GenerateTowns(TownLayout layout, std::optional<uint> number)
 		total = Map::ScaleByLandProportion(GetDefaultTownsForMapSize() + (Random() & 7));
 	}
 
-	total = std::min<uint>(TownPool::MAX_SIZE, total);
+	total = Clamp<uint>(total, 1, TownPool::MAX_SIZE);
 	uint32_t townnameparts;
 	TownNames town_names;
 
@@ -3352,6 +3352,26 @@ CommandCost CmdPlaceHouseArea(DoCommandFlags flags, TileIndex tile, TileIndex st
 	}
 
 	return had_success ? CommandCost{} : last_error;
+}
+
+void HouseIDCmdVector::Serialise(BufferSerialisationRef buffer) const
+{
+	buffer.Send_generic_integer(this->ids.size());
+	for (HouseID id : this->ids) {
+		buffer.Send_generic_integer(id);
+	}
+}
+
+bool HouseIDCmdVector::Deserialise(DeserialisationBuffer &buffer, StringValidationSettings default_string_validation)
+{
+	size_t size{};
+	buffer.Recv_generic_integer(size);
+	if (size > MAX_HOUSE_IDS) return false;
+	this->ids.resize(size);
+	for (HouseID &id : this->ids) {
+		buffer.Recv_generic_integer(id);
+	}
+	return true;
 }
 
 void HouseIDCmdVector::fmt_format_value(struct format_target &buf) const

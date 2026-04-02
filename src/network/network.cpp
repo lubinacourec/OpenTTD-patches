@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file network.cpp Base functions for networking support. */
@@ -684,7 +684,7 @@ NetworkAddress ParseConnectionString(std::string_view connection_string, uint16_
 	/* Register the login */
 	_network_clients_connected++;
 
-	ServerNetworkGameSocketHandler *cs = new ServerNetworkGameSocketHandler(s);
+	ServerNetworkGameSocketHandler *cs = ServerNetworkGameSocketHandler::Create(s);
 	cs->client_address = address; // Save the IP of the client
 
 	InvalidateWindowData(WC_CLIENT_LIST, 0);
@@ -955,7 +955,7 @@ static void NetworkInitGameInfo()
 
 	/* There should be always space for the server. */
 	assert(NetworkClientInfo::CanAllocateItem());
-	NetworkClientInfo *ci = new NetworkClientInfo(CLIENT_ID_SERVER);
+	NetworkClientInfo *ci = NetworkClientInfo::Create(CLIENT_ID_SERVER);
 	ci->client_playas = _network_dedicated ? COMPANY_SPECTATOR : GetDefaultLocalCompany();
 
 	ci->client_name = _settings_client.network.client_name;

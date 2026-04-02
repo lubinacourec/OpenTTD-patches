@@ -2,12 +2,10 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
-/**
- * @file script_types.hpp Defines all the types of the game, like IDs of various objects.
- */
+/** @file script_types.hpp Defines all the types of the game, like IDs of various objects. */
 
 /**
  * @page script_ids Identifying game object
@@ -126,7 +124,7 @@
 /* Define all types here, so they are added to the API docs. */
 using BridgeType = uint32_t; ///< The ID of a bridge type.
 using CargoType = uint8_t; ///< The ID of a cargo type.
-using ClientID = uint32_t; //< The ID of a (network) client.
+using ClientID = uint32_t; ///< The ID of a (network) client.
 using CompanyID = uint8_t; ///< The ID of a company.
 using EngineID = uint16_t; ///< The ID of an engine.
 using GoalID = uint16_t; ///< The ID of a goal.

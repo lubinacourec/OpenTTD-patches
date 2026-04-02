@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file vehicle_sl.cpp Code handling saving and loading of vehicles */
@@ -335,7 +335,7 @@ void AfterLoadVehiclesPhase1(bool part_of_load)
 					 * allowed in these savegames matches the number of OrderLists. As
 					 * such each vehicle can get an OrderList and it will (still) fit. */
 					assert(OrderList::CanAllocateItem());
-					v->orders = mapping_order_list = new OrderList(old_orders, v);
+					v->orders = mapping_order_list = OrderList::Create(old_orders, v);
 				} else {
 					v->orders = mapping_order_list;
 					/* For old games (case a) we must create the shared vehicle chain */
@@ -376,7 +376,7 @@ void AfterLoadVehiclesPhase1(bool part_of_load)
 
 				/* As above, allocating OrderList here is safe. */
 				assert(OrderList::CanAllocateItem());
-				v->orders = new OrderList(nullptr, v);
+				v->orders = OrderList::Create(nullptr, v);
 				for (Vehicle *u = v; u != nullptr; u = u->next_shared) {
 					u->orders = v->orders;
 				}
@@ -1445,12 +1445,12 @@ void Load_VEHS()
 		VehicleID index = static_cast<VehicleID>(idx);
 
 		switch (vtype) {
-			case VEH_TRAIN:    v = new (index) Train();           break;
-			case VEH_ROAD:     v = new (index) RoadVehicle();     break;
-			case VEH_SHIP:     v = new (index) Ship();            break;
-			case VEH_AIRCRAFT: v = new (index) Aircraft();        break;
-			case VEH_EFFECT:   v = new (index) EffectVehicle();   break;
-			case VEH_DISASTER: v = new (index) DisasterVehicle(); break;
+			case VEH_TRAIN:    v = Train::CreateAtIndex(index);           break;
+			case VEH_ROAD:     v = RoadVehicle::CreateAtIndex(index);     break;
+			case VEH_SHIP:     v = Ship::CreateAtIndex(index);            break;
+			case VEH_AIRCRAFT: v = Aircraft::CreateAtIndex(index);        break;
+			case VEH_EFFECT:   v = EffectVehicle::CreateAtIndex(index);   break;
+			case VEH_DISASTER: v = DisasterVehicle::CreateAtIndex(index); break;
 			case VEH_INVALID: // Savegame shouldn't contain invalid vehicles
 			default: SlErrorCorrupt("Invalid vehicle type");
 		}
@@ -1459,7 +1459,7 @@ void Load_VEHS()
 
 		if (_cargo_count != 0 && IsCompanyBuildableVehicleType(v) && CargoPacket::CanAllocateItem()) {
 			/* Don't construct the packet with station here, because that'll fail with old savegames */
-			CargoPacket *cp = new CargoPacket(_cargo_count, _cargo_periods, StationID(_cargo_source), TileIndex{_cargo_source_xy}, _cargo_feeder_share);
+			CargoPacket *cp = CargoPacket::Create(_cargo_count, _cargo_periods, StationID(_cargo_source), TileIndex{_cargo_source_xy}, _cargo_feeder_share);
 			v->cargo.Append(cp);
 		}
 

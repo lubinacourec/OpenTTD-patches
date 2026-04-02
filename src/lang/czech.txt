@@ -15,7 +15,7 @@
 # This file is part of OpenTTD.
 # OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
 # OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
 
 
 ##id 0x0000
@@ -387,6 +387,7 @@ STR_SHOW_HIDDEN_ENGINES_VEHICLE_AIRCRAFT_TOOLTIP                :{BLACK}Zapnutí
 STR_BUTTON_DEFAULT                                              :{BLACK}Původní
 STR_BUTTON_CANCEL                                               :{BLACK}Zrušit
 STR_BUTTON_OK                                                   :{BLACK}OK
+STR_BUTTON_MOVE                                                 :{BLACK}Přesunout
 
 # On screen keyboard window
 STR_OSK_KEYBOARD_LAYOUT                                         :"+ěščřžýáíé=-\qwertyuiopú)asdfghjklů' zxcvbnm,./ .
@@ -1201,7 +1202,7 @@ STR_GAME_OPTIONS_BASE_GRF_TOOLTIP                               :Vyber si zákla
 STR_GAME_OPTIONS_BASE_GRF_DESCRIPTION_TOOLTIP                   :Další informace o základní sadě grafiky
 
 STR_GAME_OPTIONS_BASE_SFX                                       :Základní sada zvuků
-STR_GAME_OPTIONS_BASE_SFX_TOOLTIP                               :Vyber si základní sadu zvuků (nemůže být změněna během hry, ale pouze z hlavního menu)
+STR_GAME_OPTIONS_BASE_SFX_TOOLTIP                               :Vyber si základní sadu zvuků
 STR_GAME_OPTIONS_BASE_SFX_DESCRIPTION_TOOLTIP                   :Další informace o základní sadě zvuků
 
 STR_GAME_OPTIONS_BASE_MUSIC                                     :Základní hudební set
@@ -2155,7 +2156,7 @@ STR_CONFIG_SETTING_ZOOM_LVL_OUT_4X                              :4x
 STR_CONFIG_SETTING_ZOOM_LVL_OUT_8X                              :8x
 
 STR_CONFIG_SETTING_SPRITE_ZOOM_MIN                              :Nejvyšší dovolené rozlišení spritů: {STRING}
-STR_CONFIG_SETTING_SPRITE_ZOOM_MIN_HELPTEXT                     :Omezit maximální dovolené rozlišení spritů. Omezení rozlišení spritů zabrání použití grafik ve vysokém rozlišení, jsou-li dostupné. Tímto lze docílit jednotného vzhledu hry, pokud je použit mix GRF souborů s grafikami ve vysokém rozlišení, i bez nich.
+STR_CONFIG_SETTING_SPRITE_ZOOM_MIN_HELPTEXT                     :Omezte maximální rozlišení používané pro sprity. Omezení rozlišení spritů zabrání použití grafiky ve vysokém rozlišení, i když je k dispozici. To může pomoci udržet jednotný vzhled hry při použití kombinace souborů NewGRF s grafikou ve vysokém rozlišení a bez ní.
 ###length 3
 STR_CONFIG_SETTING_SPRITE_ZOOM_LVL_MIN                          :4x
 STR_CONFIG_SETTING_SPRITE_ZOOM_LVL_IN_2X                        :2x
@@ -2177,6 +2178,8 @@ STR_CONFIG_SETTING_LARGER_TOWNS_VALUE                           :1 z {COMMA}
 STR_CONFIG_SETTING_LARGER_TOWNS_DISABLED                        :Žádné
 STR_CONFIG_SETTING_CITY_SIZE_MULTIPLIER                         :Činitel základní velikosti města: {STRING}
 STR_CONFIG_SETTING_CITY_SIZE_MULTIPLIER_HELPTEXT                :Průměrná velikost větších měst v porovnání s ostatními městy na začátku hry
+STR_CONFIG_SETTING_TOWN_MIN_DISTANCE                            :Minimální vzdálenost mezi městy: {STRING}
+STR_CONFIG_SETTING_TOWN_MIN_DISTANCE_HELPTEXT                   :Nastav minimální vzdálenost mezi městy pro generování mapy a náhodné zakládání
 
 STR_CONFIG_SETTING_LINKGRAPH_RECALC_INTERVAL                    :Aktualizovat graf spojení každých: {STRING}
 STR_CONFIG_SETTING_LINKGRAPH_RECALC_INTERVAL_HELPTEXT           :{BLACK}Doba mezi následnými přepočty grafu spojení. Každý přepočet počítá plány pro jednu komponentu grafu. To znamená, že hodnota X v tomto nastavení neznamená, že se celý graf aktualizuje každých X sekund. Aktualizuje se pouze jedna část. Čím kratší dobu nastavíte, tím více procesorového času bude potřeba k výpočtu. Čím delší dobu nastavíte, tím déle bude trvat, než začne distribuce nákladu na nových trasách.
@@ -2951,15 +2954,15 @@ STR_PICKER_HOUSE_CLASS_TOOLTIP                                  :Vyber městskou
 STR_PICKER_HOUSE_TYPE_TOOLTIP                                   :Zvol typ domu pro stavbu. Podrž Shift pro přidání nebo odebrání z oblíbených položek
 
 STR_HOUSE_PICKER_CAPTION                                        :Výběr domu
-STR_HOUSE_PICKER_NAME                                           :{BLACK}Název: {ORANGE}{STRING}
-STR_HOUSE_PICKER_POPULATION                                     :{BLACK}Populace: {ORANGE}{NUM}
-STR_HOUSE_PICKER_YEARS                                          :{BLACK}Roky: {ORANGE}{NUM}-{NUM}
-STR_HOUSE_PICKER_YEARS_ANY                                      :{BLACK}Roky: {ORANGE}Jakékoliv
-STR_HOUSE_PICKER_YEARS_FROM                                     :{BLACK}Roky: {ORANGE}Od {NUM}
-STR_HOUSE_PICKER_YEARS_UNTIL                                    :{BLACK}Roky: {ORANGE}Do {NUM}
-STR_HOUSE_PICKER_SIZE                                           :{BLACK}Velikost: {ORANGE}{NUM}x{NUM} polí
-STR_HOUSE_PICKER_CARGO_ACCEPTED                                 :{BLACK}Přijímaný náklad: {ORANGE}
-STR_HOUSE_PICKER_CARGO_PRODUCED                                 :{BLACK}Vyprodukováno nákladu: {ORANGE}{CARGO_LIST}
+STR_HOUSE_PICKER_NAME                                           :{BLACK}Název: {GOLD}{STRING}
+STR_HOUSE_PICKER_POPULATION                                     :{BLACK}Populace: {GOLD}{NUM}
+STR_HOUSE_PICKER_YEARS                                          :{BLACK}Roky: {GOLD}{NUM}-{NUM}
+STR_HOUSE_PICKER_YEARS_ANY                                      :{BLACK}Roky: {GOLD}Jakékoliv
+STR_HOUSE_PICKER_YEARS_FROM                                     :{BLACK}Roky: {GOLD}Od {NUM}
+STR_HOUSE_PICKER_YEARS_UNTIL                                    :{BLACK}Roky: {GOLD}Do {NUM}
+STR_HOUSE_PICKER_SIZE                                           :{BLACK}Velikost: {GOLD}{NUM}x{NUM} polí
+STR_HOUSE_PICKER_CARGO_ACCEPTED                                 :{BLACK}Přijímaný náklad: {GOLD}{STRING}
+STR_HOUSE_PICKER_CARGO_PRODUCED                                 :{BLACK}Vyprodukováno nákladu: {GOLD}{CARGO_LIST}
 
 STR_HOUSE_PICKER_CLASS_ZONE1                                    :Okraj
 STR_HOUSE_PICKER_CLASS_ZONE2                                    :Periferie
@@ -3253,7 +3256,7 @@ STR_LAND_AREA_INFORMATION_AIRPORT_CLASS                         :{BLACK}Druh let
 STR_LAND_AREA_INFORMATION_AIRPORT_NAME                          :{BLACK}Jméno letiště: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_AIRPORTTILE_NAME                      :{BLACK}Název dlaždice letiště:{LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_NEWGRF_NAME                           :{BLACK}NewGRF: {LTBLUE}{STRING}
-STR_LAND_AREA_INFORMATION_CARGO_ACCEPTED                        :{BLACK}Přijímané zboží: {LTBLUE}
+STR_LAND_AREA_INFORMATION_CARGO_ACCEPTED                        :{BLACK}Přijímané zboží: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_CARGO_EIGHTS                          :({COMMA}/8 {STRING})
 STR_LANG_AREA_INFORMATION_RAIL_TYPE                             :{BLACK}Druh kolejí: {LTBLUE}{STRING}
 STR_LANG_AREA_INFORMATION_ROAD_TYPE                             :{BLACK}Typ silnice: {LTBLUE}{STRING}
@@ -3725,7 +3728,7 @@ STR_NEWGRF_ERROR_INVALID_ID                                     :Pokus o použit
 STR_NEWGRF_ERROR_CORRUPT_SPRITE                                 :{YELLOW}{STRING} obsahuje poškozený sprite. Všechny takové se zobrazí jako červený otazník (?)
 STR_NEWGRF_ERROR_MULTIPLE_ACTION_8                              :Obsahuje vícero Akce 8 záznamů (sprite {3:NUM})
 STR_NEWGRF_ERROR_READ_BOUNDS                                    :Čtení konce pseudo-spritu (sprite {3:NUM})
-STR_NEWGRF_ERROR_GRM_FAILED                                     :Požadované zdroje GRF nejsou dostupné (sprite {3:NUM})
+STR_NEWGRF_ERROR_GRM_FAILED                                     :Požadované zdroje NewGRF nejsou dostupné (sprite {3:NUM})
 STR_NEWGRF_ERROR_FORCEFULLY_DISABLED                            :{1:STRING} byla vypnuta {STRING}
 STR_NEWGRF_ERROR_INVALID_SPRITE_LAYOUT                          :Neplatný/neznámý sprite layout formát (sprite {3:NUM})
 STR_NEWGRF_ERROR_LIST_PROPERTY_TOO_LONG                         :Příliš mnoho prvků v seznamu hodnot vlastností (sprite {3:NUM}, vlastnost {4:HEX})
@@ -3736,12 +3739,12 @@ STR_NEWGRF_POPUP_CAUTION_CAPTION                                :{WHITE}Varován
 STR_NEWGRF_CONFIRMATION_TEXT                                    :{YELLOW}Právě se chystáš změnit nastavení za běžící hry. To může to shodit OpenTTD nebo způsobit zaseknutí hry. Neupozorňujte na to jako na bug.{}Jste si tím opravdu jisti?
 
 STR_NEWGRF_DUPLICATE_GRFID                                      :{WHITE}Nelze přidat soubor: duplicitní GRF ID
-STR_NEWGRF_COMPATIBLE_LOADED                                    :{ORANGE}Odpovídající soubor nebyl nalezen (načetl se kompatibilní GRF)
+STR_NEWGRF_COMPATIBLE_LOADED                                    :{ORANGE}Odpovídající soubor nebyl nalezen (načetl se kompatibilní NewGRF)
 STR_NEWGRF_TOO_MANY_NEWGRFS                                     :{WHITE}Nemůžu přidat soubor. Dosažen limit NewGRF souborů
 
 STR_NEWGRF_COMPATIBLE_LOAD_WARNING                              :{WHITE}Kompatibilní GRF se načetly místo chybějících
 STR_NEWGRF_DISABLED_WARNING                                     :{WHITE}Chybějící grafiky byly vypnuty
-STR_NEWGRF_UNPAUSE_WARNING_TITLE                                :{YELLOW}Chybějící grafické soubory
+STR_NEWGRF_UNPAUSE_WARNING_TITLE                                :{YELLOW}Chybějící soubory NewGRF grafik
 STR_NEWGRF_UNPAUSE_WARNING                                      :{WHITE}Spuštění hry může shodit OpenTTD. Nehlaš chybu kvůli pádům způsobeným touto akcí.{}Opravdu chceš rozjet hru?
 
 # NewGRF status
@@ -3785,7 +3788,7 @@ STR_SIGN_LIST_MATCH_CASE                                        :{BLACK}Shoda
 STR_SIGN_LIST_MATCH_CASE_TOOLTIP                                :{BLACK}Přepne rozlišování velikosti písmen při filtrování popisků
 
 # Sign window
-STR_EDIT_SIGN_CAPTION                                           :{WHITE}Upravit text popisku
+STR_EDIT_SIGN_CAPTION                                           :{WHITE}Upravit text cedule
 STR_EDIT_SIGN_LOCATION_TOOLTIP                                  :{BLACK}Vystředit pohled na značku. Podrž Ctrl pro otevření nového pohledu
 STR_EDIT_SIGN_NEXT_SIGN_TOOLTIP                                 :{BLACK}Na další návěstidlo
 STR_EDIT_SIGN_PREVIOUS_SIGN_TOOLTIP                             :{BLACK}Na předešlé návěstidlo
@@ -4003,14 +4006,14 @@ STR_CARGO_RATING_EXCELLENT                                      :Vynikající
 STR_CARGO_RATING_OUTSTANDING                                    :Úžasné
 
 STR_STATION_VIEW_CENTER_TOOLTIP                                 :{BLACK}Vystředit pohled na stanici. Ctrl+Klik otevře nový pohled na umístění stanice
-STR_STATION_VIEW_RENAME_TOOLTIP                                 :{BLACK}Přejmenovat stanici
+STR_STATION_VIEW_EDIT_TOOLTIP                                   :{BLACK}Přejmenovat stanici nebo přesunout značku
 
 STR_STATION_VIEW_SCHEDULED_TRAINS_TOOLTIP                       :{BLACK}Zobrazit všechny vlaky, které mají tuto stanici v jízdním řádu
 STR_STATION_VIEW_SCHEDULED_ROAD_VEHICLES_TOOLTIP                :{BLACK}Zobrazit všechna silniční vozidla, která mají tuto stanici v jízdním řádu
 STR_STATION_VIEW_SCHEDULED_AIRCRAFT_TOOLTIP                     :{BLACK}Zobrazit všechna letadla, která mají tuto stanici v jízdním řádu
 STR_STATION_VIEW_SCHEDULED_SHIPS_TOOLTIP                        :{BLACK}Zobrazit všechny lodě, které mají tuto stanici v jízdním řádu
 
-STR_STATION_VIEW_RENAME_STATION_CAPTION                         :Přejmenovat stanici
+STR_STATION_VIEW_EDIT_STATION_SIGN                              :{WHITE}Změnit značku stanice
 
 STR_STATION_VIEW_CLOSE_AIRPORT                                  :{BLACK}Uzavřít letiště
 STR_STATION_VIEW_CLOSE_AIRPORT_TOOLTIP                          :{BLACK}Zabránit letadlu od přistání na tomto letišti
@@ -4018,11 +4021,11 @@ STR_STATION_VIEW_CLOSE_AIRPORT_TOOLTIP                          :{BLACK}Zabráni
 # Waypoint/buoy view window
 STR_WAYPOINT_VIEW_CAPTION                                       :{WHITE}{WAYPOINT}
 STR_WAYPOINT_VIEW_CENTER_TOOLTIP                                :{BLACK}Zaměřit hlavní pohled na umístění bodu na trase. Při stisknutí Ctrl+Klik otevřete nové okno na umístění bodu na trase
-STR_WAYPOINT_VIEW_CHANGE_WAYPOINT_NAME                          :{BLACK}Přejmenovat směrování
+STR_WAYPOINT_VIEW_EDIT_TOOLTIP                                  :{BLACK}Přejmenovat směřování nebo přesunout značku
 STR_BUOY_VIEW_CENTER_TOOLTIP                                    :{BLACK}Vycentrovat pohled na bójku. Ctrl+Klik otevře nové okno náhledu
 STR_BUOY_VIEW_RENAME_TOOLTIP                                    :{BLACK}Přejmenovat bójku
 
-STR_EDIT_WAYPOINT_NAME                                          :{WHITE}Přejmenovat směrování
+STR_WAYPOINT_VIEW_EDIT_WAYPOINT_SIGN                            :{WHITE}Upravit značku směřování
 
 # Finances window
 STR_FINANCES_CAPTION                                            :{WHITE}Finance - {COMPANY} {BLACK}{COMPANY_NUM}
@@ -4137,7 +4140,7 @@ STR_COMPANY_INFRASTRUCTURE_VIEW_TOTAL_PERIOD                    :{WHITE}{CURRENC
 # Industry directory
 STR_INDUSTRY_DIRECTORY_CAPTION                                  :{WHITE}Průmysl ({COMMA} z {COMMA})
 STR_INDUSTRY_DIRECTORY_NONE                                     :{ORANGE}- Nic -
-STR_INDUSTRY_DIRECTORY_ITEM_INFO                                :{BLACK}{CARGO_LONG}{STRING}{YELLOW} ({COMMA}% přepraveno){BLACK}
+STR_INDUSTRY_DIRECTORY_ITEM_INFO                                :{BLACK}{CARGO_LONG}{STRING}{YELLOW} ({COMMA}% přepraveno)
 STR_INDUSTRY_DIRECTORY_ITEM_NOPROD                              :{ORANGE}{INDUSTRY}
 STR_INDUSTRY_DIRECTORY_ITEM_PROD1                               :{ORANGE}{INDUSTRY} {STRING}
 STR_INDUSTRY_DIRECTORY_ITEM_PROD2                               :{ORANGE}{INDUSTRY} {STRING}, {STRING}
@@ -4160,9 +4163,9 @@ STR_INDUSTRY_VIEW_CARGO_GRAPH_TOOLTIP                           :{BLACK}Zobraz g
 STR_INDUSTRY_VIEW_PRODUCTION_LEVEL                              :{BLACK}Produkce: {YELLOW}{COMMA}%
 STR_INDUSTRY_VIEW_INDUSTRY_ANNOUNCED_CLOSURE                    :{YELLOW}Průmyslový podnik oznámil blížící se uzavření!
 
-STR_INDUSTRY_VIEW_REQUIRES_N_CARGO                              :{BLACK}Vyžaduje: {YELLOW}{STRING}{STRING}
-STR_INDUSTRY_VIEW_PRODUCES_N_CARGO                              :{BLACK}Produkuje: {YELLOW}{STRING}{STRING}
-STR_INDUSTRY_VIEW_CARGO_LIST_EXTENSION                          :, {STRING}{STRING}
+STR_INDUSTRY_VIEW_REQUIRES_N_CARGO                              :{BLACK}Vyžaduje: {YELLOW}{STRING}
+STR_INDUSTRY_VIEW_PRODUCES_N_CARGO                              :{BLACK}Produkuje: {YELLOW}{STRING}
+STR_INDUSTRY_VIEW_CARGO_LIST_EXTENSION                          :{STRING}{STRING}
 
 STR_INDUSTRY_VIEW_REQUIRES                                      :{BLACK}Vyžaduje:
 STR_INDUSTRY_VIEW_ACCEPT_CARGO_SUFFIX                           :{YELLOW}{0:STRING}{BLACK}{3:STRING}
@@ -4692,7 +4695,7 @@ STR_VEHICLE_DETAILS_TRAIN_CAPACITIES_TOOLTIP                    :{BLACK}Ukázat 
 STR_VEHICLE_DETAIL_TAB_TOTAL_CARGO                              :{BLACK}Celkový náklad
 STR_VEHICLE_DETAILS_TRAIN_TOTAL_CARGO_TOOLTIP                   :{BLACK}Ukázat celkovou kapacitu vlaku, rozdělenou dle nákladu
 
-STR_VEHICLE_DETAILS_TRAIN_ARTICULATED_RV_CAPACITY               :{BLACK}Kapacita: {LTBLUE}
+STR_VEHICLE_DETAILS_TRAIN_ARTICULATED_RV_CAPACITY               :{BLACK}Kapacita: {LTBLUE}{STRING}
 
 # Vehicle refit
 STR_REFIT_CAPTION                                               :{WHITE}{VEHICLE} (Přestavět)
@@ -5240,6 +5243,7 @@ STR_ERROR_TOO_MANY_TRUCK_STOPS                                  :{WHITE}Příli�
 STR_ERROR_TOO_CLOSE_TO_ANOTHER_DOCK                             :{WHITE}Příliš blízko k jinému doku
 STR_ERROR_TOO_CLOSE_TO_ANOTHER_AIRPORT                          :{WHITE}Příliš blízko k jinému letišti
 STR_ERROR_CAN_T_RENAME_STATION                                  :{WHITE}Nelze přejmenovat stanici...
+STR_ERROR_CAN_T_MOVE_STATION_NAME                               :{WHITE}Nelze posunout značku stanice
 STR_ERROR_DRIVE_THROUGH_ON_TOWN_ROAD                            :{WHITE}... silnice vlastněná obcí
 STR_ERROR_DRIVE_THROUGH_DIRECTION                               :{WHITE}... silnice je otočena jiným směrem
 STR_ERROR_DRIVE_THROUGH_CORNER                                  :{WHITE}... průjezdné zastávky nemohou být v zatáčce
@@ -5271,6 +5275,7 @@ STR_ERROR_CAN_T_BUILD_RAIL_WAYPOINT                             :{WHITE}Zde nelz
 STR_ERROR_CAN_T_BUILD_ROAD_WAYPOINT                             :{WHITE}Zde nelze postavit směrování...
 STR_ERROR_CAN_T_POSITION_BUOY_HERE                              :{WHITE}Zde nelze umístit bójku...
 STR_ERROR_CAN_T_CHANGE_WAYPOINT_NAME                            :{WHITE}Nelze přejmenovat směrování...
+STR_ERROR_CAN_T_MOVE_WAYPOINT_NAME                              :{WHITE}Nelze posunout značku směřování...
 
 STR_ERROR_CAN_T_REMOVE_RAIL_WAYPOINT                            :{WHITE}Zde nelze zbourat směrování...
 STR_ERROR_CAN_T_REMOVE_ROAD_WAYPOINT                            :{WHITE}Zde nelze odstranit směrovaní...

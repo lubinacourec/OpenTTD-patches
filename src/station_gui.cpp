@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file station_gui.cpp The GUI for stations. */
@@ -46,6 +46,7 @@
 
 #include "widgets/misc_widget.h"
 #include "widgets/station_widget.h"
+#include "widgets/misc_widget.h"
 
 #include "table/strings.h"
 
@@ -750,7 +751,7 @@ public:
 
 			case WID_STL_CARGODROPDOWN:
 				this->filter_expanded = false;
-				ShowDropDownList(this, this->BuildCargoDropDownList(this->filter_expanded), -1, widget, 0, DDMF_PERSIST);
+				ShowDropDownList(this, this->BuildCargoDropDownList(this->filter_expanded), -1, widget, 0, DropDownOption::Persist);
 				break;
 		}
 	}
@@ -932,8 +933,10 @@ static constexpr std::initializer_list<NWidgetPart> _nested_station_view_widgets
 				SetStringTip(STR_STATION_VIEW_HISTORY_BUTTON, STR_STATION_VIEW_HISTORY_TOOLTIP),
 		NWidget(WWT_PUSHTXTBTN, COLOUR_GREY, WID_SV_DEPARTURES), SetMinimalSize(46, 12), SetResize(1, 0), SetFill(1, 1),
 				SetStringTip(STR_STATION_VIEW_DEPARTURES_BUTTON, STR_STATION_VIEW_DEPARTURES_TOOLTIP),
-		NWidget(WWT_TEXTBTN, COLOUR_GREY, WID_SV_CLOSE_AIRPORT), SetMinimalSize(45, 12), SetResize(1, 0), SetFill(1, 1),
-				SetStringTip(STR_STATION_VIEW_CLOSE_AIRPORT, STR_STATION_VIEW_CLOSE_AIRPORT_TOOLTIP),
+		NWidget(NWID_SELECTION, INVALID_COLOUR, WID_SV_CLOSE_AIRPORT_SEL),
+			NWidget(WWT_TEXTBTN, COLOUR_GREY, WID_SV_CLOSE_AIRPORT), SetMinimalSize(45, 12), SetResize(1, 0), SetFill(1, 1),
+					SetStringTip(STR_STATION_VIEW_CLOSE_AIRPORT, STR_STATION_VIEW_CLOSE_AIRPORT_TOOLTIP),
+		EndContainer(),
 		NWidget(WWT_TEXTBTN, COLOUR_GREY, WID_SV_CATCHMENT), SetMinimalSize(45, 12), SetResize(1, 0), SetFill(1, 1), SetStringTip(STR_BUTTON_CATCHMENT, STR_TOOLTIP_CATCHMENT),
 		NWidget(WWT_PUSHTXTBTN, COLOUR_GREY, WID_SV_TRAINS), SetAspect(WidgetDimensions::ASPECT_VEHICLE_ICON), SetFill(0, 1), SetStringTip(STR_TRAIN, STR_STATION_VIEW_SCHEDULED_TRAINS_TOOLTIP),
 		NWidget(WWT_PUSHTXTBTN, COLOUR_GREY, WID_SV_ROADVEHS), SetAspect(WidgetDimensions::ASPECT_VEHICLE_ICON), SetFill(0, 1), SetStringTip(STR_LORRY, STR_STATION_VIEW_SCHEDULED_ROAD_VEHICLES_TOOLTIP),
@@ -1417,7 +1420,9 @@ struct StationViewWindow : public Window {
 
 	StationViewWindow(WindowDesc &desc, WindowNumber window_number) : Window(desc)
 	{
+		const Station *st = Station::Get(window_number);
 		this->CreateNestedTree();
+		this->GetWidget<NWidgetStacked>(WID_SV_CLOSE_AIRPORT_SEL)->SetDisplayedPlane(st->facilities.Test(StationFacility::Airport) ? 0 : SZSP_NONE);
 		this->vscroll = this->GetScrollbar(WID_SV_SCROLLBAR);
 		/* Nested widget tree creation is done in two steps to ensure that this->GetWidget<NWidgetCore>(WID_SV_ACCEPTS_RATINGS) exists in UpdateWidgetSize(). */
 		this->FinishInitNested(window_number);
@@ -1428,8 +1433,8 @@ struct StationViewWindow : public Window {
 		this->SelectSortBy(_settings_client.gui.station_gui_sort_by);
 		this->sort_orders[0] = SO_ASCENDING;
 		this->SelectSortOrder((SortOrder)_settings_client.gui.station_gui_sort_order);
-		this->owner = Station::Get(window_number)->owner;
-		ZoningStationWindowOpenClose(Station::Get(window_number));
+		this->owner = st->owner;
+		ZoningStationWindowOpenClose(st);
 	}
 
 	void OnInit() override
@@ -1512,15 +1517,6 @@ struct StationViewWindow : public Window {
 				size.height = ((this->GetWidget<NWidgetCore>(WID_SV_ACCEPTS_RATINGS)->GetString() == STR_STATION_VIEW_RATINGS_BUTTON) ? this->accepts_lines : this->rating_lines) * GetCharacterHeight(FS_NORMAL) + padding.height;
 				break;
 
-			case WID_SV_CLOSE_AIRPORT:
-				if (!Station::Get(this->window_number)->facilities.Test(StationFacility::Airport)) {
-					/* Hide 'Close Airport' button if no airport present. */
-					size.width = 0;
-					resize.width = 0;
-					fill.width = 0;
-				}
-				break;
-
 			case WID_SV_GROUP_BY:
 			case WID_SV_SORT_BY: {
 				uint width = 0;
@@ -1539,7 +1535,7 @@ struct StationViewWindow : public Window {
 	bool OnTooltip(Point pt, WidgetID widget, TooltipCloseCondition close_cond) override
 	{
 		if (widget == WID_SV_RENAME) {
-			GuiShowTooltips(this, GetEncodedString(STR_STATION_VIEW_RENAME_TOOLTIP_EXTRA, STR_STATION_VIEW_RENAME_TOOLTIP, STR_BUTTON_DEFAULT), close_cond);
+			GuiShowTooltips(this, GetEncodedString(STR_STATION_VIEW_RENAME_TOOLTIP_EXTRA, STR_STATION_VIEW_EDIT_TOOLTIP, STR_BUTTON_DEFAULT), close_cond);
 			return true;
 		}
 
@@ -2125,6 +2121,8 @@ struct StationViewWindow : public Window {
 
 	void OnClick([[maybe_unused]] Point pt, WidgetID widget, [[maybe_unused]] int click_count) override
 	{
+		Window *w = FindWindowByClass(WC_QUERY_STRING);
+
 		switch (widget) {
 			case WID_SV_WAITING:
 				this->HandleCargoWaitingClick(this->vscroll->GetScrolledRowFromWidget(pt.y, this, WID_SV_WAITING, WidgetDimensions::scaled.framerect.top) - this->vscroll->GetPosition());
@@ -2132,6 +2130,11 @@ struct StationViewWindow : public Window {
 
 			case WID_SV_CATCHMENT:
 				SetViewportCatchmentStation(Station::Get(this->window_number), !this->IsWidgetLowered(WID_SV_CATCHMENT));
+
+				if (w != nullptr && this->IsWidgetLowered(WID_SV_CATCHMENT)) {
+					if (w->parent->window_class == WC_STATION_VIEW && w->IsWidgetLowered(WID_QS_MOVE)) SetViewportStationRect(Station::Get(w->parent->window_number), true);
+					if (w->parent->window_class == WC_WAYPOINT_VIEW && w->IsWidgetLowered(WID_QS_MOVE)) SetViewportWaypointRect(Waypoint::Get(w->parent->window_number), true);
+				}
 				break;
 
 			case WID_SV_LOCATION:
@@ -2171,8 +2174,8 @@ struct StationViewWindow : public Window {
 				}
 				ResetObjectToPlace();
 				this->HandleButtonClick(widget);
-				ShowQueryString(GetString(STR_STATION_NAME, this->window_number), STR_STATION_VIEW_RENAME_STATION_CAPTION, MAX_LENGTH_STATION_NAME_CHARS,
-						this, CS_ALPHANUMERAL, {QueryStringFlag::EnableDefault, QueryStringFlag::LengthIsInChars});
+				ShowQueryString(GetString(STR_STATION_NAME, this->window_number), STR_STATION_VIEW_EDIT_STATION_SIGN, MAX_LENGTH_STATION_NAME_CHARS,
+						this, CS_ALPHANUMERAL, {QueryStringFlag::EnableDefault, QueryStringFlag::LengthIsInChars, QueryStringFlag::EnableMove});
 				break;
 
 			case WID_SV_CLOSE_AIRPORT:

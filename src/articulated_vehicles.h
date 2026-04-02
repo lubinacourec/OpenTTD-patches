@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file articulated_vehicles.h Functions related to articulated vehicles. */
@@ -14,8 +14,9 @@
 #include "engine_type.h"
 #include <vector>
 
-uint CountArticulatedParts(EngineID engine_type, bool purchase_window);
-void GetArticulatedPartsEngineIDs(EngineID engine_type, bool purchase_window, std::vector<EngineID> &ids);
+static constexpr uint MAX_ARTICULATED_PARTS = 100; ///< Maximum of articulated parts per vehicle, i.e. when to abort calling the articulated vehicle callback.
+
+uint CountArticulatedParts(EngineID engine_type);
 CargoArray GetCapacityOfArticulatedParts(EngineID engine, CargoType attempt_refit = INVALID_CARGO);
 CargoTypes GetCargoTypesOfArticulatedParts(EngineID engine);
 void AddArticulatedParts(Vehicle *first);

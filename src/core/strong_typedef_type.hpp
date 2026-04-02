@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file strong_typedef_type.hpp Type (helpers) for making a strong typedef that is a distinct type. */
@@ -322,6 +322,7 @@ struct EMPTY_BASES ST : public StrongTypedefBase, public TTraits::FmtTag, public
 
 	/* Only allow conversion to BaseType via method. */
 	constexpr BaseType base() const { return this->value; }
+	constexpr const BaseType &base_ref() const { return this->value; }
 	constexpr BaseType &edit_base() { return this->value; }
 
 	/* Only allow TProperties classes access to the internal value. Everyone else needs to call .base(). */
@@ -360,6 +361,7 @@ struct EMPTY_BASES STRef : public StrongTypedefBase, public TTraits::FmtTag, pub
 
 	/* Only allow conversion to BaseType via method. */
 	constexpr BaseType base() const { return this->value; }
+	constexpr const BaseType &base_ref() const { return this->value; }
 	constexpr BaseType &edit_base() { return this->value; }
 
 	/* Only allow TProperties classes access to the internal value. Everyone else needs to call .base(). */

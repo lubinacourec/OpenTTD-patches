@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file tracerestrict_cmd.h Header file for Trace Restrict commands */
@@ -33,6 +33,7 @@ enum TraceRestrictMgmtDoCommandType : uint8_t {
 	TRMDCT_PROG_SHARE_IF_UNMAPPED,           ///< share program operation (if unmapped)
 	TRMDCT_PROG_UNSHARE,                     ///< unshare program (copy as a new program)
 	TRMDCT_PROG_RESET,                       ///< reset program state of signal
+	TRMDCT_PROG_CREATE_BACKUP,               ///< create backup of program
 };
 
 const char *GetTraceRestrictMgmtDoCommandTypeName(TraceRestrictMgmtDoCommandType type);
@@ -56,15 +57,17 @@ enum TraceRestrictAlterCounterOperation : uint8_t {
 };
 
 struct TraceRestrictFollowUpCmdData final : public CommandPayloadSerialisable<TraceRestrictFollowUpCmdData> {
+	static constexpr bool HasStringSanitiser = false;
+
 	DynBaseCommandContainer cmd;
 
 	TraceRestrictFollowUpCmdData() = default;
 	TraceRestrictFollowUpCmdData(DynBaseCommandContainer cmd) : cmd(std::move(cmd)) {}
 
-	void Serialise(BufferSerialisationRef buffer) const override;
+	void SerialisePayload(BufferSerialisationRef buffer) const;
 	bool Deserialise(DeserialisationBuffer &buffer, StringValidationSettings default_string_validation);
 	CommandCost ExecuteWithValue(uint16_t value, DoCommandFlags flags) const;
-	void FormatDebugSummary(struct format_target &) const override;
+	void FormatDebugSummary(struct format_target &) const;
 };
 
 struct TraceRestrictCreateSlotCmdData final : public CommandPayloadSerialisable<TraceRestrictCreateSlotCmdData> {
@@ -74,20 +77,20 @@ struct TraceRestrictCreateSlotCmdData final : public CommandPayloadSerialisable<
 	uint32_t max_occupancy;
 	std::optional<TraceRestrictFollowUpCmdData> follow_up_cmd;
 
-	void Serialise(BufferSerialisationRef buffer) const override;
+	void SerialisePayload(BufferSerialisationRef buffer) const;
 	bool Deserialise(DeserialisationBuffer &buffer, StringValidationSettings default_string_validation);
-	void SanitiseStrings(StringValidationSettings settings) override;
-	void FormatDebugSummary(struct format_target &) const override;
+	void SanitisePayloadStrings(StringValidationSettings settings);
+	void FormatDebugSummary(struct format_target &) const;
 };
 
 struct TraceRestrictCreateCounterCmdData final : public CommandPayloadSerialisable<TraceRestrictCreateCounterCmdData> {
 	std::string name;
 	std::optional<TraceRestrictFollowUpCmdData> follow_up_cmd;
 
-	void Serialise(BufferSerialisationRef buffer) const override;
+	void SerialisePayload(BufferSerialisationRef buffer) const;
 	bool Deserialise(DeserialisationBuffer &buffer, StringValidationSettings default_string_validation);
-	void SanitiseStrings(StringValidationSettings settings) override;
-	void FormatDebugSummary(struct format_target &) const override;
+	void SanitisePayloadStrings(StringValidationSettings settings);
+	void FormatDebugSummary(struct format_target &) const;
 };
 
 struct TraceRestrictProgramSignalInnerData {
@@ -98,10 +101,11 @@ struct TraceRestrictProgramSignalInnerData {
 	std::string name;
 
 	/* This must include all fields */
-	auto GetRefTuple() { return std::tie(this->track, this->type, this->offset, this->data, this->name); }
+	using Self = TraceRestrictProgramSignalInnerData;
+	static constexpr auto GetTupleFields() { return std::make_tuple(&Self::track, &Self::type, &Self::offset, &Self::data, &Self::name); }
 };
 struct TraceRestrictProgramSignalData final : public TupleRefCmdData<TraceRestrictProgramSignalData, TraceRestrictProgramSignalInnerData> {
-	void FormatDebugSummary(struct format_target &) const override;
+	void FormatDebugSummary(struct format_target &) const;
 };
 
 /* Flag values for TraceRestrictProgramSignalData::data for TRDCT_MOVE_ITEM operations */
@@ -118,16 +122,22 @@ struct TraceRestrictManageSignalInnerData {
 	Track source_track;
 
 	/* This must include all fields */
-	auto GetRefTuple() { return std::tie(this->track, this->type, this->source_tile, this->source_track); }
+	using Self = TraceRestrictManageSignalInnerData;
+	static constexpr auto GetTupleFields() { return std::make_tuple(&Self::track, &Self::type, &Self::source_tile, &Self::source_track); }
 };
 struct TraceRestrictManageSignalData final : public TupleRefCmdData<TraceRestrictManageSignalData, TraceRestrictManageSignalInnerData> {
-	void FormatDebugSummary(struct format_target &) const override;
+	void FormatDebugSummary(struct format_target &) const;
+};
+
+struct TraceRestrictRestoreSignalData final : public AutoFmtTupleCmdData<TraceRestrictRestoreSignalData, TCDF_NONE, Track, uint32_t> {
+	static inline constexpr const char fmt_str[] = "track: {:X}, idx: {}";
 };
 
 BaseCommandContainer<CMD_PROGRAM_TRACERESTRICT_SIGNAL> GetTraceRestrictCommandContainer(TileIndex tile, Track track, TraceRestrictDoCommandType type, uint32_t offset, uint32_t value);
 
 DEF_CMD_TUPLE    (CMD_PROGRAM_TRACERESTRICT_SIGNAL,      CmdProgramSignalTraceRestrict,     {}, CommandType::OtherManagement, TraceRestrictProgramSignalData)
 DEF_CMD_TUPLE    (CMD_MANAGE_TRACERESTRICT_SIGNAL,       CmdProgramSignalTraceRestrictMgmt, {}, CommandType::OtherManagement, TraceRestrictManageSignalData)
+DEF_CMD_TUPLE    (CMD_RESTORE_TRACERESTRICT_SIGNAL,      CmdRestoreSignalTraceRestrict,     {}, CommandType::OtherManagement, TraceRestrictRestoreSignalData)
 DEF_CMD_DIRECT_NT(CMD_CREATE_TRACERESTRICT_SLOT,         CmdCreateTraceRestrictSlot,        {}, CommandType::OtherManagement, TraceRestrictCreateSlotCmdData)
 DEF_CMD_TUPLE_NT (CMD_ALTER_TRACERESTRICT_SLOT,          CmdAlterTraceRestrictSlot,         {}, CommandType::OtherManagement, CmdDataT<TraceRestrictSlotID, TraceRestrictAlterSlotOperation, uint32_t, std::string>)
 DEF_CMD_TUPLE_NT (CMD_DELETE_TRACERESTRICT_SLOT,         CmdDeleteTraceRestrictSlot,        {}, CommandType::OtherManagement, CmdDataT<TraceRestrictSlotID>)

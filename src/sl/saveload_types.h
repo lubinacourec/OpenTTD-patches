@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file saveload_common.h Common functions/types for saving and loading games. */
@@ -151,7 +151,8 @@ struct SaveLoad {
 		 * variable, or the offset within a struct which is then bound to a variable
 		 * during runtime. Decision on which one to use is controlled by the function
 		 * that is called to save it. address: global=true, offset: global=false */
-		void *address;                                       ///< address of variable OR offset of variable in the struct
+		void *address;                                       ///< address of global variable (global is true)
+		size_t offset;                                       ///< offset of variable in the struct (global is false)
 		SaveLoadStructHandlerFactory struct_handler_factory; ///< factory function pointer for SaveLoadStructHandler
 		SaveLoadIncludeFunctor include_functor;              ///< include functor for SL_INCLUDE
 	};

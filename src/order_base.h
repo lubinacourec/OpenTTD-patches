@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file order_base.h Base class for orders. */
@@ -243,10 +243,7 @@ public:
 		return *this;
 	}
 
-	auto GetCmdRefTuple()
-	{
-		return std::tie(this->type, this->flags, this->dest);
-	}
+	static constexpr auto GetCmdRefFields() { return std::make_tuple(&Order::type, &Order::flags, &Order::dest); }
 	static constexpr char CMD_TUPLE_FMT[] = "t: {:X}, f: {:X}, d: {}";
 
 	/**
@@ -765,7 +762,7 @@ struct OrderPoolItem : OrderPool::PoolItem<&_order_pool> {
 	uint32_t next_ref = 0;
 
 	/** Make sure the item isn't zeroed. */
-	OrderPoolItem() {}
+	OrderPoolItem(OrderID index) : PoolItemBase(index) {}
 	/** Make sure the right destructor is called as well! */
 	~OrderPoolItem() {}
 };
@@ -1108,14 +1105,15 @@ private:
 
 public:
 	/** Default constructor producing an invalid order list. */
-	OrderList() {}
+	OrderList(OrderListID index) : PoolItemBase(index) {}
 
 	/**
 	 * Create an order list with the given order chain for the given vehicle.
-	 *  @param chain pointer to the first order of the order chain
-	 *  @param v any vehicle using this orderlist
+	 * @param index index of the list within the order list pool
+	 * @param chain pointer to the first order of the order chain
+	 * @param v any vehicle using this orderlist
 	 */
-	OrderList(OrderPoolItem *chain, Vehicle *v)
+	OrderList(OrderListID index, OrderPoolItem *chain, Vehicle *v) : PoolItemBase(index)
 	{
 		for (OrderPoolItem *o = chain; o != nullptr; o = o->next) {
 			this->orders.emplace_back(std::move(o->order)); // Move order contents into vector
@@ -1128,7 +1126,7 @@ public:
 	 *  @param order single order to use
 	 *  @param v any vehicle using this orderlist
 	 */
-	OrderList(Order &&order, Vehicle *v)
+	OrderList(OrderListID index, Order &&order, Vehicle *v) : PoolItemBase(index)
 	{
 		this->orders.emplace_back(std::move(order)); // Move order contents into vector
 		this->Initialize(v);
@@ -1139,7 +1137,7 @@ public:
 	 *  @param order single order to use
 	 *  @param v any vehicle using this orderlist
 	 */
-	OrderList(std::vector<Order> &&orders, Vehicle *v)
+	OrderList(OrderListID index, std::vector<Order> &&orders, Vehicle *v) : PoolItemBase(index)
 	{
 		this->orders = std::move(orders);
 		this->Initialize(v);
@@ -1147,6 +1145,8 @@ public:
 
 	/** Destructor. Invalidates OrderList for re-usage by the pool. */
 	~OrderList() {}
+
+	void CopyOrderListContents(const OrderList &other);
 
 	void Initialize(Vehicle *v);
 

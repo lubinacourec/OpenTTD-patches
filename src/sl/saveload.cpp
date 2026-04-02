@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /**
@@ -1245,6 +1245,7 @@ void SlString(void *ptr, size_t length, VarType conv)
 			}
 
 			size_t len = SlReadArrayLength();
+			char *str = nullptr;
 
 			switch (GetVarMemType(conv)) {
 				default: NOT_REACHED();
@@ -1258,14 +1259,14 @@ void SlString(void *ptr, size_t length, VarType conv)
 						*(char **)ptr = nullptr;
 						return;
 					} else {
-						*(char **)ptr = MallocT<char>(len + 1); // terminating '\0'
-						ptr = *(char **)ptr;
-						SlCopyBytesRead(ptr, len);
+						str = MallocT<char>(len + 1); // terminating '\0'
+						*(char **)ptr = str;
+						SlCopyBytesRead(str, len);
+						str[len] = '\0'; // properly terminate the string
 					}
 					break;
 			}
 
-			((char *)ptr)[len] = '\0'; // properly terminate the string
 			StringValidationSettings settings = StringValidationSetting::ReplaceWithQuestionMark;
 			if ((conv & SLF_ALLOW_CONTROL) != 0) {
 				settings.Set(StringValidationSetting::AllowControlCode);
@@ -1273,7 +1274,7 @@ void SlString(void *ptr, size_t length, VarType conv)
 			if ((conv & SLF_ALLOW_NEWLINE) != 0) {
 				settings.Set(StringValidationSetting::AllowNewline);
 			}
-			StrMakeValidInPlace((char *)ptr, (char *)ptr + len, settings);
+			StrMakeValidInPlace(str, str + len, settings);
 			break;
 		}
 		case SLA_PTRS: break;

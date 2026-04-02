@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file cachecheck.cpp Check caches. */
@@ -17,6 +17,7 @@
 #include "debug_desync.h"
 #include "debug_settings.h"
 #include "industry.h"
+#include "object_base.h"
 #include "roadstop_base.h"
 #include "roadveh.h"
 #include "scope_info.h"
@@ -330,6 +331,24 @@ void CheckCaches(bool force_check, std::function<void(std::string_view)> log, Ch
 				}
 			}
 			i++;
+		}
+
+		std::vector<uint16_t> object_counts;
+		for (const Object *o : Object::Iterate()) {
+			size_t type = static_cast<size_t>(o->type);
+			if (type >= NUM_OBJECTS) {
+				cclog("Object: {} at {} has invalid type {}", o->index, o->location.tile, o->type);
+				continue;
+			}
+			if (type >= object_counts.size()) object_counts.resize(type + 1);
+			object_counts[type]++;
+		}
+		for (size_t type = 0; type < NUM_OBJECTS; type++) {
+			uint16_t value = Object::GetTypeCount(static_cast<ObjectType>(type));
+			uint16_t expected = (type < object_counts.size()) ? object_counts[type] : 0;
+			if (value != expected) {
+				cclog("Object count mismatch for {}: was: {}, expected: {}", type, value, expected);
+			}
 		}
 	}
 

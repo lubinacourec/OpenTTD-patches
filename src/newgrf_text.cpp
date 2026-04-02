@@ -2,17 +2,17 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /**
- * @file newgrf_text.cpp
- * Implementation of  Action 04 "universal holder" structure and functions.
+ * @file newgrf_text.cpp Implementation of Action 04 "universal holder" structure and functions.
+ *
  * This file implements a linked-lists of strings,
  * holding everything that the newgrf action 04 will send over to OpenTTD.
  * One of the biggest problems is that Dynamic lang Array uses ISO codes
  * as way to identifying current user lang, while newgrf uses bit shift codes
- * not related to ISO.  So equivalence functionality had to be set.
+ * not related to ISO. So equivalence functionality had to be set.
  */
 
 #include "stdafx.h"
@@ -28,7 +28,6 @@
 #include "string_func.h"
 #include "date_type.h"
 #include "debug.h"
-#include "core/alloc_type.hpp"
 #include "core/string_builder.hpp"
 #include "core/string_consumer.hpp"
 #include "core/typed_container.hpp"

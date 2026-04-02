@@ -13,7 +13,7 @@
 # This file is part of OpenTTD.
 # OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
 # OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
 
 
 ##id 0x0000
@@ -2284,7 +2284,7 @@ STR_HOUSE_PICKER_YEARS_ANY                                      :{BLACK}السن
 STR_HOUSE_PICKER_YEARS_FROM                                     :{BLACK}السنوات: {ORANGE}من {NUM}
 STR_HOUSE_PICKER_YEARS_UNTIL                                    :{BLACK}السنوات: {ORANGE}حتى {NUM}
 STR_HOUSE_PICKER_SIZE                                           :{BLACK}الحجم: {ORANGE}{NUM}×{NUM} مربع
-STR_HOUSE_PICKER_CARGO_ACCEPTED                                 :{BLACK}الشحنة المقبولة: {ORANGE}
+STR_HOUSE_PICKER_CARGO_ACCEPTED                                 :{BLACK}الشحنة المقبولة: {GOLD}{STRING}
 
 STR_HOUSE_PICKER_CLASS_ZONE1                                    :الطرف
 STR_HOUSE_PICKER_CLASS_ZONE2                                    :الضواحي
@@ -2548,7 +2548,7 @@ STR_LAND_AREA_INFORMATION_AIRPORT_CLASS                         :{BLACK}فئة �
 STR_LAND_AREA_INFORMATION_AIRPORT_NAME                          :{BLACK}اسم المطار: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_AIRPORTTILE_NAME                      :{BLACK}اسم مربع المطار: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_NEWGRF_NAME                           :{BLACK}NewGRF: {LTBLUE}{STRING}
-STR_LAND_AREA_INFORMATION_CARGO_ACCEPTED                        :{BLACK}الشحنة المقبولة: {LTBLUE}
+STR_LAND_AREA_INFORMATION_CARGO_ACCEPTED                        :{BLACK}الشحنة المقبولة: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_CARGO_EIGHTS                          :({COMMA} /8 {STRING})
 STR_LANG_AREA_INFORMATION_ROAD_TYPE                             :{BLACK}:نوع الطريق {LTBLUE}{STRING}
 STR_LANG_AREA_INFORMATION_TRAM_TYPE                             :{BLACK}:نوع الترام {LTBLUE}{STRING}
@@ -3147,25 +3147,21 @@ STR_CARGO_RATING_EXCELLENT                                      :ممتاز
 STR_CARGO_RATING_OUTSTANDING                                    :خارق
 
 STR_STATION_VIEW_CENTER_TOOLTIP                                 :{BLACK}وسط الشاشة على موقع المحطة
-STR_STATION_VIEW_RENAME_TOOLTIP                                 :{BLACK}غير اسم المحطة
 
 STR_STATION_VIEW_SCHEDULED_TRAINS_TOOLTIP                       :{BLACK} عرض جميع القطارات المرتبطة بهذه المحطة
 STR_STATION_VIEW_SCHEDULED_ROAD_VEHICLES_TOOLTIP                :{BLACK} عرض جميع العربات المرتبطة بهذه المحطة
 STR_STATION_VIEW_SCHEDULED_AIRCRAFT_TOOLTIP                     :{BLACK} عرض جميع القطارات المرتبطة بهذه المحطة
 STR_STATION_VIEW_SCHEDULED_SHIPS_TOOLTIP                        :{BLACK}عرض جميع السفن المرتبطة بهذا المرفئ
 
-STR_STATION_VIEW_RENAME_STATION_CAPTION                         :اعادة تسمية المحطة
 
 STR_STATION_VIEW_CLOSE_AIRPORT                                  :{BLACK}اغلاق المطار
 
 # Waypoint/buoy view window
 STR_WAYPOINT_VIEW_CAPTION                                       :{WHITE}{WAYPOINT}
 STR_WAYPOINT_VIEW_CENTER_TOOLTIP                                :{BLACK} ركز شاشة العرض على نقطة العبور
-STR_WAYPOINT_VIEW_CHANGE_WAYPOINT_NAME                          :{BLACK}غير اسم نقطة العبور
 STR_BUOY_VIEW_CENTER_TOOLTIP                                    :{BLACK} ضع العوامة في مركز الشاشة. Ctrl+Click لفتح نافذة لموقع العوامة
 STR_BUOY_VIEW_RENAME_TOOLTIP                                    :{BLACK} غير اسم العومة
 
-STR_EDIT_WAYPOINT_NAME                                          :{WHITE}عدل اسم نقطة العبور
 
 # Finances window
 STR_FINANCES_CAPTION                                            :{WHITE}{COMPANY} {BLACK} {COMPANY_NUM} سجل المحاسبة
@@ -3274,9 +3270,9 @@ STR_INDUSTRY_VIEW_TRANSPORTED                                   :{YELLOW}{CARGO_
 STR_INDUSTRY_VIEW_LOCATION_TOOLTIP                              :{BLACK}وسط الشاشة على المصنع
 STR_INDUSTRY_VIEW_PRODUCTION_LEVEL                              :{BLACK}نسبة الانتاج: {YELLOW}{COMMA}%
 
-STR_INDUSTRY_VIEW_REQUIRES_N_CARGO                              :{BLACK}يتطلب: {YELLOW}{STRING}{STRING}
-STR_INDUSTRY_VIEW_PRODUCES_N_CARGO                              :{BLACK}ينتج: {YELLOW}{STRING}{STRING}
-STR_INDUSTRY_VIEW_CARGO_LIST_EXTENSION                          :، {STRING}{STRING}
+STR_INDUSTRY_VIEW_REQUIRES_N_CARGO                              :{BLACK}يتطلب: {YELLOW}{STRING}
+STR_INDUSTRY_VIEW_PRODUCES_N_CARGO                              :{BLACK}ينتج: {YELLOW}{STRING}
+STR_INDUSTRY_VIEW_CARGO_LIST_EXTENSION                          :{STRING}{STRING}
 
 STR_INDUSTRY_VIEW_REQUIRES                                      :{BLACK}:يتطلب
 
@@ -3721,7 +3717,7 @@ STR_VEHICLE_DETAILS_TRAIN_CAPACITIES_TOOLTIP                    :{BLACK}عرض �
 STR_VEHICLE_DETAIL_TAB_TOTAL_CARGO                              :{BLACK}مجموع الحمولة
 STR_VEHICLE_DETAILS_TRAIN_TOTAL_CARGO_TOOLTIP                   :{BLACK} عرض الحمولة الكاملة للقطار, مفصلة بحسب نوع البضائع
 
-STR_VEHICLE_DETAILS_TRAIN_ARTICULATED_RV_CAPACITY               :{BLACK}السعة: {LTBLUE}
+STR_VEHICLE_DETAILS_TRAIN_ARTICULATED_RV_CAPACITY               :{BLACK}السعة: {LTBLUE}{STRING}
 
 # Vehicle refit
 STR_REFIT_CAPTION                                               :{WHITE}{VEHICLE} (تغيير)

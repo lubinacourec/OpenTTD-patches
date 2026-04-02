@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file settings_compat.h Tables for loading non-table format settings chunks. */
@@ -16,7 +16,7 @@
 #define SLCX_XREF(name, from, to, extver) {name, SettingsCompatType::Xref, 0, from, to, extver, nullptr}
 #define SLCX_XREFCVT(name, from, to, extver, cvt) {name, SettingsCompatType::Xref, 0, from, to, extver, cvt}
 
-static std::initializer_list<SettingsCompat> _gameopt_compat{
+extern const std::initializer_list<SettingsCompat> _gameopt_compat{
 	SLCX_VAR("diff_custom"),
 	SLCX_VAR("diff_level"),
 	SLCX_VAR("locale.currency"),
@@ -30,7 +30,7 @@ static std::initializer_list<SettingsCompat> _gameopt_compat{
 	SLCX_VAR("vehicle.road_side"),
 };
 
-static std::initializer_list<SettingsCompat> _settings_compat{
+extern const std::initializer_list<SettingsCompat> _settings_compat{
 	SLCX_VAR("difficulty.max_no_competitors"),
 	SLCX_NULL(1, SLV_97, SLV_110), // difficulty.competitor_start_time
 	SLCX_VAR("difficulty.number_towns"),

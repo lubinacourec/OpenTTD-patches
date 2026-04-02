@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file settings_sl.cpp Handles the saveload part of the settings. */
@@ -33,7 +33,7 @@ namespace upstream_sl {
 static std::vector<SaveLoad> GetSettingsDesc(bool is_loading)
 {
 	std::vector<SaveLoad> saveloads;
-	for (auto &sd : IterateSettingTables(GetSaveLoadSettingsTables())) {
+	for (const SettingDesc *sd : IterateSettingTables(GetSaveLoadSettingsTables())) {
 		if (sd->flags.Test(SettingFlag::NotInSave)) continue;
 		if (is_loading && !SlXvIsFeaturePresent(XSLFI_TABLE_PATS) && sd->flags.Test(SettingFlag::Patch)) continue;
 		if (!sd->save.ext_feature_test.IsFeaturePresent(_sl_version, sd->save.version_from, sd->save.version_to)) continue;
@@ -137,15 +137,12 @@ static std::vector<SaveLoad> GetSettingsDesc(bool is_loading)
 		if (is_loading && sd->flags.Test(SettingFlag::NoNetworkSync) && _networking && !_network_server) {
 			if (IsSavegameVersionBefore(SLV_TABLE_CHUNKS)) {
 				/* We don't want to read this setting, so we do need to skip over it. */
-				saveloads.push_back({sd->name, new_cmd, GetVarFileType(new_type) | SLE_VAR_NULL, sd->save.length, SL_MIN_VERSION, SL_MAX_VERSION, nullptr, 0, nullptr});
+				saveloads.push_back({sd->name, new_cmd, static_cast<VarType>(GetVarFileType(new_type) | SLE_VAR_NULL), sd->save.length, SL_MIN_VERSION, SL_MAX_VERSION, { .address = nullptr }, nullptr});
 			}
 			continue;
 		}
 
-		SaveLoadAddrProc *address_proc = [](void *base, size_t extra) -> void* {
-			return const_cast<uint8_t *>((const uint8_t *)base + (ptrdiff_t)extra);
-		};
-		saveloads.push_back({sd->name, new_cmd, new_type, sd->save.length, SL_MIN_VERSION, SL_MAX_VERSION, address_proc, reinterpret_cast<uintptr_t>(sd->save.address), nullptr});
+		saveloads.push_back({sd->name, new_cmd, new_type, sd->save.length, SL_MIN_VERSION, SL_MAX_VERSION, { .offset = sd->save.offset }, nullptr});
 	}
 
 	return saveloads;
@@ -166,7 +163,7 @@ static void LoadSettings(void *object, const SaveLoadCompatTable &slct)
 	if (!IsSavegameVersionBefore(SLV_RIFF_TO_ARRAY) && SlIterateArray() != -1) SlErrorCorrupt("Too many settings entries");
 
 	/* Ensure all IntSettings are valid (min/max could have changed between versions etc). */
-	for (auto &sd : IterateSettingTables(GetSaveLoadSettingsTables())) {
+	for (const SettingDesc *sd : IterateSettingTables(GetSaveLoadSettingsTables())) {
 		if (sd->flags.Test(SettingFlag::NotInSave)) continue;
 		if (sd->flags.Test(SettingFlag::NoNetworkSync) && _networking && !_network_server) continue;
 		if (!sd->save.ext_feature_test.IsFeaturePresent(_sl_xv_feature_static_versions, MAX_LOAD_SAVEGAME_VERSION, sd->save.version_from, sd->save.version_to)) continue;

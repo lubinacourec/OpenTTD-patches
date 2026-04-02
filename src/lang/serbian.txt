@@ -15,7 +15,7 @@
 # This file is part of OpenTTD.
 # OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
 # OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
 
 
 ##id 0x0000
@@ -2195,6 +2195,8 @@ STR_CONFIG_SETTING_LARGER_TOWNS_VALUE                           :1 u {COMMA}
 STR_CONFIG_SETTING_LARGER_TOWNS_DISABLED                        :Nijedan
 STR_CONFIG_SETTING_CITY_SIZE_MULTIPLIER                         :Inicijalni množilac rasta gradova: {STRING}
 STR_CONFIG_SETTING_CITY_SIZE_MULTIPLIER_HELPTEXT                :Prosečna veličina naselja relativno u odnosu na gradove na početku igre
+STR_CONFIG_SETTING_TOWN_MIN_DISTANCE                            :Najmanje rastojanje između gradova: {STRING}
+STR_CONFIG_SETTING_TOWN_MIN_DISTANCE_HELPTEXT                   :Podešava najmanje rastojanje u broju pločica između gradova za generisanje mape i nasumično osnivanje
 
 
 STR_CONFIG_SETTING_DISTRIBUTION_PAX                             :Način distribucije putnika: {STRING}
@@ -2934,6 +2936,10 @@ STR_PICKER_PREVIEW_EXPAND_TOOLTIP                               :Uvećava visinu
 
 
 STR_HOUSE_PICKER_CAPTION                                        :Odabir kuće
+STR_HOUSE_PICKER_NAME                                           :{BLACK}Naziv: {GOLD}{STRING}
+STR_HOUSE_PICKER_YEARS                                          :{BLACK}Godina: {GOLD}{NUM}-{NUM}
+STR_HOUSE_PICKER_CARGO_ACCEPTED                                 :{BLACK}Prihvaćen teret: {GOLD}{STRING}
+STR_HOUSE_PICKER_CARGO_PRODUCED                                 :{BLACK}Proizveden teret: {GOLD}{CARGO_LIST}
 
 STR_HOUSE_PICKER_CLASS_ZONE1                                    :Ivica
 STR_HOUSE_PICKER_CLASS_ZONE2                                    :Predgrađe
@@ -3207,7 +3213,7 @@ STR_LAND_AREA_INFORMATION_AIRPORT_CLASS                         :{BLACK}Klasa ae
 STR_LAND_AREA_INFORMATION_AIRPORT_NAME                          :{BLACK}Naziv aerodroma: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_AIRPORTTILE_NAME                      :{BLACK}Naziv dela aerodroma: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_NEWGRF_NAME                           :{BLACK}NewGRF: {LTBLUE}{STRING}
-STR_LAND_AREA_INFORMATION_CARGO_ACCEPTED                        :{BLACK}Teret prihvaćen: {LTBLUE}
+STR_LAND_AREA_INFORMATION_CARGO_ACCEPTED                        :{BLACK}Prihvaćen teret: {LTBLUE}{STRING}
 STR_LAND_AREA_INFORMATION_CARGO_EIGHTS                          :({COMMA}/8 {STRING})
 STR_LANG_AREA_INFORMATION_RAIL_TYPE                             :{BLACK}Vrsta šina: {LTBLUE}{STRING}
 STR_LANG_AREA_INFORMATION_ROAD_TYPE                             :{BLACK}Vrsta druma: {LTBLUE}{STRING}
@@ -3711,7 +3717,7 @@ STR_SIGN_LIST_MATCH_CASE                                        :{BLACK}Podudara
 STR_SIGN_LIST_MATCH_CASE_TOOLTIP                                :{BLACK}Uključuje/isključuje podudaranje malih i velikih slova tokom poređenja naziva znakova sa filter niskom
 
 # Sign window
-STR_EDIT_SIGN_CAPTION                                           :{WHITE}Unos teksta znaka
+STR_EDIT_SIGN_CAPTION                                           :{WHITE}Promena znaka
 STR_EDIT_SIGN_LOCATION_TOOLTIP                                  :{BLACK}Prebacuje glavni pogled na lokaciju znaka. Ctrl+klik otvara novi pogled na znak
 STR_EDIT_SIGN_NEXT_SIGN_TOOLTIP                                 :{BLACK}Položaj sledećeg znaka
 STR_EDIT_SIGN_PREVIOUS_SIGN_TOOLTIP                             :{BLACK}Položaj prethodnog znaka
@@ -3917,14 +3923,13 @@ STR_CARGO_RATING_EXCELLENT                                      :odlično
 STR_CARGO_RATING_OUTSTANDING                                    :izvanredno
 
 STR_STATION_VIEW_CENTER_TOOLTIP                                 :{BLACK}Prebacuje glavni pogled na lokaciju stanice. Ctrl+klik otvara novi pogled na lokaciju stanice
-STR_STATION_VIEW_RENAME_TOOLTIP                                 :{BLACK}Preimenuj stanicu
 
 STR_STATION_VIEW_SCHEDULED_TRAINS_TOOLTIP                       :{BLACK}Prikazuje sve vozove koji imaju ovu stanicu u svom voznom redu
 STR_STATION_VIEW_SCHEDULED_ROAD_VEHICLES_TOOLTIP                :{BLACK}Prikazuje sva drumska vozila koja imaju ovu stanicu u svom voznom redu
 STR_STATION_VIEW_SCHEDULED_AIRCRAFT_TOOLTIP                     :{BLACK}Prikazuje sve letelice koje imaju ovu stanicu u svom voznom redu
 STR_STATION_VIEW_SCHEDULED_SHIPS_TOOLTIP                        :{BLACK}Prikazuje sve brodove koji imaju ovu stanicu u svom voznom redu
 
-STR_STATION_VIEW_RENAME_STATION_CAPTION                         :Preimenuj stanicu
+STR_STATION_VIEW_EDIT_STATION_SIGN                              :{WHITE}Promena staničnog znaka
 
 STR_STATION_VIEW_CLOSE_AIRPORT                                  :{BLACK}Zatvori aerodrom
 STR_STATION_VIEW_CLOSE_AIRPORT_TOOLTIP                          :{BLACK}Spreči letelicu da sleti na ovaj aerodrom
@@ -3932,11 +3937,9 @@ STR_STATION_VIEW_CLOSE_AIRPORT_TOOLTIP                          :{BLACK}Spreči 
 # Waypoint/buoy view window
 STR_WAYPOINT_VIEW_CAPTION                                       :{WHITE}{WAYPOINT}
 STR_WAYPOINT_VIEW_CENTER_TOOLTIP                                :{BLACK}Prebacuje glavni pogled na lokaciju čvorišta. Ctrl+klik otvara novi pogled na čvorište
-STR_WAYPOINT_VIEW_CHANGE_WAYPOINT_NAME                          :{BLACK}Promena naziva putanje
 STR_BUOY_VIEW_CENTER_TOOLTIP                                    :{BLACK}Prebacuje glavni pogled na lokaciju bove. Ctrl+klik otvara novi pogled na bovu
 STR_BUOY_VIEW_RENAME_TOOLTIP                                    :{BLACK}Promeni naziv bove
 
-STR_EDIT_WAYPOINT_NAME                                          :{WHITE}Promena naziva putanje
 
 # Finances window
 STR_FINANCES_CAPTION                                            :{WHITE}{COMPANY} Finansije {BLACK}{COMPANY_NUM}
@@ -4048,7 +4051,7 @@ STR_COMPANY_INFRASTRUCTURE_VIEW_TOTAL_PERIOD                    :{WHITE}{CURRENC
 # Industry directory
 STR_INDUSTRY_DIRECTORY_CAPTION                                  :{WHITE}Fabrike ({COMMA} od {COMMA})
 STR_INDUSTRY_DIRECTORY_NONE                                     :{ORANGE}- Nema -
-STR_INDUSTRY_DIRECTORY_ITEM_INFO                                :{BLACK}{CARGO_LONG}{STRING}{YELLOW} ({COMMA}% prevezeno){BLACK}
+STR_INDUSTRY_DIRECTORY_ITEM_INFO                                :{BLACK}{CARGO_LONG}{STRING}{YELLOW} ({COMMA}% prevezeno)
 STR_INDUSTRY_DIRECTORY_ITEM_NOPROD                              :{ORANGE}{INDUSTRY}
 STR_INDUSTRY_DIRECTORY_ITEM_PROD1                               :{ORANGE}{INDUSTRY} {STRING}
 STR_INDUSTRY_DIRECTORY_ITEM_PROD2                               :{ORANGE}{INDUSTRY} {STRING}, {STRING}
@@ -4068,9 +4071,9 @@ STR_INDUSTRY_VIEW_LOCATION_TOOLTIP                              :{BLACK}Prebacuj
 STR_INDUSTRY_VIEW_PRODUCTION_LEVEL                              :{BLACK}Nivo proizvodnje: {YELLOW}{COMMA}%
 STR_INDUSTRY_VIEW_INDUSTRY_ANNOUNCED_CLOSURE                    :{YELLOW}Fabrika je objavila da može svakog trenutka da se zatvori!
 
-STR_INDUSTRY_VIEW_REQUIRES_N_CARGO                              :{BLACK}Zahteva: {YELLOW}{STRING}{STRING}
-STR_INDUSTRY_VIEW_PRODUCES_N_CARGO                              :{BLACK}Proizvodi: {YELLOW}{STRING}{STRING}
-STR_INDUSTRY_VIEW_CARGO_LIST_EXTENSION                          :, {STRING}{STRING}
+STR_INDUSTRY_VIEW_REQUIRES_N_CARGO                              :{BLACK}Zahteva: {YELLOW}{STRING}
+STR_INDUSTRY_VIEW_PRODUCES_N_CARGO                              :{BLACK}Proizvodi: {YELLOW}{STRING}
+STR_INDUSTRY_VIEW_CARGO_LIST_EXTENSION                          :{STRING}{STRING}
 
 STR_INDUSTRY_VIEW_REQUIRES                                      :{BLACK} Zahteva:
 STR_INDUSTRY_VIEW_ACCEPT_CARGO_SUFFIX                           :{YELLOW}{0:STRING}{BLACK}{3:STRING}
@@ -4597,7 +4600,7 @@ STR_VEHICLE_DETAILS_TRAIN_CAPACITIES_TOOLTIP                    :{BLACK}Prikazuj
 STR_VEHICLE_DETAIL_TAB_TOTAL_CARGO                              :{BLACK}Ukupni teret
 STR_VEHICLE_DETAILS_TRAIN_TOTAL_CARGO_TOOLTIP                   :{BLACK}Prikazuje ukupnu nosivost voza, podeljenu po vrsti tereta
 
-STR_VEHICLE_DETAILS_TRAIN_ARTICULATED_RV_CAPACITY               :{BLACK}Nosivost: {LTBLUE}
+STR_VEHICLE_DETAILS_TRAIN_ARTICULATED_RV_CAPACITY               :{BLACK}Nosivost: {LTBLUE}{STRING}
 
 # Vehicle refit
 STR_REFIT_CAPTION                                               :{WHITE}{VEHICLE} (Prepravljanje)
@@ -5130,6 +5133,7 @@ STR_ERROR_TOO_MANY_TRUCK_STOPS                                  :{WHITE}Previše
 STR_ERROR_TOO_CLOSE_TO_ANOTHER_DOCK                             :{WHITE}Previše je blizu drugog pristaništa
 STR_ERROR_TOO_CLOSE_TO_ANOTHER_AIRPORT                          :{WHITE}Previše je blizu drugog aerodroma
 STR_ERROR_CAN_T_RENAME_STATION                                  :{WHITE}Ova stanica ne može biti preimenovana...
+STR_ERROR_CAN_T_MOVE_STATION_NAME                               :{WHITE}Nije moguće pomeriti stanični znak...
 STR_ERROR_DRIVE_THROUGH_ON_TOWN_ROAD                            :{WHITE}... ova ulica je u vlasništvu naselja
 STR_ERROR_DRIVE_THROUGH_DIRECTION                               :{WHITE}... ulica je okrenuta u drugom pravcu
 STR_ERROR_DRIVE_THROUGH_CORNER                                  :{WHITE}... stajalište ne može biti na krivini

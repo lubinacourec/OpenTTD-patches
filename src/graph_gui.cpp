@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file graph_gui.cpp GUI that shows performance graphs. */
@@ -527,23 +527,23 @@ protected:
 
 		/* Draw x-axis labels and markings for graphs based on financial quarters and years.  */
 		if (this->draw_dates) {
-			EconTime::Month month = this->month;
-			EconTime::Year year  = this->year;
+			EconTime::Month mo = this->month;
+			EconTime::Year yr  = this->year;
 			for (int i = 0; i < this->num_on_x_axis; i++) {
 				if (rtl) {
 					DrawStringMultiLineWithClipping(x + x_sep, x, y, this->height,
-						GetString(month == 0 ? STR_GRAPH_X_LABEL_MONTH_YEAR : STR_GRAPH_X_LABEL_MONTH, STR_MONTH_ABBREV_JAN + month, year),
+						GetString(mo == 0 ? STR_GRAPH_X_LABEL_MONTH_YEAR : STR_GRAPH_X_LABEL_MONTH, STR_MONTH_ABBREV_JAN + mo, yr),
 						GRAPH_AXIS_LABEL_COLOUR, SA_LEFT);
 				} else {
 					DrawStringMultiLineWithClipping(x, x + x_sep, y, this->height,
-						GetString(month == 0 ? STR_GRAPH_X_LABEL_MONTH_YEAR : STR_GRAPH_X_LABEL_MONTH, STR_MONTH_ABBREV_JAN + month, year),
+						GetString(mo == 0 ? STR_GRAPH_X_LABEL_MONTH_YEAR : STR_GRAPH_X_LABEL_MONTH, STR_MONTH_ABBREV_JAN + mo, yr),
 						GRAPH_AXIS_LABEL_COLOUR, SA_LEFT);
 				}
 
-				month += this->month_increment;
-				if (month >= 12) {
-					month = 0;
-					year++;
+				mo += this->month_increment;
+				if (mo >= 12) {
+					mo = 0;
+					yr++;
 
 					/* Draw a lighter grid line between years. Top and bottom adjustments ensure we don't draw over top and bottom horizontal grid lines. */
 					GfxFillRect(x + x_sep, r.top + gridline_width, x + x_sep + gridline_width - 1, r.bottom - 1, GRAPH_YEAR_LINE_COLOUR);
@@ -716,9 +716,9 @@ public:
 
 				/* Draw x-axis labels and markings for graphs based on financial quarters and years.  */
 				if (this->draw_dates) {
-					uint year = GetParamMaxValue(this->year.base(), 4, FS_SMALL);
-					for (uint month = 0; month < 12; ++month) {
-						x_label_width = std::max(x_label_width, GetStringBoundingBox(GetString(month == 0 ? STR_GRAPH_X_LABEL_MONTH_YEAR : STR_GRAPH_X_LABEL_MONTH, STR_MONTH_ABBREV_JAN + month, year)).width);
+					uint yr = GetParamMaxValue(this->year.base(), 4, FS_SMALL);
+					for (uint mo = 0; mo < 12; ++mo) {
+						x_label_width = std::max(x_label_width, GetStringBoundingBox(GetString(mo == 0 ? STR_GRAPH_X_LABEL_MONTH_YEAR : STR_GRAPH_X_LABEL_MONTH, STR_MONTH_ABBREV_JAN + mo, yr)).width);
 					}
 				} else {
 					/* Draw x-axis labels for graphs not based on quarterly performance (cargo payment rates). */

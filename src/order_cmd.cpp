@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file order_cmd.cpp Handling of orders. */
@@ -24,7 +24,6 @@
 #include "core/bitmath_func.hpp"
 #include "core/container_func.hpp"
 #include "core/pool_func.hpp"
-#include "core/random_func.hpp"
 #include "aircraft.h"
 #include "roadveh.h"
 #include "station_base.h"
@@ -480,6 +479,18 @@ void CargoStationIDVectorSet::FillNextStoppingStation(const Vehicle *v, const Or
 			have_cargoes |= this->more.back().cargo_mask;
 		} while (have_cargoes != ALL_CARGOTYPES);
 	}
+}
+
+void OrderList::CopyOrderListContents(const OrderList &other)
+{
+	this->orders = other.orders;
+	this->route_overlay_colour = other.route_overlay_colour;
+	this->num_manual_orders = other.num_manual_orders;
+	this->num_vehicles = other.num_vehicles;
+	this->first_shared = other.first_shared;
+	this->timetable_duration = other.timetable_duration;
+	this->total_duration = other.total_duration;
+	this->dispatch_schedules = other.dispatch_schedules;
 }
 
 /**
@@ -954,7 +965,7 @@ uint GetOrderDistance(const Order *prev, const Order *cur, const Vehicle *v, int
 CommandCost CmdInsertOrder(DoCommandFlags flags, const InsertOrderCmdData &data)
 {
 	Order new_order{};
-	new_order.GetCmdRefTuple() = data.new_order;
+	MemberPtrsTie(new_order, Order::GetCmdRefFields()) = data.new_order;
 
 	return CmdInsertOrderIntl(flags, Vehicle::GetIfValid(data.veh), data.sel_ord, new_order, {});
 }
@@ -1399,7 +1410,7 @@ void InsertOrder(Vehicle *v, Order &&new_o, VehicleOrderID sel_ord)
 {
 	/* Create new order and link in list */
 	if (v->orders == nullptr) {
-		v->orders = new OrderList(std::move(new_o), v);
+		v->orders = OrderList::Create(std::move(new_o), v);
 	} else {
 		v->orders->InsertOrderAt(std::move(new_o), sel_ord);
 	}
@@ -2912,7 +2923,7 @@ CommandCost CmdCloneOrder(DoCommandFlags flags, CloneOptions action, VehicleID v
 					dst->orders = nullptr;
 				}
 				assert(OrderList::CanAllocateItem());
-				dst->orders = new OrderList(std::move(dst_orders), dst);
+				dst->orders = OrderList::Create(std::move(dst_orders), dst);
 
 				/* Copy over scheduled dispatch data */
 				assert(dst->orders != nullptr);
@@ -3010,7 +3021,7 @@ CommandCost CmdInsertOrdersFromVehicle(DoCommandFlags flags, VehicleID veh_dst, 
 	/* Copy over scheduled dispatch data */
 	if (flags.Test(DoCommandFlag::Execute)) {
 		if (dst->orders == nullptr) {
-			dst->orders = new OrderList(nullptr, dst);
+			dst->orders = OrderList::Create(nullptr, dst);
 		}
 
 		const std::vector<DispatchSchedule> &src_scheds = src->orders->GetScheduledDispatchScheduleSet();
@@ -3187,7 +3198,7 @@ void CheckOrders(const Vehicle *v)
 
 		if (message == INVALID_STRING_ID && !has_depot_order && v->type != VEH_AIRCRAFT) {
 			if (_settings_client.gui.no_depot_order_warn == 1 ||
-					(_settings_client.gui.no_depot_order_warn == 2 && _settings_game.difficulty.vehicle_breakdowns != 0)) {
+					(_settings_client.gui.no_depot_order_warn == 2 && _settings_game.difficulty.vehicle_breakdowns != VB_NONE)) {
 				message = STR_NEWS_VEHICLE_NO_DEPOT_ORDER;
 			}
 		}
@@ -3634,6 +3645,27 @@ static bool ExecuteVehicleInSlotOrderCondition(const Vehicle *v, TraceRestrictSl
 	return occupant;
 }
 
+bool EvaluateTimetableStateConditionalOrder(const Order *order, int lateness)
+{
+	dbg_assert(order->GetConditionVariable() == OCV_TIMETABLE);
+
+	int tt_value = 0;
+	switch (static_cast<OrderTimetableConditionMode>(order->GetConditionValue())) {
+		case OTCM_LATENESS:
+			tt_value = lateness;
+			break;
+
+		case OTCM_EARLINESS:
+			tt_value = -lateness;
+			break;
+
+		default:
+			break;
+	}
+
+	return OrderConditionCompare(order->GetConditionComparator(), tt_value, order->GetXData());
+}
+
 /**
  * Process a conditional order and determine the next order.
  * @param order the order the vehicle currently has
@@ -3815,20 +3847,7 @@ VehicleOrderID ProcessConditionalOrder(const Order *order, const Vehicle *v, Pro
 			break;
 		}
 		case OCV_TIMETABLE: {
-			int tt_value = 0;
-			switch (static_cast<OrderTimetableConditionMode>(value)) {
-				case OTCM_LATENESS:
-					tt_value = v->lateness_counter;
-					break;
-
-				case OTCM_EARLINESS:
-					tt_value = -v->lateness_counter;
-					break;
-
-				default:
-					break;
-			}
-			skip_order = OrderConditionCompare(occ, tt_value, order->GetXData());
+			skip_order = EvaluateTimetableStateConditionalOrder(order, v->lateness_counter);
 			break;
 		}
 		case OCV_DISPATCH_SLOT: {
@@ -4371,7 +4390,7 @@ const char *GetOrderTypeName(OrderType order_type)
 	return "???";
 }
 
-void InsertOrderCmdData::Serialise(BufferSerialisationRef buffer) const
+void InsertOrderCmdData::SerialisePayload(BufferSerialisationRef buffer) const
 {
 	buffer.Send_generic(this->veh);
 	buffer.Send_generic(this->sel_ord);
@@ -4397,7 +4416,7 @@ void InsertOrderCmdData::FormatDebugSummary(format_target &output) const
 	handler(std::make_index_sequence<std::tuple_size_v<decltype(this->new_order)>>{});
 }
 
-void BulkOrderCmdData::Serialise(BufferSerialisationRef buffer) const
+void BulkOrderCmdData::SerialisePayload(BufferSerialisationRef buffer) const
 {
 	buffer.Send_generic(this->veh);
 	buffer.Send_buffer(this->cmds);
@@ -4435,7 +4454,7 @@ CommandCost CmdBulkOrder(DoCommandFlags flags, const BulkOrderCmdData &cmd_data)
 
 		if (v->orders == nullptr) {
 			if (!OrderList::CanAllocateItem()) return CommandCost(STR_ERROR_NO_MORE_SPACE_FOR_ORDERS);
-			v->orders = new OrderList(nullptr, v);
+			v->orders = OrderList::Create(nullptr, v);
 		}
 
 		VehicleOrderID insert_pos = INVALID_VEH_ORDER_ID;
@@ -4485,8 +4504,7 @@ CommandCost CmdBulkOrder(DoCommandFlags flags, const BulkOrderCmdData &cmd_data)
 
 				case BulkOrderOp::Insert: {
 					Order new_order{};
-					auto ref_tuple = new_order.GetCmdRefTuple();
-					buf.Recv_generic(ref_tuple, {});
+					buf.Recv_generic_member_ptrs(new_order, Order::GetCmdRefFields());
 					if (buf.error) return CMD_ERROR;
 					last_result = CmdInsertOrderIntl(flags, v, insert_pos, new_order, {});
 					auto result_pos = last_result.GetResultData<VehicleOrderID>();

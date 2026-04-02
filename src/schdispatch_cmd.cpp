@@ -2,7 +2,7 @@
  * This file is part of OpenTTD.
  * OpenTTD is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
  * OpenTTD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <http://www.gnu.org/licenses/>.
+ * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with OpenTTD. If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0>.
  */
 
 /** @file schdispatch_cmd.cpp Commands related to scheduled dispatching. */
@@ -333,7 +333,7 @@ CommandCost CmdSchDispatchAddNewSchedule(DoCommandFlags flags, VehicleID veh, St
 
 	if (flags.Test(DoCommandFlag::Execute)) {
 		if (v->orders == nullptr) {
-			v->orders = new OrderList(nullptr, v);
+			v->orders = OrderList::Create(nullptr, v);
 		}
 		v->orders->GetScheduledDispatchScheduleSet().emplace_back();
 		DispatchSchedule &ds = v->orders->GetScheduledDispatchScheduleSet().back();
@@ -692,6 +692,26 @@ bool ScheduledDispatchSlotSet::IsValid() const
 		return a >= b;
 	});
 	return error_it == this->slots.end();
+}
+
+void ScheduledDispatchSlotSet::Serialise(BufferSerialisationRef buffer) const
+{
+	buffer.Send_generic_integer(this->slots.size());
+	for (uint32_t slot : this->slots) {
+		buffer.Send_generic_integer(slot);
+	}
+}
+
+bool ScheduledDispatchSlotSet::Deserialise(DeserialisationBuffer &buffer, StringValidationSettings default_string_validation)
+{
+	size_t size{};
+	buffer.Recv_generic_integer(size);
+	if (size > MAX_SLOTS) return false;
+	this->slots.resize(size);
+	for (uint32_t &slot : this->slots) {
+		buffer.Recv_generic_integer(slot);
+	}
+	return true;
 }
 
 void ScheduledDispatchSlotSet::fmt_format_value(struct format_target &buf) const
