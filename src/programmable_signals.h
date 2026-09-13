@@ -377,7 +377,7 @@ public:
 class SignalSet: public SignalInstruction {
 public:
 	/// Constructs the instruction and sets the state the signal is to be set to
-	SignalSet(SignalProgram *prog, SignalState = SIGNAL_STATE_RED);
+	SignalSet(SignalProgram *prog, SignalState = SignalState::Red);
 
 	void Evaluate(SignalVM &vm) override;
 	void Remove() override;
@@ -400,7 +400,7 @@ extern ProgramList _signal_programs;
 /// Verifies that a SignalReference refers to a signal which has a program.
 inline bool HasProgrammableSignals(SignalReference ref)
 {
-	return IsTileType(ref.tile, MP_RAILWAY) && GetRailTileType(ref.tile) == RailTileType::Signals
+	return IsTileType(ref.tile, TileType::Railway) && GetRailTileType(ref.tile) == RailTileType::Signals
 			&& IsPresignalProgrammable(ref.tile, ref.track);
 }
 

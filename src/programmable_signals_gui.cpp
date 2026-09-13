@@ -23,12 +23,13 @@
 #include "gfx_func.h"
 #include "tilehighlight_func.h"
 #include "rail_map.h"
-#include "tile_cmd.h"
+#include "tile_track_func.h"
 #include "error.h"
 #include "scope.h"
 #include "zoom_func.h"
 #include "tracerestrict.h"
 #include "tracerestrict_cmd.h"
+#include "settings_type.h"
 #include "core/string_consumer.hpp"
 
 #include "table/sprites.h"
@@ -212,7 +213,7 @@ static void DrawInstructionString(const SignalInstruction *instruction, int y, b
 
 		case PSO_SET_SIGNAL: {
 			const SignalSet *set = static_cast<const SignalSet *>(instruction);
-			AppendStringInPlace(instruction_string, STR_PROGSIG_SET_SIGNAL, _program_sigstate[set->to_state]);
+			AppendStringInPlace(instruction_string, STR_PROGSIG_SET_SIGNAL, _program_sigstate[to_underlying(set->to_state)]);
 			break;
 		}
 
@@ -220,7 +221,7 @@ static void DrawInstructionString(const SignalInstruction *instruction, int y, b
 	}
 
 	bool rtl = _current_text_dir == TD_RTL;
-	DrawString(left + (rtl ? 0 : ScaleGUITrad(indent * 16)), right - (rtl ? ScaleGUITrad(indent * 16) : 0), y, instruction_string, selected ? TC_WHITE : TC_BLACK);
+	DrawString(left + (rtl ? 0 : ScaleGUITrad(indent * 16)), right - (rtl ? ScaleGUITrad(indent * 16) : 0), y, instruction_string, selected ? TextColour::White : TextColour::Black);
 }
 
 struct GuiInstruction {
@@ -292,7 +293,7 @@ public:
 				SignalInstruction *ins = GetSelected();
 				if (ins == nullptr) return;
 
-				Command<CMD_PROGPRESIG_REMOVE_INSTRUCTION>::Post(STR_PROGSIG_ERROR_CAN_T_REMOVE_INSTRUCTION, this->tile, this->track, ins->Id());
+				Command<Commands::ProgpresigRemoveInstruction>::Post(STR_PROGSIG_ERROR_CAN_T_REMOVE_INSTRUCTION, this->tile, this->track, ins->Id());
 				break;
 			}
 
@@ -301,7 +302,7 @@ public:
 				if (si == nullptr || si->Opcode() != PSO_SET_SIGNAL) return;
 				SignalSet *ss = static_cast <SignalSet*>(si);
 
-				ShowDropDownMenu(this, _program_sigstate, ss->to_state, PROGRAM_WIDGET_SET_STATE, 0, 0, 0);
+				ShowDropDownMenu(this, _program_sigstate, to_underlying(ss->to_state), PROGRAM_WIDGET_SET_STATE, 0, 0, 0);
 				break;
 			}
 
@@ -348,7 +349,7 @@ public:
 				if (sc->IsSignalValid()) {
 					ScrollMainWindowToTile(sc->sig_tile);
 				} else {
-					ShowErrorMessage(GetEncodedString(STR_PROGSIG_ERROR_CAN_T_GOTO_UNDEFINED_SIGNAL), {}, WL_INFO);
+					ShowErrorMessage(GetEncodedString(STR_PROGSIG_ERROR_CAN_T_GOTO_UNDEFINED_SIGNAL), {}, WarningLevel::Info);
 				}
 				break;
 			}
@@ -361,7 +362,7 @@ public:
 				SignalSlotCondition *sc = static_cast<SignalSlotCondition*>(sif->condition);
 
 				int selected;
-				DropDownList list = GetSlotDropDownList(this->GetOwner(), sc->slot_id, selected, VEH_TRAIN, true);
+				DropDownList list = GetSlotDropDownList(this->GetOwner(), sc->slot_id, selected, VehicleType::Train, true);
 				if (!list.empty()) ShowDropDownList(this, std::move(list), selected, PROGRAM_WIDGET_COND_SLOT);
 				break;
 			}
@@ -396,7 +397,7 @@ public:
 			}
 
 			case PROGRAM_WIDGET_REMOVE_PROGRAM: {
-				Command<CMD_PROGPRESIG_PROGRAM_MGMT>::Post(STR_PROGSIG_ERROR_CAN_T_REMOVE_INSTRUCTION, this->tile, this->track, PPMGMTCT_REMOVE, {}, {});
+				Command<Commands::ProgpresigProgramMgmt>::Post(STR_PROGSIG_ERROR_CAN_T_REMOVE_INSTRUCTION, this->tile, this->track, PPMGMTCT_REMOVE, {}, {});
 				break;
 			}
 
@@ -417,7 +418,7 @@ public:
 	{
 		if (this->IsWidgetLowered(PROGRAM_WIDGET_COPY_PROGRAM)) {
 			//Copy program from another progsignal
-			TrackBits trackbits = TrackdirBitsToTrackBits(GetTileTrackdirBits(tile1, TRANSPORT_RAIL, 0));
+			TrackBits trackbits = TrackdirBitsToTrackBits(GetTileTrackdirBits(tile1, TransportType::Rail, 0));
 			if (trackbits & TRACK_BIT_VERT) { // N-S direction
 				trackbits = (_tile_fract_coords.x <= _tile_fract_coords.y) ? TRACK_BIT_RIGHT : TRACK_BIT_LEFT;
 			}
@@ -433,23 +434,23 @@ public:
 			if (!(HasSignalOnTrackdir(tile1, td) || HasSignalOnTrackdir(tile1, tdr)))
 				return;
 
-			if (GetSignalType(tile1, track1) != SIGTYPE_PROG) {
-				ShowErrorMessage(GetEncodedString(STR_PROGSIG_ERROR_INVALID_SIGNAL), GetEncodedString(STR_PROGSIG_ERROR_NOT_AN_PROG_SIGNAL), WL_INFO);
+			if (GetSignalType(tile1, track1) != SignalType::Prog) {
+				ShowErrorMessage(GetEncodedString(STR_PROGSIG_ERROR_INVALID_SIGNAL), GetEncodedString(STR_PROGSIG_ERROR_NOT_AN_PROG_SIGNAL), WarningLevel::Info);
 				return;
 			}
 			if (this->tile == tile1 && this->track == track1) {
-				ShowErrorMessage(GetEncodedString(STR_PROGSIG_ERROR_INVALID_SIGNAL), GetEncodedString(STR_PROGSIG_ERROR_CANNOT_USE_SELF), WL_INFO);
+				ShowErrorMessage(GetEncodedString(STR_PROGSIG_ERROR_INVALID_SIGNAL), GetEncodedString(STR_PROGSIG_ERROR_CANNOT_USE_SELF), WarningLevel::Info);
 				return;
 			}
 
 			SignalProgram *sp = GetExistingSignalProgram(SignalReference(tile1, track1));
 			if (sp == nullptr) {
-				ShowErrorMessage(GetEncodedString(STR_PROGSIG_ERROR_INVALID_SIGNAL), GetEncodedString(STR_PROGSIG_ERROR_NOT_AN_EXIT_SIGNAL), WL_INFO);
+				ShowErrorMessage(GetEncodedString(STR_PROGSIG_ERROR_INVALID_SIGNAL), GetEncodedString(STR_PROGSIG_ERROR_NOT_AN_EXIT_SIGNAL), WarningLevel::Info);
 				return;
 			}
 			ResetObjectToPlace();
 			this->RaiseWidgetWhenLowered(PROGRAM_WIDGET_COPY_PROGRAM);
-			Command<CMD_PROGPRESIG_PROGRAM_MGMT>::Post(STR_PROGSIG_ERROR_CAN_T_INSERT_INSTRUCTION, this->tile, this->track, PPMGMTCT_CLONE, tile1, track1);
+			Command<Commands::ProgpresigProgramMgmt>::Post(STR_PROGSIG_ERROR_CAN_T_INSERT_INSTRUCTION, this->tile, this->track, PPMGMTCT_CLONE, tile1, track1);
 			//OnPaint(); // this appears to cause visual artefacts
 			return;
 		}
@@ -463,7 +464,7 @@ public:
 			return;
 		}
 
-		TrackBits trackbits = TrackdirBitsToTrackBits(GetTileTrackdirBits(tile1, TRANSPORT_RAIL, 0));
+		TrackBits trackbits = TrackdirBitsToTrackBits(GetTileTrackdirBits(tile1, TransportType::Rail, 0));
 		if (trackbits & TRACK_BIT_VERT) { // N-S direction
 			trackbits = (_tile_fract_coords.x <= _tile_fract_coords.y) ? TRACK_BIT_RIGHT : TRACK_BIT_LEFT;
 		}
@@ -480,7 +481,7 @@ public:
 		Trackdir tdr = ReverseTrackdir(td);
 
 		if (HasSignalOnTrackdir(tile1, td) && HasSignalOnTrackdir(tile1, tdr)) {
-			ShowErrorMessage(GetEncodedString(STR_PROGSIG_ERROR_INVALID_SIGNAL), GetEncodedString(STR_PROGSIG_ERROR_CAN_T_DEPEND_UPON_BIDIRECTIONAL_SIGNALS), WL_INFO);
+			ShowErrorMessage(GetEncodedString(STR_PROGSIG_ERROR_INVALID_SIGNAL), GetEncodedString(STR_PROGSIG_ERROR_CAN_T_DEPEND_UPON_BIDIRECTIONAL_SIGNALS), WarningLevel::Info);
 			return;
 		} else if (HasSignalOnTrackdir(tile1, tdr) && !HasSignalOnTrackdir(tile1, td)) {
 			td = tdr;
@@ -490,12 +491,12 @@ public:
 			return;
 		}
 
-		if (!(GetSignalType(tile1, track1) == SIGTYPE_EXIT || GetSignalType(tile1, track1) == SIGTYPE_PROG)) {
-			ShowErrorMessage(GetEncodedString(STR_PROGSIG_ERROR_INVALID_SIGNAL), GetEncodedString(STR_PROGSIG_ERROR_NOT_AN_EXIT_SIGNAL), WL_INFO);
+		if (!(GetSignalType(tile1, track1) == SignalType::Exit || GetSignalType(tile1, track1) == SignalType::Prog)) {
+			ShowErrorMessage(GetEncodedString(STR_PROGSIG_ERROR_INVALID_SIGNAL), GetEncodedString(STR_PROGSIG_ERROR_NOT_AN_EXIT_SIGNAL), WarningLevel::Info);
 			return;
 		}
 
-		Command<CMD_PROGPRESIG_MODIFY_INSTRUCTION>::Post(STR_PROGSIG_ERROR_CAN_T_MODIFY_INSTRUCTION, this->tile, this->track, si->Id(), PPMCT_SIGNAL_LOCATION, tile1.base(), td);
+		Command<Commands::ProgpresigModifyInstruction>::Post(STR_PROGSIG_ERROR_CAN_T_MODIFY_INSTRUCTION, this->tile, this->track, si->Id(), PPMCT_SIGNAL_LOCATION, tile1.base(), td);
 		ResetObjectToPlace();
 		this->RaiseWidgetWhenLowered(PROGRAM_WIDGET_COND_SET_SIGNAL);
 		//OnPaint(); // this appears to cause visual artefacts
@@ -534,19 +535,19 @@ public:
 					auto try_value = ParseInteger<uint>(*str);
 					if (!try_value.has_value()) break;
 
-					Command<CMD_PROGPRESIG_MODIFY_INSTRUCTION>::Post(STR_PROGSIG_ERROR_CAN_T_MODIFY_INSTRUCTION, this->tile, this->track, si->Id(), PPMCT_VALUE, *try_value, {});
+					Command<Commands::ProgpresigModifyInstruction>::Post(STR_PROGSIG_ERROR_CAN_T_MODIFY_INSTRUCTION, this->tile, this->track, si->Id(), PPMCT_VALUE, *try_value, {});
 					break;
 				}
 
 				case QSM_NEW_SLOT:
 				case QSM_NEW_COUNTER: {
-					using Payload = CmdPayload<CMD_PROGPRESIG_MODIFY_INSTRUCTION>;
+					using Payload = CmdPayload<Commands::ProgpresigModifyInstruction>;
 					ProgPresigModifyCommandType mode = (qsm == QSM_NEW_SLOT) ? PPMCT_SLOT : PPMCT_COUNTER;
 					Payload follow_up_payload = Payload::Make(this->track, si->Id(), mode, {}, {});
-					TraceRestrictFollowUpCmdData follow_up{ BaseCommandContainer<CMD_PROGPRESIG_MODIFY_INSTRUCTION>((StringID)0, this->tile, std::move(follow_up_payload)) };
+					TraceRestrictFollowUpCmdData follow_up{ BaseCommandContainer<Commands::ProgpresigModifyInstruction>((StringID)0, this->tile, std::move(follow_up_payload)) };
 					if (qsm == QSM_NEW_SLOT) {
 						TraceRestrictCreateSlotCmdData data;
-						data.vehtype = VEH_TRAIN;
+						data.vehtype = VehicleType::Train;
 						data.parent = INVALID_TRACE_RESTRICT_SLOT_GROUP;
 						data.name = std::move(*str);
 						data.max_occupancy = TRACE_RESTRICT_SLOT_DEFAULT_MAX_OCCUPANCY;
@@ -558,12 +559,12 @@ public:
 							data.max_occupancy = *try_value;
 						}
 
-						DoCommandP<CMD_CREATE_TRACERESTRICT_SLOT>(data, STR_TRACE_RESTRICT_ERROR_SLOT_CAN_T_CREATE, CommandCallback::CreateTraceRestrictSlot);
+						DoCommandP<Commands::CreateTracerestrictSlot>(data, STR_TRACE_RESTRICT_ERROR_SLOT_CAN_T_CREATE, CommandCallback::CreateTraceRestrictSlot);
 					} else {
 						TraceRestrictCreateCounterCmdData data;
 						data.name = std::move(*str);
 						data.follow_up_cmd = std::move(follow_up);
-						DoCommandP<CMD_CREATE_TRACERESTRICT_COUNTER>(data, STR_TRACE_RESTRICT_ERROR_COUNTER_CAN_T_CREATE, CommandCallback::CreateTraceRestrictCounter);
+						DoCommandP<Commands::CreateTracerestrictCounter>(data, STR_TRACE_RESTRICT_ERROR_COUNTER_CAN_T_CREATE, CommandCallback::CreateTraceRestrictCounter);
 					}
 					break;
 				}
@@ -578,22 +579,22 @@ public:
 
 		switch (widget) {
 			case PROGRAM_WIDGET_INSERT: {
-				Command<CMD_PROGPRESIG_INSERT_INSTRUCTION>::Post(STR_PROGSIG_ERROR_CAN_T_INSERT_INSTRUCTION, this->tile, this->track, ins->Id(), OpcodeForIndex(index));
+				Command<Commands::ProgpresigInsertInstruction>::Post(STR_PROGSIG_ERROR_CAN_T_INSERT_INSTRUCTION, this->tile, this->track, ins->Id(), OpcodeForIndex(index));
 				break;
 			}
 
 			case PROGRAM_WIDGET_SET_STATE: {
-				Command<CMD_PROGPRESIG_MODIFY_INSTRUCTION>::Post(STR_PROGSIG_ERROR_CAN_T_MODIFY_INSTRUCTION, this->tile, this->track, ins->Id(), PPMCT_SIGNAL_STATE, index, {});
+				Command<Commands::ProgpresigModifyInstruction>::Post(STR_PROGSIG_ERROR_CAN_T_MODIFY_INSTRUCTION, this->tile, this->track, ins->Id(), PPMCT_SIGNAL_STATE, index, {});
 				break;
 			}
 
 			case PROGRAM_WIDGET_COND_VARIABLE: {
-				Command<CMD_PROGPRESIG_MODIFY_INSTRUCTION>::Post(STR_PROGSIG_ERROR_CAN_T_MODIFY_INSTRUCTION, this->tile, this->track, ins->Id(), PPMCT_CONDITION_CODE, index, {});
+				Command<Commands::ProgpresigModifyInstruction>::Post(STR_PROGSIG_ERROR_CAN_T_MODIFY_INSTRUCTION, this->tile, this->track, ins->Id(), PPMCT_CONDITION_CODE, index, {});
 				break;
 			}
 
 			case PROGRAM_WIDGET_COND_COMPARATOR: {
-				Command<CMD_PROGPRESIG_MODIFY_INSTRUCTION>::Post(STR_PROGSIG_ERROR_CAN_T_MODIFY_INSTRUCTION, this->tile, this->track, ins->Id(), PPMCT_COMPARATOR, index, {});
+				Command<Commands::ProgpresigModifyInstruction>::Post(STR_PROGSIG_ERROR_CAN_T_MODIFY_INSTRUCTION, this->tile, this->track, ins->Id(), PPMCT_COMPARATOR, index, {});
 				break;
 			}
 
@@ -619,7 +620,7 @@ public:
 					TraceRestrictRecordRecentCounter(TraceRestrictCounterID(index));
 				}
 
-				Command<CMD_PROGPRESIG_MODIFY_INSTRUCTION>::Post(STR_PROGSIG_ERROR_CAN_T_MODIFY_INSTRUCTION, this->tile, this->track, ins->Id(), mode, index, {});
+				Command<Commands::ProgpresigModifyInstruction>::Post(STR_PROGSIG_ERROR_CAN_T_MODIFY_INSTRUCTION, this->tile, this->track, ins->Id(), mode, index, {});
 			}
 		}
 	}
@@ -628,7 +629,7 @@ public:
 	{
 		switch (widget) {
 			case PROGRAM_WIDGET_INSTRUCTION_LIST:
-				resize.height = GetCharacterHeight(FS_NORMAL);
+				resize.height = GetCharacterHeight(FontSize::Normal);
 				size.height = 6 * resize.height + WidgetDimensions::scaled.framerect.Vertical();
 				break;
 		}
@@ -674,12 +675,12 @@ public:
 	{
 		switch (widget) {
 			case PROGRAM_WIDGET_COND_SLOT: {
-				GuiShowTooltips(this, TraceRestrictPrepareSlotCounterSelectTooltip(STR_PROGSIG_COND_SLOT_TOOLTIP, VEH_TRAIN), close_cond);
+				GuiShowTooltips(this, TraceRestrictPrepareSlotCounterSelectTooltip(STR_PROGSIG_COND_SLOT_TOOLTIP, VehicleType::Train), close_cond);
 				return true;
 			}
 
 			case PROGRAM_WIDGET_COND_COUNTER: {
-				GuiShowTooltips(this, TraceRestrictPrepareSlotCounterSelectTooltip(STR_PROGSIG_COND_COUNTER_TOOLTIP, VEH_TRAIN), close_cond);
+				GuiShowTooltips(this, TraceRestrictPrepareSlotCounterSelectTooltip(STR_PROGSIG_COND_COUNTER_TOOLTIP, VehicleType::Train), close_cond);
 				return true;
 			}
 
@@ -913,7 +914,7 @@ private:
 				SignalSet *s = static_cast<SignalSet*>(insn);
 				left_sel->SetDisplayedPlane(DPL_SET_STATE);
 				this->SetWidgetDisabledState(PROGRAM_WIDGET_SET_STATE, false);
-				this->GetWidget<NWidgetCore>(PROGRAM_WIDGET_SET_STATE)->SetString(_program_sigstate[s->to_state]);
+				this->GetWidget<NWidgetCore>(PROGRAM_WIDGET_SET_STATE)->SetString(_program_sigstate[to_underlying(s->to_state)]);
 				break;
 			}
 
@@ -936,71 +937,71 @@ private:
 static constexpr NWidgetPart _nested_program_widgets[] = {
 	// Title bar
 	NWidget(NWID_HORIZONTAL),
-		NWidget(WWT_CLOSEBOX, COLOUR_GREY),
-		NWidget(WWT_CAPTION, COLOUR_GREY, PROGRAM_WIDGET_CAPTION), SetStringTip(STR_PROGSIG_CAPTION, STR_TOOLTIP_WINDOW_TITLE_DRAG_THIS),
-		NWidget(WWT_SHADEBOX, COLOUR_GREY),
-		NWidget(WWT_DEFSIZEBOX, COLOUR_GREY),
-		NWidget(WWT_STICKYBOX, COLOUR_GREY),
+		NWidget(WWT_CLOSEBOX, Colours::Grey),
+		NWidget(WWT_CAPTION, Colours::Grey, PROGRAM_WIDGET_CAPTION), SetStringTip(STR_PROGSIG_CAPTION, STR_TOOLTIP_WINDOW_TITLE_DRAG_THIS),
+		NWidget(WWT_SHADEBOX, Colours::Grey),
+		NWidget(WWT_DEFSIZEBOX, Colours::Grey),
+		NWidget(WWT_STICKYBOX, Colours::Grey),
 	EndContainer(),
 
 	// Program display
 	NWidget(NWID_HORIZONTAL),
-		NWidget(WWT_PANEL, COLOUR_GREY, PROGRAM_WIDGET_INSTRUCTION_LIST), SetMinimalSize(372, 62), SetResize(1, 1), EndContainer(),
-		NWidget(NWID_VSCROLLBAR, COLOUR_GREY, PROGRAM_WIDGET_SCROLLBAR),
+		NWidget(WWT_PANEL, Colours::Grey, PROGRAM_WIDGET_INSTRUCTION_LIST), SetMinimalSize(372, 62), SetResize(1, 1), EndContainer(),
+		NWidget(NWID_VSCROLLBAR, Colours::Grey, PROGRAM_WIDGET_SCROLLBAR),
 	EndContainer(),
 
 	// Button Bar
 	NWidget(NWID_HORIZONTAL),
 		NWidget(NWID_HORIZONTAL, NWidContainerFlag::EqualSize),
-			NWidget(NWID_SELECTION, INVALID_COLOUR, PROGRAM_WIDGET_SEL_TOP_LEFT),
-				NWidget(WWT_DROPDOWN, COLOUR_GREY, PROGRAM_WIDGET_COND_VARIABLE), SetMinimalSize(124, 12), SetFill(1, 0),
+			NWidget(NWID_SELECTION, Colours::Invalid, PROGRAM_WIDGET_SEL_TOP_LEFT),
+				NWidget(WWT_DROPDOWN, Colours::Grey, PROGRAM_WIDGET_COND_VARIABLE), SetMinimalSize(124, 12), SetFill(1, 0),
 														SetToolTip(STR_PROGSIG_COND_VARIABLE_TOOLTIP), SetResize(1, 0),
-				NWidget(WWT_DROPDOWN, COLOUR_GREY, PROGRAM_WIDGET_SET_STATE), SetMinimalSize(124, 12), SetFill(1, 0),
+				NWidget(WWT_DROPDOWN, Colours::Grey, PROGRAM_WIDGET_SET_STATE), SetMinimalSize(124, 12), SetFill(1, 0),
 														SetToolTip(STR_PROGSIG_SIGNAL_STATE_TOOLTIP), SetResize(1, 0),
 			EndContainer(),
-			NWidget(NWID_SELECTION, INVALID_COLOUR, PROGRAM_WIDGET_SEL_TOP_AUX),
-				NWidget(WWT_DROPDOWN, COLOUR_GREY, PROGRAM_WIDGET_COND_SLOT), SetMinimalSize(124, 12), SetFill(1, 0),
+			NWidget(NWID_SELECTION, Colours::Invalid, PROGRAM_WIDGET_SEL_TOP_AUX),
+				NWidget(WWT_DROPDOWN, Colours::Grey, PROGRAM_WIDGET_COND_SLOT), SetMinimalSize(124, 12), SetFill(1, 0),
 														SetToolTip(STR_PROGSIG_COND_SLOT_TOOLTIP), SetResize(1, 0),
-				NWidget(WWT_DROPDOWN, COLOUR_GREY, PROGRAM_WIDGET_COND_COUNTER), SetMinimalSize(124, 12), SetFill(1, 0),
+				NWidget(WWT_DROPDOWN, Colours::Grey, PROGRAM_WIDGET_COND_COUNTER), SetMinimalSize(124, 12), SetFill(1, 0),
 														SetToolTip(STR_PROGSIG_COND_COUNTER_TOOLTIP), SetResize(1, 0),
 			EndContainer(),
-			NWidget(NWID_SELECTION, INVALID_COLOUR, PROGRAM_WIDGET_SEL_TOP_MIDDLE),
-				NWidget(WWT_DROPDOWN, COLOUR_GREY, PROGRAM_WIDGET_COND_COMPARATOR), SetMinimalSize(124, 12), SetFill(1, 0),
+			NWidget(NWID_SELECTION, Colours::Invalid, PROGRAM_WIDGET_SEL_TOP_MIDDLE),
+				NWidget(WWT_DROPDOWN, Colours::Grey, PROGRAM_WIDGET_COND_COMPARATOR), SetMinimalSize(124, 12), SetFill(1, 0),
 														SetToolTip(STR_PROGSIG_COND_COMPARATOR_TOOLTIP), SetResize(1, 0),
-				NWidget(WWT_TEXTBTN, COLOUR_GREY, PROGRAM_WIDGET_COND_GOTO_SIGNAL), SetMinimalSize(124, 12), SetFill(1, 0),
+				NWidget(WWT_TEXTBTN, Colours::Grey, PROGRAM_WIDGET_COND_GOTO_SIGNAL), SetMinimalSize(124, 12), SetFill(1, 0),
 														SetStringTip(STR_PROGSIG_GOTO_SIGNAL, STR_PROGSIG_GOTO_SIGNAL_TOOLTIP), SetResize(1, 0),
 			EndContainer(),
-			NWidget(NWID_SELECTION, INVALID_COLOUR, PROGRAM_WIDGET_SEL_TOP_RIGHT),
-				NWidget(WWT_TEXTBTN, COLOUR_GREY, PROGRAM_WIDGET_COND_VALUE), SetMinimalSize(124, 12), SetFill(1, 0),
+			NWidget(NWID_SELECTION, Colours::Invalid, PROGRAM_WIDGET_SEL_TOP_RIGHT),
+				NWidget(WWT_TEXTBTN, Colours::Grey, PROGRAM_WIDGET_COND_VALUE), SetMinimalSize(124, 12), SetFill(1, 0),
 														SetToolTip(STR_PROGSIG_COND_VALUE_TOOLTIP), SetResize(1, 0),
-				NWidget(WWT_TEXTBTN, COLOUR_GREY, PROGRAM_WIDGET_COND_SET_SIGNAL), SetMinimalSize(124, 12), SetFill(1, 0),
+				NWidget(WWT_TEXTBTN, Colours::Grey, PROGRAM_WIDGET_COND_SET_SIGNAL), SetMinimalSize(124, 12), SetFill(1, 0),
 														SetStringTip(STR_PROGSIG_COND_SET_SIGNAL, STR_PROGSIG_COND_SET_SIGNAL_TOOLTIP), SetResize(1, 0),
 			EndContainer(),
 		EndContainer(),
-		NWidget(WWT_PUSHIMGBTN, COLOUR_GREY, PROGRAM_WIDGET_GOTO_SIGNAL), SetMinimalSize(12, 12), SetSpriteTip(SPR_ARROW_RIGHT, STR_PROGSIG_GOTO_SIGNAL_TOOLTIP),
+		NWidget(WWT_PUSHIMGBTN, Colours::Grey, PROGRAM_WIDGET_GOTO_SIGNAL), SetMinimalSize(12, 12), SetSpriteTip(SPR_ARROW_RIGHT, STR_PROGSIG_GOTO_SIGNAL_TOOLTIP),
 	EndContainer(),
 
 	/* Second button row. */
 	NWidget(NWID_HORIZONTAL),
 		NWidget(NWID_HORIZONTAL, NWidContainerFlag::EqualSize),
-				NWidget(WWT_DROPDOWN, COLOUR_GREY, PROGRAM_WIDGET_INSERT), SetMinimalSize(124, 12), SetFill(1, 0),
+				NWidget(WWT_DROPDOWN, Colours::Grey, PROGRAM_WIDGET_INSERT), SetMinimalSize(124, 12), SetFill(1, 0),
 														SetStringTip(STR_PROGSIG_INSERT, STR_PROGSIG_INSERT_TOOLTIP), SetResize(1, 0),
-				NWidget(WWT_PUSHTXTBTN, COLOUR_GREY, PROGRAM_WIDGET_REMOVE), SetMinimalSize(186, 12), SetFill(1, 0),
+				NWidget(WWT_PUSHTXTBTN, Colours::Grey, PROGRAM_WIDGET_REMOVE), SetMinimalSize(186, 12), SetFill(1, 0),
 														SetStringTip(STR_PROGSIG_REMOVE, STR_PROGSIG_REMOVE_TOOLTIP), SetResize(1, 0),
 		EndContainer(),
 	EndContainer(),
 
 	/* Third button row*/
 	NWidget(NWID_HORIZONTAL),
-		NWidget(WWT_PUSHTXTBTN, COLOUR_GREY, PROGRAM_WIDGET_REMOVE_PROGRAM), SetMinimalSize(124, 12), SetFill(1, 0), SetStringTip(STR_PROGSIG_REMOVE_PROGRAM, STR_PROGSIG_REMOVE_PROGRAM_TOOLTIP), SetResize(1, 0),
-		NWidget(WWT_TEXTBTN, COLOUR_GREY, PROGRAM_WIDGET_COPY_PROGRAM), SetMinimalSize(124, 12), SetFill(1, 0), SetStringTip(STR_PROGSIG_COPY_PROGRAM, STR_PROGSIG_COPY_PROGRAM_TOOLTIP), SetResize(1, 0),
-		NWidget(WWT_RESIZEBOX, COLOUR_GREY),
+		NWidget(WWT_PUSHTXTBTN, Colours::Grey, PROGRAM_WIDGET_REMOVE_PROGRAM), SetMinimalSize(124, 12), SetFill(1, 0), SetStringTip(STR_PROGSIG_REMOVE_PROGRAM, STR_PROGSIG_REMOVE_PROGRAM_TOOLTIP), SetResize(1, 0),
+		NWidget(WWT_TEXTBTN, Colours::Grey, PROGRAM_WIDGET_COPY_PROGRAM), SetMinimalSize(124, 12), SetFill(1, 0), SetStringTip(STR_PROGSIG_COPY_PROGRAM, STR_PROGSIG_COPY_PROGRAM_TOOLTIP), SetResize(1, 0),
+		NWidget(WWT_RESIZEBOX, Colours::Grey),
 	EndContainer(),
 };
 
 static WindowDesc _program_desc(__FILE__, __LINE__,
-	WDP_AUTO, "signal_program", 384, 100,
-	WC_SIGNAL_PROGRAM, WC_BUILD_SIGNAL,
+	WindowPosition::Automatic, "signal_program", 384, 100,
+	WindowClass::ProgrammablePresigProgram, WindowClass::BuildSignal,
 	WindowDefaultFlag::Construction,
 	_nested_program_widgets
 );
@@ -1008,7 +1009,7 @@ static WindowDesc _program_desc(__FILE__, __LINE__,
 void ShowSignalProgramWindow(SignalReference ref)
 {
 	uint32_t window_id = (ref.tile.base() << 3) | ref.track;
-	if (BringWindowToFrontById(WC_SIGNAL_PROGRAM, window_id) != nullptr) return;
+	if (BringWindowToFrontById(WindowClass::ProgrammablePresigProgram, window_id) != nullptr) return;
 
 	new ProgramWindow(_program_desc, ref);
 }

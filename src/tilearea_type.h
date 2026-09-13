@@ -146,6 +146,7 @@ public:
 
 	/**
 	 * Move ourselves to the next tile in the rectangle on the map.
+	 * @return Reference to this iterator.
 	 */
 	virtual TileIterator& operator ++() = 0;
 
@@ -154,6 +155,7 @@ public:
 
 	/**
 	 * Allocate a new iterator that is a copy of this one.
+	 * @return A clone of this iterator.
 	 */
 	virtual std::unique_ptr<TileIterator> Clone() const = 0;
 
@@ -188,6 +190,7 @@ public:
 
 	/**
 	 * Move ourselves to the next tile in the rectangle on the map.
+	 * @return Reference to this iterator.
 	 */
 	inline TileIterator& operator ++() override
 	{
@@ -386,7 +389,7 @@ public:
 private:
 	/* set by constructor, const afterwards */
 	uint max_radius;
-	std::array<uint, DIAGDIR_END> extent;
+	DiagDirectionIndexArray<uint> extent;
 
 	/* mutable iterator state */
 	uint cur_radius;
@@ -400,10 +403,11 @@ private:
 
 	/**
 	 * Test whether the iterator reached the end.
+	 * @return \c true iff the end of the iteration is reached.
 	 */
 	bool IsEnd() const
 	{
-		return this->cur_radius == this->max_radius && this->dir != INVALID_DIAGDIR;
+		return this->cur_radius == this->max_radius && this->dir != DiagDirection::Invalid;
 	}
 };
 

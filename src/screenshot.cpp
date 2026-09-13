@@ -15,7 +15,7 @@
 #include "screenshot.h"
 #include "blitter/factory.hpp"
 #include "zoom_func.h"
-#include "sl/saveload.h"
+#include "sl/saveload_func.h"
 #include "company_func.h"
 #include "strings_func.h"
 #include "error.h"
@@ -63,7 +63,10 @@ static const ScreenshotProvider *GetScreenshotProvider()
 	return providers.front();
 }
 
-/** Get filename extension of current screenshot file format. */
+/**
+ * Get filename extension of current screenshot file format.
+ * @return The screenshot extension.
+ */
 std::string_view GetCurrentScreenshotExtension()
 {
 	auto provider = GetScreenshotProvider();
@@ -74,6 +77,10 @@ std::string_view GetCurrentScreenshotExtension()
 
 /**
  * Callback of the screenshot generator that dumps the current video buffer.
+ * @param buf Videobuffer with same bitdepth as current blitter
+ * @param y First line to render
+ * @param pitch Pitch of the videobuffer
+ * @param n Number of lines to render
  * @see ScreenshotCallback
  */
 static void CurrentScreenCallback(void *, void *buf, uint y, uint pitch, uint n)
@@ -156,7 +163,7 @@ static const char *MakeScreenshotName(std::string_view default_fn, std::string_v
 	bool generate = _screenshot_name.empty();
 
 	if (generate) {
-		if (_game_mode == GM_EDITOR || _game_mode == GM_MENU || _local_company == COMPANY_SPECTATOR) {
+		if (_game_mode == GameMode::Editor || _game_mode == GameMode::Menu || _local_company == COMPANY_SPECTATOR) {
 			_screenshot_name = default_fn;
 		} else {
 			_screenshot_name = GenerateDefaultSaveName();
@@ -196,7 +203,11 @@ static const char *MakeScreenshotName(std::string_view default_fn, std::string_v
 	return _full_screenshot_path.c_str();
 }
 
-/** Make a screenshot of the current screen. */
+/**
+ * Make a screenshot of the current screen.
+ * @param crashlog Whether this is called in the context of a crashlog, for the file name.
+ * @return \c true iff the screenshot was made successfully.
+ */
 static bool MakeSmallScreenshot(bool crashlog)
 {
 	auto provider = GetScreenshotProvider();
@@ -242,7 +253,7 @@ static Viewport SetupScreenshotViewport(ScreenshotType t, uint32_t width = 0, ui
 
 			/* Determine world coordinates of screenshot */
 			if (t == SC_WORLD_ZOOM) {
-				Window *w = FindWindowById(WC_MAIN_WINDOW, 0);
+				Window *w = FindWindowById(WindowClass::MainWindow, 0);
 				vp.zoom =  w->viewport->zoom;
 				vp.map_type = w->viewport->map_type;
 			} else {
@@ -343,6 +354,7 @@ static void HeightmapCallback(void *, void *buffer, uint y, uint, uint n)
 /**
  * Make a heightmap of the current map.
  * @param filename Filename to use for saving.
+ * @return \c true iff the screenshot was made successfully.
  */
 bool MakeHeightmapScreenshot(const char *filename)
 {
@@ -411,12 +423,12 @@ static void ShowScreenshotResultMessage(ScreenshotType t, bool ret)
 {
 	if (ret) {
 		if (t == SC_HEIGHTMAP) {
-			ShowErrorMessage(GetEncodedString(STR_MESSAGE_HEIGHTMAP_SUCCESSFULLY, _screenshot_name, _heightmap_highest_peak), {}, WL_WARNING);
+			ShowErrorMessage(GetEncodedString(STR_MESSAGE_HEIGHTMAP_SUCCESSFULLY, _screenshot_name, _heightmap_highest_peak), {}, WarningLevel::Warning);
 		} else {
-			ShowErrorMessage(GetEncodedString(STR_MESSAGE_SCREENSHOT_SUCCESSFULLY, _screenshot_name), {}, WL_WARNING);
+			ShowErrorMessage(GetEncodedString(STR_MESSAGE_SCREENSHOT_SUCCESSFULLY, _screenshot_name), {}, WarningLevel::Warning);
 		}
 	} else {
-		ShowErrorMessage(GetEncodedString(STR_ERROR_SCREENSHOT_FAILED), {}, WL_ERROR);
+		ShowErrorMessage(GetEncodedString(STR_ERROR_SCREENSHOT_FAILED), {}, WarningLevel::Error);
 	}
 }
 
@@ -566,14 +578,14 @@ static Owner GetMinimapOwner(TileIndex tile)
 {
 	Owner o;
 
-	if (IsTileType(tile, MP_VOID)) {
+	if (IsTileType(tile, TileType::Void)) {
 		return OWNER_END;
 	} else {
 		switch (GetTileType(tile)) {
-		case MP_INDUSTRY: o = OWNER_DEITY;        break;
-		case MP_HOUSE:    o = OWNER_TOWN;         break;
+		case TileType::Industry: o = OWNER_DEITY;        break;
+		case TileType::House:    o = OWNER_TOWN;         break;
 		default:          o = GetTileOwner(tile); break;
-			/* FIXME: For MP_ROAD there are multiple owners.
+			/* FIXME: For TileType::Road there are multiple owners.
 			 * GetTileOwner returns the rail owner (level crossing) resp. the owner of ROADTYPE_ROAD (normal road),
 			 * even if there are no ROADTYPE_ROAD bits on the tile.
 			 */
@@ -593,7 +605,7 @@ static PixelColour GetTopographyValue(TileIndex tile)
 {
 	const auto tile_type = GetTileType(tile);
 
-	if (tile_type == MP_STATION) {
+	if (tile_type == TileType::Station) {
 		switch (GetStationType(tile)) {
 			case StationType::Rail:
 				return PC_GREY;
@@ -621,17 +633,17 @@ static PixelColour GetTopographyValue(TileIndex tile)
 	}
 
 	switch (tile_type) {
-		case MP_TUNNELBRIDGE:
+		case TileType::TunnelBridge:
 			return PC_DARK_GREY;
-		case MP_RAILWAY:
+		case TileType::Railway:
 			return PC_GREY;
-		case MP_ROAD:
+		case TileType::Road:
 			return PC_BLACK;
-		case MP_HOUSE:
+		case TileType::House:
 			return PixelColour{0xB5};
-		case MP_WATER:
+		case TileType::Water:
 			return PC_WATER;
-		case MP_INDUSTRY:
+		case TileType::Industry:
 			return PixelColour{0xA2};
 		default: {
 			const auto tile_z = GetTileZ(tile);
@@ -688,7 +700,7 @@ static PixelColour GetIndustryValue(TileIndex tile)
 {
 	const auto tile_type = GetTileType(tile);
 
-	if (tile_type == MP_STATION) {
+	if (tile_type == TileType::Station) {
 		switch (GetStationType(tile)) {
 			case StationType::Rail:
 				return PC_DARK_GREY;
@@ -716,17 +728,17 @@ static PixelColour GetIndustryValue(TileIndex tile)
 	}
 
 	switch (tile_type) {
-		case MP_TUNNELBRIDGE:
+		case TileType::TunnelBridge:
 			return GREY_SCALE(12);
-		case MP_RAILWAY:
+		case TileType::Railway:
 			return PC_DARK_GREY;
-		case MP_ROAD:
+		case TileType::Road:
 			return PC_GREY;
-		case MP_HOUSE:
+		case TileType::House:
 			return GREY_SCALE(4);
-		case MP_WATER:
+		case TileType::Water:
 			return PixelColour{0x12};
-		case MP_INDUSTRY: {
+		case TileType::Industry: {
 			const IndustryType industry_type = Industry::GetByTile(tile)->type;
 
 			return GetIndustrySpec(industry_type)->map_colour;
@@ -769,7 +781,7 @@ static void MinimapScreenCallback(void *userdata, void *buf, uint y, uint pitch,
 	/* Fill with the company colours */
 	TypedIndexContainer<std::array<PixelColour, OWNER_END + 1>, CompanyID> owner_colours;
 	for (const Company *c : Company::Iterate()) {
-		owner_colours[c->index] = GetColourGradient(c->colour, SHADE_LIGHT);
+		owner_colours[c->index] = GetColourGradient(c->colour, Shade::Light);
 	}
 
 	/* Fill with some special colours */
@@ -796,6 +808,7 @@ static void IndustryScreenCallback(void *userdata, void *buf, uint y, uint pitch
 
 /**
  * Make a minimap screenshot.
+ * @return \c true iff the screenshot was made successfully.
  */
 bool MakeMinimapWorldScreenshot(std::string_view name)
 {

@@ -50,7 +50,7 @@ void Order::ConvertFromOldSavegame()
 	this->flags = 0;
 
 	/* First handle non-stop - use value from savegame if possible, else use value from config file */
-	if (_settings_client.gui.sg_new_nonstop || (IsSavegameVersionBefore(SLV_22) && _savegame_type != SGT_TTO && _savegame_type != SGT_TTD && (_settings_client.gui.new_nonstop || _settings_game.order.nonstop_only))) {
+	if (_settings_client.gui.sg_new_nonstop || (IsSavegameVersionBefore(SLV_22) && _savegame_type != SavegameType::TTO && _savegame_type != SavegameType::TTD && (_settings_client.gui.new_nonstop || _settings_game.order.nonstop_only))) {
 		/* OFB_NON_STOP */
 		this->SetNonStopType((old_flags & 8) ? ONSF_NO_STOP_AT_ANY_STATION : ONSF_NO_STOP_AT_INTERMEDIATE_STATIONS);
 	} else {
@@ -66,32 +66,33 @@ void Order::ConvertFromOldSavegame()
 	if (this->GetType() != OT_GOTO_DEPOT) {
 		/* Then the load flags */
 		if ((old_flags & 2) != 0) { // OFB_UNLOAD
-			this->SetLoadType(OLFB_NO_LOAD);
+			this->SetLoadType(OrderLoadType::NoLoad);
 		} else if ((old_flags & 4) == 0) { // !OFB_FULL_LOAD
-			this->SetLoadType(OLF_LOAD_IF_POSSIBLE);
+			this->SetLoadType(OrderLoadType::LoadIfPossible);
 		} else {
 			/* old OTTD versions stored full_load_any in config file - assume it was enabled when loading */
-			this->SetLoadType(_settings_client.gui.sg_full_load_any || IsSavegameVersionBefore(SLV_22) ? OLF_FULL_LOAD_ANY : OLFB_FULL_LOAD);
+			this->SetLoadType(_settings_client.gui.sg_full_load_any || IsSavegameVersionBefore(SLV_22) ? OrderLoadType::FullLoadAny : OrderLoadType::FullLoad);
 		}
 
-		if (this->IsType(OT_GOTO_STATION)) this->SetStopLocation(OSL_PLATFORM_FAR_END);
+		if (this->IsType(OT_GOTO_STATION)) this->SetStopLocation(OrderStopLocation::FarEnd);
 
 		/* Finally fix the unload flags */
 		if ((old_flags & 1) != 0) { // OFB_TRANSFER
-			this->SetUnloadType(OUFB_TRANSFER);
+			this->SetUnloadType(OrderUnloadType::Transfer);
 		} else if ((old_flags & 2) != 0) { // OFB_UNLOAD
-			this->SetUnloadType(OUFB_UNLOAD);
+			this->SetUnloadType(OrderUnloadType::Unload);
 		} else {
-			this->SetUnloadType(OUF_UNLOAD_IF_POSSIBLE);
+			this->SetUnloadType(OrderUnloadType::UnloadIfPossible);
 		}
 	} else {
 		/* Then the depot action flags */
 		this->SetDepotActionType(((old_flags & 6) == 4) ? ODATFB_HALT : ODATF_SERVICE_ONLY);
 
 		/* Finally fix the depot type flags */
-		uint t = ((old_flags & 6) == 6) ? ODTFB_SERVICE : ODTF_MANUAL;
-		if ((old_flags & 2) != 0) t |= ODTFB_PART_OF_ORDERS;
-		this->SetDepotOrderType((OrderDepotTypeFlags)t);
+		OrderDepotTypeFlags type_flags{};
+		if ((old_flags & 6) == 6) type_flags.Set(OrderDepotTypeFlag::Service);
+		if ((old_flags & 2) != 0) type_flags.Set(OrderDepotTypeFlag::PartOfOrders);
+		this->SetDepotOrderType(type_flags);
 	}
 }
 
@@ -691,10 +692,10 @@ static void Ptrs_BKOR()
 }
 
 static const ChunkHandler order_chunk_handlers[] = {
-	{ 'BKOR', Save_BKOR, Load_BKOR, Ptrs_BKOR, nullptr, CH_TABLE },
-	{ 'ORDR', nullptr,   Load_ORDR, nullptr,   nullptr, CH_READONLY },
-	{ 'ORDL', Save_ORDL, Load_ORDL, Ptrs_ORDL, nullptr, CH_TABLE },
-	{ 'ORDX', nullptr,   Load_ORDX, nullptr,   nullptr, CH_READONLY },
+	{ 'BKOR', Save_BKOR, Load_BKOR, Ptrs_BKOR, nullptr, ChunkType::Table },
+	{ 'ORDR', nullptr,   Load_ORDR, nullptr,   nullptr, ChunkType::ReadOnly },
+	{ 'ORDL', Save_ORDL, Load_ORDL, Ptrs_ORDL, nullptr, ChunkType::Table },
+	{ 'ORDX', nullptr,   Load_ORDX, nullptr,   nullptr, ChunkType::ReadOnly },
 };
 
 extern const ChunkHandlerTable _order_chunk_handlers(order_chunk_handlers);

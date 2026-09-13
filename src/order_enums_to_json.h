@@ -25,11 +25,11 @@ NLOHMANN_JSON_SERIALIZE_ENUM(OrderNonStopFlags, {
 })
 
 NLOHMANN_JSON_SERIALIZE_ENUM(OrderStopLocation, {
-	{OSL_END, nullptr},
-	{OSL_PLATFORM_NEAR_END, "near-end"},
-	{OSL_PLATFORM_MIDDLE, "middle"},
-	{OSL_PLATFORM_FAR_END, "far-end"},
-	{OSL_PLATFORM_THROUGH, "through"}
+	{OrderStopLocation::End, nullptr},
+	{OrderStopLocation::NearEnd, "near-end"},
+	{OrderStopLocation::Middle, "middle"},
+	{OrderStopLocation::FarEnd, "far-end"},
+	{OrderStopLocation::Through, "through"}
 })
 
 NLOHMANN_JSON_SERIALIZE_ENUM(OrderLabelSubType, {
@@ -69,12 +69,12 @@ NLOHMANN_JSON_SERIALIZE_ENUM(OrderDepotAction, {
 	{DA_ALWAYS_GO, "always-go"}
 })
 
-NLOHMANN_JSON_SERIALIZE_ENUM(OrderLoadFlags, {
-	{static_cast<OrderLoadFlags>(-1), nullptr},
-	{OLF_LOAD_IF_POSSIBLE, "normal"},
-	{OLFB_FULL_LOAD, "full-load"},
-	{OLF_FULL_LOAD_ANY, "full-load-any"},
-	{OLFB_NO_LOAD, "no-load"}
+NLOHMANN_JSON_SERIALIZE_ENUM(OrderLoadType, {
+	{static_cast<OrderLoadType>(-1), nullptr},
+	{OrderLoadType::LoadIfPossible, "normal"},
+	{OrderLoadType::FullLoad, "full-load"},
+	{OrderLoadType::FullLoadAny, "full-load-any"},
+	{OrderLoadType::NoLoad, "no-load"}
 })
 
 NLOHMANN_JSON_SERIALIZE_ENUM(OrderLeaveType, {
@@ -85,87 +85,88 @@ NLOHMANN_JSON_SERIALIZE_ENUM(OrderLeaveType, {
 	{OLT_LEAVE_EARLY_FULL_ALL, "leave-early-if-all-cargo-full"}
 })
 
-NLOHMANN_JSON_SERIALIZE_ENUM(OrderUnloadFlags, {
-	{static_cast<OrderUnloadFlags>(-1), nullptr},
-	{OUF_UNLOAD_IF_POSSIBLE, "normal"},
-	{OUFB_UNLOAD, "unload"},
-	{OUFB_UNLOAD, "unload-and-leave-empty"}, // Import only
-	{OUFB_TRANSFER, "transfer"},
-	{OUFB_NO_UNLOAD, "no-unload"},
+NLOHMANN_JSON_SERIALIZE_ENUM(OrderUnloadType, {
+	{static_cast<OrderUnloadType>(-1), nullptr},
+	{OrderUnloadType::UnloadIfPossible, "normal"},
+	{OrderUnloadType::Unload, "unload"},
+	{OrderUnloadType::Unload, "unload-and-leave-empty"}, // Import only
+	{OrderUnloadType::Transfer, "transfer"},
+	{OrderUnloadType::NoUnload, "no-unload"},
 })
 
 NLOHMANN_JSON_SERIALIZE_ENUM(DiagDirection, {
-	{INVALID_DIAGDIR, nullptr},
-	{DIAGDIR_NE, "north-east"},
-	{DIAGDIR_SE, "south-east"},
-	{DIAGDIR_NW, "north-west"},
-	{DIAGDIR_SW, "south-west"},
+	{DiagDirection::Invalid, nullptr},
+	{DiagDirection::NE, "north-east"},
+	{DiagDirection::SE, "south-east"},
+	{DiagDirection::NW, "north-west"},
+	{DiagDirection::SW, "south-west"},
 })
 
 NLOHMANN_JSON_SERIALIZE_ENUM(Colours, {
-	{INVALID_COLOUR, nullptr},
-	{COLOUR_DARK_BLUE, "dark-blue"},
-	{COLOUR_PALE_GREEN, "pale-green"},
-	{COLOUR_PINK, "pink"},
-	{COLOUR_YELLOW, "yellow"},
-	{COLOUR_RED, "red"},
-	{COLOUR_LIGHT_BLUE, "light-blue"},
-	{COLOUR_GREEN, "green"},
-	{COLOUR_DARK_GREEN, "dark-green"},
-	{COLOUR_BLUE, "blue"},
-	{COLOUR_CREAM, "cream"},
-	{COLOUR_MAUVE, "mauve"},
-	{COLOUR_PURPLE, "purple"},
-	{COLOUR_ORANGE, "orange"},
-	{COLOUR_BROWN, "brown"},
-	{COLOUR_GREY, "grey"},
-	{COLOUR_WHITE, "white"}
+	{Colours::Invalid, nullptr},
+	{Colours::DarkBlue, "dark-blue"},
+	{Colours::PaleGreen, "pale-green"},
+	{Colours::Pink, "pink"},
+	{Colours::Yellow, "yellow"},
+	{Colours::Red, "red"},
+	{Colours::LightBlue, "light-blue"},
+	{Colours::Green, "green"},
+	{Colours::DarkGreen, "dark-green"},
+	{Colours::Blue, "blue"},
+	{Colours::Cream, "cream"},
+	{Colours::Mauve, "mauve"},
+	{Colours::Purple, "purple"},
+	{Colours::Orange, "orange"},
+	{Colours::Brown, "brown"},
+	{Colours::Grey, "grey"},
+	{Colours::White, "white"}
 })
 
 NLOHMANN_JSON_SERIALIZE_ENUM(VehicleType, {
-	{VEH_END, nullptr},
-	{VEH_TRAIN, "train"},
-	{VEH_ROAD, "road"},
-	{VEH_SHIP, "ship"},
-	{VEH_AIRCRAFT, "aircraft"}
+	{VehicleType::End, nullptr},
+	{VehicleType::Train, "train"},
+	{VehicleType::Road, "road"},
+	{VehicleType::Ship, "ship"},
+	{VehicleType::Aircraft, "aircraft"}
 })
 
 NLOHMANN_JSON_SERIALIZE_ENUM(OrderConditionVariable, {
-	{OCV_END, nullptr},
-	{OCV_LOAD_PERCENTAGE, "load-percentage"},
-	{OCV_RELIABILITY, "reliability"},
-	{OCV_MAX_SPEED, "max-speed"},
-	{OCV_AGE, "age"},
-	{OCV_REQUIRES_SERVICE, "requires-service"},
-	{OCV_UNCONDITIONALLY, "always"},
-	{OCV_REMAINING_LIFETIME, "remaining-lifetime"},
-	{OCV_MAX_RELIABILITY, "max-reliability" },
-	{OCV_CARGO_WAITING, "cargo-waiting" },
-	{OCV_CARGO_ACCEPTANCE, "cargo-acceptance" },
-	{OCV_FREE_PLATFORMS, "free-platforms" },
-	{OCV_PERCENT, "percent-of-times" },
-	{OCV_SLOT_OCCUPANCY, "slot-occupancy" },
-	{OCV_VEH_IN_SLOT, "vehicle-in-slot" },
-	{OCV_CARGO_LOAD_PERCENTAGE, "cargo-load-percentage" },
-	{OCV_CARGO_WAITING_AMOUNT, "cargo-waiting-amount" },
-	{OCV_COUNTER_VALUE, "counter-value" },
-	{OCV_TIME_DATE, "time-date" },
-	{OCV_TIMETABLE, "timetable" },
-	{OCV_DISPATCH_SLOT, "dispatch-slot" },
-	{OCV_CARGO_WAITING_AMOUNT_PERCENTAGE, "cargo-waiting-amount-percentage" },
-	{OCV_VEH_IN_SLOT_GROUP, "vehicle-in-slot-group" }
+	{OrderConditionVariable::End, nullptr},
+	{OrderConditionVariable::LoadPercentage, "load-percentage"},
+	{OrderConditionVariable::Reliability, "reliability"},
+	{OrderConditionVariable::MaxSpeed, "max-speed"},
+	{OrderConditionVariable::Age, "age"},
+	{OrderConditionVariable::RequiresService, "requires-service"},
+	{OrderConditionVariable::Unconditionally, "always"},
+	{OrderConditionVariable::RemainingLifetime, "remaining-lifetime"},
+	{OrderConditionVariable::MaxReliability, "max-reliability" },
+	{OrderConditionVariable::CargoWaiting, "cargo-waiting" },
+	{OrderConditionVariable::CargoAcceptance, "cargo-acceptance" },
+	{OrderConditionVariable::FreePlatforms, "free-platforms" },
+	{OrderConditionVariable::Percent, "percent-of-times" },
+	{OrderConditionVariable::SlotOccupancy, "slot-occupancy" },
+	{OrderConditionVariable::VehicleInSlot, "vehicle-in-slot" },
+	{OrderConditionVariable::CargoLoadPercentage, "cargo-load-percentage" },
+	{OrderConditionVariable::CargoWaitingAmount, "cargo-waiting-amount" },
+	{OrderConditionVariable::CounterValue, "counter-value" },
+	{OrderConditionVariable::TimeDate, "time-date" },
+	{OrderConditionVariable::Timetable, "timetable" },
+	{OrderConditionVariable::DispatchSlot, "dispatch-slot" },
+	{OrderConditionVariable::CargoWaitingAmountPercentage, "cargo-waiting-amount-percentage" },
+	{OrderConditionVariable::VehicleInSlotGroup, "vehicle-in-slot-group" },
+	{OrderConditionVariable::DrivingBackwards, "driving-backwards" }
 })
 
 NLOHMANN_JSON_SERIALIZE_ENUM(OrderConditionComparator, {
-	{OCC_END, nullptr},
-	{OCC_EQUALS, "=="},
-	{OCC_NOT_EQUALS, "!="},
-	{OCC_LESS_THAN, "<"},
-	{OCC_LESS_EQUALS, "<="},
-	{OCC_MORE_THAN, ">"},
-	{OCC_MORE_EQUALS, ">="},
-	{OCC_IS_TRUE, "true"},
-	{OCC_IS_FALSE, "false"}
+	{OrderConditionComparator::End, nullptr},
+	{OrderConditionComparator::Equal, "=="},
+	{OrderConditionComparator::NotEqual, "!="},
+	{OrderConditionComparator::LessThan, "<"},
+	{OrderConditionComparator::LessThanOrEqual, "<="},
+	{OrderConditionComparator::MoreThan, ">"},
+	{OrderConditionComparator::MoreThanOrEqual, ">="},
+	{OrderConditionComparator::IsTrue, "true"},
+	{OrderConditionComparator::IsFalse, "false"}
 })
 
 NLOHMANN_JSON_SERIALIZE_ENUM(OrderSlotSubType, {

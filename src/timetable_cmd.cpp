@@ -15,6 +15,7 @@
 #include "debug.h"
 #include "window_func.h"
 #include "vehicle_base.h"
+#include "vehicle_func.h"
 #include "settings_type.h"
 #include "company_base.h"
 #include "settings_type.h"
@@ -158,13 +159,13 @@ static void ChangeTimetable(Vehicle *v, VehicleOrderID order_number, uint32_t va
  * @param mtf Timetable data to change (@see ModifyTimetableFlags)
  * @param data The data to modify as specified by \c mtf.
  *             0 to clear times, UINT16_MAX to clear speed limit.
- * @param ctrl_flags Control flags (MTCF_CLEAR_FIELD to clear timetable wait/travel time)
+ * @param ctrl_flags Control flags (ModifyTimetableCtrlFlag::ClearField to clear timetable wait/travel time)
  * @return the cost of this operation or an error
  */
 CommandCost CmdChangeTimetable(DoCommandFlags flags, VehicleID veh, VehicleOrderID order_number, ModifyTimetableFlags mtf, uint32_t data, ModifyTimetableCtrlFlags ctrl_flags)
 {
 	Vehicle *v = Vehicle::GetIfValid(veh);
-	if (v == nullptr || !v->IsPrimaryVehicle()) return CMD_ERROR;
+	if (v == nullptr || !IsCompanyBuildableVehicleType(v) || !v->IsPrimaryVehicle()) return CMD_ERROR;
 
 	CommandCost ret = CheckOwnership(v->owner);
 	if (ret.Failed()) return ret;
@@ -174,7 +175,7 @@ CommandCost CmdChangeTimetable(DoCommandFlags flags, VehicleID veh, VehicleOrder
 
 	if (mtf >= MTF_END) return CMD_ERROR;
 
-	bool clear_field = HasFlag(ctrl_flags, MTCF_CLEAR_FIELD);
+	bool clear_field = ctrl_flags.Test(ModifyTimetableCtrlFlag::ClearField);
 
 	TimetableTicks wait_time   = order->GetWaitTime();
 	TimetableTicks travel_time = order->GetTravelTime();
@@ -201,7 +202,7 @@ CommandCost CmdChangeTimetable(DoCommandFlags flags, VehicleID veh, VehicleOrder
 
 		case MTF_SET_WAIT_FIXED:
 			wait_fixed = data != 0;
-			if (v->type != VEH_TRAIN && wait_fixed && order->IsType(OT_GOTO_WAYPOINT)) {
+			if (v->type != VehicleType::Train && wait_fixed && order->IsType(OT_GOTO_WAYPOINT)) {
 				return CommandCost(STR_ERROR_TIMETABLE_ONLY_WAIT_AT_STATIONS);
 			}
 			break;
@@ -234,7 +235,7 @@ CommandCost CmdChangeTimetable(DoCommandFlags flags, VehicleID veh, VehicleOrder
 				break;
 
 			case OT_GOTO_WAYPOINT:
-				if (v->type != VEH_TRAIN && !clear_field) {
+				if (v->type != VehicleType::Train && !clear_field) {
 					return CommandCost(STR_ERROR_TIMETABLE_ONLY_WAIT_AT_STATIONS);
 				}
 				break;
@@ -268,7 +269,7 @@ CommandCost CmdChangeTimetable(DoCommandFlags flags, VehicleID veh, VehicleOrder
 
 	if (travel_time != order->GetTravelTime() && order->IsType(OT_CONDITIONAL)) return CMD_ERROR;
 	if (travel_fixed != order->IsTravelFixed() && order->IsType(OT_CONDITIONAL)) return CMD_ERROR;
-	if (max_speed != order->GetMaxSpeed() && (order->IsType(OT_CONDITIONAL) || v->type == VEH_AIRCRAFT)) return CMD_ERROR;
+	if (max_speed != order->GetMaxSpeed() && (order->IsType(OT_CONDITIONAL) || v->type == VehicleType::Aircraft)) return CMD_ERROR;
 	if (leave_type != order->GetLeaveType() && order->IsType(OT_CONDITIONAL)) return CMD_ERROR;
 
 	if (flags.Test(DoCommandFlag::Execute)) {
@@ -338,13 +339,13 @@ CommandCost CmdChangeTimetable(DoCommandFlags flags, VehicleID veh, VehicleOrder
  * @param mtf Timetable data to change (@see ModifyTimetableFlags)
  * @param data The data to modify as specified by \c mtf.
  *             0 to clear times, UINT16_MAX to clear speed limit.
- * @param ctrl_flags Control flags (MTCF_CLEAR_FIELD to clear timetable wait/travel time)
+ * @param ctrl_flags Control flags (ModifyTimetableCtrlFlag::ClearField to clear timetable wait/travel time)
  * @return the cost of this operation or an error
  */
 CommandCost CmdBulkChangeTimetable(DoCommandFlags flags, VehicleID veh, ModifyTimetableFlags mtf, uint32_t data, ModifyTimetableCtrlFlags ctrl_flags)
 {
 	Vehicle *v = Vehicle::GetIfValid(veh);
-	if (v == nullptr || !v->IsPrimaryVehicle()) return CMD_ERROR;
+	if (v == nullptr || !IsCompanyBuildableVehicleType(v) || !v->IsPrimaryVehicle()) return CMD_ERROR;
 
 	CommandCost ret = CheckOwnership(v->owner);
 	if (ret.Failed()) return ret;
@@ -359,9 +360,9 @@ CommandCost CmdBulkChangeTimetable(DoCommandFlags flags, VehicleID veh, ModifyTi
 			if (order == nullptr || order->IsType(OT_IMPLICIT)) continue;
 
 			/* Exclude waypoints from set all wait times command */
-			if (mtf == MTF_WAIT_TIME && !HasFlag(ctrl_flags, MTCF_CLEAR_FIELD) && order->IsType(OT_GOTO_WAYPOINT)) continue;
+			if (mtf == MTF_WAIT_TIME && !ctrl_flags.Test(ModifyTimetableCtrlFlag::ClearField) && order->IsType(OT_GOTO_WAYPOINT)) continue;
 
-			Command<CMD_CHANGE_TIMETABLE>::Do(flags, v->index, order_number, mtf, data, ctrl_flags);
+			Command<Commands::ChangeTimetable>::Do(flags, v->index, order_number, mtf, data, ctrl_flags);
 		}
 	}
 
@@ -379,7 +380,7 @@ CommandCost CmdBulkChangeTimetable(DoCommandFlags flags, VehicleID veh, ModifyTi
 CommandCost CmdSetVehicleOnTime(DoCommandFlags flags, VehicleID veh, bool apply_to_group)
 {
 	Vehicle *v = Vehicle::GetIfValid(veh);
-	if (v == nullptr || !v->IsPrimaryVehicle() || v->orders == nullptr) return CMD_ERROR;
+	if (v == nullptr || !IsCompanyBuildableVehicleType(v) || !v->IsPrimaryVehicle() || v->orders == nullptr) return CMD_ERROR;
 
 	/* A vehicle can't be late if its timetable hasn't started.
 	 * If we're setting all vehicles in the group, we handle that below. */
@@ -408,14 +409,14 @@ CommandCost CmdSetVehicleOnTime(DoCommandFlags flags, VehicleID veh, bool apply_
 					if (!v->vehicle_flags.Test(VehicleFlag::TimetableStarted)) continue;
 
 					u->lateness_counter -= most_late;
-					SetWindowDirty(WC_VEHICLE_TIMETABLE, u->index);
+					SetWindowDirty(WindowClass::VehicleTimetable, u->index);
 				}
 			}
 		} else {
 			v->lateness_counter = 0;
 			/* Unbunching data is no longer valid. */
 			v->ResetDepotUnbunching();
-			SetWindowDirty(WC_VEHICLE_TIMETABLE, v->index);
+			SetWindowDirty(WindowClass::VehicleTimetable, v->index);
 		}
 	}
 
@@ -425,10 +426,7 @@ CommandCost CmdSetVehicleOnTime(DoCommandFlags flags, VehicleID veh, bool apply_
 /**
  * Order vehicles based on their timetable. The vehicles will be sorted in order
  * they would reach the first station.
- *
- * @param a First Vehicle pointer.
- * @param b Second Vehicle pointer.
- * @return Comparison value.
+ * @copydoc GUIList::Sorter
  */
 static bool VehicleTimetableSorter(Vehicle * const &a, Vehicle * const &b)
 {
@@ -474,7 +472,7 @@ static bool VehicleTimetableSorter(Vehicle * const &a, Vehicle * const &b)
 CommandCost CmdSetTimetableStart(DoCommandFlags flags, VehicleID veh, bool timetable_all, StateTicks start_state_tick)
 {
 	Vehicle *v = Vehicle::GetIfValid(veh);
-	if (v == nullptr || !v->IsPrimaryVehicle() || v->orders == nullptr) return CMD_ERROR;
+	if (v == nullptr || !IsCompanyBuildableVehicleType(v) || !v->IsPrimaryVehicle() || v->orders == nullptr) return CMD_ERROR;
 
 	CommandCost ret = CheckOwnership(v->owner);
 	if (ret.Failed()) return ret;
@@ -496,7 +494,7 @@ CommandCost CmdSetTimetableStart(DoCommandFlags flags, VehicleID veh, bool timet
 			SetTimetableWindowsDirty(v);
 		} else {
 			vehs.push_back(v);
-			SetWindowDirty(WC_VEHICLE_TIMETABLE, v->index);
+			SetWindowDirty(WindowClass::VehicleTimetable, v->index);
 		}
 
 		int total_duration = v->orders->GetTimetableTotalDuration();
@@ -539,7 +537,7 @@ CommandCost CmdSetTimetableStart(DoCommandFlags flags, VehicleID veh, bool timet
 CommandCost CmdAutofillTimetable(DoCommandFlags flags, VehicleID veh, bool autofill, bool preserve_wait_time)
 {
 	Vehicle *v = Vehicle::GetIfValid(veh);
-	if (v == nullptr || !v->IsPrimaryVehicle() || v->orders == nullptr) return CMD_ERROR;
+	if (v == nullptr || !IsCompanyBuildableVehicleType(v) || !v->IsPrimaryVehicle() || v->orders == nullptr) return CMD_ERROR;
 
 	CommandCost ret = CheckOwnership(v->owner);
 	if (ret.Failed()) return ret;
@@ -585,7 +583,7 @@ CommandCost CmdAutofillTimetable(DoCommandFlags flags, VehicleID veh, bool autof
 CommandCost CmdAutomateTimetable(DoCommandFlags flags, VehicleID veh, bool automate)
 {
 	Vehicle *v = Vehicle::GetIfValid(veh);
-	if (v == nullptr || !v->IsPrimaryVehicle()) return CMD_ERROR;
+	if (v == nullptr || !IsCompanyBuildableVehicleType(v) || !v->IsPrimaryVehicle()) return CMD_ERROR;
 
 	CommandCost ret = CheckOwnership(v->owner);
 	if (ret.Failed()) return ret;
@@ -597,18 +595,14 @@ CommandCost CmdAutomateTimetable(DoCommandFlags flags, VehicleID veh, bool autom
 				v2->vehicle_flags.Set(VehicleFlag::AutomateTimetable);
 				v2->vehicle_flags.Reset(VehicleFlag::AutofillTimetable);
 				v2->vehicle_flags.Reset(VehicleFlag::AutofillPreserveWaitTime);
-				if (v2->vehicle_flags.Test(VehicleFlag::TimetableSeparation)) {
-					v2->vehicle_flags.Reset(VehicleFlag::TimetableStarted);
-					v2->timetable_start = StateTicks{0};
-					v2->lateness_counter = 0;
-				}
-				v2->ClearSeparation();
+				if (v2->vehicle_flags.Test(VehicleFlag::TimetableSeparation)) v2->timetable_start = StateTicks{0};
+				v2->StopSeparation();
 			} else {
 				/* De-automate timetable. Clear flags. */
 				v2->vehicle_flags.Reset(VehicleFlag::AutomateTimetable);
 				v2->vehicle_flags.Reset(VehicleFlag::AutofillTimetable);
 				v2->vehicle_flags.Reset(VehicleFlag::AutofillPreserveWaitTime);
-				v2->ClearSeparation();
+				v2->vehicle_flags.Reset(VehicleFlag::SeparationActive);
 			}
 		}
 		SetTimetableWindowsDirty(v);
@@ -627,7 +621,7 @@ CommandCost CmdAutomateTimetable(DoCommandFlags flags, VehicleID veh, bool autom
 CommandCost CmdTimetableSeparation(DoCommandFlags flags, VehicleID veh, bool separation)
 {
 	Vehicle *v = Vehicle::GetIfValid(veh);
-	if (v == nullptr || !v->IsPrimaryVehicle()) return CMD_ERROR;
+	if (v == nullptr || !IsCompanyBuildableVehicleType(v) || !v->IsPrimaryVehicle()) return CMD_ERROR;
 
 	CommandCost ret = CheckOwnership(v->owner);
 	if (ret.Failed()) return ret;
@@ -641,7 +635,7 @@ CommandCost CmdTimetableSeparation(DoCommandFlags flags, VehicleID veh, bool sep
 			} else {
 				v2->vehicle_flags.Reset(VehicleFlag::TimetableSeparation);
 			}
-			v2->ClearSeparation();
+			v2->vehicle_flags.Reset(VehicleFlag::SeparationActive);
 		}
 		SetTimetableWindowsDirty(v, STWDF_SCHEDULED_DISPATCH);
 	}
@@ -691,7 +685,7 @@ std::vector<TimetableProgress> PopulateSeparationState(const Vehicle *v_start)
 		const Order *order = v->GetOrder(n);
 		if (order->IsType(OT_CONDITIONAL)) continue;
 		if (!IsOrderUsableForSeparation(order)) separation_valid = false;
-		if (order->IsType(OT_GOTO_DEPOT) && (order->GetDepotOrderType() & ODTFB_SERVICE || order->GetDepotActionType() & ODATFB_HALT)) {
+		if (order->IsType(OT_GOTO_DEPOT) && (order->GetDepotOrderType().Test(OrderDepotTypeFlag::Service) || order->GetDepotActionType() & ODATFB_HALT)) {
 			// Do not try to separate vehicles on depot service or halt orders
 			separation_valid = false;
 		}
@@ -903,7 +897,7 @@ void UpdateVehicleTimetable(Vehicle *v, bool travelling)
 				set_scheduled_dispatch = true;
 				v->dispatch_records[static_cast<uint16_t>(real_implicit_order->GetDispatchScheduleIndex())] = MakeLastDispatchRecord(ds, slot, slot_index);
 				if (_settings_client.gui.show_vehicle_route_id_vehicle_view) {
-					SetWindowWidgetDirty(WC_VEHICLE_VIEW, v->index, WID_VV_CAPTION);
+					SetWindowWidgetDirty(WindowClass::VehicleView, v->index, WID_VV_CAPTION);
 				}
 			}
 		}
@@ -911,7 +905,7 @@ void UpdateVehicleTimetable(Vehicle *v, bool travelling)
 
 	/* Start automated timetables at first opportunity */
 	if (!v->vehicle_flags.Test(VehicleFlag::TimetableStarted) && v->vehicle_flags.Test(VehicleFlag::AutomateTimetable)) {
-		v->ClearSeparation();
+		v->vehicle_flags.Reset(VehicleFlag::SeparationActive);
 		v->vehicle_flags.Set(VehicleFlag::TimetableStarted);
 		/* If the lateness is set by scheduled dispatch above, do not reset */
 		if (!v->vehicle_flags.Test(VehicleFlag::ScheduledDispatch)) v->lateness_counter = 0;
@@ -934,7 +928,7 @@ void UpdateVehicleTimetable(Vehicle *v, bool travelling)
 		}
 
 		v->vehicle_flags.Set(VehicleFlag::TimetableStarted);
-		SetWindowDirty(WC_VEHICLE_TIMETABLE, v->index);
+		SetWindowDirty(WindowClass::VehicleTimetable, v->index);
 	}
 
 	if (!v->vehicle_flags.Test(VehicleFlag::TimetableStarted)) return;
@@ -1016,13 +1010,13 @@ void UpdateVehicleTimetable(Vehicle *v, bool travelling)
 		int32_t new_time;
 		if (travelling) {
 			new_time = time_taken;
-			if (new_time > (int32_t)timetabled * 4 && new_time > (int32_t)timetabled + 3000 && !(real_timetable_order->IsType(OT_GOTO_DEPOT) && (real_timetable_order->GetDepotOrderType() & ODTFB_SERVICE))) {
+			if (new_time > (int32_t)timetabled * 4 && new_time > (int32_t)timetabled + 3000 && !(real_timetable_order->IsType(OT_GOTO_DEPOT) && real_timetable_order->GetDepotOrderType().Test(OrderDepotTypeFlag::Service))) {
 				/* Possible jam, clear time and restart timetable for all vehicles.
 				 * Otherwise we risk trains blocking 1-lane stations for long times. */
 				ChangeTimetable(v, v->cur_timetable_order_index, 0, travel_field ? MTF_TRAVEL_TIME : MTF_WAIT_TIME, false);
 				if (!v->vehicle_flags.Test(VehicleFlag::ScheduledDispatch)) {
 					for (Vehicle *v2 = v->FirstShared(); v2 != nullptr; v2 = v2->NextShared()) {
-						/* Clear VehicleFlag::TimetableStarted but do not call ClearSeparation */
+						/* Clear VehicleFlag::TimetableStarted but do not clear VehicleFlag::SeparationActive */
 						v2->vehicle_flags.Reset(VehicleFlag::TimetableStarted);
 						v2->lateness_counter = 0;
 					}

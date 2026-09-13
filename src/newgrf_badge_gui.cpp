@@ -19,6 +19,7 @@
 #include "newgrf_badge_type.h"
 #include "settings_gui.h"
 #include "settings_type.h"
+#include "spritecache.h"
 #include "strings_func.h"
 #include "timer/timer_game_calendar.h"
 #include "window_gui.h"
@@ -52,7 +53,13 @@ static Dimension GetBadgeMaximalDimension(BadgeClassID class_index, GrfSpecFeatu
 		PalSpriteID ps = GetBadgeSprite(badge, feature, std::nullopt, PAL_NONE);
 		if (ps.sprite == 0) continue;
 
-		d.width = std::max(d.width, GetSpriteSize(ps.sprite, nullptr, ZoomLevel::Normal).width);
+		/* Get unscaled sprite size ignoring offsets. Don't use GetSpriteSize as it applies offsets,
+		 * and GetScaledSpriteSize uses interface scale. */
+		const Sprite *sprite = GetSprite(ps.sprite, SpriteType::Normal, {});
+		if (sprite == nullptr) continue;
+
+		uint width = UnScaleByZoom(sprite->width, ZoomLevel::Normal);
+		d.width = std::max(d.width, width);
 		if (d.width > MAX_BADGE_WIDTH) break;
 	}
 
@@ -149,7 +156,7 @@ int DrawBadgeNameList(Rect r, std::span<const BadgeID> badges, GrfSpecFeature)
 
 		if (s.empty()) continue;
 
-		r.top = DrawStringMultiLine(r, GetString(STR_BADGE_NAME_LIST, class_badge->name, std::move(s)), TC_BLACK);
+		r.top = DrawStringMultiLine(r, GetString(STR_BADGE_NAME_LIST, class_badge->name, std::move(s)), TextColour::Black);
 	}
 
 	return r.top;
@@ -180,7 +187,7 @@ void DrawBadgeColumn(Rect r, int column_group, const GUIBadgeClasses &gui_classe
 			PalSpriteID ps = GetBadgeSprite(badge, feature, introduction_date, remap);
 			if (ps.sprite == 0) continue;
 
-			DrawSpriteIgnorePadding(ps.sprite, ps.pal, r.WithWidth(width, rtl), SA_CENTER);
+			DrawSpriteIgnorePadding(ps.sprite, ps.pal, r.WithWidth(width, rtl), {AlignmentH::Centre, AlignmentV::Middle});
 			break;
 		}
 
@@ -189,7 +196,7 @@ void DrawBadgeColumn(Rect r, int column_group, const GUIBadgeClasses &gui_classe
 }
 
 /** Drop down element that draws a list of badges. */
-template <class TBase, bool TEnd = true, FontSize TFs = FS_NORMAL>
+template <class TBase, bool TEnd = true, FontSize TFs = FontSize::Normal>
 class DropDownBadges : public TBase {
 public:
 	template <typename... Args>
@@ -204,6 +211,17 @@ public:
 
 		/* Remove trailing `hsep_normal` spacer. */
 		if (dim.width > 0) dim.width -= WidgetDimensions::scaled.hsep_normal;
+	}
+
+	/** @copydoc DropDownListItem::FilterText */
+	void FilterText(StringFilter &string_filter) const override
+	{
+		for (const BadgeID &badge_index : this->badges) {
+			const Badge *badge = GetBadge(badge_index);
+			if (badge->name == STR_NULL) continue;
+			string_filter.AddLine(GetString(badge->name));
+		}
+		this->TBase::FilterText(string_filter);
 	}
 
 	uint Height() const override
@@ -283,7 +301,7 @@ public:
 };
 
 template <typename T>
-using DropDownListConditionallyShowMoney = DropDownConditionallyShowMoney<DropDownString<DropDownSpacer<T, true>, FS_SMALL, true>, T>;
+using DropDownListConditionallyShowMoney = DropDownConditionallyShowMoney<DropDownString<DropDownSpacer<T, true>, FontSize::Small, true>, T>;
 
 using DropDownListBadgeItem = DropDownBadges<DropDownListConditionallyShowMoney<DropDownListStringItem>>;
 using DropDownListBadgeIconItem = DropDownBadges<DropDownListConditionallyShowMoney<DropDownListIconItem>>;
@@ -307,7 +325,7 @@ std::unique_ptr<DropDownListItem> MakeDropDownListBadgeIconItem(const std::share
 /**
  * Drop down component that shows extra buttons to indicate that the item can be moved up or down.
  */
-template <class TBase, bool TEnd = true, FontSize TFs = FS_NORMAL>
+template <class TBase, bool TEnd = true, FontSize TFs = FontSize::Normal>
 class DropDownMover : public TBase {
 public:
 	template <typename... Args>
@@ -391,7 +409,7 @@ DropDownList BuildBadgeClassConfigurationList(const GUIBadgeClasses &gui_classes
 
 			bool first = (i == 0 && gc.class_index == front);
 			bool last = (i == columns - 1 && gc.class_index == back);
-			list.push_back(std::make_unique<DropDownListToggleMoverItem>(first ? 0 : BADGE_CLICK_MOVE_UP, last ? 0 : BADGE_CLICK_MOVE_DOWN, COLOUR_YELLOW, gc.visible, BADGE_CLICK_TOGGLE_ICON, COLOUR_YELLOW, bg_colour, GetString(GetClassBadge(gc.class_index)->name), gc.class_index.base()));
+			list.push_back(std::make_unique<DropDownListToggleMoverItem>(first ? 0 : BADGE_CLICK_MOVE_UP, last ? 0 : BADGE_CLICK_MOVE_DOWN, Colours::Yellow, gc.visible, BADGE_CLICK_TOGGLE_ICON, Colours::Yellow, bg_colour, GetString(GetClassBadge(gc.class_index)->name), gc.class_index.base()));
 		}
 
 		if (i >= column_separators.size()) continue;
@@ -411,7 +429,7 @@ DropDownList BuildBadgeClassConfigurationList(const GUIBadgeClasses &gui_classes
 		if (!badge->flags.Test(BadgeFlag::HasText)) continue;
 
 		const auto [config, _] = GetBadgeClassConfigItem(gui_classes.GetFeature(), badge->label);
-		list.push_back(std::make_unique<DropDownListToggleItem>(config.show_filter, BADGE_CLICK_TOGGLE_FILTER, COLOUR_YELLOW, bg_colour, GetString(badge->name), badge_class_index.base()));
+		list.push_back(std::make_unique<DropDownListToggleItem>(config.show_filter, BADGE_CLICK_TOGGLE_FILTER, Colours::Yellow, bg_colour, GetString(badge->name), badge_class_index.base()));
 	}
 
 	return list;
@@ -421,7 +439,8 @@ DropDownList BuildBadgeClassConfigurationList(const GUIBadgeClasses &gui_classes
  * Toggle badge class visibility.
  * @param feature Feature being used.
  * @param class_badge Class badge.
- * @param click Dropdown click result.
+ * @param click_result Dropdown click result.
+ * @param choices Configuration of the badge filters.
  */
 static void BadgeClassToggleVisibility(GrfSpecFeature feature, Badge &class_badge, int click_result, std::span<BadgeFilterChoices *> choices)
 {
@@ -505,6 +524,7 @@ static void BadgeClassMoveNext(GrfSpecFeature feature, Badge &class_badge, uint 
  * @param columns Maximum column number permitted.
  * @param result Selected dropdown item value.
  * @param click_result Dropdown click result.
+ * @param choices Configuration of the badge filters.
  * @return true iff the caller should reinitialise their widgets.
  */
 bool HandleBadgeConfigurationDropDownClick(GrfSpecFeature feature, uint columns, int result, int click_result, std::span<BadgeFilterChoices *> choices)
@@ -550,7 +570,7 @@ std::string NWidgetBadgeFilter::GetStringParameter(const BadgeFilterChoices &cho
 		return ::GetString(STR_BADGE_FILTER_ANY_LABEL, GetClassBadge(this->badge_class)->name);
 	}
 
-	return ::GetString(STR_BADGE_FILTER_IS_LABEL, GetClassBadge(it->first)->name, GetBadge(it->second)->name);
+	return ::GetString(GetBadge(it->second)->name);
 }
 
 /**
@@ -597,7 +617,7 @@ DropDownList NWidgetBadgeFilter::GetDropDownList(PaletteID palette) const
 /**
  * Add badge drop down filter widgets.
  * @param window Window that holds the container.
- * @param container Container widget index to hold filter widgets.
+ * @param container_id Container widget index to hold filter widgets.
  * @param widget Widget index to apply to first filter.
  * @param colour Background colour of widgets.
  * @param feature GRF feature for filters.

@@ -15,7 +15,7 @@
 #include "../station_base.h"
 #include "../cargotype.h"
 #include "../date_func.h"
-#include "../sl/saveload_common.h"
+#include "../sl/saveload_common_type.h"
 #include "linkgraph_type.h"
 #include "../3rdparty/cpp-btree/btree_map.h"
 #include <utility>
@@ -308,6 +308,7 @@ public:
 
 	/**
 	 * Real constructor.
+	 * @param index Unique identifier of this graph.
 	 * @param cargo Cargo the link graph is about.
 	 */
 	LinkGraph(LinkGraphID index, CargoType cargo = INVALID_CARGO) :

@@ -39,28 +39,11 @@ STR_CONFIG_SETTING_ZOOM_LVL_OUT_32X                             :32x
 STR_CONFIG_SETTING_ZOOM_LVL_OUT_64X                             :64x
 STR_CONFIG_SETTING_ZOOM_LVL_OUT_128X                            :128x
 
-##after STR_CONFIG_SETTING_DEFAULT_RAIL_TYPE_MOST_USED
-##default-translation STR_COLOUR_DEFAULT
-STR_CONFIG_SETTING_DEFAULT_ROAD_TYPE_DEFAULT                    :Default
-
-##after STR_ORDER_CONDITIONAL_MAX_RELIABILITY
-STR_ORDER_CONDITIONAL_CARGO_WAITING                             :Waiting cargo
-STR_ORDER_CONDITIONAL_ACCEPTANCE_DROPDOWN                       :Accepted cargo
-STR_ORDER_CONDITIONAL_FREE_PLATFORMS                            :Free platforms
-STR_ORDER_CONDITIONAL_PERCENT                                   :Percent of times
-STR_ORDER_CONDITIONAL_SLOT_OCCUPANCY                            :Slot occupancy
-STR_ORDER_CONDITIONAL_TRAIN_IN_SLOT                             :Train in slot
-STR_ORDER_CONDITIONAL_CARGO_LOAD_PERCENTAGE                     :Cargo load percentage
-STR_ORDER_CONDITIONAL_CARGO_WAITING_AMOUNT                      :Waiting cargo amount
-STR_ORDER_CONDITIONAL_COUNTER_VALUE                             :Counter value
-STR_ORDER_CONDITIONAL_TIME_DATE_VALUE                           :Current time/date
-STR_ORDER_CONDITIONAL_TIMETABLE_STATE                           :Timetable state
-STR_ORDER_CONDITIONAL_DISPATCH_SLOT                             :Dispatch slot
-STR_ORDER_CONDITIONAL_CARGO_WAITING_AMOUNT_PERCENTAGE           :Waiting cargo / capacity
-STR_ORDER_CONDITIONAL_TRAIN_IN_SLOT_GROUP                       :Train in slot group
-
 ##after STR_ORDER_STOP_LOCATION_FAR_END
 STR_ORDER_STOP_LOCATION_THROUGH                                 :{SPACE}[through load]
+
+##after STR_CONFIG_SETTING_STOP_LOCATION_FAR_END
+STR_CONFIG_SETTING_STOP_LOCATION_THROUGH                        :through load
 
 ##before STR_CONFIG_SETTING_TOWN_GROWTH_NONE
 STR_CONFIG_SETTING_TOWN_GROWTH_EXTREME_SLOW                     :Extremely slow
@@ -256,7 +239,7 @@ STR_CONFIG_SETTING_ROADVEH_CANT_QUANTUM_TUNNEL                  :Prevent road ve
 STR_CONFIG_SETTING_ROADVEH_CANT_QUANTUM_TUNNEL_HELPTEXT         :Disable road vehicles from passing through other road vehicles when their path is blocked for an extended period of time.
 
 STR_CONFIG_SETTING_DRIVE_THROUGH_TRAIN_DEPOT                    :Drive-through train depots: {STRING2}
-STR_CONFIG_SETTING_DRIVE_THROUGH_TRAIN_DEPOT_HELPTEXT           :Enable emulation of drive-through train depots. Trains can move between depots placed back to back, optionally with intermediary depots in between.
+STR_CONFIG_SETTING_DRIVE_THROUGH_TRAIN_DEPOT_HELPTEXT           :Enable emulation of drive-through train depots. Trains can move between depots placed back to back, optionally with intermediary depots in between.{}When enabled, trains are not forced to leave depots driving forward.
 
 STR_CONFIG_SETTING_WARN_RESTRICTION_WAIT_VEHICLE                :Warn if train is stuck due to a routing restriction: {STRING2}
 STR_CONFIG_SETTING_WARN_RESTRICTION_WAIT_VEHICLE_HELPTEXT       :Trigger messages about trains which are stuck waiting at a path signal for a long time because of a routing restriction.
@@ -389,6 +372,9 @@ STR_CONFIG_SETTING_SORT_TRACK_TYPES_BY_SPEED_HELPTEXT           :Sorts rail type
 STR_CONFIG_SETTING_SHOW_RAIL_ROAD_COST_DROPDOWN                 :Show rail/road type costs in menus: {STRING2}
 STR_CONFIG_SETTING_SHOW_RAIL_ROAD_COST_DROPDOWN_HELPTEXT        :Show per-tile rail and road type costs in construction menus.
 
+STR_CONFIG_SETTING_ALWAYS_SHOW_BRIDGE_MIDDLE_SIGNALS            :Always display signals in the middle of a bridge: {STRING2}
+STR_CONFIG_SETTING_ALWAYS_SHOW_BRIDGE_MIDDLE_SIGNALS_HELPTEXT   :When enabled, signals in the middle of a bridge are displayed even when the bridge is otherwise displayed as transparent or invisible.
+
 STR_CONFIG_SETTING_MAX_SIGNAL_EVALUATIONS                       :Maximum number of programmable pre-signal changes permitted at once: {STRING2}
 STR_CONFIG_SETTING_MAX_SIGNAL_EVALUATIONS_HELPTEXT              :Sets the maximum number of programmable pre-signal changes permitted at once
 
@@ -405,9 +391,6 @@ STR_CONFIG_SETTING_RIVER_MIN_LENGTH_HELPTEXT                    :Minimum length 
 
 STR_CONFIG_SETTING_RIVER_ROUTE_RANDOM                           :River route randomness: {STRING2}
 STR_CONFIG_SETTING_RIVER_ROUTE_RANDOM_HELPTEXT                  :Choose how random a rivers path may be.
-
-STR_CONFIG_SETTING_RIVERS_TOP_OF_HILL                           :Rivers require their springs to generate at the top of hills: {STRING2}
-STR_CONFIG_SETTING_RIVERS_TOP_OF_HILL_HELPTEXT                  :Choose whether rivers require their springs to generate towards the top of hills.
 
 STR_CONFIG_SETTING_RIVER_TROPICS_WIDTH                          :Tropics width around rivers: {STRING2}
 STR_CONFIG_SETTING_RIVER_TROPICS_WIDTH_HELPTEXT                 :Controls the width of the tropic zone that surrounds rivers in sub-tropic landscape.{}This is the total width of the zone on both sides of the river.
@@ -576,9 +559,6 @@ STR_CONFIG_SETTING_SCHEDULED_DISPATCH_DEFAULT_DURATION_VALUE    :{COMMA}{NBSP}mi
 ##default-translation STR_COLOUR_DEFAULT
 STR_CONFIG_SETTING_SCHEDULED_DISPATCH_DEFAULT_DURATION_DEFAULT  :Default
 
-STR_CONFIG_SETTING_DEFAULT_ROAD_TYPE                            :Default road/tram types (after new game/game load): {STRING2}
-STR_CONFIG_SETTING_DEFAULT_ROAD_TYPE_HELPTEXT                   :Road/tram types to select after starting or loading a game. 'first available' selects the oldest type of road/tram, 'last available' selects the newest type of road/tram, 'most used' selects the type which is currently most in use, and 'default' selects the default type
-
 STR_CONFIG_SETTING_ENABLE_BUILD_RIVER                           :Enable building rivers: {STRING2}
 STR_CONFIG_SETTING_ENABLE_BUILD_RIVER_HELPTEXT                  :Enable building rivers outside of the scenario editor
 
@@ -664,11 +644,11 @@ STR_CONFIG_SETTING_FLOOD_FROM_EDGES                             :Water floods fr
 STR_CONFIG_SETTING_FLOOD_FROM_EDGES_HELPTEXT                    :Whether water floods into edge tiles at sea level from the map edge.
 
 STR_CONFIG_SETTING_MAP_EDGE_MODE                                :Map edge behaviour: {STRING2}
-STR_CONFIG_SETTING_MAP_EDGE_MODE_HELPTEXT                       :Whether raising the map edges above sea-level is allowed, and how the void area outside the map is displayed
+STR_CONFIG_SETTING_MAP_EDGE_MODE_HELPTEXT                       :Whether raising the map edges above sea-level is allowed, and how the void area outside the map is displayed.{}{}Water edges: map edges are restricted to sea level.{}Infinite water: map edges are restricted to sea level and the area outside of the map is shown as water.
 ##default-translation STR_COLOUR_DEFAULT
 STR_CONFIG_SETTING_MAP_EDGE_MODE_DEFAULT                        :Default
-STR_CONFIG_SETTING_MAP_EDGE_MODE_SEA_LEVEL                      :Map edges restricted to sea level
-STR_CONFIG_SETTING_MAP_EDGE_MODE_SEA_LEVEL_OUTSIDE_WATER        :Map edges restricted to sea level, outside map shown as water
+STR_CONFIG_SETTING_MAP_EDGE_MODE_SEA_LEVEL                      :Water edges
+STR_CONFIG_SETTING_MAP_EDGE_MODE_SEA_LEVEL_OUTSIDE_WATER        :Infinite water
 
 STR_CONFIG_SETTING_TREES_AROUND_SNOWLINE                        :Adjusted arctic tree placement: {STRING2}
 STR_CONFIG_SETTING_TREES_AROUND_SNOWLINE_HELPTEXT               :Adjust placement of trees around snow line in artic climate. Trees thin out above snowline. Trees are a mix of arctic and temperate just below snowline. Below that trees are temperate.
@@ -846,7 +826,9 @@ STR_CHEAT_INFLATION_INCOME                                      :{LTBLUE}Change 
 STR_CHEAT_INFLATION_INCOME_QUERY_CAPT                           :{WHITE}Change inflation income factor
 STR_CHEAT_TOWN_RATING                                           :{LTBLUE}Town local authority ratings fixed at Outstanding: {ORANGE}{STRING}
 
+##default-translation STR_EMPTY
 STR_NETWORK_MESSAGE_GIVE_MONEY_RECEIVE                          :*** {RAW_STRING} gave your company {CURRENCY_LONG}
+##default-translation STR_EMPTY
 STR_NETWORK_MESSAGE_GAVE_MONEY_AWAY                             :*** You gave {RAW_STRING} {CURRENCY_LONG}
 STR_NETWORK_MESSAGE_MONEY_GIVE_SRC_DESCRIPTION                  :{RAW_STRING} ({COMPANY})
 
@@ -863,6 +845,7 @@ STR_LINKGRAPH_STATS_TOOLTIP_PRODUCTION_INTERVAL                 :{BLACK}{CARGO_L
 
 STR_RAIL_TOOLBAR_TOOLTIP_BUILD_POLYRAIL                         :{BLACK}Build railway track using the polyline mode. Ctrl toggles build/remove for railway construction. Shift toggles building/showing cost estimate
 
+STR_BUILD_SIGNAL_TOGGLE_ADVANCED_SIGNAL_TOOLTIP                 :{BLACK}Toggle showing advanced signal types
 STR_BUILD_SIGNAL_SEMAPHORE_PROG_TOOLTIP                         :{BLACK}Programmable Pre-Signal (semaphore){}The programmable pre-signal is a combo-signal which can be programmed to behave in complex ways.
 STR_BUILD_SIGNAL_SEMAPHORE_NO_ENTRY_TOOLTIP                     :{BLACK}No-Entry Signal (semaphore){}A path signal allows more than one train to enter a signal block at the same time, if the train can reserve a path to a safe stopping point. No-entry signals can't be passed from the front side
 STR_BUILD_SIGNAL_ELECTRIC_PROG_TOOLTIP                          :{BLACK}Programmable Pre-Signal (electric){}The programmable pre-signal is a combo-signal which can be programmed to behave in complex ways.
@@ -894,6 +877,7 @@ STR_TRACE_RESTRICT_VARIABLE_MAX_SPEED                           :max speed
 STR_TRACE_RESTRICT_VARIABLE_CURRENT_ORDER                       :current order
 STR_TRACE_RESTRICT_VARIABLE_NEXT_ORDER                          :next order
 STR_TRACE_RESTRICT_VARIABLE_LAST_VISITED_STATION                :last visited station
+STR_TRACE_RESTRICT_VARIABLE_ORDER_STOP_LOCATION                 :order stop location
 STR_TRACE_RESTRICT_VARIABLE_CARGO                               :cargo
 STR_TRACE_RESTRICT_VARIABLE_LOAD_PERCENT                        :load percentage
 STR_TRACE_RESTRICT_VARIABLE_ENTRY_DIRECTION                     :entry direction
@@ -928,6 +912,7 @@ STR_TRACE_RESTRICT_VARIABLE_UNDEFINED                           :undefined
 STR_TRACE_RESTRICT_VARIABLE_UNDEFINED_RED                       :{PUSH_COLOUR}{RED}undefined{POP_COLOUR}
 STR_TRACE_RESTRICT_CONDITIONAL_COMPARE_INTEGER                  :{STRING} {STRING} {STRING} {COMMA} then
 STR_TRACE_RESTRICT_CONDITIONAL_COMPARE_SPEED                    :{STRING} {STRING} {STRING} {VELOCITY} then
+STR_TRACE_RESTRICT_CONDITIONAL_COMPARE_TICK_COUNT               :{STRING} {STRING} {STRING} {TT_TICKS} then
 STR_TRACE_RESTRICT_CONDITIONAL_COMPARE_WEIGHT                   :{STRING} {STRING} {STRING} {WEIGHT_SHORT} then
 STR_TRACE_RESTRICT_CONDITIONAL_COMPARE_POWER                    :{STRING} {STRING} {STRING} {POWER} then
 STR_TRACE_RESTRICT_CONDITIONAL_COMPARE_FORCE                    :{STRING} {STRING} {STRING} {FORCE} then
@@ -937,6 +922,7 @@ STR_TRACE_RESTRICT_CONDITIONAL_COMPARE_TIME_HHMM                :{STRING} {STRIN
 STR_TRACE_RESTRICT_CONDITIONAL_ORDER_STATION                    :{STRING} {STRING} {STRING} {STATION} then
 STR_TRACE_RESTRICT_CONDITIONAL_ORDER_WAYPOINT                   :{STRING} {STRING} {STRING} {WAYPOINT} then
 STR_TRACE_RESTRICT_CONDITIONAL_ORDER_DEPOT                      :{STRING} {STRING} {STRING} {DEPOT} then
+STR_TRACE_RESTRICT_CONDITIONAL_ORDER_STOP_LOCATION              :{STRING} current order stop location {STRING} {STRING} then
 STR_TRACE_RESTRICT_CONDITIONAL_CARGO                            :{STRING} train {STRING} cargo: {STRING} then
 STR_TRACE_RESTRICT_CONDITIONAL_ENTRY_DIRECTION                  :{STRING} train {STRING} entering from {STRING} tile edge then
 STR_TRACE_RESTRICT_CONDITIONAL_ENTRY_SIGNAL_FACE                :{STRING} train {STRING} entering from {STRING} of signal then
@@ -1047,6 +1033,8 @@ STR_TRACE_RESTRICT_TRAIN_STATUS_WAITING                         :waiting
 STR_TRACE_RESTRICT_TRAIN_STATUS_LOST                            :lost
 STR_TRACE_RESTRICT_TRAIN_STATUS_REQUIRES_SERVICE                :requires service
 STR_TRACE_RESTRICT_TRAIN_STATUS_STOPPING_AT_STATION_WAYPOINT    :stopping at station/waypoint
+STR_TRACE_RESTRICT_TRAIN_STATUS_DRIVING_BACKWARDS               :driving backwards
+STR_TRACE_RESTRICT_TRAIN_STATUS_DRIVING_BACKWARDS_NO_CAB        :driving backwards without rear cab
 STR_TRACE_RESTRICT_REVERSE_SIG                                  :Reverse behind signal
 STR_TRACE_RESTRICT_REVERSE_SIG_CANCEL                           :Cancel reverse behind signal
 STR_TRACE_RESTRICT_REVERSE_AT_SIG                               :Reverse at path signal
@@ -1086,6 +1074,8 @@ STR_TRACE_RESTRICT_TIME_DAY_ITEM_SHORT                          :day
 STR_TRACE_RESTRICT_TIME_MONTH_ITEM_SHORT                        :month
 STR_TRACE_RESTRICT_TIMETABLE_LATENESS                           :lateness
 STR_TRACE_RESTRICT_TIMETABLE_EARLINESS                          :earliness
+STR_TRACE_RESTRICT_TIMETABLE_LATENESS_LONG                      :timetable lateness
+STR_TRACE_RESTRICT_TIMETABLE_EARLINESS_LONG                     :timetable earliness
 STR_TRACE_RESTRICT_OTHER_COMPANY_GROUP                          :{GROUP} {COMPANY_NUM}
 STR_TRACE_RESTRICT_GUI_LABEL                                    :Text label
 STR_TRACE_RESTRICT_GUI_LABEL_ITEM                               :{PUSH_COLOUR}{YELLOW}Label:{POP_COLOUR} {RAW_STRING}
@@ -1366,6 +1356,7 @@ STR_MAPGEN_RAINFOREST_LINE_DOWN                                 :{BLACK}Move the
 STR_MAPGEN_TOO_MANY_TILES_MESSAGE                               :{YELLOW}Too many tiles in map. Maximum number of tiles is {NUM}, you have selected {NUM}
 STR_MAPGEN_SNOW_LINE_QUERY_CAPT                                 :{WHITE}Change snow line height
 STR_MAPGEN_RAINFOREST_LINE_QUERY_CAPT                           :{WHITE}Change rainforest line height
+STR_MAPGEN_BORDER_WATER_EDGES                                   :Water Edges
 
 STR_GENERATION_PUBLIC_ROADS_GENERATION                          :{BLACK}Public roads generation
 
@@ -1520,6 +1511,8 @@ STR_CONFIG_DEPARTURE_VEHICLE_TYPE                               :Show vehicle ty
 STR_CONFIG_DEPARTURE_VEHICLE_TYPE_HELPTEXT                      :Whether to show a vehicle's type as an icon in its departure board entries
 STR_CONFIG_DEPARTURE_VEHICLE_COLOR                              :Show vehicle type icon in silver: {STRING2}
 STR_CONFIG_DEPARTURE_VEHICLE_COLOR_HELPTEXT                     :Whether to show vehicle type icons in silver
+STR_CONFIG_DEPARTURE_SCHEDULE_ROUTE_ID                          :Show vehicle route ID in entries: {STRING2}
+STR_CONFIG_DEPARTURE_SCHEDULE_ROUTE_ID_HELPTEXT                 :Whether to show schedule the dispatch route ID associated a departure board entry
 STR_CONFIG_DEPARTURE_LARGER_FONT                                :Use larger font for stations called at on departure boards: {STRING2}
 STR_CONFIG_DEPARTURE_LARGER_FONT_HELPTEXT                       :Whether to use a larger font for lists of stations called at
 STR_CONFIG_DEPARTURE_DESTINATION_TYPE                           :Show icons for destinations that are docks or airports: {STRING2}
@@ -1753,6 +1746,21 @@ STR_ORDER_REVERSE                                               :{BLACK}Reverse
 STR_ORDER_REVERSE_TOOLTIP                                       :{BLACK}Change the reversing behaviour of the highlighted order.
 
 STR_ORDER_DROP_SELL_DEPOT                                       :Sell vehicle
+
+STR_ORDER_CONDITIONAL_CARGO_WAITING                             :Waiting cargo
+STR_ORDER_CONDITIONAL_ACCEPTANCE_DROPDOWN                       :Accepted cargo
+STR_ORDER_CONDITIONAL_FREE_PLATFORMS                            :Free platforms
+STR_ORDER_CONDITIONAL_PERCENT                                   :Percent of times
+STR_ORDER_CONDITIONAL_SLOT_OCCUPANCY                            :Slot occupancy
+STR_ORDER_CONDITIONAL_TRAIN_IN_SLOT                             :Train in slot
+STR_ORDER_CONDITIONAL_CARGO_LOAD_PERCENTAGE                     :Cargo load percentage
+STR_ORDER_CONDITIONAL_CARGO_WAITING_AMOUNT                      :Waiting cargo amount
+STR_ORDER_CONDITIONAL_COUNTER_VALUE                             :Counter value
+STR_ORDER_CONDITIONAL_TIME_DATE_VALUE                           :Current time/date
+STR_ORDER_CONDITIONAL_TIMETABLE_STATE                           :Timetable state
+STR_ORDER_CONDITIONAL_DISPATCH_SLOT                             :Dispatch slot
+STR_ORDER_CONDITIONAL_CARGO_WAITING_AMOUNT_PERCENTAGE           :Waiting cargo / capacity
+STR_ORDER_CONDITIONAL_TRAIN_IN_SLOT_GROUP                       :Train in slot group
 
 STR_ORDER_CONDITIONAL_VEHICLE_IN_SLOT                           :Vehicle in slot
 STR_ORDER_CONDITIONAL_VEHICLE_IN_SLOT_GROUP                     :Vehicle in slot group
@@ -1994,6 +2002,9 @@ STR_TIMETABLE_DEPARTURE_ABBREVIATION                            :D:{SPACE}{SPACE
 
 STR_DATE_MINUTES_MINUTE_TOOLTIP                                 :{BLACK}Select minute
 STR_DATE_MINUTES_HOUR_TOOLTIP                                   :{BLACK}Select hour
+STR_DATE_HHMM_TOOLTIP                                           :{BLACK}Time (hhmm)
+STR_DATE_DAY_OFFSET                                             :{BLACK}Day offset:
+STR_DATE_DAY_OFFSET_TOOLTIP                                     :{BLACK}Set day offset from the current timetable day
 
 STR_TIME_CAPTION                                                :{WHITE}Set time
 
@@ -2079,6 +2090,9 @@ STR_ERROR_RESTRICTED_SIGNAL                                     :{WHITE}... sign
 
 STR_ERROR_BRIDGE_PILLARS_OBSTRUCT_STATION                       :{WHITE}Bridge pillars obstruct station
 STR_ERROR_BRIDGE_PILLARS_OBSTRUCT_LOCKS                         :{WHITE}Bridge pillars obstruct locks
+STR_ERROR_BRIDGE_PILLARS_OBSTRUCT_TRAIN_DEPOT                   :{WHITE}Bridge pillars obstruct train depot
+STR_ERROR_BRIDGE_PILLARS_OBSTRUCT_ROADVEH_DEPOT                 :{WHITE}Bridge pillars obstruct road vehicle depot
+STR_ERROR_BRIDGE_PILLARS_OBSTRUCT_SHIP_DEPOT                    :{WHITE}Bridge pillars obstruct ship depot
 STR_ERROR_CHUNNEL_THROUGH_MAP_BORDER                            :{WHITE}Tunnel under water would end out of the map
 STR_ERROR_CHUNNEL_RAMP                                          :{WHITE}... tunnels under water require the gap between tunnel and coast tiles to be between {NUM} and {NUM} tiles.
 STR_ERROR_TUNNEL_TOO_MANY                                       :{WHITE}... too many tunnels
@@ -2149,7 +2163,7 @@ STR_STATION_RATING_TOOLTIP_USING_CHEAT                          :Cheat active
 STR_STATION_RATING_TOOLTIP_NEWGRF_RATING                        :NewGRF station rating: {STRING1} {BLACK}based on
 STR_STATION_RATING_TOOLTIP_NEWGRF_RATING_0                      :{GOLD}{PLUS_NUM}%
 STR_STATION_RATING_TOOLTIP_NEWGRF_RATING_1                      :{LTBLUE}{PLUS_NUM}%
-STR_STATION_RATING_TOOLTIP_NEWGRF_SPEED                         :Max speed of last vehicle: {LTBLUE}{STRING1} ({STRING2})
+STR_STATION_RATING_TOOLTIP_NEWGRF_SPEED                         :Max speed of last vehicle: {LTBLUE}{STRING1} ({STRING})
 STR_STATION_RATING_TOOLTIP_NEWGRF_WAITUNITS                     :Cargo waiting (on average per next stop): {LTBLUE}{NUM}
 STR_STATION_RATING_TOOLTIP_NEWGRF_WAITTIME                      :Time since last pickup: {LTBLUE}{NUM} day{P "" s}
 
@@ -2272,7 +2286,7 @@ STR_SCHDISPATCH_ADD                                             :{BLACK}Add Slot
 STR_SCHDISPATCH_ADD_MULTIPLE_SLOTS                              :{BLACK}Add Slots
 STR_SCHDISPATCH_ADD_TOOLTIP                                     :{BLACK}Add new departure slot for this schedule.
 STR_SCHDISPATCH_ADD_TOOLTIP_EXTRA                               :{BLACK}{STRING} Ctrl+Click to add multiple departure slots at once.
-STR_SCHDISPATCH_ADD_CAPTION                                     :{BLACK}Departure slot
+STR_SCHDISPATCH_ADD_CAPTION                                     :Departure slot
 STR_SCHDISPATCH_DURATION                                        :{BLACK}Duration
 STR_SCHDISPATCH_DURATION_TOOLTIP                                :{BLACK}Set duration of this schedule.
 STR_SCHDISPATCH_DURATION_CAPTION_MINUTE                         :{BLACK}Duration (minutes)
@@ -2301,8 +2315,10 @@ STR_SCHDISPATCH_ADJUST_CAPTION_DAY                              :{BLACK}Adjustme
 STR_SCHDISPATCH_ADJUST_CAPTION_TICKS                            :{BLACK}Adjustment to add (ticks)
 STR_SCHDISPATCH_ADJUST_CAPTION_SLOT_PREFIXED                    :{BLACK}{TT_TIME}: {STRING}
 STR_SCHDISPATCH_ADJUST_CAPTION_MULTI_SLOT_PREFIXED              :{BLACK}{NUM} slots from {TT_TIME}: {STRING}
-STR_SCHDISPATCH_RESET_LAST_DISPATCH                             :{BLACK}Reset Last Dispatched
+STR_SCHDISPATCH_RESET_LAST_DISPATCH                             :{BLACK}Clear Last Dispatched
 STR_SCHDISPATCH_RESET_LAST_DISPATCH_TOOLTIP                     :{BLACK}Reset when a vehicle was last dispatched from the schedule.
+STR_SCHDISPATCH_SET_LAST_DISPATCH                               :{BLACK}Set Last Dispatched
+STR_SCHDISPATCH_SET_LAST_DISPATCH_TOOLTIP                       :{BLACK}Manually set when a vehicle was last dispatched from the schedule.
 STR_SCHDISPATCH_CLEAR                                           :{BLACK}Clear Departure Slots
 STR_SCHDISPATCH_CLEAR_TOOLTIP                                   :{BLACK}Clear all departure slots from the schedule.
 STR_SCHDISPATCH_MANAGE                                          :{BLACK}Manage Schedule
@@ -2595,3 +2611,11 @@ STR_CONFIG_SETTING_LINEAR_MAINTENANCE_HELPTEXT                  :When enabled, i
 
 STR_CONFIG_SETTING_VEHICLE_INTRO_RANDOMISATION                  :Randomise vehicle introduction dates: {STRING2}
 STR_CONFIG_SETTING_VEHICLE_INTRO_RANDOMISATION_HELPTEXT         :When enabled, randomises vehicle introduction dates by up to one and a half years
+
+STR_CONFIG_SETTING_TRUNCATE_CARGO                               :Stations can discard cargo: {STRING2}
+STR_CONFIG_SETTING_TRUNCATE_CARGO_HELPTEXT                      :When enabled, stations can discard cargo when the amount waiting is too high, or when station ratings are low. Disable to keep all waiting cargo.
+
+STR_CONFIG_SETTING_NEWS_CARGO_FLOW                              :Overflowing cargo at station: {STRING2}
+STR_CONFIG_SETTING_NEWS_CARGO_FLOW_HELPTEXT                     :Warn about stations where cargo is accumulating.{}The detection is based on shape of the cargo history graph, not on specific amount threshold.
+
+STR_STATION_CARGO_OVERFLOW                                      :{WHITE}{CARGO_LIST} overflowing at {STATION}

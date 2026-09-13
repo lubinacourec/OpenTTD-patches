@@ -8,7 +8,7 @@
 /** @file main_gui.cpp Handling of the main viewport. */
 
 #include "stdafx.h"
-#include "currency.h"
+#include "currency_type.h"
 #include "spritecache.h"
 #include "window_gui.h"
 #include "window_func.h"
@@ -36,7 +36,7 @@
 #include "news_gui.h"
 #include "misc_cmd.h"
 
-#include "sl/saveload.h"
+#include "sl/saveload_func.h"
 
 #include "widgets/main_widget.h"
 
@@ -64,9 +64,9 @@ void CcGiveMoney(const CommandCost &result, Money money, CompanyID dest_company)
 	uint64_t auxdata = (uint64_t)dest_company.base() | (((uint64_t) _local_company.base()) << 16);
 
 	if (!_network_server) {
-		NetworkClientSendChat(NETWORK_ACTION_GIVE_MONEY, DESTTYPE_BROADCAST_SS, dest_company.base(), msg, NetworkTextMessageData(result.GetCost(), auxdata));
+		NetworkClientSendChat(NetworkAction::GiveMoney, NetworkChatDestinationType::BroadcastSelfSend, dest_company.base(), msg, NetworkTextMessageData(result.GetCost(), auxdata));
 	} else {
-		NetworkServerSendChat(NETWORK_ACTION_GIVE_MONEY, DESTTYPE_BROADCAST_SS, dest_company.base(), msg, CLIENT_ID_SERVER, NetworkTextMessageData(result.GetCost(), auxdata));
+		NetworkServerSendChat(NetworkAction::GiveMoney, NetworkChatDestinationType::BroadcastSelfSend, dest_company.base(), msg, ClientID::Server, NetworkTextMessageData(result.GetCost(), auxdata));
 	}
 }
 
@@ -135,7 +135,7 @@ bool DoZoomInOutWindow(ZoomStateChange how, Window *w)
 			break;
 		case ZOOM_OUT:
 			if (vp->zoom >= _settings_client.gui.zoom_max) return false;
-			if (w->window_class != WC_MAIN_WINDOW && w->window_class != WC_EXTRA_VIEWPORT && vp->zoom >= ZoomLevel::SpriteMax) return false;
+			if (w->window_class != WindowClass::MainWindow && w->window_class != WindowClass::ExtraViewport && vp->zoom >= ZoomLevel::SpriteMax) return false;
 			vp->zoom = (ZoomLevel)((int)vp->zoom + 1);
 
 			w->viewport->scrollpos_x -= vp->virtual_width >> 1;
@@ -164,7 +164,7 @@ void ZoomInOrOutToCursorWindow(bool in, Window *w)
 {
 	assert(w != nullptr);
 
-	if (_game_mode != GM_MENU) {
+	if (_game_mode != GameMode::Menu) {
 		Viewport *vp = w->viewport;
 		if ((in && vp->zoom <= _settings_client.gui.zoom_min) || (!in && vp->zoom >= _settings_client.gui.zoom_max)) return;
 
@@ -179,7 +179,7 @@ void ZoomInOrOutToCursorWindow(bool in, Window *w)
 
 void FixTitleGameZoom(int zoom_adjust)
 {
-	if (_game_mode != GM_MENU) return;
+	if (_game_mode != GameMode::Menu) return;
 
 	Viewport *vp = GetMainWindow()->viewport;
 
@@ -201,7 +201,7 @@ void FixTitleGameZoom(int zoom_adjust)
 }
 
 static constexpr std::initializer_list<NWidgetPart> _nested_main_window_widgets = {
-	NWidget(NWID_VIEWPORT, INVALID_COLOUR, WID_M_VIEWPORT), SetResize(1, 1),
+	NWidget(NWID_VIEWPORT, Colours::Invalid, WID_M_VIEWPORT), SetResize(1, 1),
 };
 
 enum GlobalHotKeys : int32_t {
@@ -256,7 +256,7 @@ struct MainWindow : Window
 		nvp->InitializeViewport(this, TileXY(32, 32).base(), ScaleZoomGUI(ZoomLevel::Viewport));
 
 		this->viewport->map_type = (ViewportMapType) _settings_client.gui.default_viewport_map_mode;
-		this->viewport->overlay = new LinkGraphOverlay(this, WID_M_VIEWPORT, 0, CompanyMask{}, 2);
+		this->viewport->overlay = new LinkGraphOverlay(this, WID_M_VIEWPORT, CargoTypes{}, CompanyMask{}, 2);
 		this->refresh.SetInterval(LINKGRAPH_DELAY);
 	}
 
@@ -266,7 +266,7 @@ struct MainWindow : Window
 
 		this->refresh.SetInterval(LINKGRAPH_REFRESH_PERIOD);
 
-		if (this->viewport->overlay->GetCargoMask() == 0 ||
+		if (this->viewport->overlay->GetCargoMask().None() ||
 				this->viewport->overlay->GetCompanyMask().None()) {
 			return;
 		}
@@ -279,7 +279,7 @@ struct MainWindow : Window
 	void OnPaint() override
 	{
 		this->DrawWidgets();
-		if (_game_mode == GM_MENU) {
+		if (_game_mode == GameMode::Menu) {
 			ViewportDoDrawProcessAllPending();
 
 			static const std::initializer_list<SpriteID> title_sprites = {SPR_OTTD_O, SPR_OTTD_P, SPR_OTTD_E, SPR_OTTD_N, SPR_OTTD_T, SPR_OTTD_T, SPR_OTTD_D};
@@ -297,8 +297,8 @@ struct MainWindow : Window
 			}
 
 			if (!_settings_client.gui.traditional_intro_menu) {
-				int text_y = this->height - GetCharacterHeight(FS_NORMAL) * 2;
-				DrawString(0, this->width - 1, text_y, STR_INTRO_VERSION, TC_WHITE, SA_CENTER);
+				int text_y = this->height - GetCharacterHeight(FontSize::Normal) * 2;
+				DrawString(0, this->width - 1, text_y, STR_INTRO_VERSION, TextColour::White, {AlignmentH::Centre, AlignmentV::Middle});
 			}
 		}
 	}
@@ -307,45 +307,45 @@ struct MainWindow : Window
 	{
 		if (hotkey == GHK_QUIT) {
 			HandleExitGameRequest();
-			return ES_HANDLED;
+			return EventState::Handled;
 		}
 
 		/* Disable all key shortcuts, except quit shortcuts when
 		 * generating the world, otherwise they create threading
 		 * problem during the generating, resulting in random
 		 * assertions that are hard to trigger and debug */
-		if (HasModalProgress()) return ES_NOT_HANDLED;
+		if (HasModalProgress()) return EventState::NotHandled;
 
 		switch (hotkey) {
 			case GHK_ABANDON:
 				/* No point returning from the main menu to itself */
-				if (_game_mode == GM_MENU) return ES_HANDLED;
+				if (_game_mode == GameMode::Menu) return EventState::Handled;
 				if (_settings_client.gui.autosave_on_exit) {
 					DoExitSave();
-					_switch_mode = SM_MENU;
+					_switch_mode = SwitchMode::Menu;
 				} else {
 					AskExitToGameMenu();
 				}
-				return ES_HANDLED;
+				return EventState::Handled;
 
 			case GHK_CONSOLE:
 				IConsoleSwitch();
-				return ES_HANDLED;
+				return EventState::Handled;
 
 			case GHK_BOUNDING_BOXES:
 				ToggleBoundingBoxes();
-				return ES_HANDLED;
+				return EventState::Handled;
 
 			case GHK_DIRTY_BLOCKS:
 				ToggleDirtyBlocks();
-				return ES_HANDLED;
+				return EventState::Handled;
 
 			case GHK_WIDGET_OUTLINES:
 				ToggleWidgetOutlines();
-				return ES_HANDLED;
+				return EventState::Handled;
 		}
 
-		if (_game_mode == GM_MENU) return ES_NOT_HANDLED;
+		if (_game_mode == GameMode::Menu) return EventState::NotHandled;
 
 		switch (hotkey) {
 			case GHK_CENTER:
@@ -372,9 +372,9 @@ struct MainWindow : Window
 			case GHK_MONEY: // Gimme money
 				/* You can only cheat for money in single player or when otherwise suitably authorised. */
 				if (!_networking || _settings_game.difficulty.money_cheat_in_multiplayer) {
-					Command<CMD_MONEY_CHEAT>::Post(10000000);
+					Command<Commands::MoneyCheat>::Post(10000000);
 				} else if (IsNetworkSettingsAdmin()) {
-					Command<CMD_MONEY_CHEAT_ADMIN>::Post(10000000);
+					Command<Commands::MoneyCheatAdmin>::Post(10000000);
 				}
 				break;
 
@@ -423,12 +423,12 @@ struct MainWindow : Window
 					const NetworkClientInfo *cio = NetworkClientInfo::GetByClientID(_network_own_client_id);
 					if (cio == nullptr) break;
 
-					ShowNetworkChatQueryWindow(NetworkClientPreferTeamChat(cio) ? DESTTYPE_TEAM : DESTTYPE_BROADCAST, cio->client_playas.base());
+					ShowNetworkChatQueryWindow(NetworkClientPreferTeamChat(cio) ? NetworkChatDestinationType::Team : NetworkChatDestinationType::Broadcast, cio->client_playas.base());
 				}
 				break;
 
 			case GHK_CHAT_ALL: // send text message to all clients
-				if (_networking) ShowNetworkChatQueryWindow(DESTTYPE_BROADCAST, 0);
+				if (_networking) ShowNetworkChatQueryWindow(NetworkChatDestinationType::Broadcast, 0);
 				break;
 
 			case GHK_CHAT_COMPANY: // send text to all team mates
@@ -436,22 +436,22 @@ struct MainWindow : Window
 					const NetworkClientInfo *cio = NetworkClientInfo::GetByClientID(_network_own_client_id);
 					if (cio == nullptr) break;
 
-					ShowNetworkChatQueryWindow(DESTTYPE_TEAM, cio->client_playas.base());
+					ShowNetworkChatQueryWindow(NetworkChatDestinationType::Team, cio->client_playas.base());
 				}
 				break;
 
 			case GHK_CHAT_SERVER: // send text to the server
 				if (_networking && !_network_server) {
-					ShowNetworkChatQueryWindow(DESTTYPE_CLIENT, CLIENT_ID_SERVER);
+					ShowNetworkChatQueryWindow(NetworkChatDestinationType::Client, to_underlying(ClientID::Server));
 				}
 				break;
 
 			case GHK_CLOSE_NEWS: // close active news window
-				if (!HideActiveNewsMessage()) return ES_NOT_HANDLED;
+				if (!HideActiveNewsMessage()) return EventState::NotHandled;
 				break;
 
 			case GHK_CLOSE_ERROR: // close active error window
-				if (!HideActiveErrorMessage()) return ES_NOT_HANDLED;
+				if (!HideActiveErrorMessage()) return EventState::NotHandled;
 				break;
 
 			case GHK_CHANGE_MAP_MODE_PREV:
@@ -475,7 +475,7 @@ struct MainWindow : Window
 			case GHK_SWITCH_VIEWPORT_ROUTE_OVERLAY_MODE:
 				if (_settings_client.gui.show_vehicle_route_mode != 0) {
 					_settings_client.gui.show_vehicle_route_mode ^= 3;
-					SetWindowDirty(WC_GAME_OPTIONS, WN_GAME_OPTIONS_GAME_SETTINGS);
+					SetWindowDirty(WindowClass::GameOptions, GameOptionsWindowNumber::GameOptions);
 				}
 				break;
 			case GHK_SWITCH_VIEWPORT_MAP_SLOPE_MODE: {
@@ -491,9 +491,9 @@ struct MainWindow : Window
 				break;
 			}
 
-			default: return ES_NOT_HANDLED;
+			default: return EventState::NotHandled;
 		}
-		return ES_HANDLED;
+		return EventState::Handled;
 	}
 
 	void OnScroll(Point delta) override
@@ -512,7 +512,7 @@ struct MainWindow : Window
 			/* Cycle through the drawing modes */
 			ChangeRenderMode(this->viewport, wheel < 0);
 			this->SetDirty();
-		} else if (_settings_client.gui.scrollwheel_scrolling != SWS_OFF) {
+		} else if (_settings_client.gui.scrollwheel_scrolling != ScrollWheelScrolling::Off) {
 			bool in = wheel < 0;
 
 			/* When following, only change zoom - otherwise zoom to the cursor. */
@@ -548,12 +548,12 @@ struct MainWindow : Window
 	{
 		if (!gui_scope) return;
 		/* Forward the message to the appropriate toolbar (ingame or scenario editor) */
-		InvalidateWindowData(WC_MAIN_TOOLBAR, 0, data, true);
+		InvalidateWindowData(WindowClass::MainToolbar, 0, data, true);
 	}
 
 	virtual void OnMouseOver(Point pt, WidgetID widget) override
 	{
-		if (pt.x != -1 && _game_mode != GM_MENU && IsViewportMouseHoverActive()) {
+		if (pt.x != -1 && _game_mode != GameMode::Menu && IsViewportMouseHoverActive()) {
 			/* Show tooltip with last month production or town name */
 			const Point p = GetTileBelowCursor();
 			const TileIndex tile = TileVirtXY(p.x, p.y);
@@ -561,72 +561,63 @@ struct MainWindow : Window
 		}
 	}
 
-	static HotkeyList hotkeys;
-};
-
-const uint16_t _ghk_quit_keys[] = {'Q' | WKC_CTRL, 'Q' | WKC_META, 0};
-const uint16_t _ghk_abandon_keys[] = {'W' | WKC_CTRL, 'W' | WKC_META, 0};
-const uint16_t _ghk_chat_keys[] = {WKC_RETURN, 'T', 0};
-const uint16_t _ghk_chat_all_keys[] = {WKC_SHIFT | WKC_RETURN, WKC_SHIFT | 'T', 0};
-const uint16_t _ghk_chat_company_keys[] = {WKC_CTRL | WKC_RETURN, WKC_CTRL | 'T', 0};
-const uint16_t _ghk_chat_server_keys[] = {WKC_CTRL | WKC_SHIFT | WKC_RETURN, WKC_CTRL | WKC_SHIFT | 'T', 0};
-
-static Hotkey global_hotkeys[] = {
-	Hotkey(_ghk_quit_keys, "quit", GHK_QUIT),
-	Hotkey(_ghk_abandon_keys, "abandon", GHK_ABANDON),
-	Hotkey(WKC_BACKQUOTE, "console", GHK_CONSOLE),
-	Hotkey('B' | WKC_CTRL, "bounding_boxes", GHK_BOUNDING_BOXES),
-	Hotkey('I' | WKC_CTRL, "dirty_blocks", GHK_DIRTY_BLOCKS),
-	Hotkey((uint16_t)0,    "widget_outlines", GHK_WIDGET_OUTLINES),
-	Hotkey('C', "center", GHK_CENTER),
-	Hotkey('Z', "center_zoom", GHK_CENTER_ZOOM),
-	Hotkey(WKC_ESC, "reset_object_to_place", GHK_RESET_OBJECT_TO_PLACE),
-	Hotkey(WKC_DELETE, "delete_windows", GHK_DELETE_WINDOWS),
-	Hotkey(WKC_DELETE | WKC_SHIFT, "delete_all_windows", GHK_DELETE_NONVITAL_WINDOWS),
-	Hotkey(WKC_DELETE | WKC_CTRL, "delete_all_messages", GHK_DELETE_ALL_MESSAGES),
-	Hotkey('R' | WKC_CTRL, "refresh_screen", GHK_REFRESH_SCREEN),
+	static inline HotkeyList hotkeys{"global", {
+		Hotkey({'Q' | WKC_CTRL, 'Q' | WKC_META}, "quit", GHK_QUIT),
+		Hotkey({'W' | WKC_CTRL, 'W' | WKC_META}, "abandon", GHK_ABANDON),
+		Hotkey(WKC_BACKQUOTE, "console", GHK_CONSOLE),
+		Hotkey('B' | WKC_CTRL, "bounding_boxes", GHK_BOUNDING_BOXES),
+		Hotkey('I' | WKC_CTRL, "dirty_blocks", GHK_DIRTY_BLOCKS),
+		Hotkey(0, "widget_outlines", GHK_WIDGET_OUTLINES),
+		Hotkey('C', "center", GHK_CENTER),
+		Hotkey('Z', "center_zoom", GHK_CENTER_ZOOM),
+		Hotkey(WKC_ESC, "reset_object_to_place", GHK_RESET_OBJECT_TO_PLACE),
+		Hotkey(WKC_DELETE, "delete_windows", GHK_DELETE_WINDOWS),
+		Hotkey(WKC_DELETE | WKC_SHIFT, "delete_all_windows", GHK_DELETE_NONVITAL_WINDOWS),
+		Hotkey(WKC_DELETE | WKC_CTRL, "delete_all_messages", GHK_DELETE_ALL_MESSAGES),
+		Hotkey('R' | WKC_CTRL, "refresh_screen", GHK_REFRESH_SCREEN),
 #if defined(_DEBUG)
-	Hotkey('0' | WKC_ALT, "crash_game", GHK_CRASH),
-	Hotkey('1' | WKC_ALT, "money", GHK_MONEY),
-	Hotkey('2' | WKC_ALT, "update_coordinates", GHK_UPDATE_COORDS),
+		Hotkey('0' | WKC_ALT, "crash_game", GHK_CRASH),
+		Hotkey('1' | WKC_ALT, "money", GHK_MONEY),
+		Hotkey('2' | WKC_ALT, "update_coordinates", GHK_UPDATE_COORDS),
 #endif
-	Hotkey('1' | WKC_CTRL, "transparency_signs", GHK_TOGGLE_TRANSPARENCY),
-	Hotkey('2' | WKC_CTRL, "transparency_trees", GHK_TOGGLE_TRANSPARENCY + 1),
-	Hotkey('3' | WKC_CTRL, "transparency_houses", GHK_TOGGLE_TRANSPARENCY + 2),
-	Hotkey('4' | WKC_CTRL, "transparency_industries", GHK_TOGGLE_TRANSPARENCY + 3),
-	Hotkey('5' | WKC_CTRL, "transparency_buildings", GHK_TOGGLE_TRANSPARENCY + 4),
-	Hotkey('6' | WKC_CTRL, "transparency_bridges", GHK_TOGGLE_TRANSPARENCY + 5),
-	Hotkey('7' | WKC_CTRL, "transparency_structures", GHK_TOGGLE_TRANSPARENCY + 6),
-	Hotkey('8' | WKC_CTRL, "transparency_catenary", GHK_TOGGLE_TRANSPARENCY + 7),
-	Hotkey('9' | WKC_CTRL, "transparency_loading", GHK_TOGGLE_TRANSPARENCY + 8),
-	Hotkey('0' | WKC_CTRL, "transparency_tunnels", GHK_TOGGLE_TRANSPARENCY + 9),
-	Hotkey('1' | WKC_CTRL | WKC_SHIFT, "invisibility_signs", GHK_TOGGLE_INVISIBILITY),
-	Hotkey('2' | WKC_CTRL | WKC_SHIFT, "invisibility_trees", GHK_TOGGLE_INVISIBILITY + 1),
-	Hotkey('3' | WKC_CTRL | WKC_SHIFT, "invisibility_houses", GHK_TOGGLE_INVISIBILITY + 2),
-	Hotkey('4' | WKC_CTRL | WKC_SHIFT, "invisibility_industries", GHK_TOGGLE_INVISIBILITY + 3),
-	Hotkey('5' | WKC_CTRL | WKC_SHIFT, "invisibility_buildings", GHK_TOGGLE_INVISIBILITY + 4),
-	Hotkey('6' | WKC_CTRL | WKC_SHIFT, "invisibility_bridges", GHK_TOGGLE_INVISIBILITY + 5),
-	Hotkey('7' | WKC_CTRL | WKC_SHIFT, "invisibility_structures", GHK_TOGGLE_INVISIBILITY + 6),
-	Hotkey('8' | WKC_CTRL | WKC_SHIFT, "invisibility_catenary", GHK_TOGGLE_INVISIBILITY + 7),
-	Hotkey('X' | WKC_CTRL, "transparency_toolbar", GHK_TRANSPARENCY_TOOLBAR),
-	Hotkey('X', "toggle_transparency", GHK_TRANSPARENCY),
-	Hotkey(_ghk_chat_keys, "chat", GHK_CHAT),
-	Hotkey(_ghk_chat_all_keys, "chat_all", GHK_CHAT_ALL),
-	Hotkey(_ghk_chat_company_keys, "chat_company", GHK_CHAT_COMPANY),
-	Hotkey(_ghk_chat_server_keys, "chat_server", GHK_CHAT_SERVER),
-	Hotkey(WKC_SPACE, "close_news", GHK_CLOSE_NEWS),
-	Hotkey(WKC_SPACE, "close_error", GHK_CLOSE_ERROR),
-	Hotkey(WKC_PAGEUP,   "previous_map_mode", GHK_CHANGE_MAP_MODE_PREV),
-	Hotkey(WKC_PAGEDOWN, "next_map_mode",     GHK_CHANGE_MAP_MODE_NEXT),
-	Hotkey(WKC_SLASH | WKC_CTRL,  "switch_viewport_route_overlay_mode", GHK_SWITCH_VIEWPORT_ROUTE_OVERLAY_MODE),
-	Hotkey((uint16_t)0,  "switch_viewport_map_slope_mode", GHK_SWITCH_VIEWPORT_MAP_SLOPE_MODE),
-	Hotkey((uint16_t)0,  "switch_viewport_map_height_mode", GHK_SWITCH_VIEWPORT_MAP_HEIGHT_MODE),
+		Hotkey('1' | WKC_CTRL, "transparency_signs", GHK_TOGGLE_TRANSPARENCY),
+		Hotkey('2' | WKC_CTRL, "transparency_trees", GHK_TOGGLE_TRANSPARENCY + 1),
+		Hotkey('3' | WKC_CTRL, "transparency_houses", GHK_TOGGLE_TRANSPARENCY + 2),
+		Hotkey('4' | WKC_CTRL, "transparency_industries", GHK_TOGGLE_TRANSPARENCY + 3),
+		Hotkey('5' | WKC_CTRL, "transparency_buildings", GHK_TOGGLE_TRANSPARENCY + 4),
+		Hotkey('6' | WKC_CTRL, "transparency_bridges", GHK_TOGGLE_TRANSPARENCY + 5),
+		Hotkey('7' | WKC_CTRL, "transparency_structures", GHK_TOGGLE_TRANSPARENCY + 6),
+		Hotkey('8' | WKC_CTRL, "transparency_catenary", GHK_TOGGLE_TRANSPARENCY + 7),
+		Hotkey('9' | WKC_CTRL, "transparency_loading", GHK_TOGGLE_TRANSPARENCY + 8),
+		Hotkey('0' | WKC_CTRL, "transparency_tunnels", GHK_TOGGLE_TRANSPARENCY + 9),
+		Hotkey('1' | WKC_CTRL | WKC_SHIFT, "invisibility_signs", GHK_TOGGLE_INVISIBILITY),
+		Hotkey('2' | WKC_CTRL | WKC_SHIFT, "invisibility_trees", GHK_TOGGLE_INVISIBILITY + 1),
+		Hotkey('3' | WKC_CTRL | WKC_SHIFT, "invisibility_houses", GHK_TOGGLE_INVISIBILITY + 2),
+		Hotkey('4' | WKC_CTRL | WKC_SHIFT, "invisibility_industries", GHK_TOGGLE_INVISIBILITY + 3),
+		Hotkey('5' | WKC_CTRL | WKC_SHIFT, "invisibility_buildings", GHK_TOGGLE_INVISIBILITY + 4),
+		Hotkey('6' | WKC_CTRL | WKC_SHIFT, "invisibility_bridges", GHK_TOGGLE_INVISIBILITY + 5),
+		Hotkey('7' | WKC_CTRL | WKC_SHIFT, "invisibility_structures", GHK_TOGGLE_INVISIBILITY + 6),
+		Hotkey('8' | WKC_CTRL | WKC_SHIFT, "invisibility_catenary", GHK_TOGGLE_INVISIBILITY + 7),
+		Hotkey('X' | WKC_CTRL, "transparency_toolbar", GHK_TRANSPARENCY_TOOLBAR),
+		Hotkey('X', "toggle_transparency", GHK_TRANSPARENCY),
+		Hotkey({WKC_RETURN, 'T'}, "chat", GHK_CHAT),
+		Hotkey({WKC_SHIFT | WKC_RETURN, WKC_SHIFT | 'T'}, "chat_all", GHK_CHAT_ALL),
+		Hotkey({WKC_CTRL | WKC_RETURN, WKC_CTRL | 'T'}, "chat_company", GHK_CHAT_COMPANY),
+		Hotkey({WKC_CTRL | WKC_SHIFT | WKC_RETURN, WKC_CTRL | WKC_SHIFT | 'T'}, "chat_server", GHK_CHAT_SERVER),
+		Hotkey(WKC_SPACE, "close_news", GHK_CLOSE_NEWS),
+		Hotkey(WKC_SPACE, "close_error", GHK_CLOSE_ERROR),
+		Hotkey(WKC_PAGEUP,   "previous_map_mode", GHK_CHANGE_MAP_MODE_PREV),
+		Hotkey(WKC_PAGEDOWN, "next_map_mode",     GHK_CHANGE_MAP_MODE_NEXT),
+		Hotkey(WKC_SLASH | WKC_CTRL,  "switch_viewport_route_overlay_mode", GHK_SWITCH_VIEWPORT_ROUTE_OVERLAY_MODE),
+		Hotkey(0,  "switch_viewport_map_slope_mode", GHK_SWITCH_VIEWPORT_MAP_SLOPE_MODE),
+		Hotkey(0,  "switch_viewport_map_height_mode", GHK_SWITCH_VIEWPORT_MAP_HEIGHT_MODE),
+	}};
 };
-HotkeyList MainWindow::hotkeys("global", global_hotkeys);
 
+/** Window definition for the main window. */
 static WindowDesc _main_window_desc(__FILE__, __LINE__,
-	WDP_MANUAL, nullptr, 0, 0,
-	WC_MAIN_WINDOW, WC_NONE,
+	WindowPosition::Manual, nullptr, 0, 0,
+	WindowClass::MainWindow, WindowClass::None,
 	WindowDefaultFlag::NoClose,
 	_nested_main_window_widgets,
 	&MainWindow::hotkeys
@@ -651,11 +642,11 @@ void ShowSelectGameWindow();
  */
 void SetupColoursAndInitialWindow()
 {
-	for (Colours i = COLOUR_BEGIN; i != COLOUR_END; i++) {
+	for (Colours i : EnumRange(Colours::End)) {
 		const uint8_t *b = GetNonSprite(GetColourPalette(i), SpriteType::Recolour);
 		assert(b != nullptr);
-		for (ColourShade j = SHADE_BEGIN; j < SHADE_END; j++) {
-			SetColourGradient(i, j, PixelColour{b[0xC6 + j]});
+		for (Shade j : EnumRange(Shade::End)) {
+			SetColourGradient(i, j, PixelColour{b[0xC6 + to_underlying(j)]});
 		}
 	}
 
@@ -664,12 +655,12 @@ void SetupColoursAndInitialWindow()
 	/* XXX: these are not done */
 	switch (_game_mode) {
 		default: NOT_REACHED();
-		case GM_MENU:
+		case GameMode::Menu:
 			ShowSelectGameWindow();
 			break;
 
-		case GM_NORMAL:
-		case GM_EDITOR:
+		case GameMode::Normal:
+		case GameMode::Editor:
 			ShowVitalWindows();
 			break;
 	}
@@ -683,7 +674,7 @@ void ShowVitalWindows()
 	AllocateToolbar();
 
 	/* Status bad only for normal games */
-	if (_game_mode == GM_EDITOR) return;
+	if (_game_mode == GameMode::Editor) return;
 
 	ShowStatusBar();
 }

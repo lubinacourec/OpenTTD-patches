@@ -11,10 +11,9 @@
 #define WAYPOINT_FUNC_H
 
 #include "rail_type.h"
-#include "command_type.h"
+#include "command_type_fwd_declare.h"
 #include "station_type.h"
-
-enum StationClassID : uint16_t;
+#include "newgrf_station_id.h"
 
 CommandCost RemoveBuoy(TileIndex tile, DoCommandFlags flags);
 

@@ -16,11 +16,13 @@
 #include "../../debug.h"
 #include "../../station_base.h"
 #include "../../station_cmd.h"
+#include "../../landscape_cmd.h"
 #include "../../newgrf_generic.h"
 #include "../../newgrf_station.h"
 #include "../../strings_func.h"
 #include "../../waypoint_cmd.h"
 #include "../../rail_cmd.h"
+#include "../../settings_type.h"
 
 #include "../../safeguards.h"
 
@@ -35,7 +37,7 @@
 {
 	if (!::IsValidTile(tile)) return false;
 
-	return (::IsTileType(tile, MP_RAILWAY) && !::IsRailDepot(tile)) ||
+	return (::IsTileType(tile, TileType::Railway) && !::IsRailDepot(tile)) ||
 			(::HasStationTileRail(tile) && !::IsStationTileBlocked(tile)) || ::IsLevelCrossingTile(tile);
 }
 
@@ -117,7 +119,7 @@
 	EnforcePrecondition(false, ::IsValidTile(end_tile));
 	EnforcePrecondition(false, IsRailTypeAvailable(convert_to));
 
-	return ScriptObject::Command<CMD_CONVERT_RAIL>::Do(start_tile, end_tile, (::RailType)convert_to, false);
+	return ScriptObject::Command<Commands::ConvertRail>::Do(start_tile, end_tile, (::RailType)convert_to, false);
 }
 
 /* static */ TileIndex ScriptRail::GetRailDepotFrontTile(TileIndex depot)
@@ -143,9 +145,19 @@
 	EnforcePrecondition(false, ::TileX(tile) == ::TileX(front) || ::TileY(tile) == ::TileY(front));
 	EnforcePrecondition(false, IsRailTypeAvailable(GetCurrentRailType()));
 
-	DiagDirection entrance_dir = (::TileX(tile) == ::TileX(front)) ? (::TileY(tile) < ::TileY(front) ? DIAGDIR_SE : DIAGDIR_NW) : (::TileX(tile) < ::TileX(front) ? DIAGDIR_SW : DIAGDIR_NE);
+	DiagDirection entrance_dir = (::TileX(tile) == ::TileX(front)) ? (::TileY(tile) < ::TileY(front) ? DiagDirection::SE : DiagDirection::NW) : (::TileX(tile) < ::TileX(front) ? DiagDirection::SW : DiagDirection::NE);
 
-	return ScriptObject::Command<CMD_BUILD_TRAIN_DEPOT>::Do(tile, (::RailType)ScriptObject::GetRailType(), entrance_dir);
+	return ScriptObject::Command<Commands::BuildRailDepot>::Do(tile, (::RailType)ScriptObject::GetRailType(), entrance_dir);
+}
+
+/* static */ bool ScriptRail::RemoveRailDepot(TileIndex tile)
+{
+	EnforceCompanyModeValid(false);
+	EnforcePrecondition(false, ::IsValidTile(tile));
+	EnforcePrecondition(false, IsTileType(tile, TileType::Railway))
+	EnforcePrecondition(false, GetRailTileType(tile) == RailTileType::Depot);
+
+	return ScriptObject::Command<Commands::LandscapeClear>::Do(tile);
 }
 
 /* static */ bool ScriptRail::BuildRailStation(TileIndex tile, RailTrack direction, SQInteger num_platforms, SQInteger platform_length, StationID station_id)
@@ -159,7 +171,7 @@
 	EnforcePrecondition(false, station_id == ScriptStation::STATION_NEW || station_id == ScriptStation::STATION_JOIN_ADJACENT || ScriptStation::IsValidStation(station_id));
 
 	bool adjacent = station_id != ScriptStation::STATION_JOIN_ADJACENT;
-	return ScriptObject::Command<CMD_BUILD_RAIL_STATION>::Do(tile, (::RailType)GetCurrentRailType(), direction == RAILTRACK_NW_SE ? AXIS_Y : AXIS_X, num_platforms, platform_length, STAT_CLASS_DFLT, 0, ScriptStation::IsValidStation(station_id) ? station_id : StationID::Invalid(), adjacent);
+	return ScriptObject::Command<Commands::BuildRailStation>::Do(tile, (::RailType)GetCurrentRailType(), direction == RAILTRACK_NW_SE ? Axis::Y : Axis::X, num_platforms, platform_length, STAT_CLASS_DFLT, 0, ScriptStation::IsValidStation(station_id) ? station_id : StationID::Invalid(), adjacent);
 }
 
 /* static */ bool ScriptRail::BuildNewGRFRailStation(TileIndex tile, RailTrack direction, SQInteger num_platforms, SQInteger platform_length, StationID station_id, CargoType cargo_type, IndustryType source_industry, IndustryType goal_industry, SQInteger distance, bool source_station)
@@ -176,7 +188,7 @@
 	EnforcePrecondition(false, goal_industry   == ScriptIndustryType::INDUSTRYTYPE_UNKNOWN || goal_industry   == ScriptIndustryType::INDUSTRYTYPE_TOWN || ScriptIndustryType::IsValidIndustryType(goal_industry));
 
 	auto res = GetAiPurchaseCallbackResult(
-		GSF_STATIONS,
+		GrfSpecFeature::Stations,
 		cargo_type,
 		0,
 		source_industry,
@@ -187,7 +199,7 @@
 		std::min<SQInteger>(15u, num_platforms) << 4 | std::min<SQInteger>(15u, platform_length)
 	);
 
-	Axis axis = direction == RAILTRACK_NW_SE ? AXIS_Y : AXIS_X;
+	Axis axis = direction == RAILTRACK_NW_SE ? Axis::Y : Axis::X;
 	bool adjacent = station_id != ScriptStation::STATION_JOIN_ADJACENT;
 	StationID to_join = ScriptStation::IsValidStation(station_id) ? station_id : StationID::Invalid();
 	if (res.second != CALLBACK_FAILED) {
@@ -196,11 +208,11 @@
 			Debug(grf, 1, "{} returned an invalid station ID for 'AI construction/purchase selection (18)' callback", res.first->filename);
 		} else {
 			/* We might have gotten an usable station spec. Try to build it, but if it fails we'll fall back to the original station. */
-			if (ScriptObject::Command<CMD_BUILD_RAIL_STATION>::Do(tile, (::RailType)GetCurrentRailType(), axis, num_platforms, platform_length, spec->class_index, spec->index, to_join, adjacent)) return true;
+			if (ScriptObject::Command<Commands::BuildRailStation>::Do(tile, (::RailType)GetCurrentRailType(), axis, num_platforms, platform_length, spec->class_index, spec->index, to_join, adjacent)) return true;
 		}
 	}
 
-	return ScriptObject::Command<CMD_BUILD_RAIL_STATION>::Do(tile, (::RailType)GetCurrentRailType(), axis, num_platforms, platform_length, STAT_CLASS_DFLT, 0, to_join, adjacent);
+	return ScriptObject::Command<Commands::BuildRailStation>::Do(tile, (::RailType)GetCurrentRailType(), axis, num_platforms, platform_length, STAT_CLASS_DFLT, 0, to_join, adjacent);
 }
 
 /* static */ bool ScriptRail::BuildRailWaypoint(TileIndex tile)
@@ -211,7 +223,7 @@
 	EnforcePrecondition(false, GetRailTracks(tile) == RAILTRACK_NE_SW || GetRailTracks(tile) == RAILTRACK_NW_SE);
 	EnforcePrecondition(false, IsRailTypeAvailable(GetCurrentRailType()));
 
-	return ScriptObject::Command<CMD_BUILD_RAIL_WAYPOINT>::Do(tile, GetRailTracks(tile) == RAILTRACK_NE_SW ? AXIS_X : AXIS_Y, 1, 1, STAT_CLASS_WAYP, 0, StationID::Invalid(), false);
+	return ScriptObject::Command<Commands::BuildRailWaypoint>::Do(tile, GetRailTracks(tile) == RAILTRACK_NE_SW ? Axis::X : Axis::Y, 1, 1, STAT_CLASS_WAYP, 0, StationID::Invalid(), false);
 }
 
 /* static */ bool ScriptRail::RemoveRailWaypointTileRectangle(TileIndex tile, TileIndex tile2, bool keep_rail)
@@ -220,7 +232,7 @@
 	EnforcePrecondition(false, ::IsValidTile(tile));
 	EnforcePrecondition(false, ::IsValidTile(tile2));
 
-	return ScriptObject::Command<CMD_REMOVE_FROM_RAIL_WAYPOINT>::Do(tile, tile2, keep_rail);
+	return ScriptObject::Command<Commands::RemoveFromRailWaypoint>::Do(tile, tile2, keep_rail);
 }
 
 /* static */ bool ScriptRail::RemoveRailStationTileRectangle(TileIndex tile, TileIndex tile2, bool keep_rail)
@@ -229,7 +241,7 @@
 	EnforcePrecondition(false, ::IsValidTile(tile));
 	EnforcePrecondition(false, ::IsValidTile(tile2));
 
-	return ScriptObject::Command<CMD_REMOVE_FROM_RAIL_STATION>::Do(tile, tile2, keep_rail);
+	return ScriptObject::Command<Commands::RemoveFromRailStation>::Do(tile, tile2, keep_rail);
 }
 
 /* static */ uint ScriptRail::GetRailTracks(TileIndex tile)
@@ -251,7 +263,7 @@
 	EnforcePrecondition(false, KillFirstBit((uint)rail_track) == 0);
 	EnforcePrecondition(false, IsRailTypeAvailable(GetCurrentRailType()));
 
-	return ScriptObject::Command<CMD_BUILD_RAILROAD_TRACK>::Do(tile, tile, (::RailType)GetCurrentRailType(), FindFirstTrack((::TrackBits)rail_track),
+	return ScriptObject::Command<Commands::BuildRailLong>::Do(tile, tile, (::RailType)GetCurrentRailType(), FindFirstTrack((::TrackBits)rail_track),
 			BuildRailTrackFlags::NoCustomBridgeHeads | BuildRailTrackFlags::NoDualRailType, false);
 }
 
@@ -263,7 +275,7 @@
 	EnforcePrecondition(false, GetRailTracks(tile) & rail_track);
 	EnforcePrecondition(false, KillFirstBit((uint)rail_track) == 0);
 
-	return ScriptObject::Command<CMD_REMOVE_RAILROAD_TRACK>::Do(tile, tile, FindFirstTrack((::TrackBits)rail_track));
+	return ScriptObject::Command<Commands::RemoveRailLong>::Do(tile, tile, FindFirstTrack((::TrackBits)rail_track));
 }
 
 /* static */ bool ScriptRail::AreTilesConnected(TileIndex from, TileIndex tile, TileIndex to)
@@ -364,7 +376,7 @@ static Track SimulateDrag(TileIndex from, TileIndex tile, TileIndex *to)
 			(::TileY(from) == ::TileY(tile) && ::TileY(tile) == ::TileY(to)));
 
 	Track track = SimulateDrag(from, tile, &to);
-	return ScriptObject::Command<CMD_BUILD_RAILROAD_TRACK>::Do(to, tile, (::RailType)ScriptRail::GetCurrentRailType(), track,
+	return ScriptObject::Command<Commands::BuildRailLong>::Do(to, tile, (::RailType)ScriptRail::GetCurrentRailType(), track,
 			BuildRailTrackFlags::NoCustomBridgeHeads | BuildRailTrackFlags::NoDualRailType, true);
 }
 
@@ -382,7 +394,7 @@ static Track SimulateDrag(TileIndex from, TileIndex tile, TileIndex *to)
 			(::TileY(from) == ::TileY(tile) && ::TileY(tile) == ::TileY(to)));
 
 	Track track = SimulateDrag(from, tile, &to);
-	return ScriptObject::Command<CMD_REMOVE_RAILROAD_TRACK>::Do(to, tile, track);
+	return ScriptObject::Command<Commands::RemoveRailLong>::Do(to, tile, track);
 }
 
 /**
@@ -414,7 +426,7 @@ static const ScriptRailSignalData _possible_trackdirs[5][NUM_TRACK_DIRECTIONS] =
 /* static */ ScriptRail::SignalType ScriptRail::GetSignalType(TileIndex tile, TileIndex front)
 {
 	if (ScriptMap::DistanceManhattan(tile, front) != 1) return SIGNALTYPE_NONE;
-	if (!::IsTileType(tile, MP_RAILWAY) || !::HasSignals(tile)) return SIGNALTYPE_NONE;
+	if (!::IsTileType(tile, TileType::Railway) || !::HasSignals(tile)) return SIGNALTYPE_NONE;
 
 	int data_index = 2 + (::TileX(front) - ::TileX(tile)) + 2 * (::TileY(front) - ::TileY(tile));
 
@@ -469,7 +481,7 @@ static bool IsValidSignalType(int signal_type)
 	}
 	::SignalType sig_type = (::SignalType)(signal >= SIGNALTYPE_TWOWAY ? signal ^ SIGNALTYPE_TWOWAY : signal);
 
-	return ScriptObject::Command<CMD_BUILD_SINGLE_SIGNAL>::Do(tile, track, sig_type, ::SIG_ELECTRIC, 0, 0, BuildSignalFlags::None, SCG_CURRENT_GROUP, signal_cycles, 0);
+	return ScriptObject::Command<Commands::BuildSignal>::Do(tile, track, sig_type, ::SignalVariant::Electric, 0, 0, BuildSignalFlags::None, SCG_CURRENT_GROUP, signal_cycles, 0);
 }
 
 /* static */ bool ScriptRail::RemoveSignal(TileIndex tile, TileIndex front)
@@ -488,7 +500,7 @@ static bool IsValidSignalType(int signal_type)
 	}
 	EnforcePrecondition(false, track != INVALID_TRACK);
 
-	return ScriptObject::Command<CMD_REMOVE_SINGLE_SIGNAL>::Do(tile, track, RemoveSignalFlags::None);
+	return ScriptObject::Command<Commands::RemoveSignal>::Do(tile, track, RemoveSignalFlags::None);
 }
 
 /* static */ Money ScriptRail::GetBuildCost(RailType railtype, BuildType build_type)
@@ -497,10 +509,10 @@ static bool IsValidSignalType(int signal_type)
 
 	switch (build_type) {
 		case BT_TRACK:    return ::RailBuildCost((::RailType)railtype);
-		case BT_SIGNAL:   return ::GetPrice(PR_BUILD_SIGNALS, 1, nullptr);
-		case BT_DEPOT:    return ::GetPrice(PR_BUILD_DEPOT_TRAIN, 1, nullptr);
-		case BT_STATION:  return ::GetPrice(PR_BUILD_STATION_RAIL, 1, nullptr) + ::GetPrice(PR_BUILD_STATION_RAIL_LENGTH, 1, nullptr);
-		case BT_WAYPOINT: return ::GetPrice(PR_BUILD_WAYPOINT_RAIL, 1, nullptr);
+		case BT_SIGNAL:   return ::GetPrice(Price::BuildSignals, 1, nullptr);
+		case BT_DEPOT:    return ::GetPrice(Price::BuildDepotTrain, 1, nullptr);
+		case BT_STATION:  return ::GetPrice(Price::BuildStationRail, 1, nullptr) + ::GetPrice(Price::BuildStationRailLength, 1, nullptr);
+		case BT_WAYPOINT: return ::GetPrice(Price::BuildWaypointRail, 1, nullptr);
 		default: return -1;
 	}
 }

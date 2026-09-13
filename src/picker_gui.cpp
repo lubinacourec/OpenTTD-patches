@@ -92,7 +92,7 @@ static void PickerLoadConfig(const IniFile &ini, PickerCallbacks &callbacks)
 			if (!ConvertHexToBytes(grfid_str, grfid_buf)) continue;
 
 			str = str.substr(grfid_pos + 1);
-			uint32_t grfid = grfid_buf[0] | (grfid_buf[1] << 8) | (grfid_buf[2] << 16) | (grfid_buf[3] << 24);
+			GrfID grfid = grfid_buf[0] | (grfid_buf[1] << 8) | (grfid_buf[2] << 16) | (grfid_buf[3] << 24);
 			uint16_t localid;
 			auto [ptr, err] = std::from_chars(str.data(), str.data() + str.size(), localid);
 
@@ -143,13 +143,13 @@ void PickerSaveConfig(IniFile &ini)
 	for (const auto *cb : GetPickerCallbacks()) PickerSaveConfig(ini, *cb);
 }
 
-/** Sort classes by id. */
+/** Sort classes by id. @copydoc GUIList::Sorter */
 static bool ClassIDSorter(int const &a, int const &b)
 {
 	return a < b;
 }
 
-/** Filter classes by class name. */
+/** Filter classes by class name. @copydoc GUIList::FilterFunction */
 static bool ClassTagNameFilter(int const *item, PickerFilterData &filter)
 {
 	filter.ResetState();
@@ -157,7 +157,7 @@ static bool ClassTagNameFilter(int const *item, PickerFilterData &filter)
 	return filter.GetState();
 }
 
-/** Sort types by id. */
+/** Sort types by id. @copydoc GUIList::Sorter */
 static bool TypeIDSorter(PickerItem const &a, PickerItem const &b)
 {
 	int r = a.class_index - b.class_index;
@@ -165,7 +165,7 @@ static bool TypeIDSorter(PickerItem const &a, PickerItem const &b)
 	return r < 0;
 }
 
-/** Filter types by class name. */
+/** Filter types by class name. @copydoc GUIList::FilterFunction */
 static bool TypeTagNameFilter(PickerItem const *item, PickerFilterData &filter)
 {
 	auto badges = filter.callbacks->GetTypeBadges(item->class_index, item->index);
@@ -180,12 +180,7 @@ static bool TypeTagNameFilter(PickerItem const *item, PickerFilterData &filter)
 /** Allow the collection sorter to test if the collection has inactive items */
 PickerWindow *picker_window;
 
-/**
- * Sort collections by id.
- * @param a First string for sorting.
- * @param b Second string for sorting.
- * @return Sort order.
- */
+/** Sort collections by id. @copydoc GUIList::Sorter */
 static bool CollectionIDSorter(std::string const &a, std::string const &b)
 {
 	if (b.empty()) return false;
@@ -202,7 +197,7 @@ static const std::initializer_list<PickerTypeList::FilterFunction * const> _type
 static const std::initializer_list<PickerCollectionList::SortFunction * const> _collection_sorter_funcs = { &CollectionIDSorter }; ///< Sort functions of the #PickerCollectionList.
 
 
-PickerWindow::PickerWindow(WindowDesc &desc, Window *parent, int window_number, PickerCallbacks &callbacks) : PickerWindowBase(desc, parent), callbacks(callbacks),
+PickerWindow::PickerWindow(WindowDesc &desc, Window *parent, WindowNumber window_number, PickerCallbacks &callbacks) : PickerWindowBase(desc, parent), callbacks(callbacks),
 	class_editbox(EDITBOX_MAX_SIZE * MAX_CHAR_LENGTH, EDITBOX_MAX_SIZE),
 	type_editbox(EDITBOX_MAX_SIZE * MAX_CHAR_LENGTH, EDITBOX_MAX_SIZE)
 {
@@ -262,9 +257,9 @@ void PickerWindow::ConstructWindow()
 		this->callbacks.FillUsedItems(this->callbacks.used);
 
 		SetWidgetDisabledState(WID_PW_MODE_ALL, !this->callbacks.HasClassChoice());
-		this->random_hidden = !this->callbacks.IsCollectionRandomisationSupported() || !HasBit(this->callbacks.mode, PFM_SAVED);
+		this->random_hidden = !this->callbacks.IsCollectionRandomisationSupported() || !this->callbacks.mode.Test(PickerFilterMode::Saved);
 		this->GetWidget<NWidgetStacked>(WID_PW_TYPE_RAND_SEL)->SetDisplayedPlane(this->random_hidden ? SZSP_HORIZONTAL : 0);
-		this->callbacks.place_collection = HasBit(this->callbacks.mode, PFM_SAVED) && IsWidgetLowered(WID_PW_TYPE_RANDOM);
+		this->callbacks.place_collection = this->callbacks.mode.Test(PickerFilterMode::Saved) && IsWidgetLowered(WID_PW_TYPE_RANDOM);
 
 		this->GetWidget<NWidgetCore>(WID_PW_TYPE_ITEM)->SetToolTip(this->callbacks.GetTypeTooltip());
 		this->GetWidget<NWidgetCore>(WID_PW_TYPE_RANDOM)->SetToolTip(this->callbacks.GetRandomTooltip());
@@ -305,7 +300,7 @@ void PickerWindow::ConstructWindow()
 void PickerWindow::OnInit()
 {
 	this->badge_classes = GUIBadgeClasses(this->callbacks.GetFeature());
-	this->badge_filters = AddBadgeDropdownFilters(this, WID_PW_BADGE_FILTER, WID_PW_BADGE_FILTER, COLOUR_DARK_GREEN, this->callbacks.GetFeature());
+	this->badge_filters = AddBadgeDropdownFilters(this, WID_PW_BADGE_FILTER, WID_PW_BADGE_FILTER, Colours::DarkGreen, this->callbacks.GetFeature());
 
 	this->widget_lookup.clear();
 	this->nested_root->FillWidgetLookup(this->widget_lookup);
@@ -324,7 +319,7 @@ void PickerWindow::UpdateWidgetSize(WidgetID widget, Dimension &size, const Dime
 	switch (widget) {
 		/* Class picker */
 		case WID_PW_CLASS_LIST:
-			fill.height = resize.height = GetCharacterHeight(FS_NORMAL) + padding.height;
+			fill.height = resize.height = GetCharacterHeight(FontSize::Normal) + padding.height;
 			size.height = 5 * resize.height;
 			break;
 
@@ -380,7 +375,7 @@ DropDownList PickerWindow::BuildCollectionDropDownList()
 
 void PickerWindow::SetDisabledRandomItemButton()
 {
-	bool hidden = !this->callbacks.IsCollectionRandomisationSupported() || !HasBit(this->callbacks.mode, PFM_SAVED);
+	bool hidden = !this->callbacks.IsCollectionRandomisationSupported() || !this->callbacks.mode.Test(PickerFilterMode::Saved);
 	if (hidden != this->random_hidden && this->has_type_picker) {
 		this->GetWidget<NWidgetStacked>(WID_PW_TYPE_RAND_SEL)->SetDisplayedPlane(hidden ? SZSP_HORIZONTAL : 0);
 		this->random_hidden = hidden;
@@ -393,7 +388,7 @@ void PickerWindow::SetDisabledRandomItemButton()
 
 	bool disabled = true;
 	btree::btree_set<PickerItem> *saved = nullptr;
-	if (HasBit(this->callbacks.mode, PFM_SAVED)) {
+	if (this->callbacks.mode.Test(PickerFilterMode::Saved)) {
 		saved = this->callbacks.GetSelectedSavedCollection();
 		disabled = (saved == nullptr) || !this->callbacks.IsCollectionValidForRandom(*saved, this);
 	}
@@ -420,7 +415,7 @@ void PickerWindow::DrawWidget(const Rect &r, WidgetID widget) const
 			const int y_step = this->GetWidget<NWidgetResizeBase>(widget)->resize_y;
 			auto [first, last] = vscroll->GetVisibleRangeIterators(this->classes);
 			for (auto it = first; it != last; ++it) {
-				DrawString(ir, this->callbacks.GetClassName(*it), *it == selected ? TC_WHITE : TC_BLACK);
+				DrawString(ir, this->callbacks.GetClassName(*it), *it == selected ? TextColour::White : TextColour::Black);
 				ir.top += y_step;
 			}
 			break;
@@ -444,7 +439,7 @@ void PickerWindow::DrawWidget(const Rect &r, WidgetID widget) const
 
 				GrfSpecFeature feature = this->callbacks.GetFeature();
 				/* Houses have recolours but not related to the company colour and other items depend on gamemode. */
-				PaletteID palette = _game_mode != GM_NORMAL || feature == GSF_HOUSES ? PAL_NONE : GetCompanyPalette(_local_company);
+				PaletteID palette = _game_mode != GameMode::Normal || feature == GrfSpecFeature::Houses ? PAL_NONE : GetCompanyPalette(_local_company);
 				DrawBadgeColumn({0, by, ir.Width() - 1, ir.Height() - 1}, 0, this->badge_classes, this->callbacks.GetTypeBadges(item.class_index, item.index), feature, std::nullopt, palette);
 
 				auto saved = this->callbacks.GetSelectedSavedCollection();
@@ -457,14 +452,14 @@ void PickerWindow::DrawWidget(const Rect &r, WidgetID widget) const
 			}
 
 			if (!this->callbacks.IsTypeAvailable(item.class_index, item.index)) {
-				GfxFillRect(ir, GetColourGradient(COLOUR_GREY, SHADE_DARKER), FILLRECT_CHECKER);
+				GfxFillRect(ir, GetColourGradient(Colours::Grey, Shade::Darker), FillRectMode::Checker);
 			}
 			break;
 		}
 
 		case WID_PW_TYPE_NAME: {
 			StringID str = this->callbacks.GetTypeName(this->callbacks.GetSelectedClass(), this->callbacks.GetSelectedType());
-			if (str != INVALID_STRING_ID) DrawString(r, str, TC_GOLD, SA_CENTER);
+			if (str != INVALID_STRING_ID) DrawString(r, str, TextColour::Gold, {AlignmentH::Centre, AlignmentV::Middle});
 			break;
 		}
 	}
@@ -502,26 +497,53 @@ void PickerWindow::OnClick(Point pt, WidgetID widget, int)
 			auto it = vscroll->GetScrolledItemFromWidget(this->classes, pt.y, this, WID_PW_CLASS_LIST);
 			if (it == this->classes.end()) return;
 
-			if (this->callbacks.GetSelectedClass() != *it || HasBit(this->callbacks.mode, PFM_ALL)) {
-				ClrBit(this->callbacks.mode, PFM_ALL); // Disable showing all.
+			if (_ctrl_pressed) {
+				/* If no collections yet exist, create the default collection. */
+				if (this->callbacks.saved.find(this->callbacks.sel_collection) == this->callbacks.saved.end()) {
+					for (int i = 0; i < this->callbacks.GetTypeCount(*it); i++) {
+						this->callbacks.saved[""].emplace(this->callbacks.GetPickerItem(*it, i));
+					}
+					this->InvalidateData({PickerInvalidation::Collection, PickerInvalidation::Class});
+					this->SetDirty();
+					break;
+				}
+
+				/* If the first item is not already saved to the selected collection, add the whole class to the collection. Otherwise remove the class. */
+				auto &collection = this->callbacks.saved.at(this->callbacks.sel_collection);
+				auto first = collection.find(this->callbacks.GetPickerItem(*it, 0));
+				if (first == std::end(collection)) {
+					for (int i = 0; i < this->callbacks.GetTypeCount(*it); i++) {
+						collection.emplace(this->callbacks.GetPickerItem(*it, i));
+					}
+				} else {
+					for (int i = 0; i < this->callbacks.GetTypeCount(*it); i++) {
+						collection.erase(this->callbacks.GetPickerItem(*it, i));
+					}
+				}
+				this->InvalidateData({PickerInvalidation::Type, PickerInvalidation::Class});
+				break;
+			}
+
+			if (this->callbacks.GetSelectedClass() != *it || this->callbacks.mode.Test(PickerFilterMode::All)) {
+				this->callbacks.mode.Reset(PickerFilterMode::All); // Disable showing all.
 				this->callbacks.SetSelectedClass(*it);
 				this->InvalidateData({PickerInvalidation::Type, PickerInvalidation::Position, PickerInvalidation::Validate});
 			}
 			SndClickBeep();
-			CloseWindowById(WC_SELECT_STATION, 0);
+			CloseWindowById(WindowClass::JoinStation, 0);
 			break;
 		}
 
 		case WID_PW_MODE_ALL:
 		case WID_PW_MODE_USED:
 		case WID_PW_MODE_SAVED:
-			ToggleBit(this->callbacks.mode, widget - WID_PW_MODE_ALL);
-			if (!this->IsWidgetDisabled(WID_PW_MODE_ALL) && HasBit(this->callbacks.mode, widget - WID_PW_MODE_ALL)) {
+			this->callbacks.mode.Flip(static_cast<PickerFilterMode>(widget - WID_PW_MODE_ALL));
+			if (!this->IsWidgetDisabled(WID_PW_MODE_ALL) && this->callbacks.mode.Test(static_cast<PickerFilterMode>(widget - WID_PW_MODE_ALL))) {
 				/* Enabling used or saved filters automatically enables all. */
-				SetBit(this->callbacks.mode, PFM_ALL);
+				this->callbacks.mode.Set(PickerFilterMode::All);
 			}
 			this->SetDisabledRandomItemButton();
-			this->callbacks.place_collection = HasBit(this->callbacks.mode, PFM_SAVED) && IsWidgetLowered(WID_PW_TYPE_RANDOM);
+			this->callbacks.place_collection = this->callbacks.mode.Test(PickerFilterMode::Saved) && IsWidgetLowered(WID_PW_TYPE_RANDOM);
 			this->InvalidateData({PickerInvalidation::Class, PickerInvalidation::Type, PickerInvalidation::Position});
 			SndClickBeep();
 			break;
@@ -573,7 +595,7 @@ void PickerWindow::OnClick(Point pt, WidgetID widget, int)
 				this->RaiseWidgetWhenLowered(WID_PW_TYPE_RANDOM);
 			}
 			SndClickBeep();
-			CloseWindowById(WC_SELECT_STATION, 0);
+			CloseWindowById(WindowClass::JoinStation, 0);
 			break;
 		}
 
@@ -591,8 +613,8 @@ void PickerWindow::OnClick(Point pt, WidgetID widget, int)
 		}
 
 		case WID_PW_COLEC_LIST: {
-			ShowDropDownList(this, this->BuildCollectionDropDownList(), -1, widget, 0);
-			CloseWindowById(WC_SELECT_STATION, 0);
+			ShowDropDownList(this, this->BuildCollectionDropDownList(), -1, widget, 0, DropDownOption::Filterable);
+			CloseWindowById(WindowClass::JoinStation, 0);
 			break;
 		}
 
@@ -603,7 +625,7 @@ void PickerWindow::OnClick(Point pt, WidgetID widget, int)
 
 		case WID_PW_COLEC_RENAME:
 			if (this->callbacks.saved.contains(this->callbacks.sel_collection)) {
-				CloseChildWindows(WC_CONFIRM_POPUP_QUERY);
+				CloseChildWindows(WindowClass::ConfirmPopupQuery);
 				this->callbacks.edit_collection = this->callbacks.sel_collection;
 				this->callbacks.rename_collection = true;
 				ShowQueryString(this->callbacks.sel_collection, STR_PICKER_COLLECTION_RENAME_QUERY, MAX_LENGTH_TOWN_NAME_CHARS, this, CS_ALPHANUMERAL, QueryStringFlag::LengthIsInChars);
@@ -612,7 +634,7 @@ void PickerWindow::OnClick(Point pt, WidgetID widget, int)
 
 		case WID_PW_COLEC_DELETE:
 			if (this->callbacks.saved.contains(this->callbacks.sel_collection)) {
-				CloseChildWindows(WC_QUERY_STRING);
+				CloseChildWindows(WindowClass::QueryString);
 				this->callbacks.edit_collection = this->callbacks.sel_collection;
 
 				this->inactive.contains(this->callbacks.sel_collection) ?
@@ -623,14 +645,14 @@ void PickerWindow::OnClick(Point pt, WidgetID widget, int)
 
 		case WID_PW_CONFIGURE_BADGES:
 			if (this->badge_classes.GetClasses().empty()) break;
-			ShowDropDownList(this, BuildBadgeClassConfigurationList(this->badge_classes, 1, {}, COLOUR_DARK_GREEN), -1, widget, 0, DropDownOption::Persist);
+			ShowDropDownList(this, BuildBadgeClassConfigurationList(this->badge_classes, 1, {}, Colours::DarkGreen), -1, widget, 0, DropDownOption::Persist);
 			break;
 
 		default:
 			if (IsInsideMM(widget, this->badge_filters.first, this->badge_filters.second)) {
 				/* Houses have recolours but not related to the company colour and other items depend on gamemode. */
-				PaletteID palette = _game_mode != GM_NORMAL || this->callbacks.GetFeature() == GSF_HOUSES ? PAL_NONE : GetCompanyPalette(_local_company);
-				ShowDropDownList(this, this->GetWidget<NWidgetBadgeFilter>(widget)->GetDropDownList(palette), -1, widget, 0);
+				PaletteID palette = _game_mode != GameMode::Normal || this->callbacks.GetFeature() == GrfSpecFeature::Houses ? PAL_NONE : GetCompanyPalette(_local_company);
+				ShowDropDownList(this, this->GetWidget<NWidgetBadgeFilter>(widget)->GetDropDownList(palette), -1, widget, 0, DropDownOption::Filterable);
 			}
 			break;
 	}
@@ -692,9 +714,9 @@ void PickerWindow::OnDropdownSelect(WidgetID widget, int index, int click_result
 			this->ReInit();
 
 			if (reopen) {
-				ReplaceDropDownList(this, BuildBadgeClassConfigurationList(this->badge_classes, 1, {}, COLOUR_DARK_GREEN), -1);
+				ReplaceDropDownList(this, BuildBadgeClassConfigurationList(this->badge_classes, 1, {}, Colours::DarkGreen), -1);
 			} else {
-				this->CloseChildWindows(WC_DROPDOWN_MENU);
+				this->CloseChildWindows(WindowClass::DropdownMenu);
 			}
 
 			/* We need to refresh if a filter is removed. */
@@ -745,9 +767,9 @@ void PickerWindow::OnInvalidateData(int data, bool gui_scope)
 	this->BuildPickerCollectionList();
 
 	if (this->has_type_picker) {
-		SetWidgetLoweredState(WID_PW_MODE_ALL, HasBit(this->callbacks.mode, PFM_ALL));
-		SetWidgetLoweredState(WID_PW_MODE_USED, HasBit(this->callbacks.mode, PFM_USED));
-		SetWidgetLoweredState(WID_PW_MODE_SAVED, HasBit(this->callbacks.mode, PFM_SAVED));
+		SetWidgetLoweredState(WID_PW_MODE_ALL, this->callbacks.mode.Test(PickerFilterMode::All));
+		SetWidgetLoweredState(WID_PW_MODE_USED, this->callbacks.mode.Test(PickerFilterMode::Used));
+		SetWidgetLoweredState(WID_PW_MODE_SAVED, this->callbacks.mode.Test(PickerFilterMode::Saved));
 	}
 
 	SetWidgetDisabledState(WID_PW_SHRINK, this->preview_height == PREVIEW_HEIGHT);
@@ -765,10 +787,10 @@ EventState PickerWindow::OnHotkey(int hotkey)
 				this->SetFocusedWidget(WID_PW_CLASS_FILTER);
 			}
 			SetFocusedWindow(this);
-			return ES_HANDLED;
+			return EventState::Handled;
 
 		default:
-			return ES_NOT_HANDLED;
+			return EventState::NotHandled;
 	}
 }
 
@@ -802,19 +824,19 @@ void PickerWindow::PickItem(int cls_id, int id)
 
 	PickerInvalidations invalidation_flags{PickerInvalidation::Position};
 	const PickerItem pick_item = this->callbacks.GetPickerItem(cls_id, id);
-	if (HasBit(this->callbacks.mode, PFM_USED)) {
+	if (this->callbacks.mode.Test(PickerFilterMode::Used)) {
 		if (std::none_of(std::begin(this->callbacks.used), std::end(this->callbacks.used), [pick_item](const PickerItem &item) { return item == pick_item; })) {
-			ClrBit(this->callbacks.mode, PFM_USED);
+			this->callbacks.mode.Reset(PickerFilterMode::Used);
 			invalidation_flags.Set({PickerInvalidation::Class, PickerInvalidation::Type, PickerInvalidation::Position});
 		}
 	}
-	if (HasBit(this->callbacks.mode, PFM_SAVED)) {
+	if (this->callbacks.mode.Test(PickerFilterMode::Saved)) {
 		btree::btree_set<PickerItem> *saved = this->callbacks.GetSelectedSavedCollection();
 		if (saved == nullptr) {
-			ClrBit(this->callbacks.mode, PFM_SAVED);
+			this->callbacks.mode.Reset(PickerFilterMode::Saved);
 			invalidation_flags.Set({PickerInvalidation::Class, PickerInvalidation::Type, PickerInvalidation::Position});
 		} else if (std::none_of(saved->begin(), saved->end(), [pick_item](const PickerItem &item) { return item == pick_item; })) {
-			ClrBit(this->callbacks.mode, PFM_SAVED);
+			this->callbacks.mode.Reset(PickerFilterMode::Saved);
 			invalidation_flags.Set({PickerInvalidation::Class, PickerInvalidation::Type, PickerInvalidation::Position});
 		}
 	}
@@ -835,7 +857,7 @@ void PickerWindow::PickItem(int cls_id, int id)
 	}
 	this->callbacks.SetSelectedType(id);
 	this->InvalidateData(invalidation_flags);
-	CloseWindowById(WC_SELECT_STATION, 0);
+	CloseWindowById(WindowClass::JoinStation, 0);
 }
 
 /** Builds the filter list of classes. */
@@ -848,8 +870,8 @@ void PickerWindow::BuildPickerClassList()
 	this->classes.clear();
 	this->classes.reserve(count);
 
-	bool filter_used = HasBit(this->callbacks.mode, PFM_USED);
-	bool filter_saved = HasBit(this->callbacks.mode, PFM_SAVED);
+	bool filter_used = this->callbacks.mode.Test(PickerFilterMode::Used);
+	bool filter_saved = this->callbacks.mode.Test(PickerFilterMode::Saved);
 	for (int i = 0; i < count; i++) {
 		if (this->callbacks.GetClassName(i) == INVALID_STRING_ID) continue;
 		if (filter_used && std::none_of(std::begin(this->callbacks.used), std::end(this->callbacks.used), [i](const PickerItem &item) { return item.class_index == i; })) continue;
@@ -918,9 +940,9 @@ void PickerWindow::BuildPickerTypeList()
 
 	this->types.clear();
 
-	bool show_all = HasBit(this->callbacks.mode, PFM_ALL);
-	bool filter_used = HasBit(this->callbacks.mode, PFM_USED);
-	bool filter_saved = HasBit(this->callbacks.mode, PFM_SAVED);
+	bool show_all = this->callbacks.mode.Test(PickerFilterMode::All);
+	bool filter_used = this->callbacks.mode.Test(PickerFilterMode::Used);
+	bool filter_saved = this->callbacks.mode.Test(PickerFilterMode::Saved);
 	int cls_id = this->callbacks.GetSelectedClass();
 
 	btree::btree_set<PickerItem> *saved = nullptr;
@@ -1043,32 +1065,32 @@ void PickerWindow::BuildPickerCollectionList()
 	if (!this->has_class_picker) return;
 }
 
-/** Create nested widgets for the class picker widgets. */
+/** Create nested widgets for the class picker widgets. @copydoc NWidgetFunctionType */
 std::unique_ptr<NWidgetBase> MakePickerClassWidgets()
 {
 	static constexpr std::initializer_list<NWidgetPart> picker_class_widgets = {
-		NWidget(NWID_SELECTION, INVALID_COLOUR, WID_PW_CLASS_SEL),
+		NWidget(NWID_SELECTION, Colours::Invalid, WID_PW_CLASS_SEL),
 			NWidget(NWID_VERTICAL),
-				NWidget(WWT_PANEL, COLOUR_DARK_GREEN),
-					NWidget(WWT_EDITBOX, COLOUR_DARK_GREEN, WID_PW_CLASS_FILTER), SetMinimalSize(240, 0), SetPadding(2), SetFill(1, 0), SetStringTip(STR_LIST_FILTER_OSKTITLE, STR_LIST_FILTER_TOOLTIP),
+				NWidget(WWT_PANEL, Colours::DarkGreen),
+					NWidget(WWT_EDITBOX, Colours::DarkGreen, WID_PW_CLASS_FILTER), SetMinimalSize(240, 0), SetPadding(2), SetFill(1, 0), SetStringTip(STR_LIST_FILTER_OSKTITLE, STR_LIST_FILTER_TOOLTIP),
 				EndContainer(),
 				/* Collection view */
 				NWidget(NWID_VERTICAL),
 					NWidget(NWID_HORIZONTAL, NWidContainerFlag::EqualSize),
-						NWidget(WWT_PUSHTXTBTN, COLOUR_DARK_GREEN, WID_PW_COLEC_ADD), SetFill(1, 0), SetResize(1, 0), SetStringTip(STR_PICKER_COLLECTION_ADD, STR_PICKER_COLLECTION_ADD_TOOLTIP),
-						NWidget(WWT_PUSHTXTBTN, COLOUR_DARK_GREEN, WID_PW_COLEC_RENAME), SetFill(1, 0), SetResize(1, 0), SetStringTip(STR_PICKER_COLLECTION_RENAME, STR_PICKER_COLLECTION_RENAME_TOOLTIP),
-						NWidget(WWT_PUSHTXTBTN, COLOUR_DARK_GREEN, WID_PW_COLEC_DELETE), SetFill(1, 0), SetResize(1, 0), SetStringTip(STR_PICKER_COLLECTION_DELETE, STR_PICKER_COLLECTION_DELETE_TOOLTIP),
+						NWidget(WWT_PUSHTXTBTN, Colours::DarkGreen, WID_PW_COLEC_ADD), SetFill(1, 0), SetResize(1, 0), SetStringTip(STR_PICKER_COLLECTION_ADD, STR_PICKER_COLLECTION_ADD_TOOLTIP),
+						NWidget(WWT_PUSHTXTBTN, Colours::DarkGreen, WID_PW_COLEC_RENAME), SetFill(1, 0), SetResize(1, 0), SetStringTip(STR_PICKER_COLLECTION_RENAME, STR_PICKER_COLLECTION_RENAME_TOOLTIP),
+						NWidget(WWT_PUSHTXTBTN, Colours::DarkGreen, WID_PW_COLEC_DELETE), SetFill(1, 0), SetResize(1, 0), SetStringTip(STR_PICKER_COLLECTION_DELETE, STR_PICKER_COLLECTION_DELETE_TOOLTIP),
 					EndContainer(),
-					NWidget(WWT_DROPDOWN, COLOUR_DARK_GREEN, WID_PW_COLEC_LIST), SetMinimalSize(144, 12), SetFill(0, 1), SetResize(1, 0), SetToolTip(STR_PICKER_SELECT_COLLECTION_TOOLTIP),
+					NWidget(WWT_DROPDOWN, Colours::DarkGreen, WID_PW_COLEC_LIST), SetMinimalSize(144, 12), SetFill(0, 1), SetResize(1, 0), SetToolTip(STR_PICKER_SELECT_COLLECTION_TOOLTIP),
 				EndContainer(),
 				/* Class view */
 				NWidget(NWID_VERTICAL),
 					NWidget(NWID_HORIZONTAL),
-						NWidget(WWT_PANEL, COLOUR_DARK_GREEN),
-							NWidget(WWT_MATRIX, COLOUR_GREY, WID_PW_CLASS_LIST), SetFill(1, 1), SetResize(1, 1), SetPadding(WidgetDimensions::unscaled.picker),
+						NWidget(WWT_PANEL, Colours::DarkGreen),
+							NWidget(WWT_MATRIX, Colours::Grey, WID_PW_CLASS_LIST), SetFill(1, 1), SetResize(1, 1), SetPadding(WidgetDimensions::unscaled.picker),
 									SetMatrixDataTip(1, 0), SetScrollbar(WID_PW_CLASS_SCROLL),
 						EndContainer(),
-						NWidget(NWID_VSCROLLBAR, COLOUR_DARK_GREEN, WID_PW_CLASS_SCROLL),
+						NWidget(NWID_VSCROLLBAR, Colours::DarkGreen, WID_PW_CLASS_SCROLL),
 					EndContainer(),
 				EndContainer(),
 			EndContainer(),
@@ -1078,44 +1100,44 @@ std::unique_ptr<NWidgetBase> MakePickerClassWidgets()
 	return MakeNWidgets(picker_class_widgets, nullptr);
 }
 
-/** Create nested widgets for the type picker widgets. */
+/** Create nested widgets for the type picker widgets. @copydoc NWidgetFunctionType */
 std::unique_ptr<NWidgetBase> MakePickerTypeWidgets()
 {
 	static constexpr std::initializer_list<NWidgetPart> picker_type_widgets = {
-		NWidget(NWID_SELECTION, INVALID_COLOUR, WID_PW_TYPE_SEL),
+		NWidget(NWID_SELECTION, Colours::Invalid, WID_PW_TYPE_SEL),
 			NWidget(NWID_VERTICAL),
 				NWidget(NWID_HORIZONTAL),
-					NWidget(WWT_PANEL, COLOUR_DARK_GREEN),
-						NWidget(WWT_EDITBOX, COLOUR_DARK_GREEN, WID_PW_TYPE_FILTER), SetPadding(2), SetResize(1, 0), SetFill(1, 0), SetStringTip(STR_LIST_FILTER_OSKTITLE, STR_LIST_FILTER_TOOLTIP),
+					NWidget(WWT_PANEL, Colours::DarkGreen),
+						NWidget(WWT_EDITBOX, Colours::DarkGreen, WID_PW_TYPE_FILTER), SetPadding(2), SetResize(1, 0), SetFill(1, 0), SetStringTip(STR_LIST_FILTER_OSKTITLE, STR_LIST_FILTER_TOOLTIP),
 					EndContainer(),
-					NWidget(WWT_IMGBTN, COLOUR_DARK_GREEN, WID_PW_CONFIGURE_BADGES), SetAspect(WidgetDimensions::ASPECT_UP_DOWN_BUTTON), SetResize(0, 0), SetFill(0, 1), SetSpriteTip(SPR_EXTRA_MENU, STR_BADGE_CONFIG_MENU_TOOLTIP),
+					NWidget(WWT_IMGBTN, Colours::DarkGreen, WID_PW_CONFIGURE_BADGES), SetAspect(WidgetDimensions::ASPECT_UP_DOWN_BUTTON), SetResize(0, 0), SetFill(0, 1), SetSpriteTip(SPR_EXTRA_MENU, STR_BADGE_CONFIG_MENU_TOOLTIP),
 				EndContainer(),
 				NWidget(NWID_VERTICAL, NWidContainerFlag{}, WID_PW_BADGE_FILTER),
 			EndContainer(),
 				NWidget(NWID_HORIZONTAL, NWidContainerFlag::EqualSize),
-					NWidget(WWT_TEXTBTN, COLOUR_DARK_GREEN, WID_PW_MODE_ALL), SetFill(1, 0), SetResize(1, 0), SetStringTip(STR_PICKER_MODE_ALL, STR_PICKER_MODE_ALL_TOOLTIP),
-					NWidget(WWT_TEXTBTN, COLOUR_DARK_GREEN, WID_PW_MODE_USED), SetFill(1, 0), SetResize(1, 0), SetStringTip(STR_PICKER_MODE_USED, STR_PICKER_MODE_USED_TOOLTIP),
-					NWidget(WWT_TEXTBTN, COLOUR_DARK_GREEN, WID_PW_MODE_SAVED), SetFill(1, 0), SetResize(1, 0), SetStringTip(STR_PICKER_MODE_SAVED, STR_PICKER_MODE_SAVED_TOOLTIP),
-					NWidget(WWT_PUSHTXTBTN, COLOUR_DARK_GREEN, WID_PW_SHRINK), SetAspect(WidgetDimensions::ASPECT_UP_DOWN_BUTTON), SetStringTip(STR_PICKER_PREVIEW_SHRINK, STR_PICKER_PREVIEW_SHRINK_TOOLTIP),
-					NWidget(WWT_PUSHTXTBTN, COLOUR_DARK_GREEN, WID_PW_EXPAND), SetAspect(WidgetDimensions::ASPECT_UP_DOWN_BUTTON), SetStringTip(STR_PICKER_PREVIEW_EXPAND, STR_PICKER_PREVIEW_EXPAND_TOOLTIP),
+					NWidget(WWT_TEXTBTN, Colours::DarkGreen, WID_PW_MODE_ALL), SetFill(1, 0), SetResize(1, 0), SetStringTip(STR_PICKER_MODE_ALL, STR_PICKER_MODE_ALL_TOOLTIP),
+					NWidget(WWT_TEXTBTN, Colours::DarkGreen, WID_PW_MODE_USED), SetFill(1, 0), SetResize(1, 0), SetStringTip(STR_PICKER_MODE_USED, STR_PICKER_MODE_USED_TOOLTIP),
+					NWidget(WWT_TEXTBTN, Colours::DarkGreen, WID_PW_MODE_SAVED), SetFill(1, 0), SetResize(1, 0), SetStringTip(STR_PICKER_MODE_SAVED, STR_PICKER_MODE_SAVED_TOOLTIP),
+					NWidget(WWT_PUSHTXTBTN, Colours::DarkGreen, WID_PW_SHRINK), SetAspect(WidgetDimensions::ASPECT_UP_DOWN_BUTTON), SetStringTip(STR_PICKER_PREVIEW_SHRINK, STR_PICKER_PREVIEW_SHRINK_TOOLTIP),
+					NWidget(WWT_PUSHTXTBTN, Colours::DarkGreen, WID_PW_EXPAND), SetAspect(WidgetDimensions::ASPECT_UP_DOWN_BUTTON), SetStringTip(STR_PICKER_PREVIEW_EXPAND, STR_PICKER_PREVIEW_EXPAND_TOOLTIP),
 				EndContainer(),
 				NWidget(NWID_HORIZONTAL),
-					NWidget(WWT_PANEL, COLOUR_DARK_GREEN), SetScrollbar(WID_PW_TYPE_SCROLL),
-						NWidget(NWID_MATRIX, COLOUR_DARK_GREEN, WID_PW_TYPE_MATRIX), SetPIP(0, 2, 0), SetPadding(WidgetDimensions::unscaled.picker),
-							NWidget(WWT_PANEL, COLOUR_GREY, WID_PW_TYPE_ITEM), SetScrollbar(WID_PW_TYPE_SCROLL),
+					NWidget(WWT_PANEL, Colours::DarkGreen), SetScrollbar(WID_PW_TYPE_SCROLL),
+						NWidget(NWID_MATRIX, Colours::DarkGreen, WID_PW_TYPE_MATRIX), SetPIP(0, 2, 0), SetPadding(WidgetDimensions::unscaled.picker),
+							NWidget(WWT_PANEL, Colours::Grey, WID_PW_TYPE_ITEM), SetScrollbar(WID_PW_TYPE_SCROLL),
 							EndContainer(),
 						EndContainer(),
 					EndContainer(),
-					NWidget(NWID_VSCROLLBAR, COLOUR_DARK_GREEN, WID_PW_TYPE_SCROLL),
+					NWidget(NWID_VSCROLLBAR, Colours::DarkGreen, WID_PW_TYPE_SCROLL),
 				EndContainer(),
-				NWidget(NWID_SELECTION, INVALID_COLOUR, WID_PW_TYPE_RAND_SEL),
-					NWidget(WWT_TEXTBTN, COLOUR_DARK_GREEN, WID_PW_TYPE_RANDOM), SetResize(1, 0), SetStringTip(STR_PICKER_RANDOM),
+				NWidget(NWID_SELECTION, Colours::Invalid, WID_PW_TYPE_RAND_SEL),
+					NWidget(WWT_TEXTBTN, Colours::DarkGreen, WID_PW_TYPE_RANDOM), SetResize(1, 0), SetStringTip(STR_PICKER_RANDOM),
 				EndContainer(),
 				NWidget(NWID_HORIZONTAL),
-					NWidget(WWT_PANEL, COLOUR_DARK_GREEN),
-						NWidget(WWT_EMPTY, INVALID_COLOUR, WID_PW_TYPE_NAME), SetPadding(WidgetDimensions::unscaled.framerect), SetResize(1, 0), SetFill(1, 0), SetMinimalTextLines(1, 0),
+					NWidget(WWT_PANEL, Colours::DarkGreen),
+						NWidget(WWT_EMPTY, Colours::Invalid, WID_PW_TYPE_NAME), SetPadding(WidgetDimensions::unscaled.framerect), SetResize(1, 0), SetFill(1, 0), SetMinimalTextLines(1, 0),
 					EndContainer(),
-					NWidget(WWT_RESIZEBOX, COLOUR_DARK_GREEN, WID_PW_TYPE_RESIZE),
+					NWidget(WWT_RESIZEBOX, Colours::DarkGreen, WID_PW_TYPE_RESIZE),
 				EndContainer(),
 			EndContainer(),
 		EndContainer(),
@@ -1126,10 +1148,10 @@ std::unique_ptr<NWidgetBase> MakePickerTypeWidgets()
 
 void InvalidateAllPickerWindows()
 {
-	InvalidateWindowClassesData(WC_BUS_STATION, PickerWindow::PICKER_INVALIDATION_ALL.base());
-	InvalidateWindowClassesData(WC_TRUCK_STATION, PickerWindow::PICKER_INVALIDATION_ALL.base());
-	InvalidateWindowClassesData(WC_SELECT_STATION, PickerWindow::PICKER_INVALIDATION_ALL.base());
-	InvalidateWindowClassesData(WC_BUILD_WAYPOINT, PickerWindow::PICKER_INVALIDATION_ALL.base());
-	InvalidateWindowClassesData(WC_BUILD_OBJECT, PickerWindow::PICKER_INVALIDATION_ALL.base());
-	InvalidateWindowClassesData(WC_BUILD_HOUSE, PickerWindow::PICKER_INVALIDATION_ALL.base());
+	InvalidateWindowClassesData(WindowClass::BuildBusStation, PickerWindow::PICKER_INVALIDATION_ALL.base());
+	InvalidateWindowClassesData(WindowClass::BuildTruckStation, PickerWindow::PICKER_INVALIDATION_ALL.base());
+	InvalidateWindowClassesData(WindowClass::JoinStation, PickerWindow::PICKER_INVALIDATION_ALL.base());
+	InvalidateWindowClassesData(WindowClass::BuildWaypoint, PickerWindow::PICKER_INVALIDATION_ALL.base());
+	InvalidateWindowClassesData(WindowClass::BuildObject, PickerWindow::PICKER_INVALIDATION_ALL.base());
+	InvalidateWindowClassesData(WindowClass::BuildHouse, PickerWindow::PICKER_INVALIDATION_ALL.base());
 }

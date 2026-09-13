@@ -42,6 +42,7 @@
 #include "event_logs.h"
 #include "string_func.h"
 #include "plans_func.h"
+#include "session_stats.h"
 #include "core/format.hpp"
 #include "3rdparty/monocypher/monocypher.h"
 
@@ -78,6 +79,8 @@ void InitializeOldNames();
  * It isn't as much of an unique ID but more a hashed digest of a random
  * string and a time. It is very likely to be unique, but it does not follow
  * any UUID standard.
+ * @param subject What to create the ID for.
+ * @return The generated ID.
  */
 std::string GenerateUid(std::string_view subject)
 {
@@ -244,7 +247,7 @@ void InitializeGame(uint size_x, uint size_y, bool reset_date, bool reset_settin
 	ResetRailPlacementSnapping();
 
 	GamelogReset();
-	GamelogStartAction(GLAT_START);
+	GamelogStartAction(GamelogActionType::Start);
 	GamelogRevision();
 	GamelogMode();
 	GamelogGRFAddList(_grfconfig);

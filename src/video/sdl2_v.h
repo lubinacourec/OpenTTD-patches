@@ -18,6 +18,10 @@
 /** The SDL video driver. */
 class VideoDriver_SDL_Base : public VideoDriver {
 public:
+	/**
+	 * Create the video driver.
+	 * @param uses_hardware_acceleration Whether hardware acceleration is used by this instance of the driver.
+	 */
 	VideoDriver_SDL_Base(bool uses_hardware_acceleration = false) : VideoDriver(uses_hardware_acceleration) {}
 
 	const char *Start(const StringList &param) override;
@@ -34,7 +38,7 @@ public:
 
 	bool AfterBlitterChange() override;
 
-	bool ClaimMousePointer() override;
+	void ClaimMousePointer() override;
 
 	void EditBoxGainedFocus() override;
 
@@ -60,21 +64,37 @@ protected:
 	void CheckPaletteAnim() override;
 	bool PollEvent() override;
 
-	/** Indicate to the driver the client-side might have changed. */
 	void ClientSizeChanged(int w, int h, bool force);
 
-	/** (Re-)create the backing store. */
+	/**
+	 * (Re-)create the backing store.
+	 * @param w The width of the window.
+	 * @param h The height of the window.
+	 * @param force Whether to force full reallocation, instead of not reallocating when size did not change.
+	 * @return Whether the backing store was (re-)created.
+	 */
 	virtual bool AllocateBackingStore(int w, int h, bool force = false) = 0;
-	/** Get a pointer to the video buffer. */
+
+	/**
+	 * Get a pointer to the video buffer.
+	 * @return The pointer.
+	 */
 	virtual void *GetVideoPointer() = 0;
+
 	/** Hand video buffer back to the painting backend. */
 	virtual void ReleaseVideoPointer() = 0;
-	/** Create the main window. */
+
+	/**
+	 * Create the main window.
+	 * @param w The width of the window.
+	 * @param h The height of the window.
+	 * @param flags SDL specific flags for the window.
+	 * @return Whether the window was created or already existed.
+	 */
 	virtual bool CreateMainWindow(uint w, uint h, uint flags = 0);
 
 private:
 	void LoopOnce();
-	void MainLoopCleanup();
 	bool CreateMainSurface(uint w, uint h, bool resize);
 	const char *Initialize();
 
@@ -88,7 +108,7 @@ private:
 	 */
 	bool edit_box_focused = false;
 
-	int startup_display = 0;
+	int startup_display = 0; ///< The display to show OpenTTD on when starting.
 };
 
 #endif /* VIDEO_SDL_H */

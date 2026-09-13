@@ -27,8 +27,8 @@ enum CharSetFilter : uint8_t {
 	CS_ALPHANUMERAL,      ///< Both numeric and alphabetic and spaces and stuff
 	CS_NUMERAL,           ///< Only numeric ones
 	CS_NUMERAL_SIGNED,    ///< Only numeric ones, and minus/negative
-	CS_NUMERAL_DECIMAL,   ///< Only numeric, decimal separaters
-	CS_NUMERAL_DECIMAL_SIGNED, ///< Only numeric, decimal separaters, and minus/negative
+	CS_NUMERAL_DECIMAL,   ///< Only numeric, decimal separators
+	CS_NUMERAL_DECIMAL_SIGNED, ///< Only numeric, decimal separators, and minus/negative
 	CS_NUMERAL_SPACE,     ///< Only numbers and spaces
 	CS_ALPHA,             ///< Only alphabetic values
 	CS_HEXADECIMAL,       ///< Only hexadecimal characters
@@ -57,6 +57,7 @@ enum class StringValidationSetting : uint8_t {
 	ReplaceTabCrNlWithSpace,
 };
 
+/** Bitset of \c StringValidationSetting elements. */
 using StringValidationSettings = EnumBitSet<StringValidationSetting, uint8_t>;
 
 

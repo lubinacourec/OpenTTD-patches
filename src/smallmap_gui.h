@@ -17,25 +17,12 @@
 #include "linkgraph/linkgraph_gui.h"
 #include "widgets/smallmap_widget.h"
 #include "guitimer_func.h"
+#include "tile_type.h"
 #include <vector>
 
 static const int NUM_NO_COMPANY_ENTRIES = 4; ///< Number of entries in the owner legend that are not companies.
 
-/** Mapping of tile type to importance of the tile (higher number means more interesting to show). */
-static const uint8_t _tiletype_importance[] = {
-	2, // MP_CLEAR
-	8, // MP_RAILWAY
-	7, // MP_ROAD
-	5, // MP_HOUSE
-	2, // MP_TREES
-	9, // MP_STATION
-	2, // MP_WATER
-	1, // MP_VOID
-	6, // MP_INDUSTRY
-	8, // MP_TUNNELBRIDGE
-	2, // MP_OBJECT
-	0,
-};
+extern const EnumIndexArray<uint8_t, TileType, to_underlying(TileType::End) + 1> _tiletype_importance;
 
 /* set up the cargos to be displayed in the smallmap's route legend */
 void BuildLinkStatsLegend();
@@ -65,25 +52,26 @@ struct LegendAndColour {
 };
 
 /** Types of legends in the #WID_SM_LEGEND widget. */
-enum SmallMapType : uint8_t {
-	SMT_CONTOUR,
-	SMT_VEHICLES,
-	SMT_INDUSTRY,
-	SMT_LINKSTATS,
-	SMT_ROUTES,
-	SMT_VEGETATION,
-	SMT_OWNER,
+enum class SmallMapType : uint8_t {
+	Contour, ///< Contour legend.
+	Vehicles, ///< Vehicles legend.
+	Industries, ///< Industries legend.
+	LinkStats, ///< LinkStats legend.
+	Routes, ///< Routes legend.
+	Vegetation, ///< Vegetation legend.
+	Owners, ///< Owners legend.
+	End, ///< End marker.
 };
-DECLARE_ENUM_AS_ADDABLE(SmallMapType)
+//DECLARE_ENUM_AS_ADDABLE(SmallMapType)
 
 /** Class managing the smallmap window. */
 class SmallMapWindow : public Window {
 protected:
 	/** Available kinds of zoomlevel changes. */
-	enum ZoomLevelChange : uint8_t {
-		ZLC_INITIALIZE, ///< Initialize zoom level.
-		ZLC_ZOOM_OUT,   ///< Zoom out.
-		ZLC_ZOOM_IN,    ///< Zoom in.
+	enum class ZoomLevelChange : uint8_t {
+		Init, ///< Initialize zoom level.
+		ZoomOut, ///< Zoom out.
+		ZoomIn, ///< Zoom in.
 	};
 
 	static SmallMapType map_type; ///< Currently displayed legends.
@@ -163,7 +151,7 @@ protected:
 	inline uint GetLegendHeight(uint num_columns) const
 	{
 		return WidgetDimensions::scaled.framerect.Vertical() +
-				this->GetNumberRowsLegend(num_columns) * GetCharacterHeight(FS_SMALL);
+				this->GetNumberRowsLegend(num_columns) * GetCharacterHeight(FontSize::Small);
 	}
 
 	/**
@@ -203,6 +191,7 @@ protected:
 	uint32_t GetTileColours(const TileArea &ta) const;
 
 	int GetPositionOnLegend(Point pt);
+	void DrawLegend(const Rect &text, const Rect &icon, bool highlight, std::string_view string) const;
 
 public:
 	friend class NWidgetSmallmapDisplay;

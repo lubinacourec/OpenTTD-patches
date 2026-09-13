@@ -11,22 +11,9 @@ STR_CONFIG_SETTING_ZOOM_LVL_OUT_32X                             :32x
 STR_CONFIG_SETTING_ZOOM_LVL_OUT_64X                             :64x
 STR_CONFIG_SETTING_ZOOM_LVL_OUT_128X                            :128x
 
-STR_CONFIG_SETTING_DEFAULT_ROAD_TYPE_DEFAULT                    :Standard
-
-STR_ORDER_CONDITIONAL_CARGO_WAITING                             :Wartende Fracht
-STR_ORDER_CONDITIONAL_ACCEPTANCE_DROPDOWN                       :Akzeptierte Fracht
-STR_ORDER_CONDITIONAL_FREE_PLATFORMS                            :Freie Bahnsteige
-STR_ORDER_CONDITIONAL_PERCENT                                   :Prozent der Fälle
-STR_ORDER_CONDITIONAL_SLOT_OCCUPANCY                            :Slotauslastung
-STR_ORDER_CONDITIONAL_TRAIN_IN_SLOT                             :Zug im Slot
-STR_ORDER_CONDITIONAL_CARGO_LOAD_PERCENTAGE                     :Frachtladezustand (Prozent)
-STR_ORDER_CONDITIONAL_CARGO_WAITING_AMOUNT                      :Wartende Frachtmenge
-STR_ORDER_CONDITIONAL_COUNTER_VALUE                             :Zählerwert
-STR_ORDER_CONDITIONAL_TIME_DATE_VALUE                           :Aktuelle(s) Zeit/Datum
-STR_ORDER_CONDITIONAL_TIMETABLE_STATE                           :Fahrplanstatus
-STR_ORDER_CONDITIONAL_DISPATCH_SLOT                             :Abfahrztszeitfenster
-
 STR_ORDER_STOP_LOCATION_THROUGH                                 :{SPACE}[durchgehendes Laden]
+
+STR_CONFIG_SETTING_STOP_LOCATION_THROUGH                        :durchgehendes Laden
 
 STR_CONFIG_SETTING_TOWN_GROWTH_EXTREME_SLOW                     :Extrem langsam
 STR_CONFIG_SETTING_TOWN_GROWTH_VERY_SLOW                        :Sehr langsam
@@ -251,9 +238,6 @@ STR_CONFIG_SETTING_RIVER_MIN_LENGTH_HELPTEXT                    :Minimale Länge
 STR_CONFIG_SETTING_RIVER_ROUTE_RANDOM                           :Zufälligkeit von Flussläufen: {STRING}
 STR_CONFIG_SETTING_RIVER_ROUTE_RANDOM_HELPTEXT                  :Wähle, wie zufällig die Flussläufe aussehen sollen.
 
-STR_CONFIG_SETTING_RIVERS_TOP_OF_HILL                           :Flussläufe sollen von höhreren zu niedrigeren Höhenstufen verlaufen: {STRING}
-STR_CONFIG_SETTING_RIVERS_TOP_OF_HILL_HELPTEXT                  :Legt fest, ob die Quellen von Flüssen in den Bergen liegen sollen.
-
 STR_CONFIG_SETTING_RIVER_TROPICS_WIDTH                          :Breite des tropischen Geländes um Flussläufe herum: {STRING}
 STR_CONFIG_SETTING_RIVER_TROPICS_WIDTH_HELPTEXT                 :Legt die Breite des tropischen Geländes fest, das Flüsse umgibt.{}This is the total width of the zone on both sides of the river.
 
@@ -371,9 +355,6 @@ STR_CONFIG_SETTING_TIMETABLE_AUTOFILL_ROUNDING_TICKS            :Runde automatis
 STR_CONFIG_SETTING_TIMETABLE_AUTOFILL_ROUNDING_TICKS_HELPTEXT   :Fahrplanzeiten, die durch automatische Fahrpläne angepasst wurden, werden nicht gerundet. Ein Tag im Spiel hat in einer Tageslänge von 1 eine Dauer von 74 Ticks.
 STR_CONFIG_SETTING_TIMETABLE_AUTOFILL_ROUNDING_TICKS_VALUE      :{COMMA}{NBSP}Tick{P 0 "" s}
 STR_CONFIG_SETTING_TIMETABLE_AUTOFILL_ROUNDING_TICKS_DEFAULT    :Standard
-
-STR_CONFIG_SETTING_DEFAULT_ROAD_TYPE                            :Straßen(bahn)typ bei Spielbeginn/geladenem Spiel: {STRING}
-STR_CONFIG_SETTING_DEFAULT_ROAD_TYPE_HELPTEXT                   :Vorausgewählter Straßen(bahn)typ nach Spielstart. 'Erster verfügbarer' wählt den ältesten Straßen(bahn)typ, 'Letzter verfügbarer' den neuesten Straßen(bahn)typ, 'Meistbenutzter' denjenigen, der am meisten verbaut ist und 'Standard' den Standardtyp.
 
 STR_CONFIG_SETTING_ENABLE_BUILD_RIVER                           :Aktiviere das Bauen von Flüssen: {STRING}
 STR_CONFIG_SETTING_ENABLE_BUILD_RIVER_HELPTEXT                  :Aktiviere das Bauen von Flüssen außerhalb des Szenarioeditors
@@ -569,6 +550,7 @@ STR_LINKGRAPH_STATS_TOOLTIP_CAPACITY                            :{}Kapazität: {
 
 STR_RAIL_TOOLBAR_TOOLTIP_BUILD_POLYRAIL                         :{BLACK}Gleise legen mit automatischem Legen mehrerer Gleise. Strg halten, um zwischen Bauen und Entfernen umzuschalten. Shift schaltet zwischen Bauen und Kostenvoranschlag um
 
+STR_BUILD_SIGNAL_TOGGLE_ADVANCED_SIGNAL_TOOLTIP                 :{BLACK}Das Zeigen erweiterter Signaltypen umschalten
 STR_BUILD_SIGNAL_SEMAPHORE_PROG_TOOLTIP                         :{BLACK}Programmierbares Signal (Formsignal){}Das programmierbare Signal ist ein Kombinationssignal, welches programmiert werden kann sich komplex zu verhalten.
 STR_BUILD_SIGNAL_SEMAPHORE_NO_ENTRY_TOOLTIP                     :{BLACK}Sperrsignal (Formsignal){}Erlaubt mehreren Zügen, einen Signalabschnitt zu befahren, sofern sie separate Gleisabschnitte belegen können. Sperrsignale können nicht von vorne durchfahren werden.
 STR_BUILD_SIGNAL_ELECTRIC_PROG_TOOLTIP                          :{BLACK}Programmierbares Signal (Lichtsignal){}Das programmierbare Signal ist ein Kombinationssignal, welches programmiert werden kann sich komplex zu verhalten.
@@ -1250,6 +1232,19 @@ STR_ORDER_REVERSE_TOOLTIP                                       :{BLACK}Ändere 
 
 STR_ORDER_DROP_SELL_DEPOT                                       :Fahrzeug verkaufen
 
+STR_ORDER_CONDITIONAL_CARGO_WAITING                             :Wartende Fracht
+STR_ORDER_CONDITIONAL_ACCEPTANCE_DROPDOWN                       :Akzeptierte Fracht
+STR_ORDER_CONDITIONAL_FREE_PLATFORMS                            :Freie Bahnsteige
+STR_ORDER_CONDITIONAL_PERCENT                                   :Prozent der Fälle
+STR_ORDER_CONDITIONAL_SLOT_OCCUPANCY                            :Slotauslastung
+STR_ORDER_CONDITIONAL_TRAIN_IN_SLOT                             :Zug im Slot
+STR_ORDER_CONDITIONAL_CARGO_LOAD_PERCENTAGE                     :Frachtladezustand (Prozent)
+STR_ORDER_CONDITIONAL_CARGO_WAITING_AMOUNT                      :Wartende Frachtmenge
+STR_ORDER_CONDITIONAL_COUNTER_VALUE                             :Zählerwert
+STR_ORDER_CONDITIONAL_TIME_DATE_VALUE                           :Aktuelle(s) Zeit/Datum
+STR_ORDER_CONDITIONAL_TIMETABLE_STATE                           :Fahrplanstatus
+STR_ORDER_CONDITIONAL_DISPATCH_SLOT                             :Abfahrztszeitfenster
+
 STR_ORDER_CONDITIONAL_VEHICLE_IN_SLOT                           :Fahrzeug im Slot
 
 STR_ORDER_CONDITIONAL_NEXT_STATION                              :nächste Station
@@ -1592,7 +1587,7 @@ STR_SCHDISPATCH_ENABLED_TOOLTIP                                 :{BLACK}Aktivier
 STR_SCHDISPATCH_ADD                                             :{BLACK}Füge Abfahrtslot hinzu
 STR_SCHDISPATCH_ADD_TOOLTIP                                     :{BLACK}Füge für diesen Fahrplan einen neuen Abfahrtslot hinzu.
 STR_SCHDISPATCH_ADD_TOOLTIP_EXTRA                               :{BLACK}{STRING} Strg+Klick zum hinzufügen mehrerer Abfahrtslots auf einmal.
-STR_SCHDISPATCH_ADD_CAPTION                                     :{BLACK}Abfahrtslot
+STR_SCHDISPATCH_ADD_CAPTION                                     :Abfahrtslot
 STR_SCHDISPATCH_DURATION                                        :{BLACK}Dauer
 STR_SCHDISPATCH_DURATION_TOOLTIP                                :{BLACK}Setze die Dauer für diesen Fahrplan.
 STR_SCHDISPATCH_DURATION_CAPTION_MINUTE                         :{BLACK}Dauer (Minuten)

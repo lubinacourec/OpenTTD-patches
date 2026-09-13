@@ -15,17 +15,28 @@
 #include "querystring_gui.h"
 #include "sortlist_type.h"
 #include "stringfilter_type.h"
-#include "strings_type.h"
+#include "strings_id_type.h"
 #include "timer/timer.h"
 #include "timer/timer_game_calendar.h"
 #include "timer/timer_window.h"
 #include "window_gui.h"
 #include "window_type.h"
+#include "time_type.h"
 #include "3rdparty/cpp-btree/btree_set.h"
 #include <map>
 
+/** Picker filter mode. */
+enum class PickerFilterMode : uint8_t {
+	All, ///< Show all classes.
+	Used, ///< Show used types.
+	Saved, ///< Show saved types.
+};
+
+/** Bitset of \c PickerFilterMode elements. */
+using PickerFilterModes = EnumBitSet<PickerFilterMode, uint8_t>;
+
 struct PickerItem {
-	uint32_t grfid;
+	GrfID grfid;
 	uint16_t local_id;
 	int class_index;
 	int index;
@@ -47,51 +58,122 @@ public:
 	explicit PickerCallbacks(const std::string &ini_group);
 	virtual ~PickerCallbacks();
 
-	virtual void Close(int) { }
+	/** @copydoc Window::Close */
+	virtual void Close([[maybe_unused]] int data) { }
 
+	/**
+	 * NewGRF feature this picker is for.
+	 * @return The associated NewGRF feature.
+	 */
 	virtual GrfSpecFeature GetFeature() const = 0;
-	/** Should picker class/type selection be enabled? */
+	/**
+	 * Should picker class/type selection be enabled?
+	 * @return \c true when to show the class/type picker.
+	 */
 	virtual bool IsActive() const = 0;
-	/** Are there multiple classes to chose from? */
+	/**
+	 * Are there multiple classes to chose from?
+	 * @return \c true when there are multiple classes for this picker.
+	 */
 	virtual bool HasClassChoice() const = 0;
 
 	/* Class callbacks */
-	/** Get the tooltip string for the class list. */
+	/**
+	 * Get the tooltip string for the class list.
+	 * @return StringID without parameters for the tooltip.
+	 */
 	virtual StringID GetClassTooltip() const = 0;
-	/** Get the number of classes. @note Used only to estimate space requirements. */
+	/**
+	 * Get the number of classes.
+	 * @return Number of classes.
+	 * @note Used only to estimate space requirements.
+	 */
 	virtual int GetClassCount() const = 0;
-	/** Get the index of the selected class. */
+	/**
+	 * Get the index of the selected class.
+	 * @return The previously selected class.
+	 */
 	virtual int GetSelectedClass() const = 0;
-	/** Set the selected class. */
+	/**
+	 * Set the selected class.
+	 * @param id The new selected class.
+	 */
 	virtual void SetSelectedClass(int id) const = 0;
-	/** Get the name of a class. */
+	/**
+	 * Get the name of a class.
+	 * @param id The class to get the name for.
+	 * @return StringID without parameters.
+	 */
 	virtual StringID GetClassName(int id) const = 0;
 
 	/* Type callbacks */
-	/** Get the tooltip string for the type grid. */
+	/**
+	 * Get the tooltip string for the type grid.
+	 * @return StringID without parameters.
+	 */
 	virtual StringID GetTypeTooltip() const = 0;
 	/** Get the tooltip for the random item button */
 	virtual StringID GetRandomTooltip() const = 0;
-	/** Get the number of types in a class. @note Used only to estimate space requirements. */
+	/**
+	 * Get the number of types in a class.
+	 * @param cls_id The class' identifier.
+	 * @return The number of types.
+	 * @note Used only to estimate space requirements.
+	 */
 	virtual int GetTypeCount(int cls_id) const = 0;
 
-	/** Get the selected type. */
+	/**
+	 * Get the selected type.
+	 * @return Previously selected type.
+	 */
 	virtual int GetSelectedType() const = 0;
-	/** Set the selected type. */
+	/**
+	 * Set the selected type.
+	 * @param id The new type.
+	 */
 	virtual void SetSelectedType(int id) const = 0;
-	/** Get data about an item. */
+	/**
+	 * Get data about an item.
+	 * @param cls_id The chosen class.
+	 * @param id The chosen type within the class.
+	 * @return The metadata about the item.
+	 */
 	virtual PickerItem GetPickerItem(int cls_id, int id) const = 0;
-	/** Get the item of a type. */
+	/**
+	 * Get the item name of a type.
+	 * @param cls_id The chosen class.
+	 * @param id The chosen type within the class.
+	 * @return The name of the item.
+	 */
 	virtual StringID GetTypeName(int cls_id, int id) const = 0;
-	/** Get the item of a type. */
+	/**
+	 * Get the item's badges of a type.
+	 * @param cls_id The chosen class.
+	 * @param id The chosen type within the class.
+	 * @return The badge IDs.
+	 */
 	virtual std::span<const BadgeID> GetTypeBadges(int cls_id, int id) const = 0;
-	/** Test if an item is currently buildable. */
+	/**
+	 * Test if an item is currently buildable.
+	 * @param cls_id The chosen class.
+	 * @param id The chosen type within the class.
+	 * @return \c true if the combination is buildable.
+	 */
 	virtual bool IsTypeAvailable(int cls_id, int id) const = 0;
-	/** Draw preview image of an item. */
+	/**
+	 * Draw preview image of an item.
+	 * @param x The X-position for the sprite to draw.
+	 * @param y The Y-position for the sprite to draw.
+	 * @param cls_id The chosen class.
+	 * @param id The chosen type within the class.
+	 */
 	virtual void DrawType(int x, int y, int cls_id, int id) const = 0;
 
 	/* Collection Callbacks */
-	/** Get the tooltip string for the collection list. */
+	/**
+	 * Get the tooltip string for the collection list.
+	 * @return StringID without parameters.
+	 */
 	virtual StringID GetCollectionTooltip() const = 0;
 	/** Set the selected collection. */
 	virtual void SetSelectedCollection([[maybe_unused]] const btree::btree_set<PickerItem> &items) const = 0;
@@ -100,9 +182,16 @@ public:
 	/** Is this contents of this collection suitable for randomisation? */
 	virtual bool IsCollectionValidForRandom([[maybe_unused]] const btree::btree_set<PickerItem> &items, [[maybe_unused]]Window *w) const { return false; }
 
-	/** Fill a set with all items that are used by the current player. */
+	/**
+	 * Fill a set with all items that are used by the current player.
+	 * @param items The set to fill.
+	 */
 	virtual void FillUsedItems(btree::btree_set<PickerItem> &items) = 0;
-	/** Update link between grfid/localidx and class_index/index in saved items. */
+	/**
+	 * Update link between grfid/localidx and class_index/index in saved items.
+	 * @param src Mapping of name to set of PickerItems with only grfid and localidx set.
+	 * @return Mapping of name to fully populated PickerItems for loaded NewGRFs and 'src' items when the NewGRF is not loaded.
+	 */
 	virtual PickerItemsCollection UpdateSavedItems(const PickerItemsCollection &src) = 0;
 	/**
 	 * Initialize the list of active collections for sorting purposes.
@@ -144,7 +233,7 @@ public:
 	Listing collection_last_sorting = { false, 0 }; ///< Default sorting of #PickerCollectionList.
 
 	const std::string ini_group; ///< Ini Group for saving favourites.
-	uint8_t mode = 0; ///< Bitmask of \c PickerFilterModes.
+	PickerFilterModes mode{};            ///< Bitmask of \c PickerFilterModes.
 	bool place_collection = false;       ///< Are we placing a collection?
 	bool rename_collection = false;      ///< Are we renaming a collection?
 	std::string sel_collection;          ///< Currently selected collection of saved items.
@@ -161,10 +250,32 @@ public:
 template <typename T>
 class PickerCallbacksNewGRFClass : public PickerCallbacks {
 public:
+	/**
+	 * Create the callback instance.
+	 * @param ini_group The group in the configuration file to save/load state to/from.
+	 */
 	explicit PickerCallbacksNewGRFClass(const std::string &ini_group) : PickerCallbacks(ini_group) {}
 
+	/**
+	 * Casts the given index to the right type.
+	 * @param cls_id The index to cast.
+	 * @return The index with the right type.
+	 */
 	inline typename T::index_type GetClassIndex(int cls_id) const { return static_cast<typename T::index_type>(cls_id); }
+
+	/**
+	 * Get the class with the given index.
+	 * @param cls_id The index of the class to get.
+	 * @return The class instance.
+	 */
 	inline const T *GetClass(int cls_id) const { return T::Get(this->GetClassIndex(cls_id)); }
+
+	/**
+	 * Get the spec of an object within a class.
+	 * @param cls_id The index of the class.
+	 * @param id The index of the spec within the class.
+	 * @return The spec.
+	 */
 	inline const typename T::spec_type *GetSpec(int cls_id, int id) const { return this->GetClass(cls_id)->GetSpec(id); }
 
 	bool HasClassChoice() const override { return T::HasUIClass(); }
@@ -172,12 +283,25 @@ public:
 	int GetClassCount() const override { return T::GetClassCount(); }
 	int GetTypeCount(int cls_id) const override { return this->GetClass(cls_id)->GetSpecCount(); }
 
+	/**
+	 * Get the PickerItem for the given spec.
+	 * @param spec The spec to get the picker item to.
+	 * @param cls_id Optional index of the class, in case \c spec is \c nullptr.
+	 * @param id Optional index of the spec within the class, in case \c spec is \c nullptr.
+	 * @return The PickerItem with metadata.
+	 */
 	PickerItem GetPickerItem(const typename T::spec_type *spec, int cls_id = -1, int id = -1) const
 	{
-		if (spec == nullptr) return {0, 0, cls_id, id};
-		return {spec->grf_prop.grfid, spec->grf_prop.local_id, spec->class_index, spec->index};
+		if (spec == nullptr) return {GrfID{}, 0, cls_id, id};
+		return {spec->grf_prop.grfid, spec->grf_prop.local_id, spec->class_index.base(), spec->index};
 	}
 
+	/**
+	 * Get the PickerItem for the given index with the class.
+	 * @param cls_id The index of the class.
+	 * @param id The index of the spec within the class.
+	 * @return The PickerItem with metadata.
+	 */
 	PickerItem GetPickerItem(int cls_id, int id) const override
 	{
 		return GetPickerItem(GetClass(cls_id)->GetSpec(id), cls_id, id);
@@ -220,12 +344,7 @@ using PickerCollectionList = GUIList<std::string, std::nullptr_t, PickerFilterDa
 
 class PickerWindow : public PickerWindowBase {
 public:
-	enum PickerFilterModes : uint8_t {
-		PFM_ALL = 0, ///< Show all classes.
-		PFM_USED = 1, ///< Show used types.
-		PFM_SAVED = 2, ///< Show saved types.
-	};
-
+	/** The things of a picker that can be invalidated. */
 	enum class PickerInvalidation : uint8_t {
 		Class, ///< Refresh the class list.
 		Type, ///< Refresh the type list.
@@ -234,6 +353,8 @@ public:
 		Validate, ///< Validate selected item.
 		Filter, ///< Update filter state.
 	};
+
+	/** Bitset of \c Pickerinvalidation elements. */
 	using PickerInvalidations = EnumBitSet<PickerInvalidation, uint8_t>;
 
 	static constexpr PickerInvalidations PICKER_INVALIDATION_ALL{PickerInvalidation::Class, PickerInvalidation::Type, PickerInvalidation::Position, PickerInvalidation::Validate};
@@ -255,7 +376,7 @@ public:
 	int preview_height = 0; ///< Height of preview images.
 	btree::btree_set<std::string> inactive; ///< Set of collections with inactive items.
 
-	PickerWindow(WindowDesc &desc, Window *parent, int window_number, PickerCallbacks &callbacks);
+	PickerWindow(WindowDesc &desc, Window *parent, WindowNumber window_number, PickerCallbacks &callbacks);
 	void OnInit() override;
 	void Close(int data = 0) override;
 	void UpdateWidgetSize(WidgetID widget, Dimension &size, const Dimension &padding, Dimension &fill, Dimension &resize) override;
@@ -312,11 +433,11 @@ private:
 	std::pair<WidgetID, WidgetID> badge_filters{};
 	BadgeFilterChoices badge_filter_choices{};
 
-	const IntervalTimer<TimerGameCalendar> yearly_interval = {{TimerGameCalendar::YEAR, TimerGameCalendar::Priority::NONE}, [this](auto) {
+	const IntervalTimer<TimerGameCalendar> yearly_interval = {{TimerGameCalendar::Trigger::Year, TimerGameCalendar::Priority::None}, [this](auto) {
 		this->SetDirty();
 	}};
 
-	const IntervalTimer<TimerWindow> refresh_interval = {std::chrono::seconds(3), [this](auto) {
+	const IntervalTimer<TimerWindow> refresh_interval = {TimeType::Milliseconds(3000), [this](auto) {
 		RefreshUsedTypeList();
 	}};
 };

@@ -13,22 +13,9 @@ STR_CONFIG_SETTING_ZOOM_LVL_OUT_32X                             :32x
 STR_CONFIG_SETTING_ZOOM_LVL_OUT_64X                             :64x
 STR_CONFIG_SETTING_ZOOM_LVL_OUT_128X                            :128x
 
-STR_CONFIG_SETTING_DEFAULT_ROAD_TYPE_DEFAULT                    :Výchozí
-
-STR_ORDER_CONDITIONAL_CARGO_WAITING                             :Čekající náklad
-STR_ORDER_CONDITIONAL_ACCEPTANCE_DROPDOWN                       :Přijímaný náklad
-STR_ORDER_CONDITIONAL_FREE_PLATFORMS                            :Volná nástupiště
-STR_ORDER_CONDITIONAL_PERCENT                                   :Procento případů
-STR_ORDER_CONDITIONAL_SLOT_OCCUPANCY                            :Obsazenost slotu
-STR_ORDER_CONDITIONAL_TRAIN_IN_SLOT                             :Vlak ve slotu
-STR_ORDER_CONDITIONAL_CARGO_LOAD_PERCENTAGE                     :Procento naložení (vybraný náklad)
-STR_ORDER_CONDITIONAL_CARGO_WAITING_AMOUNT                      :Množství čekajícího nákladu
-STR_ORDER_CONDITIONAL_COUNTER_VALUE                             :Hodnota počítadla
-STR_ORDER_CONDITIONAL_TIME_DATE_VALUE                           :Aktuální čas/datum
-STR_ORDER_CONDITIONAL_TIMETABLE_STATE                           :Stav jízdního řádu
-STR_ORDER_CONDITIONAL_DISPATCH_SLOT                             :Výpravní slot
-
 STR_ORDER_STOP_LOCATION_THROUGH                                 :{SPACE}[postupná nakládka]
+
+STR_CONFIG_SETTING_STOP_LOCATION_THROUGH                        :postupná nakládka
 
 STR_CONFIG_SETTING_TOWN_GROWTH_EXTREME_SLOW                     :extrémně pomalá
 STR_CONFIG_SETTING_TOWN_GROWTH_VERY_SLOW                        :velmi pomalá
@@ -280,9 +267,6 @@ STR_CONFIG_SETTING_RIVER_MIN_LENGTH_HELPTEXT                    :Minimální dé
 STR_CONFIG_SETTING_RIVER_ROUTE_RANDOM                           :Náhodnost říčního toku: {STRING}
 STR_CONFIG_SETTING_RIVER_ROUTE_RANDOM_HELPTEXT                  :Vyber, jak moc budou trasy říčních koryt náhodné
 
-STR_CONFIG_SETTING_RIVERS_TOP_OF_HILL                           :Prameny řek na vrcholech kopců: {STRING}
-STR_CONFIG_SETTING_RIVERS_TOP_OF_HILL_HELPTEXT                  :Je-li zapnuto, řeky si budou vynucovat, aby jejich prameny ležely vysoko v kopcích či horách
-
 STR_CONFIG_SETTING_RIVER_TROPICS_WIDTH                          :Šířka zeleně podél řek: {STRING}
 STR_CONFIG_SETTING_RIVER_TROPICS_WIDTH_HELPTEXT                 :Vymezuje šířku úrodné oblasti, která obklopuje řeky v subtropické krajině.{}To je celková šířka oblasti na každé straně řeky.
 
@@ -418,9 +402,6 @@ STR_CONFIG_SETTING_TIMETABLE_AUTOFILL_ROUNDING_TICKS            :Zaokrouhlit aut
 STR_CONFIG_SETTING_TIMETABLE_AUTOFILL_ROUNDING_TICKS_HELPTEXT   :Časy nastavené automatickým jízdním řádem nejsou zaokrouhlovány. Den s faktorem délky dne 1 odpovídá počtu 74 cyklů. {}Pokud je jízdní řád nastaven na minuty, použije se číslo z nastavení "Cyklů za minutu", jinak je dána výchozí hodnota 74 cyklů.
 STR_CONFIG_SETTING_TIMETABLE_AUTOFILL_ROUNDING_TICKS_VALUE      :{COMMA}{NBSP}cykl{P us y ů}
 STR_CONFIG_SETTING_TIMETABLE_AUTOFILL_ROUNDING_TICKS_DEFAULT    :výchozí
-
-STR_CONFIG_SETTING_DEFAULT_ROAD_TYPE                            :Výchozí druh silnic a tramvajových tratí (v nové hře/po načtení hry): {STRING}
-STR_CONFIG_SETTING_DEFAULT_ROAD_TYPE_HELPTEXT                   :Typ silnic, resp. tramvajových tratí, který bude vybrán po započetí či nahrání hry. "První dostupný" zvolí nejstarší typ, "poslední dostupný" zvolí nejnovější typ, "nejvíce používaný" zvolí typ, který je v aktuální hře nejvíce používaný a "výchozí" zvolí výchozí typ.
 
 STR_CONFIG_SETTING_ENABLE_BUILD_RIVER                           :Povolit stavbu řek: {STRING}
 STR_CONFIG_SETTING_ENABLE_BUILD_RIVER_HELPTEXT                  :Povolí stavbu řek mimo editor scénáře
@@ -646,6 +627,7 @@ STR_LINKGRAPH_STATS_TOOLTIP_CAPACITY                            :{}Kapacita: {CA
 
 STR_RAIL_TOOLBAR_TOOLTIP_BUILD_POLYRAIL                         :{BLACK}Stavět železniční tratě v Mnohočarném režimu. Ctrl přepíná stavění a demolování železničních staveb. Shift přepíná výstavbu a zobrazování odhadu její ceny.
 
+STR_BUILD_SIGNAL_TOGGLE_ADVANCED_SIGNAL_TOOLTIP                 :{BLACK}Zobrazit dokonalejší návěstidla
 STR_BUILD_SIGNAL_SEMAPHORE_PROG_TOOLTIP                         :{BLACK}Programovatelné před-návěstidlo (mechanické){}Programovatelné před-návěstidlo je kombinované návěstidlo, které může být naprogramováno, aby se chovalo různě složitými způsoby.
 STR_BUILD_SIGNAL_SEMAPHORE_NO_ENTRY_TOOLTIP                     :{BLACK}Návěstidlo zakazující jízdu (mechanické){}Cestově orientované návěstidlo umožňuje vjet několika vlakům najednou do stejného úseku trati, pokud jsou schopny rezervovat si cestu až do bezpečného místa na zastavení. Okolo návěstidla zakazující jízdu nelze projet proti čelní straně.
 STR_BUILD_SIGNAL_ELECTRIC_PROG_TOOLTIP                          :{BLACK}Programovatelné před-návěstidlo (světelné){}Programovatelné před-návěstidlo je kombinované návěstidlo, které může být naprogramováno, aby se chovalo různě složitými způsoby.
@@ -1388,6 +1370,19 @@ STR_ORDER_REVERSE_TOOLTIP                                       :{BLACK}Změní 
 
 STR_ORDER_DROP_SELL_DEPOT                                       :Prodat vozidlo
 
+STR_ORDER_CONDITIONAL_CARGO_WAITING                             :Čekající náklad
+STR_ORDER_CONDITIONAL_ACCEPTANCE_DROPDOWN                       :Přijímaný náklad
+STR_ORDER_CONDITIONAL_FREE_PLATFORMS                            :Volná nástupiště
+STR_ORDER_CONDITIONAL_PERCENT                                   :Procento případů
+STR_ORDER_CONDITIONAL_SLOT_OCCUPANCY                            :Obsazenost slotu
+STR_ORDER_CONDITIONAL_TRAIN_IN_SLOT                             :Vlak ve slotu
+STR_ORDER_CONDITIONAL_CARGO_LOAD_PERCENTAGE                     :Procento naložení (vybraný náklad)
+STR_ORDER_CONDITIONAL_CARGO_WAITING_AMOUNT                      :Množství čekajícího nákladu
+STR_ORDER_CONDITIONAL_COUNTER_VALUE                             :Hodnota počítadla
+STR_ORDER_CONDITIONAL_TIME_DATE_VALUE                           :Aktuální čas/datum
+STR_ORDER_CONDITIONAL_TIMETABLE_STATE                           :Stav jízdního řádu
+STR_ORDER_CONDITIONAL_DISPATCH_SLOT                             :Výpravní slot
+
 STR_ORDER_CONDITIONAL_VEHICLE_IN_SLOT                           :Vozidlo ve slotu
 
 STR_ORDER_CONDITIONAL_NEXT_STATION                              :Další stanice
@@ -1817,7 +1812,7 @@ STR_SCHDISPATCH_ENABLED_TOOLTIP                                 :{BLACK}Zapnout 
 STR_SCHDISPATCH_ADD                                             :{BLACK}Přidat pořadí
 STR_SCHDISPATCH_ADD_TOOLTIP                                     :{BLACK}Přidá do rozvrhu vypravení nové pořadové číslo.
 STR_SCHDISPATCH_ADD_TOOLTIP_EXTRA                               :{BLACK}{STRING} Ctrl+kliknutí přidá více pořadí najednou.
-STR_SCHDISPATCH_ADD_CAPTION                                     :{BLACK}Pořadové číslo
+STR_SCHDISPATCH_ADD_CAPTION                                     :Pořadové číslo
 STR_SCHDISPATCH_DURATION                                        :{BLACK}Délka
 STR_SCHDISPATCH_DURATION_TOOLTIP                                :{BLACK}Nastaví dobu trvání rozvrhu.
 STR_SCHDISPATCH_DURATION_CAPTION_MINUTE                         :{BLACK}Délka (minuty)

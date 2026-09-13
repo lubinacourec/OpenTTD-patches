@@ -64,10 +64,13 @@ struct GroupStatistics {
 	static void UpdateAutoreplace(CompanyID company);
 };
 
+/** Configuration flags for a group. */
 enum class GroupFlag : uint8_t {
 	ReplaceProtection = 0, ///< If set, the global autoreplace has no effect on the group
 	ReplaceWagonRemoval = 1, ///< If set, autoreplace will perform wagon removal on vehicles in this group.
 };
+
+/** Bitset of \c GroupFlag elements. */
 using GroupFlags = EnumBitSet<GroupFlag, uint8_t>;
 
 enum class GroupFoldBits : uint8_t {
@@ -79,9 +82,9 @@ DECLARE_ENUM_AS_BIT_SET(GroupFoldBits)
 
 /** Group data. */
 struct Group : GroupPool::PoolItem<&_group_pool> {
-	std::string name{};                     ///< Group Name
-	Owner owner = INVALID_OWNER;            ///< Group Owner
-	VehicleType vehicle_type = VEH_INVALID; ///< Vehicle type of the group
+	std::string name{};                              ///< Group Name
+	Owner owner = INVALID_OWNER;                     ///< Group Owner
+	VehicleType vehicle_type = VehicleType::Invalid; ///< Vehicle type of the group
 
 	GroupFlags flags{};           ///< Group flags
 	Livery livery{};              ///< Custom colour scheme for vehicles in this group
@@ -92,7 +95,7 @@ struct Group : GroupPool::PoolItem<&_group_pool> {
 	GroupID parent = GroupID::Invalid();             ///< Parent group
 	uint16_t number = 0;                             ///< Per-company group number.
 
-	Group(GroupID index, CompanyID owner = INVALID_OWNER, VehicleType vehicle_type = VEH_INVALID) :
+	Group(GroupID index, CompanyID owner = INVALID_OWNER, VehicleType vehicle_type = VehicleType::Invalid) :
 		PoolItemBase(index), owner(owner), vehicle_type(vehicle_type) {}
 
 	bool IsFolded(GroupFoldBits fold_bit) const { return (this->folded_mask & fold_bit) != GroupFoldBits::None; }

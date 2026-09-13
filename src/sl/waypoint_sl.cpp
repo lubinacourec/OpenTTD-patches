@@ -8,6 +8,7 @@
 /** @file waypoint_sl.cpp Code handling saving and loading of waypoints. */
 
 #include "../stdafx.h"
+#include "../command_type.h"
 #include "../waypoint_base.h"
 #include "../debug.h"
 #include "../newgrf_station.h"
@@ -34,7 +35,7 @@ struct OldWaypoint {
 	uint8_t delete_ctr;
 	CalTime::Date build_date;
 	uint8_t localidx;
-	uint32_t grfid;
+	GrfID grfid;
 	const StationSpec *spec;
 	Owner owner;
 
@@ -98,10 +99,10 @@ void MoveWaypointsToBaseStations()
 		TileIndex t = wp.xy;
 		/* Sometimes waypoint (sign) locations became disconnected from their actual location in
 		 * the map array. If this is the case, try to locate the actual location in the map array */
-		if (!IsTileType(t, MP_RAILWAY) || GetRailTileType(t) != RailTileType{2} /* RAIL_TILE_WAYPOINT */ || _m[t].m2 != wp.index) {
+		if (!IsTileType(t, TileType::Railway) || GetRailTileType(t) != RailTileType{2} /* RAIL_TILE_WAYPOINT */ || _m[t].m2 != wp.index) {
 			Debug(sl, 0, "Found waypoint tile {:#X} with invalid position", t);
 			for (t = TileIndex{0}; t < Map::Size(); t++) {
-				if (IsTileType(t, MP_RAILWAY) && GetRailTileType(t) == RailTileType{2} /* RAIL_TILE_WAYPOINT */ && _m[t].m2 == wp.index) {
+				if (IsTileType(t, TileType::Railway) && GetRailTileType(t) == RailTileType{2} /* RAIL_TILE_WAYPOINT */ && _m[t].m2 == wp.index) {
 					Debug(sl, 0, "Found actual waypoint position at {:#X}", t);
 					break;
 				}
@@ -124,7 +125,7 @@ void MoveWaypointsToBaseStations()
 		bool reserved = !IsSavegameVersionBefore(SLV_100) && HasBit(_m[t].m5, 4);
 
 		/* The tile really has our waypoint, so reassign the map array */
-		MakeRailWaypoint(t, GetTileOwner(t), new_wp->index, (Axis)GB(_m[t].m5, 0, 1), 0, GetRailType(t));
+		MakeRailWaypoint(t, GetTileOwner(t), new_wp->index, static_cast<Axis>(GB(_m[t].m5, 0, 1)), 0, GetRailType(t));
 		new_wp->facilities.Set(StationFacility::Train);
 		new_wp->owner = GetTileOwner(t);
 
@@ -140,12 +141,12 @@ void MoveWaypointsToBaseStations()
 
 	/* Update the orders of vehicles */
 	for (OrderList *ol : OrderList::Iterate()) {
-		if (ol->GetFirstSharedVehicle()->type != VEH_TRAIN) continue;
+		if (ol->GetFirstSharedVehicle()->type != VehicleType::Train) continue;
 
 		for (Order *o : ol->Orders()) UpdateWaypointOrder(o);
 	}
 
-	for (Vehicle *v : Vehicle::IterateType(VEH_TRAIN)) {
+	for (Vehicle *v : Vehicle::IterateType(VehicleType::Train)) {
 		UpdateWaypointOrder(&v->current_order);
 	}
 
@@ -219,7 +220,7 @@ static void Ptrs_WAYP()
 }
 
 static const ChunkHandler waypoint_chunk_handlers[] = {
-	{ 'CHKP', nullptr, Load_WAYP, Ptrs_WAYP, nullptr, CH_READONLY },
+	{ 'CHKP', nullptr, Load_WAYP, Ptrs_WAYP, nullptr, ChunkType::ReadOnly },
 };
 
 extern const ChunkHandlerTable _waypoint_chunk_handlers(waypoint_chunk_handlers);

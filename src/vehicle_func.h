@@ -10,13 +10,14 @@
 #ifndef VEHICLE_FUNC_H
 #define VEHICLE_FUNC_H
 
-#include "gfx_type.h"
+#include "sprite_id_type.h"
 #include "direction_type.h"
-#include "command_type.h"
+#include "command_type_fwd_declare.h"
 #include "vehicle_type.h"
 #include "engine_type.h"
 #include "transport_type.h"
 #include "newgrf_config.h"
+#include "tile_type.h"
 #include "track_type.h"
 #include "livery.h"
 #include "cargo_type.h"
@@ -86,7 +87,7 @@ UnitID GetFreeUnitNumber(VehicleType type);
 
 void VehicleEnterDepot(Vehicle *v);
 
-bool CanBuildVehicleInfrastructure(VehicleType type, uint8_t subtype = 0);
+bool CanBuildVehicleInfrastructure(VehicleType type, RoadTramType subtype = RoadTramType::Invalid);
 
 /** Position information of a vehicle after it moved */
 struct GetNewVehiclePosResult {
@@ -105,7 +106,7 @@ Direction GetDirectionTowards(const Vehicle *v, int x, int y);
  */
 inline bool IsCompanyBuildableVehicleType(VehicleType type)
 {
-	return type < VEH_COMPANY_END;
+	return type < VehicleType::CompanyEnd;
 }
 
 /**
@@ -125,12 +126,12 @@ SpriteID GetEnginePalette(EngineID engine_type, CompanyID company);
 SpriteID GetVehiclePalette(const Vehicle *v);
 SpriteID GetUncachedTrainPaletteIgnoringGroup(const Train *v);
 
-extern const StringID _veh_build_msg_table[];
-extern const StringID _veh_sell_msg_table[];
-extern const StringID _veh_sell_all_msg_table[];
-extern const StringID _veh_autoreplace_msg_table[];
-extern const StringID _veh_refit_msg_table[];
-extern const StringID _send_to_depot_msg_table[];
+extern VehicleTypeIndexArray<const StringID> _veh_build_msg_table;
+extern VehicleTypeIndexArray<const StringID> _veh_sell_msg_table;
+extern VehicleTypeIndexArray<const StringID> _veh_sell_all_msg_table;
+extern VehicleTypeIndexArray<const StringID> _veh_autoreplace_msg_table;
+extern VehicleTypeIndexArray<const StringID> _veh_refit_msg_table;
+extern VehicleTypeIndexArray<const StringID> _send_to_depot_msg_table;
 
 /* Functions to find the right command for certain vehicle type */
 inline StringID GetCmdBuildVehMsg(VehicleType type)
@@ -208,6 +209,7 @@ bool VehiclesHaveSameEngineList(const Vehicle *v1, const Vehicle *v2);
 bool VehiclesHaveSameOrderList(const Vehicle *v1, const Vehicle *v2);
 
 bool IsUniqueVehicleName(std::string_view name);
+Direction VehicleEnterTileCoordinates(GetNewVehiclePosResult &gp, DiagDirection enterdir, Track track);
 
 void ShowTrainTooHeavyAdviceMessage(const Vehicle *v);
 

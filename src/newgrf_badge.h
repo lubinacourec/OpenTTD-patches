@@ -15,7 +15,7 @@
 #include "newgrf.h"
 #include "newgrf_badge_type.h"
 #include "newgrf_commons.h"
-#include "strings_type.h"
+#include "strings_id_type.h"
 #include "3rdparty/robin_hood/robin_hood.h"
 
 using BadgeFilterChoices = robin_hood::unordered_map<BadgeClassID, BadgeID>;
@@ -67,7 +67,7 @@ Badge *GetBadgeByLabel(std::string_view label);
 Badge *GetClassBadge(BadgeClassID class_index);
 std::span<const BadgeID> GetClassBadges();
 
-uint32_t GetBadgeVariableResult(const struct GRFFile &grffile, std::span<const BadgeID> badges, uint32_t parameter);
+uint32_t GetBadgeVariableResult(const GRFFile &grffile, std::span<const BadgeID> badges, uint32_t parameter);
 
 PalSpriteID GetBadgeSprite(const Badge &badge, GrfSpecFeature feature, std::optional<CalTime::Date> introduction_date, PaletteID remap);
 

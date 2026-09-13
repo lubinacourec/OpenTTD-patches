@@ -13,24 +13,9 @@ STR_CONFIG_SETTING_ZOOM_LVL_OUT_32X                             :32x
 STR_CONFIG_SETTING_ZOOM_LVL_OUT_64X                             :64x
 STR_CONFIG_SETTING_ZOOM_LVL_OUT_128X                            :128x
 
-STR_CONFIG_SETTING_DEFAULT_ROAD_TYPE_DEFAULT                    :Por defecto
-
-STR_ORDER_CONDITIONAL_CARGO_WAITING                             :Carga en espera
-STR_ORDER_CONDITIONAL_ACCEPTANCE_DROPDOWN                       :Carga aceptada
-STR_ORDER_CONDITIONAL_FREE_PLATFORMS                            :Plataformas libres
-STR_ORDER_CONDITIONAL_PERCENT                                   :Porcentaxe das veces
-STR_ORDER_CONDITIONAL_SLOT_OCCUPANCY                            :Ocupación dos slots
-STR_ORDER_CONDITIONAL_TRAIN_IN_SLOT                             :Tren no slot
-STR_ORDER_CONDITIONAL_CARGO_LOAD_PERCENTAGE                     :Porcentaxe de carga do cargamento
-STR_ORDER_CONDITIONAL_CARGO_WAITING_AMOUNT                      :Cantidade de carga en espera
-STR_ORDER_CONDITIONAL_COUNTER_VALUE                             :Valor do contador
-STR_ORDER_CONDITIONAL_TIME_DATE_VALUE                           :Data/hora actual
-STR_ORDER_CONDITIONAL_TIMETABLE_STATE                           :Estado dos horarios
-STR_ORDER_CONDITIONAL_DISPATCH_SLOT                             :Slot de despacho
-STR_ORDER_CONDITIONAL_CARGO_WAITING_AMOUNT_PERCENTAGE           :Agardando carga / capacidade
-STR_ORDER_CONDITIONAL_TRAIN_IN_SLOT_GROUP                       :Tren en grupo de slots
-
 STR_ORDER_STOP_LOCATION_THROUGH                                 :{SPACE}[a través da carga]
+
+STR_CONFIG_SETTING_STOP_LOCATION_THROUGH                        :a través da carga
 
 STR_CONFIG_SETTING_TOWN_GROWTH_EXTREME_SLOW                     :Extremadamente lento
 STR_CONFIG_SETTING_TOWN_GROWTH_VERY_SLOW                        :Moi lento
@@ -358,9 +343,6 @@ STR_CONFIG_SETTING_RIVER_MIN_LENGTH_HELPTEXT                    :Lonxitude míni
 STR_CONFIG_SETTING_RIVER_ROUTE_RANDOM                           :Aleatoriedade das rutas dos ríos: {STRING}
 STR_CONFIG_SETTING_RIVER_ROUTE_RANDOM_HELPTEXT                  :Escolle como de aleatoria é a ruta dun río.
 
-STR_CONFIG_SETTING_RIVERS_TOP_OF_HILL                           :Os ríos requiren que a súa orixe sexa no cumio das montañas: {STRING}
-STR_CONFIG_SETTING_RIVERS_TOP_OF_HILL_HELPTEXT                  :Escolle se os ríos requiren que as súas orixen sexan no cumio das montañas.
-
 STR_CONFIG_SETTING_RIVER_TROPICS_WIDTH                          :Ancho dos trópicos arredor dos ríos: {STRING}
 STR_CONFIG_SETTING_RIVER_TROPICS_WIDTH_HELPTEXT                 :Controla o ancho da zona de trópico que hai arredor dos ríos nas paisaxes sub-tropicais.
 
@@ -518,9 +500,6 @@ STR_CONFIG_SETTING_SCHEDULED_DISPATCH_DEFAULT_DURATION          :Duración prede
 STR_CONFIG_SETTING_SCHEDULED_DISPATCH_DEFAULT_DURATION_HELPTEXT :Isto define a duración predeterminada para os novos horarios de despacho. O valor predeterminado é de 24 horas (1440 minutos). (Cando se planifica o tempo en días, o valor predeterminado é de 1 ano).
 STR_CONFIG_SETTING_SCHEDULED_DISPATCH_DEFAULT_DURATION_VALUE    :{COMMA}{NBSP}minuto{P 0 "" s}
 STR_CONFIG_SETTING_SCHEDULED_DISPATCH_DEFAULT_DURATION_DEFAULT  :Por defecto
-
-STR_CONFIG_SETTING_DEFAULT_ROAD_TYPE                            :Estradas/Tranvías por defecto (despois de iniciar ou cargar un xogo): {STRING}
-STR_CONFIG_SETTING_DEFAULT_ROAD_TYPE_HELPTEXT                   :Estradas/Tranvías a seleccionar despois de comezar ou cargar un xogo. 'primeiro dispoñible' selecciona o tipo máis antigo de estrada/tranvía, 'último dispoñible' selecciona o tipo máis novo de estrada/tranvía, 'máis usado' seleccioan o tipo que actualmente ten máis uso, 'por defecto' selecciona o tipo por defecto.
 
 STR_CONFIG_SETTING_ENABLE_BUILD_RIVER                           :Habilitar a construción de ríos: {STRING}
 STR_CONFIG_SETTING_ENABLE_BUILD_RIVER_HELPTEXT                  :Habilitar a construción de ríos fora do editor de escenarios
@@ -803,6 +782,7 @@ STR_LINKGRAPH_STATS_TOOLTIP_PRODUCTION_INTERVAL                 :{BLACK}{CARGO_L
 
 STR_RAIL_TOOLBAR_TOOLTIP_BUILD_POLYRAIL                         :{BLACK}Construír vías utilizando o modo poliliña. Ctrl alterna construír/borrar para a construción de ferrocarrís. Shift alterna construír/amosar a estimación de custos
 
+STR_BUILD_SIGNAL_TOGGLE_ADVANCED_SIGNAL_TOOLTIP                 :{BLACK}Activa ou desactiva amosar os tipos de sinais avanzados
 STR_BUILD_SIGNAL_SEMAPHORE_PROG_TOOLTIP                         :{BLACK}Pre-sinal programable (mecánico){}O pre-sinal programable é un sinal combo que pode ser programado para comportarse de xeitos complexos.
 STR_BUILD_SIGNAL_SEMAPHORE_NO_ENTRY_TOOLTIP                     :{BLACK}Sinal de Non-entrada (mecánico){}Un sinal de ruta permite entrar a máis dun tren nun cantón ao mesmo tempo, se o tren pode atopar unha ruta a un punto de parada seguro. Os sinais de ruta estándar poden rebasarse en sentido contrario.
 STR_BUILD_SIGNAL_ELECTRIC_PROG_TOOLTIP                          :{BLACK}Pre-sinal programable (eléctrico){}O pre-sinal programable é un sinal combo que pode ser programado para comportarse de xeitos complexos.
@@ -1673,6 +1653,21 @@ STR_ORDER_REVERSE_TOOLTIP                                       :{BLACK}Cambiar 
 
 STR_ORDER_DROP_SELL_DEPOT                                       :Vender vehículo
 
+STR_ORDER_CONDITIONAL_CARGO_WAITING                             :Carga en espera
+STR_ORDER_CONDITIONAL_ACCEPTANCE_DROPDOWN                       :Carga aceptada
+STR_ORDER_CONDITIONAL_FREE_PLATFORMS                            :Plataformas libres
+STR_ORDER_CONDITIONAL_PERCENT                                   :Porcentaxe das veces
+STR_ORDER_CONDITIONAL_SLOT_OCCUPANCY                            :Ocupación dos slots
+STR_ORDER_CONDITIONAL_TRAIN_IN_SLOT                             :Tren no slot
+STR_ORDER_CONDITIONAL_CARGO_LOAD_PERCENTAGE                     :Porcentaxe de carga do cargamento
+STR_ORDER_CONDITIONAL_CARGO_WAITING_AMOUNT                      :Cantidade de carga en espera
+STR_ORDER_CONDITIONAL_COUNTER_VALUE                             :Valor do contador
+STR_ORDER_CONDITIONAL_TIME_DATE_VALUE                           :Data/hora actual
+STR_ORDER_CONDITIONAL_TIMETABLE_STATE                           :Estado dos horarios
+STR_ORDER_CONDITIONAL_DISPATCH_SLOT                             :Slot de despacho
+STR_ORDER_CONDITIONAL_CARGO_WAITING_AMOUNT_PERCENTAGE           :Agardando carga / capacidade
+STR_ORDER_CONDITIONAL_TRAIN_IN_SLOT_GROUP                       :Tren en grupo de slots
+
 STR_ORDER_CONDITIONAL_VEHICLE_IN_SLOT                           :Vehículo en slot
 STR_ORDER_CONDITIONAL_VEHICLE_IN_SLOT_GROUP                     :Vehículo no grupo de slots
 
@@ -2178,7 +2173,7 @@ STR_SCHDISPATCH_ADD                                             :{BLACK}Engadir 
 STR_SCHDISPATCH_ADD_MULTIPLE_SLOTS                              :{BLACK}Engadir slots
 STR_SCHDISPATCH_ADD_TOOLTIP                                     :{BLACK}Engadir novo slot de saída para este programa.
 STR_SCHDISPATCH_ADD_TOOLTIP_EXTRA                               :{BLACK}{STRING} Ctrl+Click para engadir múltiples slots de saída á vez.
-STR_SCHDISPATCH_ADD_CAPTION                                     :{BLACK}Slot de saída
+STR_SCHDISPATCH_ADD_CAPTION                                     :Slot de saída
 STR_SCHDISPATCH_DURATION                                        :{BLACK}Duración
 STR_SCHDISPATCH_DURATION_TOOLTIP                                :{BLACK}Fixa a duración deste programa.
 STR_SCHDISPATCH_DURATION_CAPTION_MINUTE                         :{BLACK}Duración (minutos)

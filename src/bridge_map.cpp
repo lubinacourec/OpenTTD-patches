@@ -22,6 +22,7 @@
  * Finds the end of a bridge in the specified direction starting at a middle tile
  * @param tile the bridge tile to find the bridge ramp for
  * @param dir  the direction to search in
+ * @return The tile at the bridge end.
  */
 static TileIndex GetBridgeEnd(TileIndex tile, DiagDirection dir)
 {
@@ -39,6 +40,7 @@ static TileIndex GetBridgeEnd(TileIndex tile, DiagDirection dir)
 /**
  * Finds the northern end of a bridge starting at a middle tile
  * @param t the bridge tile to find the bridge ramp for
+ * @return The tile at the northern bridge end.
  */
 TileIndex GetNorthernBridgeEnd(TileIndex t)
 {
@@ -49,6 +51,7 @@ TileIndex GetNorthernBridgeEnd(TileIndex t)
 /**
  * Finds the southern end of a bridge starting at a middle tile
  * @param t the bridge tile to find the bridge ramp for
+ * @return The tile at the southern bridge end.
  */
 TileIndex GetSouthernBridgeEnd(TileIndex t)
 {
@@ -59,6 +62,7 @@ TileIndex GetSouthernBridgeEnd(TileIndex t)
 /**
  * Starting at one bridge end finds the other bridge end
  * @param tile the bridge ramp tile to find the other bridge ramp for
+ * @return The tile at the other bridge end.
  */
 TileIndex GetOtherBridgeEnd(TileIndex tile)
 {
@@ -90,10 +94,10 @@ SignalState GetBridgeEntranceSimulatedSignalStateExtended(TileIndex t, uint16_t 
 		uint16_t offset = signal - BRIDGE_M2_SIGNAL_STATE_COUNT;
 		uint16_t slot = offset >> 6;
 		uint16_t bit = offset & 0x3F;
-		if (slot >= lbss.signal_red_bits.size()) return SIGNAL_STATE_GREEN;
-		return GB(lbss.signal_red_bits[slot], bit, 1) ? SIGNAL_STATE_RED : SIGNAL_STATE_GREEN;
+		if (slot >= lbss.signal_red_bits.size()) return SignalState::Green;
+		return GB(lbss.signal_red_bits[slot], bit, 1) ? SignalState::Red : SignalState::Green;
 	} else {
-		return SIGNAL_STATE_GREEN;
+		return SignalState::Green;
 	}
 }
 
@@ -104,7 +108,7 @@ void SetBridgeEntranceSimulatedSignalStateExtended(TileIndex t, uint16_t signal,
 	uint16_t slot = offset >> 6;
 	uint16_t bit = offset & 0x3F;
 	if (slot >= lbss.signal_red_bits.size()) lbss.signal_red_bits.resize(slot + 1);
-	AssignBit(lbss.signal_red_bits[slot], bit, state == SIGNAL_STATE_RED);
+	AssignBit(lbss.signal_red_bits[slot], bit, state == SignalState::Red);
 	_m[t].m2 |= BRIDGE_M2_SIGNAL_STATE_EXT_FLAG;
 }
 

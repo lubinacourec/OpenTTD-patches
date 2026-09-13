@@ -53,17 +53,18 @@ public:
 
 	static std::unique_ptr<MusicDriver> ExtractDriver()
 	{
-		return std::unique_ptr<MusicDriver>(static_cast<MusicDriver *>(DriverFactoryBase::GetActiveDriver(Driver::DT_MUSIC).release()));
+		return std::unique_ptr<MusicDriver>(static_cast<MusicDriver *>(DriverFactoryBase::GetActiveDriver(Driver::Type::Music).release()));
 	}
 
 	/**
 	 * Get the currently active instance of the music driver.
+	 * @return The instance.
 	 */
 	static MusicDriver *GetInstance()
 	{
 		std::unique_lock<std::mutex> lock(_music_driver_mutex);
 
-		return static_cast<MusicDriver *>(DriverFactoryBase::GetActiveDriver(Driver::DT_MUSIC).get());
+		return static_cast<MusicDriver *>(DriverFactoryBase::GetActiveDriver(Driver::Type::Music).get());
 	}
 };
 

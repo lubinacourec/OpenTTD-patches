@@ -8,6 +8,7 @@
 /** @file station_sl.cpp Code handling saving and loading of stations. */
 
 #include "../stdafx.h"
+#include "../command_type.h"
 #include "../station_base.h"
 #include "../waypoint_base.h"
 #include "../roadstop_base.h"
@@ -28,7 +29,7 @@ struct CppOffsetConstruct<BaseStation> {
 	using type = Station;
 };
 
-static uint8_t _old_last_vehicle_type;
+static VehicleType _old_last_vehicle_type;
 static uint8_t _num_specs;
 static uint8_t _num_roadstop_specs;
 static uint32_t _num_roadstop_custom_tiles;
@@ -45,7 +46,7 @@ static void UpdateWaypointOrder(Order *o)
 	if (!o->IsType(OT_GOTO_STATION)) return;
 
 	const Station *st = Station::Get(o->GetDestination().ToStationID());
-	if ((st->had_vehicle_of_type & HVOT_WAYPOINT) == 0) return;
+	if (!st->had_vehicle_of_type.Test(StationVehicleType::Waypoint)) return;
 
 	o->MakeGoToWaypoint(o->GetDestination().ToStationID());
 }
@@ -59,21 +60,21 @@ void MoveBuoysToWaypoints()
 	/* Buoy orders become waypoint orders */
 	for (OrderList *ol : OrderList::Iterate()) {
 		VehicleType vt = ol->GetFirstSharedVehicle()->type;
-		if (vt != VEH_SHIP && vt != VEH_TRAIN) continue;
+		if (vt != VehicleType::Ship && vt != VehicleType::Train) continue;
 
 		for (Order *o : ol->Orders()) UpdateWaypointOrder(o);
 	}
 
 	for (Vehicle *v : Vehicle::Iterate()) {
 		VehicleType vt = v->type;
-		if (vt != VEH_SHIP && vt != VEH_TRAIN) continue;
+		if (vt != VehicleType::Ship && vt != VehicleType::Train) continue;
 
 		UpdateWaypointOrder(&v->current_order);
 	}
 
 	/* Now make the stations waypoints */
 	for (Station *st : Station::Iterate()) {
-		if ((st->had_vehicle_of_type & HVOT_WAYPOINT) == 0) continue;
+		if (!st->had_vehicle_of_type.Test(StationVehicleType::Waypoint)) continue;
 
 		StationID index    = st->index;
 		TileIndex xy       = st->xy;
@@ -104,7 +105,7 @@ void MoveBuoysToWaypoints()
 		if (train) {
 			/* When we make a rail waypoint of the station, convert the map as well. */
 			for (TileIndex t : train_st) {
-				if (!IsTileType(t, MP_STATION) || GetStationIndex(t) != index) continue;
+				if (!IsTileType(t, TileType::Station) || GetStationIndex(t) != index) continue;
 
 				SB(_me[t].m6, 3, 3, to_underlying(StationType::RailWaypoint));
 				wp->rect.BeforeAddTile(t, StationRect::ADD_FORCE);
@@ -158,8 +159,8 @@ void AfterLoadRoadStops()
 	for (RoadStop *rs : RoadStop::Iterate()) {
 		if (!rs->status.Test(RoadStop::RoadStopStatusFlag::BaseEntry)) continue;
 
-		rs->GetEntry(DIAGDIR_NE).Rebuild(rs);
-		rs->GetEntry(DIAGDIR_NW).Rebuild(rs);
+		rs->GetEntry(DiagDirection::NE).Rebuild(rs);
+		rs->GetEntry(DiagDirection::NW).Rebuild(rs);
 	}
 }
 
@@ -440,7 +441,7 @@ NamedSaveLoadTable GetGoodsDesc()
 		NSL("amount_fract",               SLE_CONDVAR(GoodsEntry, amount_fract,          SLE_UINT8,                  SLV_150,        SL_MAX_VERSION)),
 		NSL("",                    SLEG_CONDREFRING_X(            _packets,              REF_CARGO_PACKET,           SLV_68,         SLV_183,        SlXvFeatureTest(XSLFTO_AND, XSLFI_CHILLPP, 0, 0))),
 		NSL("",                        SLEG_CONDVAR_X(            _num_dests,            SLE_UINT32,                 SLV_183,        SL_MAX_VERSION, SlXvFeatureTest(XSLFTO_OR, XSLFI_CHILLPP))),
-		NSL("cargo.reserved_count",      SLEG_CONDVAR(            _cargo_reserved_count, SLE_UINT,                   SLV_181,        SL_MAX_VERSION)),
+		NSL("cargo.reserved_count",      SLEG_CONDVAR(            _cargo_reserved_count, SLE_UINT32,                 SLV_181,        SL_MAX_VERSION)),
 		NSL("link_graph",                 SLE_CONDVAR(GoodsEntry, link_graph,            SLE_UINT16,                 SLV_183,        SL_MAX_VERSION)),
 		NSL("node",                       SLE_CONDVAR(GoodsEntry, node,                  SLE_UINT16,                 SLV_183,        SL_MAX_VERSION)),
 		NSL("",                          SLEG_CONDVAR(            _num_flows,            SLE_UINT32,                 SLV_183,        SL_MAX_VERSION)),
@@ -499,7 +500,7 @@ static void Load_STNS()
 
 		_waiting_acceptance = 0;
 
-		for (CargoType i = 0; i < num_cargo; i++) {
+		for (CargoType i{}; i < num_cargo; i++) {
 			GoodsEntry *ge = &st->goods[i];
 			SlObjectLoadFiltered(ge, goods_desc);
 			if (_cargo_reserved_count) ge->CreateData().cargo.LoadSetReservedCount(_cargo_reserved_count);
@@ -545,7 +546,7 @@ static void Ptrs_STNS()
 	uint num_cargo = IsSavegameVersionBefore(SLV_EXTEND_CARGOTYPES) ? 32 : NUM_CARGO;
 	for (Station *st : Station::Iterate()) {
 		if (!IsSavegameVersionBefore(SLV_68)) {
-			for (CargoType i = 0; i < num_cargo; i++) {
+			for (CargoType i{}; i < num_cargo; i++) {
 				GoodsEntry *ge = &st->goods[i];
 				SwapPackets(ge);
 				SlObject(ge, goods_desc);
@@ -556,6 +557,38 @@ static void Ptrs_STNS()
 	}
 }
 
+struct StationWaitingTriggersStructHandler final : public TypedSaveLoadStructHandler<StationWaitingTriggersStructHandler, BaseStation> {
+	using StationWaitingTriggersPair = std::pair<const TileIndex, StationRandomTriggers>;
+
+	NamedSaveLoadTable GetDescription() const override
+	{
+		static const NamedSaveLoad desc[] = {
+			NSL("first",  SLE_VAR(StationWaitingTriggersPair,  first, SLE_UINT32)),
+			NSL("second", SLE_VAR(StationWaitingTriggersPair, second,  SLE_UINT8)),
+		};
+		return desc;
+	}
+
+	void Save(BaseStation *st) const override
+	{
+		SlSetStructListLength(st->tile_waiting_random_triggers.size());
+		for (const auto &pair : st->tile_waiting_random_triggers) {
+			SlObject(const_cast<StationWaitingTriggersPair *>(&pair), this->GetLoadDescription());
+		}
+	}
+
+	void Load(BaseStation *st) const override
+	{
+		size_t num = SlGetStructListLength(UINT32_MAX);
+		if (num == 0) return;
+
+		StationWaitingTriggersPair pair;
+		for (uint j = 0; j < num; ++j) {
+			SlObject(&pair, this->GetLoadDescription());
+			st->tile_waiting_random_triggers.emplace(pair.first, pair.second);
+		}
+	}
+};
 
 static const NamedSaveLoad _base_station_desc[] = {
 	NSL("xy",                                     SLE_VAR(BaseStation, xy,                        SLE_UINT32)),
@@ -577,6 +610,8 @@ static const NamedSaveLoad _base_station_desc[] = {
 	NSL("",                             SLEG_CONDVARVEC_X(_custom_road_stop_tiles,                SLE_UINT32,                  SL_MIN_VERSION,        SL_MAX_VERSION,      SlXvFeatureTest(XSLFTO_AND, XSLFI_GRF_ROADSTOPS, 1, 1))),
 	NSL("",                             SLEG_CONDVARVEC_X(_custom_road_stop_data,                 SLE_UINT16,                  SL_MIN_VERSION,        SL_MAX_VERSION,      SlXvFeatureTest(XSLFTO_AND, XSLFI_GRF_ROADSTOPS, 1, 1))),
 	NSL("",                                SLEG_CONDVAR_X(_num_roadstop_custom_tiles,             SLE_UINT32,                  SL_MIN_VERSION,        SL_MAX_VERSION,      SlXvFeatureTest(XSLFTO_AND, XSLFI_GRF_ROADSTOPS, 2))),
+
+	NSLT_STRUCTLIST<StationWaitingTriggersStructHandler>("tile_waiting_triggers"),
 };
 
 void IncludeBaseStationDescription(std::vector<SaveLoad> &slt)
@@ -651,7 +686,7 @@ struct StationGoodsStructHandler final : public TypedSaveLoadStructHandler<Stati
 	{
 		uint8_t num_cargo = static_cast<uint8_t>(SlGetStructListLength(NUM_CARGO));
 
-		for (CargoType i = 0; i < num_cargo; i++) {
+		for (CargoType i{}; i < num_cargo; i++) {
 			GoodsEntry &ge = st->goods[i];
 			if (ge.data == nullptr) {
 				if (this->spare_ged != nullptr) {
@@ -681,7 +716,7 @@ struct StationCargoHistoryStructHandler final : public TypedSaveLoadStructHandle
 		MemoryDumper *dumper = MemoryDumper::GetCurrent();
 		RawMemoryDumper dump = dumper->BorrowRawWriteBytes(8 + SlGetMaxGammaLength() + (st->station_cargo_history.size() * MAX_STATION_CARGO_HISTORY_DAYS * 2));
 
-		dump.RawWriteUint64(st->station_cargo_history_cargoes);
+		dump.RawWriteUint64(st->station_cargo_history_cargoes.base());
 		dump.RawWriteSimpleGamma(st->station_cargo_history.size() * MAX_STATION_CARGO_HISTORY_DAYS);
 
 		for (const auto &history : st->station_cargo_history) {
@@ -697,7 +732,7 @@ struct StationCargoHistoryStructHandler final : public TypedSaveLoadStructHandle
 
 	void Load(Station *st) const override
 	{
-		st->station_cargo_history_cargoes = SlReadUint64();
+		st->station_cargo_history_cargoes = static_cast<CargoTypes>(SlReadUint64());
 		st->station_cargo_history.resize(CountBits(st->station_cargo_history_cargoes));
 		if (SlReadSimpleGamma() != st->station_cargo_history.size() * MAX_STATION_CARGO_HISTORY_DAYS) {
 			SlErrorCorrupt("Station cargo history data of wrong size");
@@ -986,11 +1021,11 @@ static void Load_STNN()
 			if (IsSavegameVersionBefore(SLV_161) && !IsSavegameVersionBefore(SLV_145) && st->facilities.Test(StationFacility::Airport)) {
 				/* Store the old persistent storage. The GRFID will be added later. */
 				assert(PersistentStorage::CanAllocateItem());
-				st->airport.psa = PersistentStorage::Create(0, GSF_INVALID, TileIndex{});
+				st->airport.psa = PersistentStorage::Create(0, GrfSpecFeature::Invalid, TileIndex{});
 				std::copy(std::begin(_old_st_persistent_storage.storage), std::end(_old_st_persistent_storage.storage), std::begin(st->airport.psa->storage));
 			}
 
-			for (CargoType i = 0; i < num_cargo; i++) {
+			for (CargoType i{}; i < num_cargo; i++) {
 				GoodsEntry &ge = st->goods[i];
 				if (ge.data == nullptr) {
 					if (spare_ged != nullptr) {
@@ -1116,7 +1151,7 @@ static void Ptrs_STNN()
 
 	uint num_cargo = IsSavegameVersionBefore(SLV_EXTEND_CARGOTYPES) ? 32 : NUM_CARGO;
 	for (Station *st : Station::Iterate()) {
-		for (CargoType i = 0; i < num_cargo; i++) {
+		for (CargoType i{}; i < num_cargo; i++) {
 			GoodsEntry *ge = &st->goods[i];
 			if (IsSavegameVersionBefore(SLV_183) && SlXvIsFeatureMissing(XSLFI_CHILLPP)) {
 				SwapPackets(ge);
@@ -1146,10 +1181,10 @@ static void Load_DOCK()
 }
 
 static const ChunkHandler station_chunk_handlers[] = {
-	{ 'STNS', nullptr,       Load_STNS,     Ptrs_STNS,     nullptr, CH_READONLY },
-	{ 'STNN', Save_STNN,     Load_STNN,     Ptrs_STNN,     nullptr, CH_TABLE },
+	{ 'STNS', nullptr,       Load_STNS,     Ptrs_STNS,     nullptr, ChunkType::ReadOnly },
+	{ 'STNN', Save_STNN,     Load_STNN,     Ptrs_STNN,     nullptr, ChunkType::Table },
 	MakeUpstreamChunkHandler<'ROAD', GeneralUpstreamChunkLoadInfo>(),
-	{ 'DOCK', nullptr,       Load_DOCK,     nullptr,       nullptr, CH_READONLY },
+	{ 'DOCK', nullptr,       Load_DOCK,     nullptr,       nullptr, ChunkType::ReadOnly },
 };
 
 extern const ChunkHandlerTable _station_chunk_handlers(station_chunk_handlers);

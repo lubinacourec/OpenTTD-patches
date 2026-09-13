@@ -18,4 +18,7 @@ struct Depot;
 
 static const uint MAX_LENGTH_DEPOT_NAME_CHARS = 128; ///< The maximum length of a depot name in characters including '\0'
 
+/** Minimal height for a bridge above any depot tile. */
+static constexpr uint8_t MINIMAL_DEPOT_BRIDGE_HEIGHT = 3;
+
 #endif /* DEPOT_TYPE_H */

@@ -16,6 +16,7 @@
 #include "core/hash_func.hpp"
 #include "string_func.h"
 #include "newgrf_dump.h"
+#include "tile_cmd.h"
 
 #include "safeguards.h"
 
@@ -36,7 +37,7 @@ std::vector<const GRFFile *> _new_landscape_rocks_grfs;
 
 	switch (variable) {
 		case 0x40:
-			return GetTerrainType(this->ti->tile, TCX_NORMAL);
+			return GetTerrainType(this->ti->tile, TileContext::Normal);
 
 		case 0x41:
 			return this->ti->tileh;
@@ -61,7 +62,7 @@ std::vector<const GRFFile *> _new_landscape_rocks_grfs;
 			if (extra.mask & 0x100) {
 				switch (this->landscape_type) {
 					case NEW_LANDSCAPE_ROCKS:
-						if (IsTileType(tile, MP_CLEAR) && IsClearGround(tile, CLEAR_ROCKS)) result |= 0x100;
+						if (IsTileType(tile, TileType::Clear) && IsClearGround(tile, ClearGround::Rocks)) result |= 0x100;
 						break;
 				}
 			}
@@ -84,7 +85,7 @@ std::vector<const GRFFile *> _new_landscape_rocks_grfs;
 
 GrfSpecFeature NewLandscapeResolverObject::GetFeature() const
 {
-	return GSF_NEWLANDSCAPE;
+	return GrfSpecFeature::NewLandscape;
 }
 
 NewLandscapeResolverObject::NewLandscapeResolverObject(const GRFFile *grffile, const TileInfo *ti, NewLandscapeType landscape_type, uint32_t param1, uint32_t param2)

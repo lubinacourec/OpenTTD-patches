@@ -116,7 +116,7 @@ void debug_print_intl(DebugLevelID dbg, int8_t level, const char *buf, size_t pr
 {
 
 	if (dbg == DebugLevelID::desync) {
-		static std::optional<FileHandle> f = FioFOpenFile("commands-out.log", "wb", AUTOSAVE_DIR);
+		static std::optional<FileHandle> f = FioFOpenFile("commands-out.log", "wb", Subdirectory::Autosave);
 		if (f.has_value()) {
 			fmt_print_no_system_error(*f, "{}{}", log_prefix().GetLogPrefix(true), buf + prefix_size);
 			fflush(*f);
@@ -133,7 +133,7 @@ void debug_print_intl(DebugLevelID dbg, int8_t level, const char *buf, size_t pr
 			int pid = getpid();
 			for(;;) {
 				std::string fn = fmt::format("random-out-{}-{}.log", pid, num);
-				f = FioFOpenFile(fn.c_str(), "wx", AUTOSAVE_DIR);
+				f = FioFOpenFile(fn.c_str(), "wx", Subdirectory::Autosave);
 				if (!f.has_value() && errno == EEXIST) {
 					num++;
 					continue;
@@ -142,7 +142,7 @@ void debug_print_intl(DebugLevelID dbg, int8_t level, const char *buf, size_t pr
 			}
 		}
 #else
-		static std::optional<FileHandle> f = FioFOpenFile("random-out.log", "wb", AUTOSAVE_DIR);
+		static std::optional<FileHandle> f = FioFOpenFile("random-out.log", "wb", Subdirectory::Autosave);
 #endif
 		if (f.has_value()) {
 			fputs(buf + prefix_size, *f);
@@ -199,7 +199,7 @@ void DebugIntlVFmt(DebugLevelID dbg, int8_t level, fmt::string_view msg, fmt::fo
  * Internal function for outputting the debug line.
  * @param dbg Debug category.
  * @param level Debug level.
- * @param buf Text line to output.
+ * @param msg Text line to output.
  */
 void debug_print(DebugLevelID dbg, int8_t level, std::string_view msg)
 {
@@ -298,7 +298,8 @@ std::string GetDebugString()
  * If show_date_in_logs or \p force is enabled it returns
  * the date, otherwise it returns an empty string.
  *
- * @return the prefix for logs (do not free), never nullptr.
+ * @param force Whether to force the prefix on.
+ * @return The prefix for logs.
  */
 std::string_view log_prefix::GetLogPrefix(bool force)
 {
@@ -390,13 +391,13 @@ void LogDesyncMsg(std::string msg)
 	_desync_msg_log.LogMsg(DesyncMsgLogEntry(std::move(msg)));
 }
 
-void LogRemoteDesyncMsg(EconTime::Date date, EconTime::DateFract date_fract, uint8_t tick_skip_counter, uint32_t src_id, std::string msg)
+void LogRemoteDesyncMsg(EconTime::Date date, EconTime::DateFract date_fract, uint8_t tick_skip_counter, ClientID src_id, std::string msg)
 {
 	DesyncMsgLogEntry entry(std::move(msg));
 	entry.date = date;
 	entry.date_fract = date_fract;
 	entry.tick_skip_counter = tick_skip_counter;
-	entry.src_id = src_id;
+	entry.src_id = to_underlying(src_id);
 	_remote_desync_msg_log.LogMsg(std::move(entry));
 }
 
@@ -437,7 +438,7 @@ void DebugReconsiderSendRemoteMessages()
 
 	if (!enable) {
 		for (ServerNetworkAdminSocketHandler *as : ServerNetworkAdminSocketHandler::IterateActive()) {
-			if (as->update_frequency[ADMIN_UPDATE_CONSOLE].Test(AdminUpdateFrequency::Automatic)) {
+			if (as->update_frequency[AdminUpdateType::Console].Test(AdminUpdateFrequency::Automatic)) {
 				enable = true;
 				break;
 			}

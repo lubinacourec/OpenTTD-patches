@@ -46,7 +46,7 @@ extern btree::btree_map<uint64_t, Money> _cargo_packet_deferred_payments;
 		 * information is lost. In that case we set it to the position of this
 		 * station */
 		for (Station *st : Station::Iterate()) {
-			for (CargoType c = 0; c < NUM_CARGO; c++) {
+			for (CargoType c{}; c < NUM_CARGO; c++) {
 				GoodsEntry *ge = &st->goods[c];
 
 				if (ge->data == nullptr) continue;
@@ -73,7 +73,7 @@ extern btree::btree_map<uint64_t, Money> _cargo_packet_deferred_payments;
 		for (Vehicle *v : Vehicle::Iterate()) v->cargo.InvalidateCache();
 
 		for (Station *st : Station::Iterate()) {
-			for (CargoType c = 0; c < NUM_CARGO; c++) {
+			for (CargoType c{}; c < NUM_CARGO; c++) {
 				if (st->goods[c].data != nullptr) st->goods[c].data->cargo.InvalidateCache();
 			}
 		}
@@ -137,7 +137,7 @@ extern btree::btree_map<uint64_t, Money> _cargo_packet_deferred_payments;
 			assert_msg(st != nullptr, "{}", VehicleInfoDumper(v));
 			for (CargoPacket *cp : iter.second) {
 				st->goods[v->cargo_type].CreateData().cargo.AfterLoadIncreaseReservationCount(cp->count);
-				v->cargo.Append(cp, VehicleCargoList::MTA_LOAD);
+				v->cargo.Append(cp, VehicleCargoList::MoveToAction::Load);
 				if (cp->source_xy != INVALID_TILE) {
 					cp->UpdateLoadingTile(cp->source_xy);
 				}
@@ -240,8 +240,8 @@ void Load_CPDP()
 
 /** Chunk handlers related to cargo packets. */
 static const ChunkHandler cargopacket_chunk_handlers[] = {
-	{ 'CAPA', Save_CAPA, Load_CAPA, nullptr, nullptr, CH_TABLE },
-	{ 'CPDP', Save_CPDP, Load_CPDP, nullptr, nullptr, CH_RIFF  },
+	{ 'CAPA', Save_CAPA, Load_CAPA, nullptr, nullptr, ChunkType::Table },
+	{ 'CPDP', Save_CPDP, Load_CPDP, nullptr, nullptr, ChunkType::Riff  },
 };
 
 extern const ChunkHandlerTable _cargopacket_chunk_handlers(cargopacket_chunk_handlers);

@@ -20,8 +20,18 @@ void CheckEngines();
 void AnalyseEngineCallbacks();
 
 /* Original engine data counts and offsets */
-extern const uint8_t _engine_counts[4];
-extern const uint8_t _engine_offsets[4];
+inline uint8_t GetOriginalEngineCount(VehicleType type)
+{
+	extern const VehicleTypeIndexArray<uint8_t> _engine_counts;
+	dbg_assert(type < VehicleType::CompanyEnd);
+	return _engine_counts[type];
+}
+inline uint8_t GetOriginalEngineOffset(VehicleType type)
+{
+	extern const VehicleTypeIndexArray<uint8_t> _engine_offsets;
+	dbg_assert(type < VehicleType::CompanyEnd);
+	return _engine_offsets[type];
+}
 
 bool IsEngineBuildable(EngineID engine, VehicleType type, CompanyID company);
 bool IsEngineRefittable(EngineID engine);

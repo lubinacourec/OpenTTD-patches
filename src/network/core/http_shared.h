@@ -22,11 +22,15 @@ private:
 	/** Entries on the queue for later handling. */
 	class Callback {
 	public:
+		/**
+		 * Create the callback.
+		 * @param data The data of the callback.
+		 */
 		Callback(UniqueBuffer<char> data) : data(std::move(data)), failure(false) {}
 		Callback() : data({}), failure(true) {}
 
-		UniqueBuffer<char> data;
-		bool failure;
+		UniqueBuffer<char> data; ///< The data of the callback.
+		bool failure; ///< Whether the callback denotes a failure.
 	};
 
 public:
@@ -41,6 +45,7 @@ public:
 
 	/**
 	 * Similar to HTTPCallback::OnReceiveData, but thread-safe.
+	 * @copydoc HTTPCallback::OnReceiveData
 	 */
 	void OnReceiveData(UniqueBuffer<char> data)
 	{
@@ -87,6 +92,7 @@ public:
 
 	/**
 	 * Check if the queue is empty.
+	 * @return \c true iff the queue is empty.
 	 */
 	bool IsQueueEmpty()
 	{
@@ -94,6 +100,10 @@ public:
 		return this->queue.empty();
 	}
 
+	/**
+	 * Create the thread safe callback.
+	 * @param callback The underlying callback to call.
+	 */
 	HTTPThreadSafeCallback(HTTPCallback *callback) : callback(callback) {}
 
 	~HTTPThreadSafeCallback()
@@ -104,7 +114,7 @@ public:
 		queue_cv.notify_all();
 	}
 
-	std::atomic<bool> cancelled = false;
+	std::atomic<bool> cancelled = false; ///< Whether this callback has been cancelled, or not.
 
 private:
 	HTTPCallback *callback; ///< The callback to send data back on.

@@ -14,6 +14,7 @@
 #include "string_func.h"
 #include "rail_map.h"
 #include "tunnelbridge_map.h"
+#include "settings_type.h"
 #include "pathfinder/water_regions.h"
 #include "core/alloc_func.hpp"
 #include "3rdparty/cpp-ring-buffer/ring_buffer.hpp"
@@ -245,30 +246,30 @@ TileIndex TileAddSaturating(TileIndex tile, int addx, int addy)
 }
 
 /** 'Lookup table' for tile offsets given an Axis */
-extern const TileIndexDiffC _tileoffs_by_axis[] = {
-	{ 1,  0}, ///< AXIS_X
-	{ 0,  1}, ///< AXIS_Y
-};
+extern const AxisIndexArray<TileIndexDiffC> _tileoffs_by_axis{{{
+	{1, 0}, // Axis::X
+	{0, 1}, // Axis::Y
+}}};
 
 /** 'Lookup table' for tile offsets given a DiagDirection */
-extern const TileIndexDiffC _tileoffs_by_diagdir[] = {
-	{-1,  0}, ///< DIAGDIR_NE
-	{ 0,  1}, ///< DIAGDIR_SE
-	{ 1,  0}, ///< DIAGDIR_SW
-	{ 0, -1}  ///< DIAGDIR_NW
-};
+extern const DiagDirectionIndexArray<TileIndexDiffC> _tileoffs_by_diagdir{{{
+	{-1,  0}, // DiagDirection::NE
+	{ 0,  1}, // DiagDirection::SE
+	{ 1,  0}, // DiagDirection::SW
+	{ 0, -1}, // DiagDirection::NW
+}}};
 
 /** 'Lookup table' for tile offsets given a Direction */
-extern const TileIndexDiffC _tileoffs_by_dir[] = {
-	{-1, -1}, ///< DIR_N
-	{-1,  0}, ///< DIR_NE
-	{-1,  1}, ///< DIR_E
-	{ 0,  1}, ///< DIR_SE
-	{ 1,  1}, ///< DIR_S
-	{ 1,  0}, ///< DIR_SW
-	{ 1, -1}, ///< DIR_W
-	{ 0, -1}  ///< DIR_NW
-};
+extern const DirectionIndexArray<TileIndexDiffC> _tileoffs_by_dir{{{
+	{-1, -1}, // Direction::N
+	{-1,  0}, // Direction::NE
+	{-1,  1}, // Direction::E
+	{ 0,  1}, // Direction::SE
+	{ 1,  1}, // Direction::S
+	{ 1,  0}, // Direction::SW
+	{ 1, -1}, // Direction::W
+	{ 0, -1}, // Direction::NW
+}}};
 
 /**
  * Gets the Manhattan distance between the two given tiles.
@@ -359,10 +360,10 @@ uint DistanceFromEdge(TileIndex tile)
 uint DistanceFromEdgeDir(TileIndex tile, DiagDirection dir)
 {
 	switch (dir) {
-		case DIAGDIR_NE: return             TileX(tile) - (_settings_game.construction.freeform_edges ? 1 : 0);
-		case DIAGDIR_NW: return             TileY(tile) - (_settings_game.construction.freeform_edges ? 1 : 0);
-		case DIAGDIR_SW: return Map::MaxX() - TileX(tile) - 1;
-		case DIAGDIR_SE: return Map::MaxY() - TileY(tile) - 1;
+		case DiagDirection::NE: return             TileX(tile) - (_settings_game.construction.freeform_edges ? 1 : 0);
+		case DiagDirection::NW: return             TileY(tile) - (_settings_game.construction.freeform_edges ? 1 : 0);
+		case DiagDirection::SW: return Map::MaxX() - TileX(tile) - 1;
+		case DiagDirection::SE: return Map::MaxY() - TileY(tile) - 1;
 		default: NOT_REACHED();
 	}
 }
@@ -395,17 +396,17 @@ bool EnoughContiguousTilesMatchingCondition(TileIndex tile, uint threshold, Test
 			/* Tile not done/inserted already */
 			if (proc(t, user_data)) {
 				matching_count++;
-				for (DiagDirection dir = DIAGDIR_BEGIN; dir < DIAGDIR_END; dir++) {
+				for (DiagDirection dir = DiagDirection::Begin; dir < DiagDirection::End; dir++) {
 					if (dir == exclude_onward_dir) continue;
 					TileIndex neighbour_tile = AddTileIndexDiffCWrap(t, TileIndexDiffCByDiagDir(dir));
 					if (IsValidTile(neighbour_tile)) {
-						candidates.push_back(neighbour_tile.base() | (ReverseDiagDir(dir) << 30));
+						candidates.push_back(neighbour_tile.base() | (to_underlying(ReverseDiagDir(dir)) << 30));
 					}
 				}
 			}
 		}
 	};
-	process_tile(tile, INVALID_DIAGDIR);
+	process_tile(tile, DiagDirection::Invalid);
 
 	while (matching_count < threshold && !candidates.empty()) {
 		uint32_t next = candidates.front();
@@ -475,16 +476,16 @@ uint GetClosestWaterDistance(TileIndex tile, bool water)
 		y--;
 
 		/* going counter-clockwise around this square */
-		for (DiagDirection dir = DIAGDIR_BEGIN; dir < DIAGDIR_END; dir++) {
-			static const int8_t ddx[DIAGDIR_END] = { -1,  1,  1, -1};
-			static const int8_t ddy[DIAGDIR_END] = {  1,  1, -1, -1};
+		for (DiagDirection dir : EnumRange(DiagDirection::End)) {
+			static constexpr DiagDirectionIndexArray<int8_t> ddx{-1,  1,  1, -1};
+			static constexpr DiagDirectionIndexArray<int8_t> ddy{ 1,  1, -1, -1};
 
 			int dx = ddx[dir];
 			int dy = ddy[dir];
 
 			/* each side of this square has length 'dist' */
 			for (uint a = 0; a < dist; a++) {
-				/* MP_VOID tiles are not checked (interval is [min; max) for IsInsideMM())*/
+				/* TileType::Void tiles are not checked (interval is [min; max) for IsInsideMM())*/
 				if (IsInsideMM(x, min_xy, max_x) && IsInsideMM(y, min_xy, max_y)) {
 					TileIndex t = TileXY(x, y);
 					if (HasTileWaterGround(t) == water) return dist;
@@ -498,7 +499,7 @@ uint GetClosestWaterDistance(TileIndex tile, bool water)
 	if (!water) {
 		/* no land found - is this a water-only map? */
 		for (TileIndex t(0); t < Map::Size(); t++) {
-			if (!IsTileType(t, MP_VOID) && !IsTileType(t, MP_WATER)) return 0x1FF;
+			if (!IsTileType(t, TileType::Void) && !IsTileType(t, TileType::Water)) return 0x1FF;
 		}
 	}
 
@@ -506,17 +507,17 @@ uint GetClosestWaterDistance(TileIndex tile, bool water)
 }
 
 static const char *tile_type_names[16] = {
-	"MP_CLEAR",
-	"MP_RAILWAY",
-	"MP_ROAD",
-	"MP_HOUSE",
-	"MP_TREES",
-	"MP_STATION",
-	"MP_WATER",
-	"MP_VOID",
-	"MP_INDUSTRY",
-	"MP_TUNNELBRIDGE",
-	"MP_OBJECT",
+	"Clear",
+	"Railway",
+	"Road",
+	"House",
+	"Trees",
+	"Station",
+	"Water",
+	"Void",
+	"Industry",
+	"TunnelBridge",
+	"Object",
 	"INVALID_B",
 	"INVALID_C",
 	"INVALID_D",
@@ -576,13 +577,13 @@ void DumpMapStats(format_target &buffer)
 	}
 
 	for (TileIndex t(0); t < Map::Size(); t++) {
-		tile_types[GetTileType(t)]++;
+		tile_types[to_underlying(GetTileType(t))]++;
 
-		if (IsTileType(t, MP_RAILWAY)) {
+		if (IsTileType(t, TileType::Railway)) {
 			if (GetRailTileType(t) == RailTileType::Signals) {
 				if (IsRestrictedSignal(t)) restricted_signals++;
-				if (HasSignalOnTrack(t, TRACK_LOWER) && GetSignalType(t, TRACK_LOWER) == SIGTYPE_PROG) prog_signals++;
-				if (HasSignalOnTrack(t, TRACK_UPPER) && GetSignalType(t, TRACK_UPPER) == SIGTYPE_PROG) prog_signals++;
+				if (HasSignalOnTrack(t, TRACK_LOWER) && GetSignalType(t, TRACK_LOWER) == SignalType::Prog) prog_signals++;
+				if (HasSignalOnTrack(t, TRACK_UPPER) && GetSignalType(t, TRACK_UPPER) == SignalType::Prog) prog_signals++;
 			}
 		}
 
@@ -598,7 +599,7 @@ void DumpMapStats(format_target &buffer)
 
 		if (IsNormalRoadTile(t) && HasRoadWorks(t)) road_works++;
 
-		if (IsTileType(t, MP_TUNNELBRIDGE)) {
+		if (IsTileType(t, TileType::TunnelBridge)) {
 			uint bucket = 0;
 			if (IsBridge(t)) bucket |= TBB_BRIDGE;
 			if (IsTunnelBridgeWithSignalSimulation(t)) {
@@ -606,12 +607,12 @@ void DumpMapStats(format_target &buffer)
 				if (IsTunnelBridgeSignalSimulationBidirectional(t)) bucket |= TBB_SIGNALLED_BIDI;
 				if (IsTunnelBridgeRestrictedSignal(t)) restricted_signals++;
 			}
-			if (GetTunnelBridgeTransportType(t) == TRANSPORT_ROAD) {
-				if (HasTileRoadType(t, RTT_ROAD)) bucket |= TBB_ROAD;
-				if (HasTileRoadType(t, RTT_TRAM)) bucket |= TBB_TRAM;
+			if (GetTunnelBridgeTransportType(t) == TransportType::Road) {
+				if (HasTileRoadType(t, RoadTramType::Road)) bucket |= TBB_ROAD;
+				if (HasTileRoadType(t, RoadTramType::Tram)) bucket |= TBB_TRAM;
 			}
-			if (GetTunnelBridgeTransportType(t) == TRANSPORT_RAIL) bucket |= TBB_RAIL;
-			if (GetTunnelBridgeTransportType(t) == TRANSPORT_WATER) bucket |= TBB_WATER;
+			if (GetTunnelBridgeTransportType(t) == TransportType::Rail) bucket |= TBB_RAIL;
+			if (GetTunnelBridgeTransportType(t) == TransportType::Water) bucket |= TBB_WATER;
 			if (IsCustomBridgeHeadTile(t)) bucket |= TBB_CUSTOM_HEAD;
 			if (dual_rt) bucket |= TBB_DUAL_RT;
 			tunnel_bridge_stats[bucket]++;

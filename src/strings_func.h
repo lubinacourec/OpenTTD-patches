@@ -64,6 +64,7 @@ inline StringID MakeStringID(StringTab tab, StringIndexInTab index)
 /**
  * Prepare the string parameters for the next formatting run, resetting the type information.
  * This is only necessary if parameters are reused for multiple format runs.
+ * @param args The parameters to prepare.
  */
 static inline void PrepareArgsForNextRun(std::span<StringParameter> args)
 {
@@ -101,11 +102,11 @@ inline char32_t GetDecimalSeparatorChar()
 	return _decimal_separator_char;
 }
 
-uint64_t GetParamMaxValue(uint64_t max_value, uint min_count = 0, FontSize size = FS_NORMAL);
-uint64_t GetParamMaxDigits(uint count, FontSize size = FS_NORMAL);
+uint64_t GetParamMaxValue(uint64_t max_value, uint min_count = 0, FontSize size = FontSize::Normal);
+uint64_t GetParamMaxDigits(uint count, FontSize size = FontSize::Normal);
 
 template <typename T, std::enable_if_t<StringParameterAsBase<T>, int> = 0>
-uint64_t GetParamMaxValue(T max_value, uint min_count = 0, FontSize size = FS_NORMAL)
+uint64_t GetParamMaxValue(T max_value, uint min_count = 0, FontSize size = FontSize::Normal)
 {
 	return GetParamMaxValue(max_value.base(), min_count, size);
 }
@@ -264,8 +265,36 @@ struct GetStringFmtParam {
  */
 class MissingGlyphSearcher {
 public:
-	/** Make sure everything gets destructed right. */
+	/**
+	 * Create this glyph searcher.
+	 * @param fontsizes Font sizes to consider.
+	 */
+	MissingGlyphSearcher(FontSizes fontsizes) : fontsizes(fontsizes) {}
+
+	/** Ensure the destructor of the sub classes are called as well. */
 	virtual ~MissingGlyphSearcher() = default;
+
+	const FontSizes fontsizes; ///< Font sizes this searcher will try to find.
+	FontSizes missing_fontsizes{}; ///< Font sizes to actually search for.
+	std::vector<char32_t> missing_glyphs{}; ///< Glyphs to search for.
+
+	/**
+	 * Determine set of glyphs required for the current language.
+	 * @param fontsizes Font sizes to test.
+	 **/
+	virtual void DetermineRequiredGlyphs(FontSizes fontsizes) = 0;
+};
+
+/** Base for missing glyph searchers that look for missing glyphs in strings. */
+class BaseStringMissingGlyphSearcher : public MissingGlyphSearcher {
+public:
+	/**
+	 * Create this string glyph searcher.
+	 * @param fontsizes Font sizes to consider.
+	 */
+	BaseStringMissingGlyphSearcher(FontSizes fontsizes) : MissingGlyphSearcher(fontsizes) {}
+
+	void DetermineRequiredGlyphs(FontSizes fontsizes) override;
 
 	/**
 	 * Get the next string to search through.
@@ -283,24 +312,10 @@ public:
 	 * Reset the search, i.e. begin from the beginning again.
 	 */
 	virtual void Reset() = 0;
-
-	/**
-	 * Whether to search for a monospace font or not.
-	 * @return True if searching for monospace.
-	 */
-	virtual bool Monospace() = 0;
-
-	/**
-	 * Set the right font names.
-	 * @param settings  The settings to modify.
-	 * @param font_name The new font name.
-	 * @param os_data Opaque pointer to OS-specific data.
-	 */
-	virtual void SetFontNames(struct FontCacheSettings *settings, std::string_view font_name, const void *os_data = nullptr) = 0;
-
-	bool FindMissingGlyphs();
 };
 
-void CheckForMissingGlyphs(MissingGlyphSearcher *search = nullptr);
+void CheckForMissingGlyphs(MissingGlyphSearcher *searcher = nullptr);
+
+void AppendWidestTinyOrIsoCalendarDate(struct format_target &result, bool iso, FontSize size = FontSize::Normal);
 
 #endif /* STRINGS_FUNC_H */

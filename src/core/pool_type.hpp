@@ -23,7 +23,10 @@ enum class PoolType : uint8_t {
 	NetworkAdmin, ///< Network admin pool.
 	Data, ///< NewGRF or other data, that is not reset together with normal pools.
 };
+
+/** Bitset of \c PoolType elements. */
 using PoolTypes = EnumBitSet<PoolType, uint8_t>;
+
 static constexpr PoolTypes PT_ALL = {PoolType::Normal, PoolType::NetworkClient, PoolType::NetworkAdmin, PoolType::Data};
 
 typedef std::vector<struct PoolBase *> PoolVector; ///< Vector of pointers to PoolBase
@@ -67,6 +70,7 @@ private:
 	/**
 	 * Dummy private copy constructor to prevent compilers from
 	 * copying the structure, which fails due to GetPools().
+	 * @param other The pool not to copy from.
 	 */
 	PoolBase(const PoolBase &other);
 };
@@ -117,7 +121,7 @@ public:
 	size_t first_free = 0;   ///< No item with index lower than this is free (doesn't say anything about this one!)
 	size_t first_unused = 0; ///< This and all higher indexes are free (doesn't say anything about first_unused-1 !)
 	size_t items = 0;        ///< Number of used indexes (non-nullptr)
-#ifdef WITH_ASSERT
+#ifdef WITH_FULL_ASSERTS
 	size_t checked = 0;      ///< Number of items we checked for
 #endif /* WITH_ASSERT */
 	bool cleaning = false;   ///< True if cleaning pool (deleting all items)
@@ -168,7 +172,7 @@ public:
 	inline bool CanAllocate(size_t n = 1)
 	{
 		bool ret = this->items <= MAX_SIZE - n;
-#ifdef WITH_ASSERT
+#ifdef WITH_FULL_ASSERTS
 		this->checked = ret ? n : 0;
 #endif /* WITH_ASSERT */
 		return ret;
@@ -333,7 +337,7 @@ public:
 
 		/**
 		 * Creates a new T-object in the associated pool.
-		 * @param args... The arguments to the constructor.
+		 * @param args The arguments to the constructor.
 		 * @return The created object.
 		 */
 		template <typename T = Titem, typename... Targs>
@@ -347,7 +351,7 @@ public:
 		/**
 		 * Creates a new T-object in the associated pool.
 		 * @param index The to allocate the object at.
-		 * @param args... The arguments to the constructor.
+		 * @param args The arguments to the constructor.
 		 * @return The created object.
 		 */
 		template <typename T = Titem, typename... Targs>

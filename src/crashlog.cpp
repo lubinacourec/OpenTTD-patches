@@ -24,6 +24,7 @@
 #include "sound/sound_driver.hpp"
 #include "video/video_driver.hpp"
 #include "sl/saveload.h"
+#include "sl/saveload_func.h"
 #include "screenshot.h"
 #include "screenshot_type.h"
 #include "gfx_func.h"
@@ -97,6 +98,17 @@
 #endif
 
 #include "safeguards.h"
+
+/**
+ * Did loading the savegame cause a crash? If so,
+ * were NewGRFs missing?
+ * @return when the saveload crashed due to missing NewGRFs.
+ */
+inline bool SaveloadCrashWithMissingNewGRFs()
+{
+	extern bool _saveload_crash_with_missing_newgrfs;
+	return _saveload_crash_with_missing_newgrfs;
+}
 
 /* static */ const char *CrashLog::message = nullptr;
 /* static */ bool CrashLog::have_crashed = false;
@@ -223,13 +235,20 @@ void CrashLog::LogConfiguration(format_target_ctrl &buffer) const
 {
 	auto mode_name = []() -> const char * {
 		switch (_game_mode) {
-			case GM_MENU: return "MENU";
-			case GM_NORMAL: return "NORMAL";
-			case GM_EDITOR: return "EDITOR";
-			case GM_BOOTSTRAP:  return "BOOTSTRAP";
+			case GameMode::Menu: return "Menu";
+			case GameMode::Normal: return "Normal";
+			case GameMode::Editor: return "Editor";
+			case GameMode::Bootstrap:  return "Bootstrap";
 			default: return "-";
 		};
 	};
+	const Blitter *blitter = BlitterFactory::GetCurrentBlitter();
+	const GraphicsSet *gfx_set = BaseGraphics::GetUsedSet();
+	const MusicDriver *music_driver = MusicDriver::GetInstance();
+	const MusicSet *music_set = BaseMusic::GetUsedSet();
+	const SoundDriver *sound_driver = SoundDriver::GetInstance();
+	const SoundsSet *sounds_set = BaseSounds::GetUsedSet();
+	const VideoDriver *video_driver = VideoDriver::GetInstance();
 	buffer.format(
 			"Configuration:\n"
 			" Blitter:      {}\n"
@@ -241,21 +260,21 @@ void CrashLog::LogConfiguration(format_target_ctrl &buffer) const
 			" Sound driver: {}\n"
 			" Sound set:    {} ({})\n"
 			" Video driver: {}\n",
-			BlitterFactory::GetCurrentBlitter() == nullptr ? (std::string_view)"none" : BlitterFactory::GetCurrentBlitter()->GetName(),
-			BaseGraphics::GetUsedSet() == nullptr ? (std::string_view)"none" : BaseGraphics::GetUsedSet()->name,
-			BaseGraphics::GetUsedSet() == nullptr ? BaseSetVersionPrinter{} : BaseGraphics::GetUsedSet()->FormatVersion(),
+			blitter == nullptr ? (std::string_view)"none" : blitter->GetName(),
+			gfx_set == nullptr ? (std::string_view)"none" : gfx_set->name,
+			gfx_set == nullptr ? BaseSetVersionPrinter{} : gfx_set->FormatVersion(),
 			_current_language == nullptr ? (std::string_view)"none" : StrLastPathSegment(_current_language->file.c_str()),
-			MusicDriver::GetInstance() == nullptr ? "none" : MusicDriver::GetInstance()->GetName(),
-			BaseMusic::GetUsedSet() == nullptr ? (std::string_view)"none" : BaseMusic::GetUsedSet()->name,
-			BaseMusic::GetUsedSet() == nullptr ? BaseSetVersionPrinter{} : BaseMusic::GetUsedSet()->FormatVersion(),
+			music_driver == nullptr ? "none" : music_driver->GetName(),
+			music_set == nullptr ? (std::string_view)"none" : music_set->name,
+			music_set == nullptr ? BaseSetVersionPrinter{} : music_set->FormatVersion(),
 			_networking ? (_network_server ? "server" : "client") : "no",
-			SoundDriver::GetInstance() == nullptr ? "none" : SoundDriver::GetInstance()->GetName(),
-			BaseSounds::GetUsedSet() == nullptr ? (std::string_view)"none" : BaseSounds::GetUsedSet()->name,
-			BaseSounds::GetUsedSet() == nullptr ? BaseSetVersionPrinter{} : BaseSounds::GetUsedSet()->FormatVersion(),
-			VideoDriver::GetInstance() == nullptr ? "none" : VideoDriver::GetInstance()->GetInfoString()
+			sound_driver == nullptr ? "none" : sound_driver->GetName(),
+			sounds_set == nullptr ? (std::string_view)"none" : sounds_set->name,
+			sounds_set == nullptr ? BaseSetVersionPrinter{} : sounds_set->FormatVersion(),
+			video_driver == nullptr ? "none" : video_driver->GetInfoString()
 	);
 	buffer.format(" Game mode:    {}", mode_name());
-	if (_switch_mode != SM_NONE) buffer.format(", SM: {}", _switch_mode);
+	if (_switch_mode != SwitchMode::None) buffer.format(", SM: {}", _switch_mode);
 	if (HasModalProgress()) buffer.append(", HMP");
 	buffer.append("\n\n");
 
@@ -276,10 +295,10 @@ void CrashLog::LogConfiguration(format_target_ctrl &buffer) const
 			" Medium: {}\n"
 			" Large:  {}\n"
 			" Mono:   {}\n\n",
-			log_font(FS_SMALL),
-			log_font(FS_NORMAL),
-			log_font(FS_LARGE),
-			log_font(FS_MONO)
+			log_font(FontSize::Small),
+			log_font(FontSize::Normal),
+			log_font(FontSize::Large),
+			log_font(FontSize::Monospace)
 	);
 
 	this->CrashLogFaultSectionCheckpoint(buffer);
@@ -405,7 +424,7 @@ void CrashLog::LogLibraries(format_target_ctrl &buffer) const
 #endif
 #if !(defined(_WIN32) || defined(__APPLE__))
 	const char *sdl_im_module = getenv("SDL_IM_MODULE");
-	if (sdl_im_module != nullptr) buffer.append(" (SDL_IM_MODULE={})", sdl_im_module);
+	if (sdl_im_module != nullptr) buffer.format(" (SDL_IM_MODULE={})", sdl_im_module);
 	const char *xmod = getenv("XMODIFIERS");
 	if (xmod != nullptr && strstr(xmod, "@im=fcitx") != nullptr) buffer.append(" (XMODIFIERS has @im=fcitx)");
 #endif
@@ -789,7 +808,7 @@ bool CrashLog::WriteGeneralLogFile(std::string_view data, char *filename, const 
 {
 	this->PrepareLogFileName(filename, filename_last, name);
 
-	auto file = FioFOpenFile(filename, "w", NO_DIRECTORY);
+	auto file = FioFOpenFile(filename, "w", Subdirectory::None);
 	if (!file.has_value()) return false;
 
 	size_t written = (!data.empty()) ? fwrite(data.data(), 1, data.size(), *file) : 0;
@@ -847,7 +866,7 @@ void CrashLog::CloseCrashLogFile(const char *end)
 		format_to_fixed_z::format_to(filename, filename_last, "{}{}.sav", _personal_dir, name);
 
 		/* Don't do a threaded saveload. */
-		return SaveOrLoad(filename, SLO_SAVE, DFT_GAME_FILE, NO_DIRECTORY, false) == SL_OK;
+		return SaveOrLoad(filename, SaveLoadOperation::Save, DetailedFileType::GameFile, Subdirectory::None, false) == SaveLoadResult::Ok;
 	} catch (...) {
 		return false;
 	}
@@ -870,7 +889,7 @@ void CrashLog::CloseCrashLogFile(const char *end)
 	try {
 		format_to_fixed_z::format_to(filename, filename_last, "{}{}.sav", _personal_dir, name);
 
-		return SaveOrLoad(filename, SLO_SAVE, DFT_GAME_FILE, NO_DIRECTORY, true) == SL_OK;
+		return SaveOrLoad(filename, SaveLoadOperation::Save, DetailedFileType::GameFile, Subdirectory::None, true) == SaveLoadResult::Ok;
 	} catch (...) {
 		return false;
 	}
@@ -896,8 +915,8 @@ void CrashLog::CloseCrashLogFile(const char *end)
 
 void CrashLog::SendSurvey() const
 {
-	if (_game_mode == GM_NORMAL) {
-		_survey.Transmit(NetworkSurveyHandler::Reason::CRASH, true);
+	if (_game_mode == GameMode::Normal) {
+		_survey.Transmit(NetworkSurveyHandler::Reason::Crash, true);
 	}
 }
 

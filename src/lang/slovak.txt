@@ -1376,8 +1376,8 @@ STR_CONFIG_SETTING_CONSTRUCTION_COSTS_HELPTEXT                  :Zvoľte úrove�
 STR_CONFIG_SETTING_RECESSIONS                                   :Recesie: {STRING}
 STR_CONFIG_SETTING_RECESSIONS_HELPTEXT                          :Ak je povolené, recesia sa môže periodicky opakovať. Počas recesie je všetká produkcia znatelne nižšia (po skončení recesie sa produkcia vráti na normálnu úroveň)
 
-STR_CONFIG_SETTING_TRAIN_REVERSING                              :Zakázať otáčanie vlakov v staniciach: {STRING}
-STR_CONFIG_SETTING_TRAIN_REVERSING_HELPTEXT                     :Ak je povolené vlaky sa nebudú otáčať v staniciach, ktoré niesu na konci trate, aj keby sa im tým skrátila cesta do ďalšieho cieľa
+
+###length 3
 
 STR_CONFIG_SETTING_DISASTERS                                    :Havárie: {STRING}
 STR_CONFIG_SETTING_DISASTERS_HELPTEXT                           :Vypne alebo zapne katastrofy, ktoré môžu občas zablokovať alebo zničiť vozidlá alebo infraštruktúru
@@ -1400,7 +1400,6 @@ STR_CONFIG_SETTING_CATCHMENT_HELPTEXT                           :Má úchytné p
 
 STR_CONFIG_SETTING_SERVE_NEUTRAL_INDUSTRIES                     :Stanice spoločnosti môžu obsluhovať priemysel s pripojenými stanicami: {STRING}
 STR_CONFIG_SETTING_SERVE_NEUTRAL_INDUSTRIES_HELPTEXT            :Ak je povolené, priemysel s pripojenými neutrálnymi stanicami (napríklad Ropné plošiny) môžu obsluhovať aj stanice vlastnené spoločnosťou postavené v blízkosti. Ak je zakázané, tento priemysel môžu obsluhovať iba jeho pripojené stanice. Žiadne blízke stanice vlastnené spoločnosťou ich nebudú môcť obsluhovať a pripojená stanica nebude slúžiť ničomu inému ako priemyslu
-
 
 STR_CONFIG_SETTING_EXTRADYNAMITE                                :Odstrániť viaceré mestské cesty, mosty a tunely: {STRING}
 STR_CONFIG_SETTING_EXTRADYNAMITE_HELPTEXT                       :Uľahči odstraňovanie mestom vlastnených budov a infraštruktúry
@@ -1581,6 +1580,8 @@ STR_CONFIG_SETTING_INDUSTRY_CARGO_SCALE                         :Škála produkc
 STR_CONFIG_SETTING_INDUSTRY_CARGO_SCALE_HELPTEXT                :Škála produkcie tovaru priemyslom o toľkoto percent
 STR_CONFIG_SETTING_CARGO_SCALE_VALUE                            :{NUM}%
 
+###setting-zero-is-special
+
 STR_CONFIG_SETTING_AUTORENEW_VEHICLE                            :Automatická obnova dopravných prostriedkov, keď sú staré: {STRING}
 STR_CONFIG_SETTING_AUTORENEW_VEHICLE_HELPTEXT                   :Ak je zapnuté, vozidlá blížiace sa ku koncu svojej životnosti budú automaticky vymenené ak sú splnené podmienky na výmenu.
 
@@ -1649,6 +1650,8 @@ STR_CONFIG_SETTING_ROUGHNESS_OF_TERRAIN_VERY_SMOOTH             :Veľmi rovný
 STR_CONFIG_SETTING_ROUGHNESS_OF_TERRAIN_SMOOTH                  :Rovný
 STR_CONFIG_SETTING_ROUGHNESS_OF_TERRAIN_ROUGH                   :Členitý
 STR_CONFIG_SETTING_ROUGHNESS_OF_TERRAIN_VERY_ROUGH              :Veľmi členitý
+
+###length 4
 
 STR_CONFIG_SETTING_VARIETY                                      :Rozmanitosť distribúcie: {STRING}
 STR_CONFIG_SETTING_VARIETY_HELPTEXT                             :Zvoliť, či mapa obsahuje oba terény aj horský aj nížinný. Čím väčšia rozmanitosť, tým väčšie budú rozdiely v prevýšeniach medzi rovinami a horami
@@ -1806,12 +1809,7 @@ STR_CONFIG_SETTING_TIMETABLE_SHOW_ARRIVAL_DEPARTURE_HELPTEXT    :Zobrazí predpo
 STR_CONFIG_SETTING_QUICKGOTO                                    :Rýchla tvorba cestovného poriadku vozidla: {STRING}
 STR_CONFIG_SETTING_QUICKGOTO_HELPTEXT                           :Prednastaviť "Choď do" kurzor pri otvorení okna s príkazmi
 
-STR_CONFIG_SETTING_DEFAULT_RAIL_TYPE                            :Predvolený typ koľají (v novej/nahranej hre): {STRING}
-STR_CONFIG_SETTING_DEFAULT_RAIL_TYPE_HELPTEXT                   :Typ železnice zvolený po štarte alebo nahraní hry. 'prvé dostupné' zvolí najstarší typ koľají, 'posledný dostupný' zvolí najnovší typ koľají, a 'najpoužívanejší' vyberie typ ktorý je v danej dobe najviac používaný.
 ###length 3
-STR_CONFIG_SETTING_DEFAULT_RAIL_TYPE_FIRST                      :prvé dostupné
-STR_CONFIG_SETTING_DEFAULT_RAIL_TYPE_LAST                       :posledné dostupné
-STR_CONFIG_SETTING_DEFAULT_RAIL_TYPE_MOST_USED                  :najpoužívanejšie
 
 STR_CONFIG_SETTING_SHOW_TRACK_RESERVATION                       :Zobraziť rezerváciu pre trate: {STRING}
 STR_CONFIG_SETTING_SHOW_TRACK_RESERVATION_HELPTEXT              :Dá obsadenej trati inú farbu na pomoc pri problémoch s vlakmi odmietajúcimi vstúpiť do úseku danej trate
@@ -1914,6 +1912,7 @@ STR_CONFIG_SETTING_STATION_LENGTH_LOADING_PENALTY_HELPTEXT      :Keď je táto m
 
 STR_CONFIG_SETTING_WAGONSPEEDLIMITS                             :Obmedzenie rýchlosti pre vagóny: {STRING}
 STR_CONFIG_SETTING_WAGONSPEEDLIMITS_HELPTEXT                    :Ak je zapnuté, použijú sa tiež rýchlostné obmedzenia pre vagóny na obmedzenie celkovej rýchlosti vlakov.
+
 
 STR_CONFIG_SETTING_DISABLE_ELRAILS                              :Zakázať elektrifikovanú železnicu: {STRING}
 STR_CONFIG_SETTING_DISABLE_ELRAILS_HELPTEXT                     :Povolením nastavenia vypne nutnosť elektrifikovať železnice aby na nich mohli jazdiť elektrické vlaky.
@@ -2229,7 +2228,7 @@ STR_CONFIG_ERROR_INVALID_BASE_GRAPHICS_NOT_FOUND                :{WHITE}... igno
 STR_CONFIG_ERROR_INVALID_BASE_SOUNDS_NOT_FOUND                  :{WHITE}... ignorujem základnú sadu zvukov '{STRING}': nenájdené
 STR_CONFIG_ERROR_INVALID_BASE_MUSIC_NOT_FOUND                   :{WHITE}... ignorujem základnú sadu hudby '{STRING}': nenájdené
 
-# Video initalization errors
+# Video initialization errors
 STR_VIDEO_DRIVER_ERROR                                          :{WHITE}Chyba v nastavení videa...
 STR_VIDEO_DRIVER_ERROR_NO_HARDWARE_ACCELERATION                 :{WHITE}... nenašlo sa kompatibilné GPU. Hardvérové zrýchlenie vypnuté
 STR_VIDEO_DRIVER_ERROR_HARDWARE_ACCELERATION_CRASH              :{WHITE}... Hra spadla kvôli ovládaču GPU. Hardvérová akcelerácia je vypnutá
@@ -2482,15 +2481,13 @@ STR_NETWORK_CONNECTING_WAITING                                  :{BLACK}{NUM} kl
 STR_NETWORK_CONNECTING_DOWNLOADING_1                            :{BLACK}{BYTES} zatiaľ stiahnuté
 STR_NETWORK_CONNECTING_DOWNLOADING_2                            :{BLACK}{BYTES} / {BYTES} stiahnuté
 
-###length 8
+###length 6
 STR_NETWORK_CONNECTING_1                                        :{BLACK}(1/6) Pripájam sa...
 STR_NETWORK_CONNECTING_2                                        :{BLACK}(2/6) Overujem...
 STR_NETWORK_CONNECTING_3                                        :{BLACK}(3/6) Čakám...
 STR_NETWORK_CONNECTING_4                                        :{BLACK}(4/6) Sťahovanie mapy...
 STR_NETWORK_CONNECTING_5                                        :{BLACK}(5/6) Spracovanie údajov...
 STR_NETWORK_CONNECTING_6                                        :{BLACK}(6/6) Registrácia...
-STR_NETWORK_CONNECTING_SPECIAL_1                                :{BLACK}Načitanie informácií o hre...
-STR_NETWORK_CONNECTING_SPECIAL_2                                :{BLACK}Načítanie informácií o spoločnosti...
 
 STR_NETWORK_CONNECTION_DISCONNECT                               :{BLACK}Odpojiť sa
 
@@ -2862,7 +2859,6 @@ STR_STATION_CLASS_WAYP_WAYPOINT                                 :Predvolený bod
 
 # Signal window
 STR_BUILD_SIGNAL_CAPTION                                        :{WHITE}Výber návestidla
-STR_BUILD_SIGNAL_TOGGLE_ADVANCED_SIGNAL_TOOLTIP                 :{BLACK}Prepnúť zobrazenie zložitejších typov návestidiel
 STR_BUILD_SIGNAL_SEMAPHORE_NORM_TOOLTIP                         :{BLACK}Obyčajné návestidlo (mechanické){}Základný typ návestidla, povolí iba jeden vlak v jednom úseku v rovnakom čase
 STR_BUILD_SIGNAL_SEMAPHORE_ENTRY_TOOLTIP                        :{BLACK}Vstupné návestidlo (mechanické){}Zelená tak dlho, kým je aspoň jedno zelené výstupné návestidlo na nasledujúcom úseku trate. Inak ukazuje červenú
 STR_BUILD_SIGNAL_SEMAPHORE_EXIT_TOOLTIP                         :{BLACK}Výstupné návestidlo (mechanické){}Funguje rovnako ako obyčajné návestidlo, je však nevyhnutné na určenie správnej farby na vstupných a kombinovaných návestidlách umiestnených pred ním
@@ -3965,10 +3961,10 @@ STR_COMPANY_INFRASTRUCTURE_VIEW_TOTAL_PERIOD                    :{WHITE}{CURRENC
 STR_INDUSTRY_DIRECTORY_NONE                                     :{ORANGE}- Nič -
 STR_INDUSTRY_DIRECTORY_ITEM_INFO                                :{BLACK}{CARGO_LONG}{STRING}{YELLOW} ({COMMA}% prepraven{P é é ých})
 STR_INDUSTRY_DIRECTORY_ITEM_NOPROD                              :{ORANGE}{INDUSTRY}
-STR_INDUSTRY_DIRECTORY_ITEM_PROD1                               :{ORANGE}{INDUSTRY} {STRING}
-STR_INDUSTRY_DIRECTORY_ITEM_PROD2                               :{ORANGE}{INDUSTRY} {STRING}, {STRING}
-STR_INDUSTRY_DIRECTORY_ITEM_PROD3                               :{ORANGE}{INDUSTRY} {STRING}, {STRING}, {STRING}
-STR_INDUSTRY_DIRECTORY_ITEM_PRODMORE                            :{ORANGE}{INDUSTRY} {STRING}, {STRING}, {STRING} a {NUM} ďalšie...
+STR_INDUSTRY_DIRECTORY_ITEM_PROD1                               :{ORANGE}{INDUSTRY} {BLACK}{STRING}
+STR_INDUSTRY_DIRECTORY_ITEM_PROD2                               :{ORANGE}{INDUSTRY} {BLACK}{STRING}, {STRING}
+STR_INDUSTRY_DIRECTORY_ITEM_PROD3                               :{ORANGE}{INDUSTRY} {BLACK}{STRING}, {STRING}, {STRING}
+STR_INDUSTRY_DIRECTORY_ITEM_PRODMORE                            :{ORANGE}{INDUSTRY} {BLACK}{STRING}, {STRING}, {STRING} a {NUM} ďalšie...
 STR_INDUSTRY_DIRECTORY_LIST_TOOLTIP                             :{BLACK}Názvy priemyslu - klikni na meno pre vycentrovanie pohľadu na priemysel. Ctrl+Klik otvorí nové okno s pohľadom na priemysel
 STR_INDUSTRY_DIRECTORY_ACCEPTED_CARGO_FILTER                    :{BLACK}Prijímaný náklad: {SILVER}{STRING}
 STR_INDUSTRY_DIRECTORY_PRODUCED_CARGO_FILTER                    :{BLACK}Produkovaný náklad: {SILVER}{STRING}
@@ -4114,6 +4110,8 @@ STR_PURCHASE_INFO_ALL_BUT                                       :Všetko okrem {
 STR_PURCHASE_INFO_MAX_TE                                        :{BLACK}Max. trakčná sila: {GOLD}{FORCE}
 STR_PURCHASE_INFO_AIRCRAFT_RANGE                                :{BLACK}Dolet: {GOLD}{COMMA} políčok
 STR_PURCHASE_INFO_AIRCRAFT_TYPE                                 :{BLACK}Typ lietadla: {GOLD}{STRING}
+
+# Vehicle sort details
 
 ###length 3
 STR_CARGO_TYPE_FILTER_ALL                                       :Všetky druhy nákladu
@@ -4452,7 +4450,6 @@ STR_VEHICLE_INFO_PROFIT_THIS_YEAR_LAST_YEAR                     :{BLACK}Zisk v t
 STR_VEHICLE_INFO_PROFIT_THIS_YEAR_LAST_YEAR_MIN_PERFORMANCE     :{BLACK}Zisk v tomto roku: {LTBLUE}{CURRENCY_LONG} (minulý rok: {CURRENCY_LONG}) {BLACK}Min. výkon: {LTBLUE}{POWER_TO_WEIGHT}
 STR_VEHICLE_INFO_PROFIT_THIS_PERIOD_LAST_PERIOD                 :{BLACK}Zisk za toto obdobie: {LTBLUE}{CURRENCY_LONG} (minulé obdobie: {CURRENCY_LONG})
 STR_VEHICLE_INFO_PROFIT_THIS_PERIOD_LAST_PERIOD_MIN_PERFORMANCE :{BLACK}Zisk za toto obdobie: {LTBLUE}{CURRENCY_LONG} (miunlé obdobie: {CURRENCY_LONG}) {BLACK}Min. výkon: {LTBLUE}{POWER_TO_WEIGHT}
-STR_VEHICLE_INFO_RELIABILITY_BREAKDOWNS                         :{BLACK}Spoľahlivosť: {LTBLUE}{COMMA}%  {BLACK}Poruchy od posledného servisu: {LTBLUE}{COMMA}
 
 STR_VEHICLE_INFO_BUILT_VALUE                                    :{LTBLUE}{ENGINE} {BLACK}Vyrobený: {LTBLUE}{NUM}{BLACK} Cena: {LTBLUE}{CURRENCY_LONG}
 STR_VEHICLE_INFO_NO_CAPACITY                                    :{BLACK}Kapacita: {LTBLUE}Žiadna{STRING}
@@ -4592,7 +4589,7 @@ STR_ORDER_HANGAR_ACTION_TOOLTIP                                 :{BLACK}Zvoľte 
 STR_ORDER_CONDITIONAL_VARIABLE_TOOLTIP                          :{BLACK}Údaje vozidla na základe ktorých sa vykoná skok
 
 # Conditional order variables, must follow order of OrderConditionVariable enum
-###length 8
+###length 9
 STR_ORDER_CONDITIONAL_LOAD_PERCENTAGE                           :Percento naplnenia
 STR_ORDER_CONDITIONAL_RELIABILITY                               :Spoľahlivosť
 STR_ORDER_CONDITIONAL_MAX_SPEED                                 :Maximálna rýchlosť
@@ -4993,7 +4990,6 @@ STR_ERROR_CAN_T_GENERATE_TOWN                                   :{WHITE}Nie je m
 STR_ERROR_CAN_T_RENAME_TOWN                                     :{WHITE}Mesto nemôže byť odstránené...
 STR_ERROR_CAN_T_FOUND_TOWN_HERE                                 :{WHITE}Nemôžete tu založiť mesto...
 STR_ERROR_CAN_T_EXPAND_TOWN                                     :{WHITE}Nemožno rozšíriť mesto...
-STR_ERROR_TOO_CLOSE_TO_EDGE_OF_MAP_SUB                          :{WHITE}... príliš blízko okraja mapy
 STR_ERROR_TOO_CLOSE_TO_ANOTHER_TOWN                             :{WHITE}... príliš blízko iného mesta
 STR_ERROR_TOO_MANY_TOWNS                                        :{WHITE}... príliš veľa miest
 STR_ERROR_NO_SPACE_FOR_TOWN                                     :{WHITE}... nie je miesto na mape

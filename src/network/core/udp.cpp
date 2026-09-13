@@ -86,7 +86,7 @@ void NetworkUDPSocketHandler::SendPacket(Packet &p, NetworkAddress &recv, bool a
 		const size_t packet_size = p.Size();
 		const uint8_t frag_count = (uint8_t)((packet_size + PAYLOAD_MTU - 1) / PAYLOAD_MTU);
 
-		Packet frag(this, PACKET_UDP_EX_MULTI);
+		Packet frag(this, PacketUDPType::ExtendedMulti);
 		uint8_t current_frag = 0;
 		size_t offset = 0;
 		while (offset < packet_size) {
@@ -99,7 +99,7 @@ void NetworkUDPSocketHandler::SendPacket(Packet &p, NetworkAddress &recv, bool a
 			current_frag++;
 			offset += payload_size;
 			this->SendPacket(frag, recv, all, broadcast, short_mtu);
-			frag.ResetState(PACKET_UDP_EX_MULTI);
+			frag.ResetState(PacketUDPType::ExtendedMulti);
 		}
 		assert_msg(current_frag == frag_count, "{}, {}", current_frag, frag_count);
 		return;
@@ -188,31 +188,25 @@ void NetworkUDPSocketHandler::ReceivePackets()
  */
 void NetworkUDPSocketHandler::HandleUDPPacket(Packet &p, NetworkAddress &client_addr)
 {
-	PacketUDPType type;
-
 	/* New packet == new client, which has not quit yet */
 	this->Reopen();
 
-	type = (PacketUDPType)p.Recv_uint8();
+	PacketUDPType type = static_cast<PacketUDPType>(p.Recv_uint8());
 
-	switch (this->HasClientQuit() ? PACKET_UDP_END : type) {
-		case PACKET_UDP_CLIENT_FIND_SERVER:   this->Receive_CLIENT_FIND_SERVER(p, client_addr);   break;
-		case PACKET_UDP_SERVER_RESPONSE:      this->Receive_SERVER_RESPONSE(p, client_addr);      break;
+	switch (type) {
+		case PacketUDPType::ClientFindServer: this->ReceiveClientFindServer(p, client_addr); break;
+		case PacketUDPType::ServerResponse: this->ReceiveServerResponse(p, client_addr); break;
 
-		case PACKET_UDP_EX_MULTI:             this->Receive_EX_MULTI(p, client_addr);             break;
-		case PACKET_UDP_EX_SERVER_RESPONSE:   this->Receive_EX_SERVER_RESPONSE(p, client_addr);   break;
+		case PacketUDPType::ExtendedMulti: this->ReceiveExtendedMulti(p, client_addr); break;
+		case PacketUDPType::ExtendedServerResponse: this->ReceiveExtendedServerResponse(p, client_addr); break;
 
 		default:
-			if (this->HasClientQuit()) {
-				Debug(net, 0, "[udp] received invalid packet type {} from {}", type, FormatNetworkAddress(client_addr));
-			} else {
-				Debug(net, 0, "[udp] received illegal packet from {}", FormatNetworkAddress(client_addr));
-			}
+			Debug(net, 0, "[udp] Received invalid packet type {} from {}", type, FormatNetworkAddress(client_addr));
 			break;
 	}
 }
 
-void NetworkUDPSocketHandler::Receive_EX_MULTI(Packet &p, NetworkAddress &client_addr)
+void NetworkUDPSocketHandler::ReceiveExtendedMulti(Packet &p, NetworkAddress &client_addr)
 {
 	uint64_t token        = p.Recv_uint64();
 	uint8_t index         = p.Recv_uint8 ();
@@ -292,6 +286,6 @@ void NetworkUDPSocketHandler::ReceiveInvalidPacket(PacketUDPType type, NetworkAd
 	Debug(net, 0, "[udp] received packet type {} on wrong port from {}", type, FormatNetworkAddress(client_addr));
 }
 
-void NetworkUDPSocketHandler::Receive_CLIENT_FIND_SERVER(Packet &p, NetworkAddress &client_addr) { this->ReceiveInvalidPacket(PACKET_UDP_CLIENT_FIND_SERVER, client_addr); }
-void NetworkUDPSocketHandler::Receive_SERVER_RESPONSE(Packet &p, NetworkAddress &client_addr) { this->ReceiveInvalidPacket(PACKET_UDP_SERVER_RESPONSE, client_addr); }
-void NetworkUDPSocketHandler::Receive_EX_SERVER_RESPONSE(Packet &p, NetworkAddress &client_addr) { this->ReceiveInvalidPacket(PACKET_UDP_EX_SERVER_RESPONSE, client_addr); }
+void NetworkUDPSocketHandler::ReceiveClientFindServer(Packet &, NetworkAddress &client_addr) { this->ReceiveInvalidPacket(PacketUDPType::ClientFindServer, client_addr); }
+void NetworkUDPSocketHandler::ReceiveServerResponse(Packet &, NetworkAddress &client_addr) { this->ReceiveInvalidPacket(PacketUDPType::ServerResponse, client_addr); }
+void NetworkUDPSocketHandler::ReceiveExtendedServerResponse(Packet &p, NetworkAddress &client_addr) { this->ReceiveInvalidPacket(PacketUDPType::ExtendedServerResponse, client_addr); }

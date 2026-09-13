@@ -1195,6 +1195,8 @@ STR_CONFIG_SETTING_CONSTRUCTION_COSTS                           :هزینه ها
 
 
 
+###length 3
+
 
 
 ###setting-zero-is-special
@@ -1206,7 +1208,6 @@ STR_CONFIG_SETTING_CATCHMENT                                    :واقع بین
 
 STR_CONFIG_SETTING_SERVE_NEUTRAL_INDUSTRIES                     :ایستگاه‌های شرکتی می‌توانند به صنایعی که ایستگاه‌های خنثی متصل دارند، خدمات ارائه دهند: {STRING}
 STR_CONFIG_SETTING_SERVE_NEUTRAL_INDUSTRIES_HELPTEXT            :وقتی فعال باشد، صنایع دارای ایستگاه‌های متصل (مانند سکوهای نفتی) ممکن است توسط ایستگاه‌های متعلق به شرکت که در نزدیکی ساخته شده‌اند نیز سرویس‌دهی شوند. وقتی غیرفعال باشد، این صنایع فقط توسط ایستگاه‌های متصل خود سرویس‌دهی می‌شوند. هیچ ایستگاه شرکتی مجاور قادر به سرویس‌دهی به آن‌ها نخواهد بود، و همچنین ایستگاه متصل به هیچ چیز دیگری غیر از صنعت سرویس‌دهی نخواهد کرد.
-
 
 STR_CONFIG_SETTING_EXTRADYNAMITE                                :اجازه برای داشتن قابلیت بیشتر ازبین بردن راه ها،پلها و تونل های شهر: {STRING}
 
@@ -1341,6 +1342,8 @@ STR_CONFIG_SETTING_TIMEKEEPING_UNITS_WALLCLOCK                  :ساعت دیو
 STR_CONFIG_SETTING_TOWN_CARGO_SCALE                             :مقیاس تولید بار شهر: {STRING}
 STR_CONFIG_SETTING_TOWN_CARGO_SCALE_HELPTEXT                    :تولید بار شهرها را با این درصد مقیاس کنید.
 
+###setting-zero-is-special
+
 STR_CONFIG_SETTING_AUTORENEW_VEHICLE                            :نوکردن خودکار وسایل نقلیه کهنه شده: {STRING}
 
 ###length 2
@@ -1386,6 +1389,8 @@ STR_CONFIG_SETTING_ROUGHNESS_OF_TERRAIN_VERY_SMOOTH             :بسیار هم
 STR_CONFIG_SETTING_ROUGHNESS_OF_TERRAIN_SMOOTH                  :هموار
 STR_CONFIG_SETTING_ROUGHNESS_OF_TERRAIN_ROUGH                   :ناهموار
 STR_CONFIG_SETTING_ROUGHNESS_OF_TERRAIN_VERY_ROUGH              :بسیار ناهموار
+
+###length 4
 
 STR_CONFIG_SETTING_VARIETY                                      :توضیع انواع : {STRING}
 STR_CONFIG_SETTING_VARIETY_HELPTEXT                             :(فقط TerraGenesis) کنترل آب و هوای نقشه شامل کوه و مناطق هموار می باشد. این فقط نقشه را هموارتر می سازد.تغییرات دیگر مربوط به کوه ها است
@@ -1503,11 +1508,7 @@ STR_CONFIG_SETTING_TIMETABLE_SHOW_ARRIVAL_DEPARTURE             :نشان داد
 
 STR_CONFIG_SETTING_QUICKGOTO                                    :ساخت سریع برنامه حرکت وسایل نقلیه: {STRING}
 
-STR_CONFIG_SETTING_DEFAULT_RAIL_TYPE                            :نوع پیش‌فرض ریل (بعد از بازی جدید/بارگزاری): {STRING}
 ###length 3
-STR_CONFIG_SETTING_DEFAULT_RAIL_TYPE_FIRST                      :اولین نمونه در دسترس
-STR_CONFIG_SETTING_DEFAULT_RAIL_TYPE_LAST                       :آخرین نمونه در دسترس
-STR_CONFIG_SETTING_DEFAULT_RAIL_TYPE_MOST_USED                  :نمونه با بیشترین استفاده
 
 STR_CONFIG_SETTING_SHOW_TRACK_RESERVATION                       :نمایش ریلهای محفوظ: {STRING}
 
@@ -1567,6 +1568,7 @@ STR_CONFIG_SETTING_NOSERVICE                                    :غیرفعال 
 
 
 STR_CONFIG_SETTING_WAGONSPEEDLIMITS                             :فعال کردن حد برای سرعت واگن: {STRING}
+
 
 STR_CONFIG_SETTING_DISABLE_ELRAILS                              :غیر فعال کردن ریل برقی: {STRING}
 
@@ -1771,7 +1773,7 @@ STR_CONFIG_ERROR_INVALID_GRF_UNKNOWN                            :ناشناخت�
 STR_CONFIG_ERROR_INVALID_SAVEGAME_COMPRESSION_LEVEL             :{WHITE}... سطح فشردگی'{STRING}' معتبر نیست
 STR_CONFIG_ERROR_INVALID_SAVEGAME_COMPRESSION_ALGORITHM         :{WHITE}... قالب ذخیره بازی '{STRING}' در دسترس نیست.برگردان به '{STRING}'
 
-# Video initalization errors
+# Video initialization errors
 
 # Intro window
 STR_INTRO_CAPTION                                               :{WHITE}OpenTTD
@@ -1980,15 +1982,13 @@ STR_NETWORK_CONNECTING_WAITING                                  :{BLACK}{NUM} ت
 STR_NETWORK_CONNECTING_DOWNLOADING_1                            :{BLACK}{BYTES} مقدار بارگیری شده تاکنون
 STR_NETWORK_CONNECTING_DOWNLOADING_2                            :{BLACK}{BYTES} / {BYTES} مقدار بارگیری شده تاکنون
 
-###length 8
+###length 6
 STR_NETWORK_CONNECTING_1                                        :{BLACK}(1/6) درحال وصل شدن...
 STR_NETWORK_CONNECTING_2                                        :{BLACK}(2/6) درخواست اجازه ورود...
 STR_NETWORK_CONNECTING_3                                        :{BLACK}(3/6) صبر کنید...
 STR_NETWORK_CONNECTING_4                                        :{BLACK}(4/6) بارگیری نقشه...
 STR_NETWORK_CONNECTING_5                                        :{BLACK}(5/6) پردازش داده...
 STR_NETWORK_CONNECTING_6                                        :{BLACK}(6/6) در حال ثبت...
-STR_NETWORK_CONNECTING_SPECIAL_1                                :{BLACK}درخواست اطلاعات بازی...
-STR_NETWORK_CONNECTING_SPECIAL_2                                :{BLACK}درخواست اطلاعات شرکت...
 
 STR_NETWORK_CONNECTION_DISCONNECT                               :{BLACK}قطع
 
@@ -3257,10 +3257,10 @@ STR_INDUSTRY_DIRECTORY_CAPTION                                  :{WHITE}کارخ
 STR_INDUSTRY_DIRECTORY_NONE                                     :{ORANGE}- هیچ -
 STR_INDUSTRY_DIRECTORY_ITEM_INFO                                :{BLACK}{CARGO_LONG}{STRING}{YELLOW} ({COMMA}% transported)
 STR_INDUSTRY_DIRECTORY_ITEM_NOPROD                              :{ORANGE}{INDUSTRY}
-STR_INDUSTRY_DIRECTORY_ITEM_PROD1                               :{ORANGE}{INDUSTRY} {STRING}
-STR_INDUSTRY_DIRECTORY_ITEM_PROD2                               :{ORANGE}{INDUSTRY} {STRING}, {STRING}
-STR_INDUSTRY_DIRECTORY_ITEM_PROD3                               :{ORANGE}{INDUSTRY} {STRING}, {STRING}, {STRING}
-STR_INDUSTRY_DIRECTORY_ITEM_PRODMORE                            :{ORANGE}{INDUSTRY} {STRING}، {STRING}، {STRING} و {NUM} مورد بیشتر...
+STR_INDUSTRY_DIRECTORY_ITEM_PROD1                               :{ORANGE}{INDUSTRY} {BLACK}{STRING}
+STR_INDUSTRY_DIRECTORY_ITEM_PROD2                               :{ORANGE}{INDUSTRY} {BLACK}{STRING}, {STRING}
+STR_INDUSTRY_DIRECTORY_ITEM_PROD3                               :{ORANGE}{INDUSTRY} {BLACK}{STRING}, {STRING}, {STRING}
+STR_INDUSTRY_DIRECTORY_ITEM_PRODMORE                            :{ORANGE}{INDUSTRY} {BLACK}{STRING}، {STRING}، {STRING} و {NUM} مورد بیشتر...
 STR_INDUSTRY_DIRECTORY_ACCEPTED_CARGO_FILTER                    :{BLACK}بار پذیرفته‌شده: {SILVER}{STRING}
 
 # Industry view
@@ -3361,6 +3361,8 @@ STR_PURCHASE_INFO_ALL_BUT                                       :همه بجز {
 STR_PURCHASE_INFO_MAX_TE                                        :{BLACK}حداکثر نیروی کشش: {GOLD}{FORCE}
 STR_PURCHASE_INFO_AIRCRAFT_RANGE                                :{BLACK}برد: {GOLD}{COMMA} قطعه
 STR_PURCHASE_INFO_AIRCRAFT_TYPE                                 :{BLACK}نوع هواپیما: {GOLD}{STRING}
+
+# Vehicle sort details
 
 ###length 3
 
@@ -3673,7 +3675,7 @@ STR_ORDER_TRAIN_DEPOT_ACTION_TOOLTIP                            :ایستگاه 
 
 
 # Conditional order variables, must follow order of OrderConditionVariable enum
-###length 8
+###length 9
 STR_ORDER_CONDITIONAL_REMAINING_LIFETIME                        :عمر مفید باقی مانده (سال)
 ###next-name-looks-similar
 
@@ -3911,7 +3913,6 @@ STR_ERROR_CAN_T_BUILD_COMPANY_HEADQUARTERS                      :{WHITE}ساخت
 # Town related errors
 STR_ERROR_CAN_T_RENAME_TOWN                                     :{WHITE}نمی توان اسم شهر را تغییر داد
 STR_ERROR_CAN_T_FOUND_TOWN_HERE                                 :{WHITE}اینجا نمی شود شهر ساخت
-STR_ERROR_TOO_CLOSE_TO_EDGE_OF_MAP_SUB                          :{WHITE}به حاشیه ی نقشه زیادی نزدیک است
 STR_ERROR_TOO_CLOSE_TO_ANOTHER_TOWN                             :{WHITE}به شهر دیگری بسیار نزدیک است
 STR_ERROR_TOO_MANY_TOWNS                                        :{WHITE}تعداد شهر ها بسیار زیاد شده
 STR_ERROR_STATUE_NO_SUITABLE_PLACE                              :{WHITE}مکان مناسبی برای قرار دادن مجسمه در مرکز این شهر وجود ندارد

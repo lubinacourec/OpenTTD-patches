@@ -139,7 +139,12 @@ char *stredup(const char *s, const char *last)
 std::string FormatArrayAsHex(std::span<const uint8_t> data, bool upper_case)
 {
 	format_buffer buf;
+	FormatArrayAsHex(buf, data, upper_case);
+	return buf.to_string();
+}
 
+void FormatArrayAsHex(format_target &buf, std::span<const uint8_t> data, bool upper_case)
+{
 	for (uint i = 0; i < data.size(); ++i) {
 		if (upper_case) {
 			buf.format("{:02X}", data[i]);
@@ -147,8 +152,6 @@ std::string FormatArrayAsHex(std::span<const uint8_t> data, bool upper_case)
 			buf.format("{:02x}", data[i]);
 		}
 	}
-
-	return buf.to_string();
 }
 
 /**
@@ -266,6 +269,7 @@ void AppendStrMakeValidInPlace(std::string &output, std::string_view str, String
  * question mark, as well as determining what characters are deemed invalid.
  * @param str The string to validate.
  * @param settings The settings for the string validation.
+ * @return A copy of the valid characters of the given string.
  */
 std::string StrMakeValid(std::string_view str, StringValidationSettings settings)
 {
@@ -283,6 +287,7 @@ std::string StrMakeValid(std::string_view str, StringValidationSettings settings
  * std::string_view's constructor will assume a C-string that ends with a NUL terminator, which is one of the things
  * we are checking.
  * @param str Span of chars to validate.
+ * @return \c true iff the string is valid.
  */
 bool StrValid(std::span<const char> str)
 {
@@ -530,7 +535,7 @@ bool StrContainsIgnoreCase(std::string_view str, std::string_view value)
 /**
  * Get the length of an UTF-8 encoded string in number of characters
  * and thus not the number of bytes that the encoded string contains.
- * @param s The string to get the length for.
+ * @param str The string to get the length for.
  * @return The length of the string in characters.
  */
 size_t Utf8StringLength(std::string_view str)

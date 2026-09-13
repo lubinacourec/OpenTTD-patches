@@ -11,7 +11,7 @@
 #define VIEWPORT_TYPE_H
 
 #include "core/enum_type.hpp"
-#include "strings_type.h"
+#include "strings_id_type.h"
 #include "zoom_type.h"
 
 #include <limits>
@@ -27,6 +27,8 @@ enum class ViewportStringFlag : uint8_t {
 	TransparentRect, ///< Draw a transparent rect around the sign.
 	TextColour, ///< Draw text in colour.
 };
+
+/** Bitset of \c ViewportStringFlag elements. */
 using ViewportStringFlags = EnumBitSet<ViewportStringFlag, uint8_t>;
 
 enum ViewportMapType {
@@ -119,23 +121,16 @@ struct ViewportSign {
 	uint16_t width_normal = 0; ///< The width when not zoomed out (normal font)
 	uint16_t width_small = 0; ///< The width when zoomed out (small font)
 
-	void UpdatePosition(ZoomLevel maxzoom, int center, int top, std::span<StringParameter> params, StringID str, StringID str_small = STR_NULL);
+	void UpdatePosition(ZoomLevel maxzoom, int center, int top, std::span<struct StringParameter> params, StringID str, StringID str_small = STR_NULL);
 	void MarkDirty(ZoomLevel maxzoom) const;
 };
 
 /** Specialised ViewportSign that tracks whether it is valid for entering into a Kdtree */
 struct TrackedViewportSign : ViewportSign {
-	bool kdtree_valid = false; ///< Are the sign data valid for use with the _viewport_sign_kdtree?
+	TrackedViewportSign() { this->top = INT32_MIN; }
 
-	/**
-	 * Update the position of the viewport sign.
-	 * Note that this function hides the base class function.
-	 */
-	void UpdatePosition(ZoomLevel maxzoom, int center, int top, std::span<StringParameter> params, StringID str, StringID str_small = STR_NULL)
-	{
-		this->kdtree_valid = true;
-		this->ViewportSign::UpdatePosition(maxzoom, center, top, params, str, str_small);
-	}
+	/** Is the sign data valid for use with the _viewport_sign_kdtree? */
+	inline bool kdtree_valid() const { return this->top != INT32_MIN; };
 };
 
 /**
@@ -185,6 +180,7 @@ enum ViewportDragDropSelectionProcess : uint8_t {
 	DDSP_LEVEL_AREA,           ///< Level area
 	DDSP_CREATE_DESERT,        ///< Fill area with desert
 	DDSP_CREATE_ROCKS,         ///< Fill area with rocks
+	DDSP_CREATE_ROUGH,         ///< Fill area with rough land
 	DDSP_CREATE_WATER,         ///< Create a canal
 	DDSP_CREATE_RIVER,         ///< Create rivers
 	DDSP_PLANT_TREES,          ///< Plant trees
@@ -220,18 +216,18 @@ enum ViewportDragDropSelectionProcess : uint8_t {
 /**
  * Target of the viewport scrolling GS method
  */
-enum ViewportScrollTarget : uint8_t {
-	VST_EVERYONE, ///< All players
-	VST_COMPANY,  ///< All players in specific company
-	VST_CLIENT,   ///< Single player
+enum class ViewportScrollTarget : uint8_t {
+	Everyone, ///< All players
+	Company, ///< All players in specific company
+	Client, ///< Single player
 };
 
 /** Enumeration of multi-part foundations */
-enum FoundationPart : uint8_t {
-	FOUNDATION_PART_NONE     = 0xFF,  ///< Neither foundation nor groundsprite drawn yet.
-	FOUNDATION_PART_NORMAL   = 0,     ///< First part (normal foundation or no foundation)
-	FOUNDATION_PART_HALFTILE = 1,     ///< Second part (halftile foundation)
-	FOUNDATION_PART_END
+enum class FoundationPart : uint8_t {
+	None = 0xFF,  ///< Neither foundation nor groundsprite drawn yet.
+	Normal = 0,   ///< First part (normal foundation or no foundation)
+	Halftile = 1, ///< Second part (halftile foundation)
+	End,          ///< End marker.
 };
 
 enum ViewportMarkDirtyFlags : uint8_t {

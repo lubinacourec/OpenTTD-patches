@@ -13,23 +13,9 @@ STR_CONFIG_SETTING_ZOOM_LVL_OUT_32X                             :32x
 STR_CONFIG_SETTING_ZOOM_LVL_OUT_64X                             :64x
 STR_CONFIG_SETTING_ZOOM_LVL_OUT_128X                            :128x
 
-STR_CONFIG_SETTING_DEFAULT_ROAD_TYPE_DEFAULT                    :По умолчанию
-
-STR_ORDER_CONDITIONAL_CARGO_WAITING                             :Доступный груз
-STR_ORDER_CONDITIONAL_ACCEPTANCE_DROPDOWN                       :Принятый груз
-STR_ORDER_CONDITIONAL_FREE_PLATFORMS                            :Свободные платформы
-STR_ORDER_CONDITIONAL_PERCENT                                   :Процент случаев
-STR_ORDER_CONDITIONAL_SLOT_OCCUPANCY                            :Заполненность слотов
-STR_ORDER_CONDITIONAL_TRAIN_IN_SLOT                             :Поезд в слоте
-STR_ORDER_CONDITIONAL_CARGO_LOAD_PERCENTAGE                     :Процент загрузки груза
-STR_ORDER_CONDITIONAL_CARGO_WAITING_AMOUNT                      :Количество доступного груза
-STR_ORDER_CONDITIONAL_COUNTER_VALUE                             :Значение счётчика
-STR_ORDER_CONDITIONAL_TIME_DATE_VALUE                           :Текущее время/дата
-STR_ORDER_CONDITIONAL_TIMETABLE_STATE                           :Состояние расписания
-STR_ORDER_CONDITIONAL_DISPATCH_SLOT                             :Диспетчерский слот
-STR_ORDER_CONDITIONAL_CARGO_WAITING_AMOUNT_PERCENTAGE           :Доступный груз/вместимость
-
 STR_ORDER_STOP_LOCATION_THROUGH                                 :{SPACE}[через нагрузку]
+
+STR_CONFIG_SETTING_STOP_LOCATION_THROUGH                        :через нагрузку
 
 STR_CONFIG_SETTING_TOWN_GROWTH_EXTREME_SLOW                     :крайне низкая
 STR_CONFIG_SETTING_TOWN_GROWTH_VERY_SLOW                        :очень низкая
@@ -330,9 +316,6 @@ STR_CONFIG_SETTING_RIVER_MIN_LENGTH_HELPTEXT                    :Минимал�
 STR_CONFIG_SETTING_RIVER_ROUTE_RANDOM                           :Случайность речных маршрутов: {STRING}
 STR_CONFIG_SETTING_RIVER_ROUTE_RANDOM_HELPTEXT                  :Установите, насколько случайным может быть путь реки.
 
-STR_CONFIG_SETTING_RIVERS_TOP_OF_HILL                           :Реки должны начинаться на вершинах холмов: {STRING}
-STR_CONFIG_SETTING_RIVERS_TOP_OF_HILL_HELPTEXT                  :Укажите, должны ли истоки рек обязательно генерироваться на вершинах холмов.
-
 STR_CONFIG_SETTING_RIVER_TROPICS_WIDTH                          :Ширина тропиков вокруг рек: {STRING}
 STR_CONFIG_SETTING_RIVER_TROPICS_WIDTH_HELPTEXT                 :Определяет ширину тропической зоны, которая окружает реки в субтропическом климате.{}Это суммарная ширина зоны обеих сторон реки.
 
@@ -477,9 +460,6 @@ STR_CONFIG_SETTING_SCHEDULED_DISPATCH_DEFAULT_DURATION          :Продолж�
 STR_CONFIG_SETTING_SCHEDULED_DISPATCH_DEFAULT_DURATION_HELPTEXT :Устанавливает продолжительность по умолчанию для новых расписаний отправлений. По умолчанию - 24 часа (1440 минут). (При составлении расписания в днях по умолчанию используется 1 год).
 STR_CONFIG_SETTING_SCHEDULED_DISPATCH_DEFAULT_DURATION_VALUE    :{COMMA}{NBSP}минут{P а ы ""}
 STR_CONFIG_SETTING_SCHEDULED_DISPATCH_DEFAULT_DURATION_DEFAULT  :По умолчанию
-
-STR_CONFIG_SETTING_DEFAULT_ROAD_TYPE                            :Типы дорог/трамвайных путей по умолчанию (после запуска новой игры/загрузки): {STRING}
-STR_CONFIG_SETTING_DEFAULT_ROAD_TYPE_HELPTEXT                   :Выбор типа дороги/трамвайных путей после запуска новой игры или загрузки старой. «Первые доступные» выбирает самый старый тип дороги/трамвайного пути, «последние доступные» выбирает самый новый тип дороги/трамвайного пути, «наиболее используемые» выбирает тип, который наиболее часто используется в настоящее время, и «по умолчанию» выбирает тип по умолчанию.
 
 STR_CONFIG_SETTING_ENABLE_BUILD_RIVER                           :Включить строительство рек: {STRING}
 STR_CONFIG_SETTING_ENABLE_BUILD_RIVER_HELPTEXT                  :Разрешить прокладывать реки не только в редакторе сценариев
@@ -753,6 +733,7 @@ STR_LINKGRAPH_STATS_TOOLTIP_PRODUCTION_INTERVAL                 :{BLACK}{CARGO_L
 
 STR_RAIL_TOOLBAR_TOOLTIP_BUILD_POLYRAIL                         :{BLACK}Построить железнодорожный путь с помощью режима полилинии. Ctrl переключает строительство/удаление железной дороги. Shift переключает строительство/показ сметы расходов
 
+STR_BUILD_SIGNAL_TOGGLE_ADVANCED_SIGNAL_TOOLTIP                 :{BLACK}Переключить отображение расширенного списка сигналов
 STR_BUILD_SIGNAL_SEMAPHORE_PROG_TOOLTIP                         :{BLACK}Программируемый предварительный сигнал (семафор){}Программируемый предварительный сигнал - это комбинированный сигнал, который может быть запрограммирован на сложное поведение.
 STR_BUILD_SIGNAL_SEMAPHORE_NO_ENTRY_TOOLTIP                     :{BLACK}Сигнал запрета входа (семафор){}Сигнал пути позволяет нескольким поездам одновременно входить в сигнальный блок, если поезд может зарезервировать путь к безопасной точке остановки. Сигналы о запрете въезда не могут быть переданы с лицевой стороны
 STR_BUILD_SIGNAL_ELECTRIC_PROG_TOOLTIP                          :{BLACK}Программируемый предварительный сигнал (электрический){}Программируемый предварительный сигнал - это комбинированный сигнал, который может быть запрограммирован на сложное поведение.
@@ -1572,6 +1553,20 @@ STR_ORDER_REVERSE_TOOLTIP                                       :{BLACK}Изме
 
 STR_ORDER_DROP_SELL_DEPOT                                       :Продать транспортное средство
 
+STR_ORDER_CONDITIONAL_CARGO_WAITING                             :Доступный груз
+STR_ORDER_CONDITIONAL_ACCEPTANCE_DROPDOWN                       :Принятый груз
+STR_ORDER_CONDITIONAL_FREE_PLATFORMS                            :Свободные платформы
+STR_ORDER_CONDITIONAL_PERCENT                                   :Процент случаев
+STR_ORDER_CONDITIONAL_SLOT_OCCUPANCY                            :Заполненность слотов
+STR_ORDER_CONDITIONAL_TRAIN_IN_SLOT                             :Поезд в слоте
+STR_ORDER_CONDITIONAL_CARGO_LOAD_PERCENTAGE                     :Процент загрузки груза
+STR_ORDER_CONDITIONAL_CARGO_WAITING_AMOUNT                      :Количество доступного груза
+STR_ORDER_CONDITIONAL_COUNTER_VALUE                             :Значение счётчика
+STR_ORDER_CONDITIONAL_TIME_DATE_VALUE                           :Текущее время/дата
+STR_ORDER_CONDITIONAL_TIMETABLE_STATE                           :Состояние расписания
+STR_ORDER_CONDITIONAL_DISPATCH_SLOT                             :Диспетчерский слот
+STR_ORDER_CONDITIONAL_CARGO_WAITING_AMOUNT_PERCENTAGE           :Доступный груз/вместимость
+
 STR_ORDER_CONDITIONAL_VEHICLE_IN_SLOT                           :Транспортное средство в слоте
 
 STR_ORDER_CONDITIONAL_NEXT_STATION                              :Следующая станция
@@ -2043,7 +2038,7 @@ STR_SCHDISPATCH_ENABLED_TOOLTIP                                 :{BLACK}Вклю
 STR_SCHDISPATCH_ADD                                             :{BLACK}Добавить слот
 STR_SCHDISPATCH_ADD_TOOLTIP                                     :{BLACK}Добавить новый слот отправления для этого расписания.
 STR_SCHDISPATCH_ADD_TOOLTIP_EXTRA                               :{BLACK}{STRING} Ctrl+клик добавить сразу несколько слотов отправления.
-STR_SCHDISPATCH_ADD_CAPTION                                     :{BLACK}Слот отправления
+STR_SCHDISPATCH_ADD_CAPTION                                     :Слот отправления
 STR_SCHDISPATCH_DURATION                                        :{BLACK}Продолжительность
 STR_SCHDISPATCH_DURATION_TOOLTIP                                :{BLACK}Установить продолжительность этого расписания.
 STR_SCHDISPATCH_DURATION_CAPTION_MINUTE                         :{BLACK}Продолжительность (минуты)

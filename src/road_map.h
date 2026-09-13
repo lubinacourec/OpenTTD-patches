@@ -32,14 +32,14 @@ enum class RoadTileType : uint8_t {
 inline bool MayHaveRoad(TileIndex t)
 {
 	switch (GetTileType(t)) {
-		case MP_ROAD:
+		case TileType::Road:
 			return true;
 
-		case MP_STATION: {
+		case TileType::Station: {
 			return GB(_me[t].m6, 3, 4) == 2 || GB(_me[t].m6, 3, 4) == 3 || GB(_me[t].m6, 3, 4) == 8; // IsAnyRoadStop
 		}
 
-		case MP_TUNNELBRIDGE:
+		case TileType::TunnelBridge:
 			return GB(_m[t].m5, 2, 2) == 1;
 
 		default:
@@ -55,9 +55,9 @@ inline bool MayHaveRoad(TileIndex t)
 inline bool MayTileTypeHaveRoad(TileType type)
 {
 	switch (type) {
-		case MP_ROAD:
-		case MP_STATION:
-		case MP_TUNNELBRIDGE:
+		case TileType::Road:
+		case TileType::Station:
+		case TileType::TunnelBridge:
 			return true;
 
 		default:
@@ -68,19 +68,19 @@ inline bool MayTileTypeHaveRoad(TileType type)
 /**
  * Get the type of the road tile.
  * @param t Tile to query.
- * @pre IsTileType(t, MP_ROAD)
+ * @pre IsTileType(t, TileType::Road)
  * @return The road tile type.
  */
 [[debug_inline]] inline static RoadTileType GetRoadTileType(TileIndex t)
 {
-	dbg_assert_tile(IsTileType(t, MP_ROAD), t);
+	dbg_assert_tile(IsTileType(t, TileType::Road), t);
 	return static_cast<RoadTileType>(GB(_m[t].m5, 6, 2));
 }
 
 /**
  * Return whether a tile is a normal road.
  * @param t Tile to query.
- * @pre IsTileType(t, MP_ROAD)
+ * @pre IsTileType(t, TileType::Road)
  * @return True if normal road.
  */
 [[debug_inline]] inline static bool IsNormalRoad(TileIndex t)
@@ -95,13 +95,13 @@ inline bool MayTileTypeHaveRoad(TileType type)
  */
 [[debug_inline]] inline static bool IsNormalRoadTile(TileIndex t)
 {
-	return IsTileType(t, MP_ROAD) && IsNormalRoad(t);
+	return IsTileType(t, TileType::Road) && IsNormalRoad(t);
 }
 
 /**
  * Return whether a tile is a level crossing.
  * @param t Tile to query.
- * @pre IsTileType(t, MP_ROAD)
+ * @pre IsTileType(t, TileType::Road)
  * @return True if level crossing.
  */
 inline bool IsLevelCrossing(TileIndex t)
@@ -116,13 +116,13 @@ inline bool IsLevelCrossing(TileIndex t)
  */
 inline bool IsLevelCrossingTile(TileIndex t)
 {
-	return IsTileType(t, MP_ROAD) && IsLevelCrossing(t);
+	return IsTileType(t, TileType::Road) && IsLevelCrossing(t);
 }
 
 /**
  * Return whether a tile is a road depot.
  * @param t Tile to query.
- * @pre IsTileType(t, MP_ROAD)
+ * @pre IsTileType(t, TileType::Road)
  * @return True if road depot.
  */
 [[debug_inline]] inline static bool IsRoadDepot(TileIndex t)
@@ -137,20 +137,20 @@ inline bool IsLevelCrossingTile(TileIndex t)
  */
 [[debug_inline]] inline static bool IsRoadDepotTile(TileIndex t)
 {
-	return IsTileType(t, MP_ROAD) && IsRoadDepot(t);
+	return IsTileType(t, TileType::Road) && IsRoadDepot(t);
 }
 
 /**
  * Get the present road bits for a specific road type.
  * @param t  The tile to query.
- * @param rt Road type.
+ * @param rtt Road type.
  * @pre IsNormalRoad(t)
  * @return The present road bits for the road type.
  */
 inline RoadBits GetRoadBits(TileIndex t, RoadTramType rtt)
 {
 	dbg_assert_tile(IsNormalRoad(t), t);
-	if (rtt == RTT_TRAM) return (RoadBits)GB(_m[t].m3, 0, 4);
+	if (rtt == RoadTramType::Tram) return (RoadBits)GB(_m[t].m3, 0, 4);
 	return (RoadBits)GB(_m[t].m5, 0, 4);
 }
 
@@ -162,41 +162,57 @@ inline RoadBits GetRoadBits(TileIndex t, RoadTramType rtt)
  */
 inline RoadBits GetAllRoadBits(TileIndex tile)
 {
-	return GetRoadBits(tile, RTT_ROAD) | GetRoadBits(tile, RTT_TRAM);
+	return GetRoadBits(tile, RoadTramType::Road) | GetRoadBits(tile, RoadTramType::Tram);
 }
 
 /**
  * Set the present road bits for a specific road type.
  * @param t  The tile to change.
  * @param r  The new road bits.
- * @param rt Road type.
+ * @param rtt Road type.
  * @pre IsNormalRoad(t)
  */
 inline void SetRoadBits(TileIndex t, RoadBits r, RoadTramType rtt)
 {
 	assert_tile(IsNormalRoad(t), t); // XXX incomplete
-	if (rtt == RTT_TRAM) {
-		SB(_m[t].m3, 0, 4, r);
+	if (rtt == RoadTramType::Tram) {
+		SB(_m[t].m3, 0, 4, r.base());
 	} else {
-		SB(_m[t].m5, 0, 4, r);
+		SB(_m[t].m5, 0, 4, r.base());
 	}
 }
 
+/**
+ * Get the road type for RoadTramType being RoadTramType::Road.
+ * @param t The tile to query.
+ * @return The road type.
+ */
 inline RoadType GetRoadTypeRoad(TileIndex t)
 {
 	dbg_assert(MayHaveRoad(t));
 	return (RoadType)GB(_m[t].m4, 0, 6);
 }
 
+/**
+ * Get the road type for RoadTramType being RoadTramType::Tram.
+ * @param t The tile to query.
+ * @return The road (tram) type.
+ */
 inline RoadType GetRoadTypeTram(TileIndex t)
 {
 	dbg_assert(MayHaveRoad(t));
 	return (RoadType)GB(_me[t].m8, 6, 6);
 }
 
+/**
+ * Get the road type for the given RoadTramType.
+ * @param t The tile to query.
+ * @param rtt The sub type to check for.
+ * @return The road type.
+ */
 inline RoadType GetRoadType(TileIndex t, RoadTramType rtt)
 {
-	return (rtt == RTT_TRAM) ? GetRoadTypeTram(t) : GetRoadTypeRoad(t);
+	return (rtt == RoadTramType::Tram) ? GetRoadTypeTram(t) : GetRoadTypeRoad(t);
 }
 
 /**
@@ -214,11 +230,21 @@ inline RoadTypes GetPresentRoadTypes(TileIndex t)
 	return result;
 }
 
+/**
+ * Check if a tile has a road type when RoadTramType is RoadTramType::Road.
+ * @param t  The tile to check.
+ * @return True if the tile has a road type.
+ */
 inline bool HasRoadTypeRoad(TileIndex t)
 {
 	return GetRoadTypeRoad(t) != INVALID_ROADTYPE;
 }
 
+/**
+ * Check if a tile has a road type when RoadTramType is RoadTramType::Tram.
+ * @param t  The tile to check.
+ * @return True if the tile has a (tram) road type.
+ */
 inline bool HasRoadTypeTram(TileIndex t)
 {
 	return GetRoadTypeTram(t) != INVALID_ROADTYPE;
@@ -231,10 +257,10 @@ inline bool HasRoadTypeTram(TileIndex t)
  */
 inline RoadTramTypes GetPresentRoadTramTypes(TileIndex t)
 {
-	RoadTramTypes result = (RoadTramTypes)0;
+	RoadTramTypes result{};
 	if (MayHaveRoad(t)) {
-		if (GetRoadTypeRoad(t) != INVALID_ROADTYPE) result |= RTTB_ROAD;
-		if (GetRoadTypeTram(t) != INVALID_ROADTYPE) result |= RTTB_TRAM;
+		if (GetRoadTypeRoad(t) != INVALID_ROADTYPE) result.Set(RoadTramType::Road);
+		if (GetRoadTypeTram(t) != INVALID_ROADTYPE) result.Set(RoadTramType::Tram);
 	}
 	return result;
 }
@@ -242,7 +268,7 @@ inline RoadTramTypes GetPresentRoadTramTypes(TileIndex t)
 /**
  * Check if a tile has a road or a tram road type.
  * @param t  The tile to check.
- * @param tram True to check tram, false to check road.
+ * @param rtt The road type.
  * @return True if the tile has the specified road type.
  */
 inline bool HasTileRoadType(TileIndex t, RoadTramType rtt)
@@ -271,7 +297,7 @@ inline bool HasTileAnyRoadType(TileIndex t, RoadTypes rts)
 inline Owner GetRoadOwner(TileIndex t, RoadTramType rtt)
 {
 	dbg_assert(MayHaveRoad(t));
-	if (rtt == RTT_ROAD) return (Owner)GB(IsNormalRoadTile(t) ? _m[t].m1 : _me[t].m7, 0, 5);
+	if (rtt == RoadTramType::Road) return (Owner)GB(IsNormalRoadTile(t) ? _m[t].m1 : _me[t].m7, 0, 5);
 
 	/* Trams don't need OWNER_TOWN, and remapping OWNER_NONE
 	 * to OWNER_TOWN makes it use one bit less */
@@ -287,7 +313,7 @@ inline Owner GetRoadOwner(TileIndex t, RoadTramType rtt)
  */
 inline void SetRoadOwner(TileIndex t, RoadTramType rtt, Owner o)
 {
-	if (rtt == RTT_ROAD) {
+	if (rtt == RoadTramType::Road) {
 		SB(IsNormalRoadTile(t) ? _m[t].m1 : _me[t].m7, 0, 5, o.base());
 	} else {
 		SB(_m[t].m3, 4, 4, (o == OWNER_NONE ? OWNER_TOWN : o).base());
@@ -297,7 +323,7 @@ inline void SetRoadOwner(TileIndex t, RoadTramType rtt, Owner o)
 /**
  * Check if a specific road type is owned by an owner.
  * @param t  The tile to query.
- * @param tram True to check tram, false to check road.
+ * @param rtt Road type to check.
  * @param o  Owner to compare with.
  * @pre HasTileRoadType(t, rt)
  * @return True if the road type is owned by the given owner.
@@ -311,23 +337,23 @@ inline bool IsRoadOwner(TileIndex t, RoadTramType rtt, Owner o)
 /**
  * Checks if given tile has town owned road
  * @param t tile to check
- * @pre IsTileType(t, MP_ROAD)
+ * @pre IsTileType(t, TileType::Road)
  * @return true iff tile has road and the road is owned by a town
  */
 inline bool HasTownOwnedRoad(TileIndex t)
 {
-	return HasTileRoadType(t, RTT_ROAD) && IsRoadOwner(t, RTT_ROAD, OWNER_TOWN);
+	return HasTileRoadType(t, RoadTramType::Road) && IsRoadOwner(t, RoadTramType::Road, OWNER_TOWN);
 }
 
 /**
  * Checks if a DisallowedRoadDirections is valid.
  *
- * @param wc The value to check
+ * @param drt The value to check
  * @return true if the given value is a valid DisallowedRoadDirections.
  */
 inline bool IsValidDisallowedRoadDirections(DisallowedRoadDirections drt)
 {
-	return drt < DRD_END;
+	return drt.Reset({DisallowedRoadDirection::Northbound, DisallowedRoadDirection::Southbound}).None();
 }
 
 /**
@@ -338,7 +364,7 @@ inline bool IsValidDisallowedRoadDirections(DisallowedRoadDirections drt)
 inline DisallowedRoadDirections GetDisallowedRoadDirections(TileIndex t)
 {
 	dbg_assert_tile(IsNormalRoad(t), t);
-	return (DisallowedRoadDirections)GB(_m[t].m5, 4, 2);
+	return static_cast<DisallowedRoadDirections>(GB(_m[t].m5, 4, 2));
 }
 
 /**
@@ -350,7 +376,7 @@ inline void SetDisallowedRoadDirections(TileIndex t, DisallowedRoadDirections dr
 {
 	assert_tile(IsNormalRoad(t), t);
 	assert(drd < DRD_END);
-	SB(_m[t].m5, 4, 2, drd);
+	SB(_m[t].m5, 4, 2, drd.base());
 }
 
 enum RoadCachedOneWayState {
@@ -395,7 +421,7 @@ inline void SetRoadCachedOneWayState(TileIndex t, RoadCachedOneWayState rcows)
 inline Axis GetCrossingRoadAxis(TileIndex t)
 {
 	dbg_assert_tile(IsLevelCrossing(t), t);
-	return (Axis)GB(_m[t].m5, 0, 1);
+	return static_cast<Axis>(GB(_m[t].m5, 0, 1));
 }
 
 /**
@@ -407,7 +433,7 @@ inline Axis GetCrossingRoadAxis(TileIndex t)
 inline Axis GetCrossingRailAxis(TileIndex t)
 {
 	dbg_assert_tile(IsLevelCrossing(t), t);
-	return OtherAxis((Axis)GetCrossingRoadAxis(t));
+	return OtherAxis(GetCrossingRoadAxis(t));
 }
 
 /**
@@ -417,7 +443,7 @@ inline Axis GetCrossingRailAxis(TileIndex t)
  */
 inline RoadBits GetCrossingRoadBits(TileIndex tile)
 {
-	return GetCrossingRoadAxis(tile) == AXIS_X ? ROAD_X : ROAD_Y;
+	return AxisToRoadBits(GetCrossingRoadAxis(tile));
 }
 
 /**
@@ -642,7 +668,7 @@ inline void TerminateRoadWorks(TileIndex t)
 inline DiagDirection GetRoadDepotDirection(TileIndex t)
 {
 	dbg_assert_tile(IsRoadDepot(t), t);
-	return (DiagDirection)GB(_m[t].m5, 0, 2);
+	return static_cast<DiagDirection>(GB(_m[t].m5, 0, 2));
 }
 
 
@@ -680,7 +706,7 @@ inline void SetRoadTypeTram(TileIndex t, RoadType rt)
  */
 inline void SetRoadType(TileIndex t, RoadTramType rtt, RoadType rt)
 {
-	if (rtt == RTT_TRAM) {
+	if (rtt == RoadTramType::Tram) {
 		SetRoadTypeTram(t, rt);
 	} else {
 		SetRoadTypeRoad(t, rt);
@@ -711,16 +737,16 @@ inline void SetRoadTypes(TileIndex t, RoadType road_rt, RoadType tram_rt)
  */
 inline void MakeRoadNormal(TileIndex t, RoadBits bits, RoadType road_rt, RoadType tram_rt, TownID town, Owner road, Owner tram)
 {
-	SetTileType(t, MP_ROAD);
+	SetTileType(t, TileType::Road);
 	SetTileOwner(t, road);
 	_m[t].m2 = town.base();
-	_m[t].m3 = (tram_rt != INVALID_ROADTYPE ? bits : 0);
-	_m[t].m5 = (road_rt != INVALID_ROADTYPE ? bits : 0) | to_underlying(RoadTileType::Normal) << 6;
+	_m[t].m3 = (tram_rt != INVALID_ROADTYPE ? bits.base() : 0);
+	_m[t].m5 = (road_rt != INVALID_ROADTYPE ? bits.base() : 0) | to_underlying(RoadTileType::Normal) << 6;
 	_me[t].m6 = 0;
 	_me[t].m7 = 0;
 	_me[t].m8 = 0;
 	SetRoadTypes(t, road_rt, tram_rt);
-	SetRoadOwner(t, RTT_TRAM, tram);
+	SetRoadOwner(t, RoadTramType::Tram, tram);
 }
 
 /**
@@ -737,17 +763,28 @@ inline void MakeRoadNormal(TileIndex t, RoadBits bits, RoadType road_rt, RoadTyp
  */
 inline void MakeRoadCrossing(TileIndex t, Owner road, Owner tram, Owner rail, Axis roaddir, RailType rat, RoadType road_rt, RoadType tram_rt, TownID town)
 {
-	SetTileType(t, MP_ROAD);
+	SetTileType(t, TileType::Road);
 	SetTileOwner(t, rail);
 	_m[t].m2 = town.base();
 	_m[t].m3 = 0;
 	_m[t].m4 = INVALID_ROADTYPE;
-	_m[t].m5 = to_underlying(RoadTileType::Crossing) << 6 | roaddir;
+	_m[t].m5 = to_underlying(RoadTileType::Crossing) << 6 | to_underlying(roaddir);
 	_me[t].m6 = 0;
 	_me[t].m7 = road.base();
 	_me[t].m8 = INVALID_ROADTYPE << 6 | rat;
 	SetRoadTypes(t, road_rt, tram_rt);
-	SetRoadOwner(t, RTT_TRAM, tram);
+	SetRoadOwner(t, RoadTramType::Tram, tram);
+}
+
+/**
+ * Sets the exit direction of a road depot.
+ * @param tile Tile of the depot.
+ * @param dir  Direction of the depot exit.
+ */
+static inline void SetRoadDepotExitDirection(TileIndex tile, DiagDirection dir)
+{
+	assert(IsRoadDepotTile(tile));
+	SB(_m[tile].m5, 0, 2, to_underlying(dir));
 }
 
 /**
@@ -760,17 +797,17 @@ inline void MakeRoadCrossing(TileIndex t, Owner road, Owner tram, Owner rail, Ax
  */
 inline void MakeRoadDepot(TileIndex t, Owner owner, DepotID did, DiagDirection dir, RoadType rt)
 {
-	SetTileType(t, MP_ROAD);
+	SetTileType(t, TileType::Road);
 	SetTileOwner(t, owner);
 	_m[t].m2 = did.base();
 	_m[t].m3 = 0;
 	_m[t].m4 = INVALID_ROADTYPE;
-	_m[t].m5 = to_underlying(RoadTileType::Depot) << 6 | dir;
+	_m[t].m5 = to_underlying(RoadTileType::Depot) << 6 | to_underlying(dir);
 	_me[t].m6 = 0;
 	_me[t].m7 = owner.base();
 	_me[t].m8 = INVALID_ROADTYPE << 6;
 	SetRoadType(t, GetRoadTramType(rt), rt);
-	SetRoadOwner(t, RTT_TRAM, owner);
+	SetRoadOwner(t, RoadTramType::Tram, owner);
 }
 
 #endif /* ROAD_MAP_H */

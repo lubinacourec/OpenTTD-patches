@@ -18,6 +18,7 @@
 #include "company_func.h"
 #include "landscape_cmd.h"
 #include "terraform_cmd.h"
+#include "tile_cmd.h"
 #include "core/backup_type.hpp"
 
 #include "table/strings.h"
@@ -134,16 +135,16 @@ static CommandCost TerraformTileHeight(TerraformerState *ts, TileIndex tile, int
 	/* Store the height modification */
 	TerraformSetHeightOfTile(ts, tile, height);
 
-	CommandCost total_cost(EXPENSES_CONSTRUCTION);
+	CommandCost total_cost(ExpensesType::Construction);
 
 	/* Increment cost */
-	total_cost.AddCost(_price[PR_TERRAFORM]);
+	total_cost.AddCost(_price[Price::Terraform]);
 
 	/* Recurse to neighboured corners if height difference is larger than 1 */
-	for (DiagDirection dir = DIAGDIR_BEGIN; dir < DIAGDIR_END; dir++) {
+	for (DiagDirection dir : EnumRange(DiagDirection::End)) {
 		TileIndex neighbour_tile = AddTileIndexDiffCWrap(tile, TileIndexDiffCByDiagDir(dir));
 
-		/* Not using IsValidTile as we want to also change MP_VOID tiles, which IsValidTile excludes. */
+		/* Not using IsValidTile as we want to also change TileType::Void tiles, which IsValidTile excludes. */
 		if (neighbour_tile == INVALID_TILE) continue;
 
 		/* Get TileHeight of neighboured tile as of current terraform progress */
@@ -173,7 +174,7 @@ static CommandCost TerraformTileHeight(TerraformerState *ts, TileIndex tile, int
  */
 CommandCost CmdTerraformLand(DoCommandFlags flags, TileIndex tile, Slope slope, bool dir_up)
 {
-	CommandCost total_cost(EXPENSES_CONSTRUCTION);
+	CommandCost total_cost(ExpensesType::Construction);
 	int direction = (dir_up ? 1 : -1);
 	TerraformerState ts;
 
@@ -212,10 +213,10 @@ CommandCost CmdTerraformLand(DoCommandFlags flags, TileIndex tile, Slope slope, 
 	for (int pass = 0; pass < 2; pass++) {
 		for (const auto &t : ts.dirty_tiles) {
 			assert(t < Map::Size());
-			/* MP_VOID tiles can be terraformed but as tunnels and bridges
+			/* TileType::Void tiles can be terraformed but as tunnels and bridges
 			 * cannot go under / over these tiles they don't need checking. */
-			if (IsTileType(t, MP_VOID)) {
-				if (_settings_game.construction.map_edge_mode != 0) {
+			if (IsTileType(t, TileType::Void)) {
+				if (_settings_game.construction.map_edge_mode != MapEdgeMode::Normal) {
 					CommandCost err(STR_ERROR_TOO_CLOSE_TO_EDGE_OF_MAP);
 					err.SetTile(t);
 					return err;
@@ -274,7 +275,7 @@ CommandCost CmdTerraformLand(DoCommandFlags flags, TileIndex tile, Slope slope, 
 
 			/* Check tiletype-specific things, and add extra-cost */
 			Backup<bool> old_generating_world(_generating_world, FILE_LINE);
-			if (_game_mode == GM_EDITOR) old_generating_world.Change(true); // used to create green terraformed land
+			if (_game_mode == GameMode::Editor) old_generating_world.Change(true); // used to create green terraformed land
 			DoCommandFlags tile_flags = flags | DoCommandFlag::Auto | DoCommandFlag::ForceClearTile;
 			if (pass == 0) {
 				tile_flags.Reset(DoCommandFlag::Execute);
@@ -282,7 +283,7 @@ CommandCost CmdTerraformLand(DoCommandFlags flags, TileIndex tile, Slope slope, 
 			}
 			CommandCost cost;
 			if (indirectly_cleared) {
-				cost = Command<CMD_LANDSCAPE_CLEAR>::Do(tile_flags, t);
+				cost = Command<Commands::LandscapeClear>::Do(tile_flags, t);
 			} else {
 				cost = _tile_type_procs[GetTileType(t)]->terraform_tile_proc(t, tile_flags, z_min, tileh);
 			}
@@ -329,7 +330,7 @@ CommandCost CmdTerraformLand(DoCommandFlags flags, TileIndex tile, Slope slope, 
  * @param tile end tile of area-drag
  * @param start_tile start tile of area drag
  * @param diagonal Whether to use the Diagonal or Orthogonal tile iterator.
- * @param LevelMode Mode of leveling \c LevelMode.
+ * @param lm Mode of leveling \c LevelMode.
  * @return the cost of this operation or an error
  */
 CommandCost CmdLevelLand(DoCommandFlags flags, TileIndex tile, TileIndex start_tile, bool diagonal, LevelMode lm)
@@ -342,9 +343,9 @@ CommandCost CmdLevelLand(DoCommandFlags flags, TileIndex tile, TileIndex start_t
 	/* compute new height */
 	uint h = oldh;
 	switch (lm) {
-		case LM_LEVEL: break;
-		case LM_RAISE: h++; break;
-		case LM_LOWER: h--; break;
+		case LevelMode::Level: break;
+		case LevelMode::Raise: h++; break;
+		case LevelMode::Lower: h--; break;
 		default: return CMD_ERROR;
 	}
 
@@ -352,8 +353,8 @@ CommandCost CmdLevelLand(DoCommandFlags flags, TileIndex tile, TileIndex start_t
 	if (h > _settings_game.construction.map_height_limit) return CommandCost((oldh == 0) ? STR_ERROR_ALREADY_AT_SEA_LEVEL : STR_ERROR_TOO_HIGH);
 
 	Money money = GetAvailableMoneyForCommand();
-	CommandCost cost(EXPENSES_CONSTRUCTION);
-	CommandCost last_error(lm == LM_LEVEL ? STR_ERROR_ALREADY_LEVELLED : INVALID_STRING_ID);
+	CommandCost cost(ExpensesType::Construction);
+	CommandCost last_error(lm == LevelMode::Level ? STR_ERROR_ALREADY_LEVELLED : INVALID_STRING_ID);
 	bool had_success = false;
 
 	const Company *c = Company::GetIfValid(_current_company);
@@ -365,7 +366,7 @@ CommandCost CmdLevelLand(DoCommandFlags flags, TileIndex tile, TileIndex start_t
 		TileIndex t = *iter;
 		uint curh = TileHeight(t);
 		while (curh != h) {
-			CommandCost ret = Command<CMD_TERRAFORM_LAND>::Do(DoCommandFlags{flags}.Reset(DoCommandFlag::Execute), t, SLOPE_N, curh <= h);
+			CommandCost ret = Command<Commands::TerraformLand>::Do(DoCommandFlags{flags}.Reset(DoCommandFlag::Execute), t, SLOPE_N, curh <= h);
 			if (ret.Failed()) {
 				last_error = std::move(ret);
 
@@ -380,7 +381,7 @@ CommandCost CmdLevelLand(DoCommandFlags flags, TileIndex tile, TileIndex start_t
 					cost.SetAdditionalCashRequired(ret.GetCost());
 					return cost;
 				}
-				Command<CMD_TERRAFORM_LAND>::Do(flags, t, SLOPE_N, curh <= h);
+				Command<Commands::TerraformLand>::Do(flags, t, SLOPE_N, curh <= h);
 			} else {
 				/* When we're at the terraform limit we better bail (unneeded) testing as well.
 				 * This will probably cause the terraforming cost to be underestimated, but only

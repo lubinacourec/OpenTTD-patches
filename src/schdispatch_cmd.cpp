@@ -14,6 +14,7 @@
 #include "date_type.h"
 #include "window_func.h"
 #include "vehicle_base.h"
+#include "vehicle_func.h"
 #include "settings_type.h"
 #include "company_base.h"
 #include "settings_type.h"
@@ -35,10 +36,10 @@
  * @param enable Whether to enable scheduled dispatch.
  * @return the cost of this operation or an error
  */
-CommandCost CmdSchDispatch(DoCommandFlags flags, VehicleID veh, bool enable)
+CommandCost CmdSchDispatchSetEnabled(DoCommandFlags flags, VehicleID veh, bool enable)
 {
 	Vehicle *v = Vehicle::GetIfValid(veh);
-	if (v == nullptr || !v->IsPrimaryVehicle()) return CMD_ERROR;
+	if (v == nullptr || !IsCompanyBuildableVehicleType(v) || !v->IsPrimaryVehicle()) return CMD_ERROR;
 
 	CommandCost ret = CheckOwnership(v->owner);
 	if (ret.Failed()) return ret;
@@ -70,7 +71,7 @@ CommandCost CmdSchDispatch(DoCommandFlags flags, VehicleID veh, bool enable)
 CommandCost CmdSchDispatchAdd(DoCommandFlags flags, VehicleID veh, uint32_t schedule_index, uint32_t time, uint32_t offset, uint32_t extra_slots, uint16_t slot_flags, DispatchSlotRouteID route_id)
 {
 	Vehicle *v = Vehicle::GetIfValid(veh);
-	if (v == nullptr || !v->IsPrimaryVehicle()) return CMD_ERROR;
+	if (v == nullptr || !IsCompanyBuildableVehicleType(v) || !v->IsPrimaryVehicle()) return CMD_ERROR;
 	if ((slot_flags & DispatchSlot::PERMITTED_FLAG_MASK) != slot_flags) return CMD_ERROR;
 
 	CommandCost ret = CheckOwnership(v->owner);
@@ -112,7 +113,7 @@ CommandCost CmdSchDispatchAdd(DoCommandFlags flags, VehicleID veh, uint32_t sche
 CommandCost CmdSchDispatchRemove(DoCommandFlags flags, VehicleID veh, uint32_t schedule_index, uint32_t time)
 {
 	Vehicle *v = Vehicle::GetIfValid(veh);
-	if (v == nullptr || !v->IsPrimaryVehicle()) return CMD_ERROR;
+	if (v == nullptr || !IsCompanyBuildableVehicleType(v) || !v->IsPrimaryVehicle()) return CMD_ERROR;
 
 	CommandCost ret = CheckOwnership(v->owner);
 	if (ret.Failed()) return ret;
@@ -141,7 +142,7 @@ CommandCost CmdSchDispatchRemove(DoCommandFlags flags, VehicleID veh, uint32_t s
 CommandCost CmdSchDispatchSetDuration(DoCommandFlags flags, VehicleID veh, uint32_t schedule_index, uint32_t duration)
 {
 	Vehicle *v = Vehicle::GetIfValid(veh);
-	if (v == nullptr || !v->IsPrimaryVehicle() || duration == 0) return CMD_ERROR;
+	if (v == nullptr || !IsCompanyBuildableVehicleType(v) || !v->IsPrimaryVehicle() || duration == 0) return CMD_ERROR;
 
 	CommandCost ret = CheckOwnership(v->owner);
 	if (ret.Failed()) return ret;
@@ -172,7 +173,7 @@ CommandCost CmdSchDispatchSetDuration(DoCommandFlags flags, VehicleID veh, uint3
 CommandCost CmdSchDispatchSetStartDate(DoCommandFlags flags, VehicleID veh, uint32_t schedule_index, StateTicks start_tick)
 {
 	Vehicle *v = Vehicle::GetIfValid(veh);
-	if (v == nullptr || !v->IsPrimaryVehicle()) return CMD_ERROR;
+	if (v == nullptr || !IsCompanyBuildableVehicleType(v) || !v->IsPrimaryVehicle()) return CMD_ERROR;
 
 	CommandCost ret = CheckOwnership(v->owner);
 	if (ret.Failed()) return ret;
@@ -203,7 +204,7 @@ CommandCost CmdSchDispatchSetStartDate(DoCommandFlags flags, VehicleID veh, uint
 CommandCost CmdSchDispatchSetDelay(DoCommandFlags flags, VehicleID veh, uint32_t schedule_index, uint32_t max_delay)
 {
 	Vehicle *v = Vehicle::GetIfValid(veh);
-	if (v == nullptr || !v->IsPrimaryVehicle()) return CMD_ERROR;
+	if (v == nullptr || !IsCompanyBuildableVehicleType(v) || !v->IsPrimaryVehicle()) return CMD_ERROR;
 
 	CommandCost ret = CheckOwnership(v->owner);
 	if (ret.Failed()) return ret;
@@ -232,7 +233,7 @@ CommandCost CmdSchDispatchSetDelay(DoCommandFlags flags, VehicleID veh, uint32_t
 CommandCost CmdSchDispatchSetReuseSlots(DoCommandFlags flags, VehicleID veh, uint32_t schedule_index, bool re_use_slots)
 {
 	Vehicle *v = Vehicle::GetIfValid(veh);
-	if (v == nullptr || !v->IsPrimaryVehicle()) return CMD_ERROR;
+	if (v == nullptr || !IsCompanyBuildableVehicleType(v) || !v->IsPrimaryVehicle()) return CMD_ERROR;
 
 	CommandCost ret = CheckOwnership(v->owner);
 	if (ret.Failed()) return ret;
@@ -265,7 +266,7 @@ CommandCost CmdSchDispatchSetReuseSlots(DoCommandFlags flags, VehicleID veh, uin
 CommandCost CmdSchDispatchResetLastDispatch(DoCommandFlags flags, VehicleID veh, uint32_t schedule_index)
 {
 	Vehicle *v = Vehicle::GetIfValid(veh);
-	if (v == nullptr || !v->IsPrimaryVehicle()) return CMD_ERROR;
+	if (v == nullptr || !IsCompanyBuildableVehicleType(v) || !v->IsPrimaryVehicle()) return CMD_ERROR;
 
 	CommandCost ret = CheckOwnership(v->owner);
 	if (ret.Failed()) return ret;
@@ -283,6 +284,39 @@ CommandCost CmdSchDispatchResetLastDispatch(DoCommandFlags flags, VehicleID veh,
 }
 
 /**
+ * Set scheduled dispatch last dispatch vehicle time
+ *
+ * @param flags Operation to perform.
+ * @param veh Vehicle index
+ * @param schedule_index Schedule index.
+ * @param last_dispatched_tick New last dispatched tick.
+ * @return the cost of this operation or an error
+ */
+CommandCost CmdSchDispatchSetLastDispatch(DoCommandFlags flags, VehicleID veh, uint32_t schedule_index, StateTicks last_dispatched_tick)
+{
+	Vehicle *v = Vehicle::GetIfValid(veh);
+	if (v == nullptr || !IsCompanyBuildableVehicleType(v) || !v->IsPrimaryVehicle()) return CMD_ERROR;
+
+	CommandCost ret = CheckOwnership(v->owner);
+	if (ret.Failed()) return ret;
+
+	if (v->orders == nullptr) return CMD_ERROR;
+
+	if (schedule_index >= v->orders->GetScheduledDispatchScheduleCount()) return CMD_ERROR;
+
+	DispatchSchedule &ds = v->orders->GetDispatchScheduleByIndex(schedule_index);
+	Ticks last_dispatched_offset = (last_dispatched_tick - ds.GetScheduledDispatchStartTick()).AsTicks();
+	if (last_dispatched_offset == INT32_MIN || last_dispatched_offset == INT32_MAX) return CMD_ERROR;
+
+	if (flags.Test(DoCommandFlag::Execute)) {
+		ds.SetScheduledDispatchLastDispatch(last_dispatched_offset);
+		SetTimetableWindowsDirty(v, STWDF_SCHEDULED_DISPATCH);
+	}
+
+	return CommandCost();
+}
+
+/**
  * Clear scheduled dispatch schedule
  *
  * @param flags Operation to perform.
@@ -293,7 +327,7 @@ CommandCost CmdSchDispatchResetLastDispatch(DoCommandFlags flags, VehicleID veh,
 CommandCost CmdSchDispatchClear(DoCommandFlags flags, VehicleID veh, uint32_t schedule_index)
 {
 	Vehicle *v = Vehicle::GetIfValid(veh);
-	if (v == nullptr || !v->IsPrimaryVehicle()) return CMD_ERROR;
+	if (v == nullptr || !IsCompanyBuildableVehicleType(v) || !v->IsPrimaryVehicle()) return CMD_ERROR;
 
 	CommandCost ret = CheckOwnership(v->owner);
 	if (ret.Failed()) return ret;
@@ -322,7 +356,7 @@ CommandCost CmdSchDispatchClear(DoCommandFlags flags, VehicleID veh, uint32_t sc
 CommandCost CmdSchDispatchAddNewSchedule(DoCommandFlags flags, VehicleID veh, StateTicks start_tick, uint32_t duration)
 {
 	Vehicle *v = Vehicle::GetIfValid(veh);
-	if (v == nullptr || !v->IsPrimaryVehicle() || duration == 0) return CMD_ERROR;
+	if (v == nullptr || !IsCompanyBuildableVehicleType(v) || !v->IsPrimaryVehicle() || duration == 0) return CMD_ERROR;
 
 	CommandCost ret = CheckOwnership(v->owner);
 	if (ret.Failed()) return ret;
@@ -357,7 +391,7 @@ CommandCost CmdSchDispatchAddNewSchedule(DoCommandFlags flags, VehicleID veh, St
 CommandCost CmdSchDispatchRemoveSchedule(DoCommandFlags flags, VehicleID veh, uint32_t schedule_index)
 {
 	Vehicle *v = Vehicle::GetIfValid(veh);
-	if (v == nullptr || !v->IsPrimaryVehicle()) return CMD_ERROR;
+	if (v == nullptr || !IsCompanyBuildableVehicleType(v) || !v->IsPrimaryVehicle()) return CMD_ERROR;
 
 	CommandCost ret = CheckOwnership(v->owner);
 	if (ret.Failed()) return ret;
@@ -376,7 +410,7 @@ CommandCost CmdSchDispatchRemoveSchedule(DoCommandFlags flags, VehicleID veh, ui
 			} else if (idx > (int)schedule_index) {
 				o->SetDispatchScheduleIndex(idx - 1);
 			}
-			if (o->IsType(OT_CONDITIONAL) && o->GetConditionVariable() == OCV_DISPATCH_SLOT) {
+			if (o->IsType(OT_CONDITIONAL) && o->GetConditionVariable() == OrderConditionVariable::DispatchSlot) {
 				uint16_t order_schedule = o->GetConditionDispatchScheduleID();
 				if (order_schedule == UINT16_MAX) {
 					/* do nothing */
@@ -423,7 +457,7 @@ CommandCost CmdSchDispatchRemoveSchedule(DoCommandFlags flags, VehicleID veh, ui
 CommandCost CmdSchDispatchRenameSchedule(DoCommandFlags flags, VehicleID veh, uint32_t schedule_index, const std::string &name)
 {
 	Vehicle *v = Vehicle::GetIfValid(veh);
-	if (v == nullptr || !v->IsPrimaryVehicle()) return CMD_ERROR;
+	if (v == nullptr || !IsCompanyBuildableVehicleType(v) || !v->IsPrimaryVehicle()) return CMD_ERROR;
 
 	CommandCost ret = CheckOwnership(v->owner);
 	if (ret.Failed()) return ret;
@@ -463,7 +497,7 @@ CommandCost CmdSchDispatchRenameSchedule(DoCommandFlags flags, VehicleID veh, ui
 CommandCost CmdSchDispatchRenameTag(DoCommandFlags flags, VehicleID veh, uint32_t schedule_index, uint16_t tag_id, const std::string &name)
 {
 	Vehicle *v = Vehicle::GetIfValid(veh);
-	if (v == nullptr || !v->IsPrimaryVehicle()) return CMD_ERROR;
+	if (v == nullptr || !IsCompanyBuildableVehicleType(v) || !v->IsPrimaryVehicle()) return CMD_ERROR;
 
 	CommandCost ret = CheckOwnership(v->owner);
 	if (ret.Failed()) return ret;
@@ -496,7 +530,7 @@ CommandCost CmdSchDispatchRenameTag(DoCommandFlags flags, VehicleID veh, uint32_
 CommandCost CmdSchDispatchEditRoute(DoCommandFlags flags, VehicleID veh, uint32_t schedule_index, DispatchSlotRouteID route_id, const std::string &name)
 {
 	Vehicle *v = Vehicle::GetIfValid(veh);
-	if (v == nullptr || !v->IsPrimaryVehicle()) return CMD_ERROR;
+	if (v == nullptr || !IsCompanyBuildableVehicleType(v) || !v->IsPrimaryVehicle()) return CMD_ERROR;
 
 	CommandCost ret = CheckOwnership(v->owner);
 	if (ret.Failed()) return ret;
@@ -557,7 +591,7 @@ CommandCost CmdSchDispatchEditRoute(DoCommandFlags flags, VehicleID veh, uint32_
 					}
 				}
 				for (Order *o : v->Orders()) {
-					if (o->IsType(OT_CONDITIONAL) && o->GetConditionVariable() == OCV_DISPATCH_SLOT && o->GetConditionDispatchScheduleID() == schedule_index) {
+					if (o->IsType(OT_CONDITIONAL) && o->GetConditionVariable() == OrderConditionVariable::DispatchSlot && o->GetConditionDispatchScheduleID() == schedule_index) {
 						if (GB(o->GetConditionValue(), ODCB_MODE_START, ODCB_MODE_COUNT) == OCDM_ROUTE_ID && o->GetXData2Low() == route_id) {
 							o->SetXData2Low(INVALID_DISPATCH_SLOT_ROUTE_ID);
 						}
@@ -596,7 +630,7 @@ CommandCost CmdSchDispatchEditRoute(DoCommandFlags flags, VehicleID veh, uint32_
 CommandCost CmdSchDispatchDuplicateSchedule(DoCommandFlags flags, VehicleID veh, uint32_t schedule_index)
 {
 	Vehicle *v = Vehicle::GetIfValid(veh);
-	if (v == nullptr || !v->IsPrimaryVehicle()) return CMD_ERROR;
+	if (v == nullptr || !IsCompanyBuildableVehicleType(v) || !v->IsPrimaryVehicle()) return CMD_ERROR;
 
 	CommandCost ret = CheckOwnership(v->owner);
 	if (ret.Failed()) return ret;
@@ -626,10 +660,10 @@ CommandCost CmdSchDispatchDuplicateSchedule(DoCommandFlags flags, VehicleID veh,
 CommandCost CmdSchDispatchAppendVehSchedules(DoCommandFlags flags, VehicleID dst_veh, VehicleID src_veh)
 {
 	Vehicle *v1 = Vehicle::GetIfValid(dst_veh);
-	if (v1 == nullptr || !v1->IsPrimaryVehicle()) return CMD_ERROR;
+	if (v1 == nullptr || !IsCompanyBuildableVehicleType(v1) || !v1->IsPrimaryVehicle()) return CMD_ERROR;
 
 	const Vehicle *v2 = Vehicle::GetIfValid(src_veh);
-	if (v2 == nullptr || !v2->IsPrimaryVehicle()) return CMD_ERROR;
+	if (v2 == nullptr || !IsCompanyBuildableVehicleType(v2) || !v2->IsPrimaryVehicle()) return CMD_ERROR;
 
 	CommandCost ret = CheckOwnership(v1->owner);
 	if (ret.Failed()) return ret;
@@ -662,7 +696,7 @@ CommandCost CmdSchDispatchAppendVehSchedules(DoCommandFlags flags, VehicleID dst
 CommandCost CmdSchDispatchAdjust(DoCommandFlags flags, VehicleID veh, uint32_t schedule_index, int32_t adjustment)
 {
 	Vehicle *v = Vehicle::GetIfValid(veh);
-	if (v == nullptr || !v->IsPrimaryVehicle()) return CMD_ERROR;
+	if (v == nullptr || !IsCompanyBuildableVehicleType(v) || !v->IsPrimaryVehicle()) return CMD_ERROR;
 
 	CommandCost ret = CheckOwnership(v->owner);
 	if (ret.Failed()) return ret;
@@ -759,7 +793,7 @@ uint32_t ApplyDispatchSlotSetToSchedule(std::vector<DispatchSlot> &schedule, con
 CommandCost CmdSchDispatchAdjustSlot(DoCommandFlags flags, VehicleID veh, uint32_t schedule_index, const ScheduledDispatchSlotSet &slots, int32_t adjustment)
 {
 	Vehicle *v = Vehicle::GetIfValid(veh);
-	if (v == nullptr || !v->IsPrimaryVehicle()) return CMD_ERROR;
+	if (v == nullptr || !IsCompanyBuildableVehicleType(v) || !v->IsPrimaryVehicle()) return CMD_ERROR;
 
 	CommandCost ret = CheckOwnership(v->owner);
 	if (ret.Failed()) return ret;
@@ -811,7 +845,7 @@ CommandCost CmdSchDispatchAdjustSlot(DoCommandFlags flags, VehicleID veh, uint32
 CommandCost CmdSchDispatchSwapSchedules(DoCommandFlags flags, VehicleID veh, uint32_t schedule_index_1, uint32_t schedule_index_2)
 {
 	Vehicle *v = Vehicle::GetIfValid(veh);
-	if (v == nullptr || !v->IsPrimaryVehicle()) return CMD_ERROR;
+	if (v == nullptr || !IsCompanyBuildableVehicleType(v) || !v->IsPrimaryVehicle()) return CMD_ERROR;
 
 	CommandCost ret = CheckOwnership(v->owner);
 	if (ret.Failed()) return ret;
@@ -831,7 +865,7 @@ CommandCost CmdSchDispatchSwapSchedules(DoCommandFlags flags, VehicleID veh, uin
 			} else if (idx == (int)schedule_index_2) {
 				o->SetDispatchScheduleIndex((int)schedule_index_1);
 			}
-			if (o->IsType(OT_CONDITIONAL) && o->GetConditionVariable() == OCV_DISPATCH_SLOT) {
+			if (o->IsType(OT_CONDITIONAL) && o->GetConditionVariable() == OrderConditionVariable::DispatchSlot) {
 				uint16_t order_schedule = o->GetConditionDispatchScheduleID();
 				if (order_schedule == schedule_index_1) {
 					o->SetConditionDispatchScheduleID(schedule_index_2);
@@ -881,7 +915,7 @@ CommandCost CmdSchDispatchSetSlotFlags(DoCommandFlags flags, VehicleID veh, uint
 	if ((values & (~mask)) != 0) return CMD_ERROR;
 
 	Vehicle *v = Vehicle::GetIfValid(veh);
-	if (v == nullptr || !v->IsPrimaryVehicle()) return CMD_ERROR;
+	if (v == nullptr || !IsCompanyBuildableVehicleType(v) || !v->IsPrimaryVehicle()) return CMD_ERROR;
 
 	CommandCost ret = CheckOwnership(v->owner);
 	if (ret.Failed()) return ret;
@@ -922,7 +956,7 @@ CommandCost CmdSchDispatchSetSlotFlags(DoCommandFlags flags, VehicleID veh, uint
 CommandCost CmdSchDispatchSetSlotRoute(DoCommandFlags flags, VehicleID veh, uint32_t schedule_index, const ScheduledDispatchSlotSet &slots, DispatchSlotRouteID route_id)
 {
 	Vehicle *v = Vehicle::GetIfValid(veh);
-	if (v == nullptr || !v->IsPrimaryVehicle()) return CMD_ERROR;
+	if (v == nullptr || !IsCompanyBuildableVehicleType(v) || !v->IsPrimaryVehicle()) return CMD_ERROR;
 
 	CommandCost ret = CheckOwnership(v->owner);
 	if (ret.Failed()) return ret;

@@ -18,11 +18,12 @@
 /** Connect to the TURN server. */
 class NetworkTurnConnecter : public TCPConnecter {
 private:
-	ClientNetworkTurnSocketHandler *handler;
+	ClientNetworkTurnSocketHandler *handler; ///< The callback for this attempt.
 
 public:
 	/**
 	 * Initiate the connecting.
+	 * @param handler Callback handler for denoting success or failure.
 	 * @param connection_string The address of the TURN server.
 	 */
 	NetworkTurnConnecter(ClientNetworkTurnSocketHandler *handler, std::string_view connection_string) : TCPConnecter(connection_string, NETWORK_TURN_SERVER_PORT), handler(handler) {}
@@ -46,16 +47,16 @@ public:
 	}
 };
 
-bool ClientNetworkTurnSocketHandler::Receive_TURN_ERROR(Packet &)
+bool ClientNetworkTurnSocketHandler::ReceiveServerError(Packet &)
 {
-	Debug(net, 9, "Receive_TURN_ERROR()");
+	Debug(net, 9, "ReceiveServerError()");
 
 	this->ConnectFailure();
 
 	return false;
 }
 
-bool ClientNetworkTurnSocketHandler::Receive_TURN_CONNECTED(Packet &p)
+bool ClientNetworkTurnSocketHandler::ReceiveServerConnected(Packet &p)
 {
 	Debug(net, 9, "Receive_TURN_CONNECTED()");
 
@@ -97,7 +98,7 @@ void ClientNetworkTurnSocketHandler::Connect()
 {
 	auto turn_handler = std::make_unique<ClientNetworkTurnSocketHandler>(token, tracking_number, connection_string);
 
-	auto p = std::make_unique<Packet>(turn_handler.get(), PACKET_TURN_SERCLI_CONNECT);
+	auto p = std::make_unique<Packet>(turn_handler.get(), PacketTurnType::ClientConnect);
 	p->Send_uint8(NETWORK_COORDINATOR_VERSION);
 	p->Send_string(ticket);
 
@@ -106,6 +107,7 @@ void ClientNetworkTurnSocketHandler::Connect()
 	return turn_handler;
 }
 
+/** Callback when we were unable to connect. */
 void ClientNetworkTurnSocketHandler::ConnectFailure()
 {
 	_network_coordinator_client.ConnectFailure(this->token, this->tracking_number);
@@ -121,7 +123,7 @@ NetworkRecvStatus ClientNetworkTurnSocketHandler::CloseConnection(bool error)
 		this->connecter = nullptr;
 	}
 
-	return NETWORK_RECV_STATUS_OKAY;
+	return NetworkRecvStatus::Okay;
 }
 
 ClientNetworkTurnSocketHandler::~ClientNetworkTurnSocketHandler()

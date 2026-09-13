@@ -86,7 +86,7 @@ void ScriptInstance::Initialize(const std::string &main_script, const std::strin
 
 		if (this->script_type == ScriptType::GS) {
 			if (instance_name == "BeeRewardClass") {
-				this->LoadCompatibilityScript("brgs", GAME_DIR);
+				this->LoadCompatibilityScript("brgs", Subdirectory::Gs);
 			}
 		}
 
@@ -394,13 +394,12 @@ ScriptLogTypes::LogData &ScriptInstance::GetLogData()
 			SlWriteByte(SQSL_STRING);
 			std::string_view view;
 			sq_getstring(vm, index, view);
-			size_t len = view.size() + 1;
-			if (len >= 255) {
-				ScriptLog::Error("Maximum string length is 254 chars. No data saved.");
+			if (view.size() > 255) {
+				ScriptLog::Error("Maximum string length is 255 chars. No data saved.");
 				return false;
 			}
-			SlWriteByte((uint8_t)len);
-			SlCopyBytesWrite(view.data(), len);
+			SlWriteByte(static_cast<uint8_t>(view.size()));
+			SlCopyBytesWrite(view.data(), view.size());
 			return true;
 		}
 
@@ -451,7 +450,8 @@ ScriptLogTypes::LogData &ScriptInstance::GetLogData()
 			return true;
 		}
 
-		case OT_INSTANCE:{
+		case OT_INSTANCE: {
+			SlWriteByte(SQSL_INSTANCE);
 			SQInteger top = sq_gettop(vm);
 			try {
 				ScriptObject *obj = static_cast<ScriptObject *>(Squirrel::GetRealInstance(vm, -1, "Object"));
@@ -820,7 +820,7 @@ bool ScriptInstance::DoCommandCallback(const CommandCost &result, Commands cmd, 
 		ScriptObject::SetLastCommandResultData(result.GetResultDataWithType());
 	}
 
-	ScriptObject::SetLastCommand(CMD_END, INVALID_TILE, 0);
+	ScriptObject::SetLastCommand(Commands::End, INVALID_TILE, 0);
 
 	return true;
 }

@@ -38,11 +38,11 @@ INSTANTIATE_POOL_METHODS(Subsidy)
  * Get the NewsReference for a subsidy Source.
  * @returns NewsReference.
  */
-NewsReference Source::GetNewsReference() const
+static NewsReference GetSourceNewsReference(const Source &source)
 {
-	switch (this->type) {
-		case SourceType::Industry: return static_cast<IndustryID>(this->id);
-		case SourceType::Town: return static_cast<TownID>(this->id);
+	switch (source.type) {
+		case SourceType::Industry: return static_cast<IndustryID>(source.id);
+		case SourceType::Town: return static_cast<TownID>(source.id);
 		default: NOT_REACHED();
 	}
 }
@@ -76,11 +76,11 @@ void Subsidy::AwardTo(CompanyID company)
 	/* Add a news item */
 	const CargoSpec *cs = CargoSpec::Get(this->cargo_type);
 	EncodedString headline = GetEncodedString(STR_NEWS_SERVICE_SUBSIDY_AWARDED_HALF + _settings_game.difficulty.subsidy_multiplier, std::move(company_name), cs->name, this->src.GetFormat(), this->src.id, this->dst.GetFormat(), this->dst.id, _settings_game.difficulty.subsidy_duration);
-	AddNewsItem(std::move(headline), NewsType::Subsidies, NewsStyle::Normal, {}, this->src.GetNewsReference(), this->dst.GetNewsReference());
+	AddNewsItem(std::move(headline), NewsType::Subsidies, NewsStyle::Normal, {}, GetSourceNewsReference(this->src), GetSourceNewsReference(this->dst));
 	AI::BroadcastNewEvent(new ScriptEventSubsidyAwarded(this->index));
 	Game::NewEvent(new ScriptEventSubsidyAwarded(this->index));
 
-	InvalidateWindowData(WC_SUBSIDIES_LIST, 0);
+	InvalidateWindowData(WindowClass::SubsidyList, 0);
 }
 
 /**
@@ -126,7 +126,7 @@ void DeleteSubsidyWith(Source source)
 	}
 
 	if (dirty) {
-		InvalidateWindowData(WC_SUBSIDIES_LIST, 0);
+		InvalidateWindowData(WindowClass::SubsidyList, 0);
 		RebuildSubsidisedSourceAndDestinationCache();
 	}
 }
@@ -174,13 +174,13 @@ void CreateSubsidy(CargoType cargo_type, Source src, Source dst)
 
 	const CargoSpec *cs = CargoSpec::Get(s->cargo_type);
 	EncodedString headline = GetEncodedString(STR_NEWS_SERVICE_SUBSIDY_OFFERED, cs->name, s->src.GetFormat(), s->src.id, s->dst.GetFormat(), s->dst.id, _settings_game.difficulty.subsidy_duration);
-	AddNewsItem(std::move(headline), NewsType::Subsidies, NewsStyle::Normal, {}, s->src.GetNewsReference(), s->dst.GetNewsReference());
+	AddNewsItem(std::move(headline), NewsType::Subsidies, NewsStyle::Normal, {}, GetSourceNewsReference(s->src), GetSourceNewsReference(s->dst));
 	SetPartOfSubsidyFlag(s->src, PartOfSubsidy::Source);
 	SetPartOfSubsidyFlag(s->dst, PartOfSubsidy::Destination);
 	AI::BroadcastNewEvent(new ScriptEventSubsidyOffer(s->index));
 	Game::NewEvent(new ScriptEventSubsidyOffer(s->index));
 
-	InvalidateWindowData(WC_SUBSIDIES_LIST, 0);
+	InvalidateWindowData(WindowClass::SubsidyList, 0);
 }
 
 /**
@@ -235,12 +235,12 @@ bool FindSubsidyPassengerRoute()
 {
 	if (!Subsidy::CanAllocateItem()) return false;
 
-	if (CargoSpec::town_production_cargo_mask[TPE_PASSENGERS] == 0) return false;
+	if (CargoSpec::town_production_cargo_mask[TownProductionEffect::Passengers].None()) return false;
 
 	/* Pick a random TPE_PASSENGER type */
-	uint32_t r = RandomRange(CountBits(CargoSpec::town_production_cargo_mask[TPE_PASSENGERS]));
+	uint32_t r = RandomRange(CountBits(CargoSpec::town_production_cargo_mask[TownProductionEffect::Passengers]));
 	CargoType cargo_type{};
-	for (CargoType c : SetCargoBitIterator(CargoSpec::town_production_cargo_mask[TPE_PASSENGERS])) {
+	for (CargoType c : CargoSpec::town_production_cargo_mask[TownProductionEffect::Passengers]) {
 		if (r == 0) {
 			cargo_type = c;
 			break;
@@ -286,13 +286,13 @@ bool FindSubsidyTownCargoRoute()
 	CargoArray town_cargo_produced{};
 	TileArea ta = TileArea(src_town->xy, 1, 1).Expand(SUBSIDY_TOWN_CARGO_RADIUS);
 	for (TileIndex tile : ta) {
-		if (IsTileType(tile, MP_HOUSE)) {
+		if (IsTileType(tile, TileType::House)) {
 			AddProducedCargo(tile, town_cargo_produced);
 		}
 	}
 
 	/* Passenger subsidies are not handled here. */
-	for (CargoType c : SetCargoBitIterator(CargoSpec::town_production_cargo_mask[TPE_PASSENGERS])) {
+	for (CargoType c : CargoSpec::town_production_cargo_mask[TownProductionEffect::Passengers]) {
 		town_cargo_produced[c] = 0;
 	}
 
@@ -303,8 +303,8 @@ bool FindSubsidyTownCargoRoute()
 
 	/* Choose a random cargo that is produced in the town. */
 	uint8_t cargo_number = RandomRange(cargo_count);
-	CargoType cargo_type;
-	for (cargo_type = 0; cargo_type < NUM_CARGO; cargo_type++) {
+	CargoType cargo_type{};
+	for (; cargo_type < NUM_CARGO; ++cargo_type) {
 		if (town_cargo_produced[cargo_type] > 0) {
 			if (cargo_number == 0) break;
 			cargo_number--;
@@ -312,10 +312,7 @@ bool FindSubsidyTownCargoRoute()
 	}
 
 	/* Avoid using invalid NewGRF cargoes. */
-	if (!CargoSpec::Get(cargo_type)->IsValid() ||
-			_settings_game.linkgraph.GetDistributionType(cargo_type) != DT_MANUAL) {
-		return false;
-	}
+	if (!CargoSpec::Get(cargo_type)->IsValid()) return false;
 
 	/* Quit if the percentage transported is large enough. */
 	if (src_town->GetPercentTransported(cargo_type) > SUBSIDY_MAX_PCT_TRANSPORTED) return false;
@@ -358,12 +355,15 @@ bool FindSubsidyIndustryCargoRoute()
 	}
 	assert(cargo_num == 0); // indicates loop didn't break as intended
 
+	auto is_usable_distribution_mode = [](DistributionType mode) -> bool {
+		return mode != DistributionType::AsymmetricEqual && mode != DistributionType::AsymmetricNearest;
+	};
+
 	/* Quit if no production in this industry
-	 * or if the pct transported is already large enough
 	 * or if the cargo is automatically distributed */
 	if (total == 0 || trans > SUBSIDY_MAX_PCT_TRANSPORTED ||
 			cargo_type == INVALID_CARGO ||
-			_settings_game.linkgraph.GetDistributionType(cargo_type) != DT_MANUAL) {
+			!is_usable_distribution_mode(_settings_game.linkgraph.GetDistributionType(cargo_type))) {
 		return false;
 	}
 
@@ -388,10 +388,11 @@ bool FindSubsidyCargoDestination(CargoType cargo_type, Source src)
 
 			/* Calculate cargo acceptance of houses around town center. */
 			CargoArray town_cargo_accepted{};
+			CargoTypes always_accepted{};
 			TileArea ta = TileArea(dst_town->xy, 1, 1).Expand(SUBSIDY_TOWN_CARGO_RADIUS);
 			for (TileIndex tile : ta) {
-				if (IsTileType(tile, MP_HOUSE)) {
-					AddAcceptedCargo(tile, town_cargo_accepted, nullptr);
+				if (IsTileType(tile, TileType::House)) {
+					AddAcceptedCargo(tile, town_cargo_accepted, always_accepted);
 				}
 			}
 
@@ -441,14 +442,14 @@ void SubsidyMonthlyLoop()
 			if (!s->IsAwarded()) {
 				const CargoSpec *cs = CargoSpec::Get(s->cargo_type);
 				EncodedString headline = GetEncodedString(STR_NEWS_OFFER_OF_SUBSIDY_EXPIRED, cs->name, s->src.GetFormat(), s->src.id, s->dst.GetFormat(), s->dst.id);
-				AddNewsItem(std::move(headline), NewsType::Subsidies, NewsStyle::Normal, {}, s->src.GetNewsReference(), s->dst.GetNewsReference());
+				AddNewsItem(std::move(headline), NewsType::Subsidies, NewsStyle::Normal, {}, GetSourceNewsReference(s->src), GetSourceNewsReference(s->dst));
 				AI::BroadcastNewEvent(new ScriptEventSubsidyOfferExpired(s->index));
 				Game::NewEvent(new ScriptEventSubsidyOfferExpired(s->index));
 			} else {
 				if (s->awarded == _local_company) {
 					const CargoSpec *cs = CargoSpec::Get(s->cargo_type);
 					EncodedString headline = GetEncodedString(STR_NEWS_SUBSIDY_WITHDRAWN_SERVICE, cs->name, s->src.GetFormat(), s->src.id, s->dst.GetFormat(), s->dst.id);
-					AddNewsItem(std::move(headline), NewsType::Subsidies, NewsStyle::Normal, {}, s->src.GetNewsReference(), s->dst.GetNewsReference());
+					AddNewsItem(std::move(headline), NewsType::Subsidies, NewsStyle::Normal, {}, GetSourceNewsReference(s->src), GetSourceNewsReference(s->dst));
 				}
 				AI::BroadcastNewEvent(new ScriptEventSubsidyExpired(s->index));
 				Game::NewEvent(new ScriptEventSubsidyExpired(s->index));
@@ -463,13 +464,6 @@ void SubsidyMonthlyLoop()
 	} else if (_settings_game.difficulty.subsidy_duration == 0) {
 		/* If subsidy duration is set to 0, subsidies are disabled, so bail out. */
 		return;
-	} else if (_settings_game.linkgraph.distribution_pax != DT_MANUAL &&
-			   _settings_game.linkgraph.distribution_mail != DT_MANUAL &&
-			   _settings_game.linkgraph.distribution_armoured != DT_MANUAL &&
-			   _settings_game.linkgraph.distribution_default != DT_MANUAL) {
-		/* Return early if there are no manually distributed cargoes and if we
-		 * don't need to invalidate the subsidies window. */
-		return;
 	}
 
 	bool passenger_subsidy = false;
@@ -478,7 +472,7 @@ void SubsidyMonthlyLoop()
 
 	int random_chance = RandomRange(16);
 
-	if (random_chance < 2 && _settings_game.linkgraph.distribution_pax == DT_MANUAL) {
+	if (random_chance < 2) {
 		/* There is a 1/8 chance each month of generating a passenger subsidy. */
 		int n = 1000;
 
@@ -503,7 +497,7 @@ void SubsidyMonthlyLoop()
 
 	modified |= passenger_subsidy || town_subsidy || industry_subsidy;
 
-	if (modified) InvalidateWindowData(WC_SUBSIDIES_LIST, 0);
+	if (modified) InvalidateWindowData(WindowClass::SubsidyList, 0);
 }
 
 /**
@@ -540,7 +534,7 @@ bool CheckSubsidised(CargoType cargo_type, CompanyID company, Source src, const 
 
 			BitmapTileIterator it(st->catchment_tiles);
 			for (TileIndex tile = it; tile != INVALID_TILE; tile = ++it) {
-				if (!IsTileType(tile, MP_HOUSE)) continue;
+				if (!IsTileType(tile, TileType::House)) continue;
 				const Town *t = Town::GetByTile(tile);
 				if (t->cache.part_of_subsidy.Test(PartOfSubsidy::Destination)) include(towns_near, t);
 			}

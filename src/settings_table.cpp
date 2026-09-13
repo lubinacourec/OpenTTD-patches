@@ -8,10 +8,11 @@
 /** @file settings_table.cpp The tables of all the settings as well as the implementation of most of their callbacks. */
 
 #include "stdafx.h"
+#include "aircraft.h"
 #include "base_media_base.h"
 #include "base_media_music.h"
 #include "base_media_sounds.h"
-#include "currency.h"
+#include "currency_type.h"
 #include "date_func.h"
 #include "elrail_func.h"
 #include "engine_func.h"
@@ -24,6 +25,7 @@
 #include "graph_gui.h"
 #include "gui.h"
 #include "infrastructure_func.h"
+#include "news_func.h"
 #include "order_func.h"
 #include "plans_func.h"
 #include "rail.h"
@@ -64,7 +66,7 @@
 #include "blitter/factory.hpp"
 #include "music/music_driver.hpp"
 #include "sound/sound_driver.hpp"
-#include "video/video_driver.hpp"
+#include "video/video_driver_base.hpp"
 
 #if defined(WITH_FREETYPE) || defined(_WIN32) || defined(WITH_COCOA)
 #define HAS_TRUETYPE_FONT
@@ -135,50 +137,50 @@ extern const std::initializer_list<SettingTable> _secrets_setting_tables{
 
 /* Begin - Callback Functions for the various settings. */
 
-/** Switch setting title depending on wallclock setting */
+/** Switch setting title depending on wallclock setting. @copydoc IntSettingDesc::GetTitleCallback */
 static StringID SettingTitleWallclock(const IntSettingDesc &sd)
 {
-	return EconTime::UsingWallclockUnits(_game_mode == GM_MENU) ? sd.str + 1 : sd.str;
+	return EconTime::UsingWallclockUnits(_game_mode == GameMode::Menu) ? sd.str + 1 : sd.str;
 }
 
-/** Switch setting help depending on wallclock setting */
+/** Switch setting help depending on wallclock setting. @copydoc IntSettingDesc::GetHelpCallback */
 static StringID SettingHelpWallclock(const IntSettingDesc &sd)
 {
-	return EconTime::UsingWallclockUnits(_game_mode == GM_MENU) ? sd.str_help + 1 : sd.str_help;
+	return EconTime::UsingWallclockUnits(_game_mode == GameMode::Menu) ? sd.str_help + 1 : sd.str_help;
 }
 
 /** Switch setting help depending on wallclock setting */
 static StringID SettingHelpWallclockTriple(const IntSettingDesc &sd)
 {
-	return EconTime::UsingWallclockUnits(_game_mode == GM_MENU) ? sd.str_help + ((GetGameSettings().economy.day_length_factor > 1) ? 2 : 1) : sd.str_help;
+	return EconTime::UsingWallclockUnits(_game_mode == GameMode::Menu) ? sd.str_help + ((GetGameSettings().economy.day_length_factor > 1) ? 2 : 1) : sd.str_help;
 }
 
-/** Setting values for velocity unit localisation */
-static std::pair<StringParameter, StringParameter> SettingsValueVelocityUnit(const IntSettingDesc &, int32_t value)
+/** Setting values for velocity unit localisation. @copydoc IntSettingDesc::GetValueParamsCallback */
+static std::pair<StringParameter, StringParameter> SettingsValueVelocityUnit([[maybe_unused]] const IntSettingDesc &sd, int32_t value)
 {
 	StringID val;
 	switch (value) {
 		case 0: val = STR_CONFIG_SETTING_LOCALISATION_UNITS_VELOCITY_IMPERIAL; break;
 		case 1: val = STR_CONFIG_SETTING_LOCALISATION_UNITS_VELOCITY_METRIC; break;
 		case 2: val = STR_CONFIG_SETTING_LOCALISATION_UNITS_VELOCITY_SI; break;
-		case 3: val = (EconTime::UsingWallclockUnits(_game_mode == GM_MENU) || GetGameSettings().economy.day_length_factor > 1) ? STR_CONFIG_SETTING_LOCALISATION_UNITS_VELOCITY_GAMEUNITS_SECS : STR_CONFIG_SETTING_LOCALISATION_UNITS_VELOCITY_GAMEUNITS_DAYS; break;
+		case 3: val = (EconTime::UsingWallclockUnits(_game_mode == GameMode::Menu) || GetGameSettings().economy.day_length_factor > 1) ? STR_CONFIG_SETTING_LOCALISATION_UNITS_VELOCITY_GAMEUNITS_SECS : STR_CONFIG_SETTING_LOCALISATION_UNITS_VELOCITY_GAMEUNITS_DAYS; break;
 		case 4: val = STR_CONFIG_SETTING_LOCALISATION_UNITS_VELOCITY_KNOTS; break;
 		default: NOT_REACHED();
 	}
 	return {val, {}};
 }
 
-/** A negative value has another string (the one after "strval"). */
+/** A negative value has another string (the one after "strval"). @copydoc IntSettingDesc::GetValueParamsCallback */
 static std::pair<StringParameter, StringParameter> SettingsValueAbsolute(const IntSettingDesc &sd, int32_t value)
 {
 	return {sd.str_val + ((value >= 0) ? 1 : 0), abs(value)};
 }
 
-/** Service Interval Settings Default Value displays the correct units or as a percentage */
+/** Service Interval Settings Default Value displays the correct units or as a percentage. @copydoc IntSettingDesc::GetValueParamsCallback */
 static std::pair<StringParameter, StringParameter> ServiceIntervalSettingsValueText(const IntSettingDesc &sd, int32_t value)
 {
 	VehicleDefaultSettings *vds;
-	if (_game_mode == GM_MENU || !Company::IsValidID(_current_company)) {
+	if (_game_mode == GameMode::Menu || !Company::IsValidID(_current_company)) {
 		vds = &_settings_client.company.vehicle;
 	} else {
 		vds = &Company::Get(_current_company)->settings.vehicle;
@@ -189,7 +191,7 @@ static std::pair<StringParameter, StringParameter> ServiceIntervalSettingsValueT
 		str = sd.str_val + 3;
 	} else if (vds->servint_ispercent) {
 		str = sd.str_val + 2;
-	} else if (EconTime::UsingWallclockUnits(_game_mode == GM_MENU)) {
+	} else if (EconTime::UsingWallclockUnits(_game_mode == GameMode::Menu)) {
 		str = sd.str_val + 1;
 	} else {
 		str = sd.str_val;
@@ -200,13 +202,13 @@ static std::pair<StringParameter, StringParameter> ServiceIntervalSettingsValueT
 /** Reposition the main toolbar as the setting changed. */
 static void v_PositionMainToolbar(int32_t new_value)
 {
-	if (_game_mode != GM_MENU) PositionMainToolbar(nullptr);
+	if (_game_mode != GameMode::Menu) PositionMainToolbar(nullptr);
 }
 
 /** Reposition the statusbar as the setting changed. */
 static void v_PositionStatusbar(int32_t new_value)
 {
-	if (_game_mode != GM_MENU) {
+	if (_game_mode != GameMode::Menu) {
 		PositionStatusbar(nullptr);
 		PositionNewsMessage(nullptr);
 		PositionNetworkChatWindow(nullptr);
@@ -221,7 +223,7 @@ static void RedrawSmallmap(int32_t new_value)
 {
 	BuildLandLegend();
 	BuildOwnerLegend();
-	SetWindowClassesDirty(WC_SMALLMAP);
+	SetWindowClassesDirty(WindowClass::SmallMap);
 
 	extern void MarkAllViewportMapLandscapesDirty();
 	MarkAllViewportMapLandscapesDirty();
@@ -229,10 +231,10 @@ static void RedrawSmallmap(int32_t new_value)
 
 static void StationSpreadChanged(int32_t new_value)
 {
-	InvalidateWindowData(WC_SELECT_STATION, 0);
-	InvalidateWindowData(WC_BUILD_STATION, 0);
-	InvalidateWindowData(WC_BUS_STATION, 0);
-	InvalidateWindowData(WC_TRUCK_STATION, 0);
+	InvalidateWindowData(WindowClass::JoinStation, 0);
+	InvalidateWindowData(WindowClass::BuildStation, 0);
+	InvalidateWindowData(WindowClass::BuildBusStation, 0);
+	InvalidateWindowData(WindowClass::BuildTruckStation, 0);
 }
 
 static void UpdateConsists(int32_t new_value)
@@ -248,10 +250,10 @@ static void UpdateConsists(int32_t new_value)
 	extern void AfterLoadTemplateVehiclesUpdateProperties();
 	AfterLoadTemplateVehiclesUpdateProperties();
 
-	InvalidateWindowClassesData(WC_BUILD_VEHICLE, 0);
-	InvalidateWindowClassesData(WC_BUILD_VIRTUAL_TRAIN, 0);
-	SetWindowClassesDirty(WC_TEMPLATEGUI_MAIN);
-	SetWindowClassesDirty(WC_CREATE_TEMPLATE);
+	InvalidateWindowClassesData(WindowClass::BuildVehicle, 0);
+	InvalidateWindowClassesData(WindowClass::BuildVirtualTrain, 0);
+	SetWindowClassesDirty(WindowClass::TemplateReplacementGuiMain);
+	SetWindowClassesDirty(WindowClass::TemplateReplacementCreateTemplate);
 }
 
 /**
@@ -262,7 +264,7 @@ static void UpdateAllServiceInterval(int32_t new_value)
 {
 	bool update_vehicles;
 	VehicleDefaultSettings *vds;
-	if (_game_mode == GM_MENU || !Company::IsValidID(_current_company)) {
+	if (_game_mode == GameMode::Menu || !Company::IsValidID(_current_company)) {
 		vds = &_settings_client.company.vehicle;
 		update_vehicles = false;
 	} else {
@@ -276,7 +278,7 @@ static void UpdateAllServiceInterval(int32_t new_value)
 		vds->servint_roadveh  = DEF_SERVINT_PERCENT;
 		vds->servint_aircraft = DEF_SERVINT_PERCENT;
 		vds->servint_ships    = DEF_SERVINT_PERCENT;
-	} else if (EconTime::UsingWallclockUnits(_game_mode == GM_MENU)) {
+	} else if (EconTime::UsingWallclockUnits(_game_mode == GameMode::Menu)) {
 		/* Service intervals are in minutes. */
 		vds->servint_trains   = DEF_SERVINT_MINUTES_TRAINS;
 		vds->servint_roadveh  = DEF_SERVINT_MINUTES_ROADVEH;
@@ -300,13 +302,13 @@ static void UpdateAllServiceInterval(int32_t new_value)
 		}
 	}
 
-	SetWindowClassesDirty(WC_VEHICLE_DETAILS);
+	SetWindowClassesDirty(WindowClass::VehicleDetails);
 }
 
 static bool CanUpdateServiceInterval(VehicleType type, int32_t &new_value)
 {
 	VehicleDefaultSettings *vds;
-	if (_game_mode == GM_MENU || !Company::IsValidID(_current_company)) {
+	if (_game_mode == GameMode::Menu || !Company::IsValidID(_current_company)) {
 		vds = &_settings_client.company.vehicle;
 	} else {
 		vds = &Company::Get(_current_company)->settings.vehicle;
@@ -319,7 +321,7 @@ static bool CanUpdateServiceInterval(VehicleType type, int32_t &new_value)
 
 static void UpdateServiceInterval(VehicleType type, int32_t new_value)
 {
-	if (_game_mode != GM_MENU && Company::IsValidID(_current_company)) {
+	if (_game_mode != GameMode::Menu && Company::IsValidID(_current_company)) {
 		for (Vehicle *v : Vehicle::IterateTypeFrontOnly(type)) {
 			if (v->owner == _current_company && v->IsPrimaryVehicle() && !v->ServiceIntervalIsCustom()) {
 				v->SetServiceInterval(new_value);
@@ -327,17 +329,19 @@ static void UpdateServiceInterval(VehicleType type, int32_t new_value)
 		}
 	}
 
-	SetWindowClassesDirty(WC_VEHICLE_DETAILS);
+	SetWindowClassesDirty(WindowClass::VehicleDetails);
 }
 
 /**
  * Checks if the service intervals in the settings are specified as percentages and corrects the default value accordingly.
- * @param new_value Contains the service interval's default value in days, or 50 (default in percentage).
+ * @param sd The current setting.
+ * @param type The vehicle's type.
+ * @return The appropriate service interval.
  */
 static int32_t GetDefaultServiceInterval(const IntSettingDesc &sd, VehicleType type)
 {
 	VehicleDefaultSettings *vds;
-	if (_game_mode == GM_MENU || !Company::IsValidID(_current_company)) {
+	if (_game_mode == GameMode::Menu || !Company::IsValidID(_current_company)) {
 		vds = &_settings_client.company.vehicle;
 	} else {
 		vds = &Company::Get(_current_company)->settings.vehicle;
@@ -345,12 +349,12 @@ static int32_t GetDefaultServiceInterval(const IntSettingDesc &sd, VehicleType t
 
 	if (vds->servint_ispercent) return DEF_SERVINT_PERCENT;
 
-	if (EconTime::UsingWallclockUnits((_game_mode == GM_MENU))) {
+	if (EconTime::UsingWallclockUnits((_game_mode == GameMode::Menu))) {
 		switch (type) {
-			case VEH_TRAIN:    return DEF_SERVINT_MINUTES_TRAINS;
-			case VEH_ROAD:     return DEF_SERVINT_MINUTES_ROADVEH;
-			case VEH_AIRCRAFT: return DEF_SERVINT_MINUTES_AIRCRAFT;
-			case VEH_SHIP:     return DEF_SERVINT_MINUTES_SHIPS;
+			case VehicleType::Train: return DEF_SERVINT_MINUTES_TRAINS;
+			case VehicleType::Road: return DEF_SERVINT_MINUTES_ROADVEH;
+			case VehicleType::Aircraft: return DEF_SERVINT_MINUTES_AIRCRAFT;
+			case VehicleType::Ship: return DEF_SERVINT_MINUTES_SHIPS;
 			default: NOT_REACHED();
 		}
 	}
@@ -365,19 +369,19 @@ static int32_t GetDefaultServiceInterval(const IntSettingDesc &sd, VehicleType t
 static void ChangeTimekeepingUnits(int32_t)
 {
 	/* If service intervals are in time units (calendar days or real-world minutes), reset them to the correct defaults if not already in a game. */
-	if (!_settings_client.company.vehicle.servint_ispercent && _game_mode != GM_NORMAL) {
+	if (!_settings_client.company.vehicle.servint_ispercent && _game_mode != GameMode::Normal) {
 		UpdateAllServiceInterval(0);
 	}
 
 	/* If we are using calendar timekeeping, "minutes per year" must be default. */
-	if (_game_mode == GM_MENU && !EconTime::UsingWallclockUnits(true)) {
+	if (_game_mode == GameMode::Menu && !EconTime::UsingWallclockUnits(true)) {
 		_settings_newgame.economy.minutes_per_calendar_year = CalTime::DEF_MINUTES_PER_YEAR;
 	}
 
-	InvalidateWindowClassesData(WC_GAME_OPTIONS, 0);
+	InvalidateWindowClassesData(WindowClass::GameOptions, 0);
 
 	/* It is possible to change these units in-game. We must set the economy date appropriately. */
-	if (_game_mode != GM_MENU) {
+	if (_game_mode != GameMode::Menu) {
 		/* Update effective day length before setting dates, so that the state ticks offset is calculated correctly */
 		UpdateEffectiveDayLengthFactor();
 
@@ -406,14 +410,14 @@ static void ChangeTimekeepingUnits(int32_t)
 	}
 
 	UpdateTimeSettings(0);
-	CloseWindowByClass(WC_PAYMENT_RATES);
-	CloseWindowByClass(WC_COMPANY_VALUE);
-	CloseWindowByClass(WC_PERFORMANCE_HISTORY);
-	CloseWindowByClass(WC_DELIVERED_CARGO);
-	CloseWindowByClass(WC_OPERATING_PROFIT);
-	CloseWindowByClass(WC_INCOME_GRAPH);
-	CloseWindowByClass(WC_STATION_CARGO);
-	CloseWindowByClass(WC_INDUSTRY_PRODUCTION);
+	CloseWindowByClass(WindowClass::CargoPaymentRatesGraph);
+	CloseWindowByClass(WindowClass::CompanyValueGraph);
+	CloseWindowByClass(WindowClass::PerformanceGraph);
+	CloseWindowByClass(WindowClass::DeliveredCargoGraph);
+	CloseWindowByClass(WindowClass::OperatingProfitGraph);
+	CloseWindowByClass(WindowClass::IncomeGraph);
+	CloseWindowByClass(WindowClass::StationCargoGraph);
+	CloseWindowByClass(WindowClass::IndustryProductionGraph);
 }
 
 /**
@@ -434,7 +438,7 @@ static void ChangeMinutesPerYear(int32_t new_value)
 		}
 
 		/* Override the setting with the clamped value. */
-		if (_game_mode == GM_MENU) {
+		if (_game_mode == GameMode::Menu) {
 			_settings_newgame.economy.minutes_per_calendar_year = clamped;
 		} else {
 			_settings_game.economy.minutes_per_calendar_year = clamped;
@@ -442,15 +446,15 @@ static void ChangeMinutesPerYear(int32_t new_value)
 	}
 
 	UpdateEffectiveDayLengthFactor();
-	InvalidateWindowClassesData(WC_DEPARTURES_BOARD, 1);
+	InvalidateWindowClassesData(WindowClass::DepartureBoard, 1);
 
 	/* If the setting value is not the default, force the game to use wallclock timekeeping units.
 	 * This can only happen in the menu, since the pre_cb ensures this setting can only be changed there, or if we're already using wallclock units.
 	 */
-	if (_game_mode == GM_MENU && (_settings_newgame.economy.minutes_per_calendar_year != CalTime::DEF_MINUTES_PER_YEAR)) {
-		if (_settings_newgame.economy.timekeeping_units != TKU_WALLCLOCK) {
-			_settings_newgame.economy.timekeeping_units = TKU_WALLCLOCK;
-			ChangeTimekeepingUnits(TKU_WALLCLOCK);
+	if (_game_mode == GameMode::Menu && (_settings_newgame.economy.minutes_per_calendar_year != CalTime::DEF_MINUTES_PER_YEAR)) {
+		if (_settings_newgame.economy.timekeeping_units != TimekeepingUnits::Wallclock) {
+			_settings_newgame.economy.timekeeping_units = TimekeepingUnits::Wallclock;
+			ChangeTimekeepingUnits(0);
 		}
 	}
 }
@@ -458,7 +462,7 @@ static void ChangeMinutesPerYear(int32_t new_value)
 static std::pair<int32_t, uint32_t> GetServiceIntervalRange(const IntSettingDesc &)
 {
 	VehicleDefaultSettings *vds;
-	if (_game_mode == GM_MENU || !Company::IsValidID(_current_company)) {
+	if (_game_mode == GameMode::Menu || !Company::IsValidID(_current_company)) {
 		vds = &_settings_client.company.vehicle;
 	} else {
 		vds = &Company::Get(_current_company)->settings.vehicle;
@@ -466,7 +470,7 @@ static std::pair<int32_t, uint32_t> GetServiceIntervalRange(const IntSettingDesc
 
 	if (vds->servint_ispercent) return { MIN_SERVINT_PERCENT, MAX_SERVINT_PERCENT };
 
-	if (EconTime::UsingWallclockUnits(_game_mode == GM_MENU)) {
+	if (EconTime::UsingWallclockUnits(_game_mode == GameMode::Menu)) {
 		return { MIN_SERVINT_MINUTES, MAX_SERVINT_MINUTES };
 	}
 
@@ -487,23 +491,23 @@ static void TrainAccelerationModelChanged(int32_t new_value)
 	AfterLoadTemplateVehiclesUpdateProperties();
 
 	/* These windows show acceleration values only when realistic acceleration is on. They must be redrawn after a setting change. */
-	SetWindowClassesDirty(WC_ENGINE_PREVIEW);
-	InvalidateWindowClassesData(WC_BUILD_VEHICLE, 0);
-	InvalidateWindowClassesData(WC_BUILD_VIRTUAL_TRAIN, 0);
-	SetWindowClassesDirty(WC_VEHICLE_DETAILS);
-	SetWindowClassesDirty(WC_TEMPLATEGUI_MAIN);
-	SetWindowClassesDirty(WC_CREATE_TEMPLATE);
+	SetWindowClassesDirty(WindowClass::EnginePreview);
+	InvalidateWindowClassesData(WindowClass::BuildVehicle, 0);
+	InvalidateWindowClassesData(WindowClass::BuildVirtualTrain, 0);
+	SetWindowClassesDirty(WindowClass::VehicleDetails);
+	SetWindowClassesDirty(WindowClass::TemplateReplacementGuiMain);
+	SetWindowClassesDirty(WindowClass::TemplateReplacementCreateTemplate);
 }
 
 static bool CheckTrainBrakingModelChange(int32_t &new_value)
 {
-	if (new_value == TBM_REALISTIC && (_game_mode == GM_NORMAL || _game_mode == GM_EDITOR)) {
+	if (new_value == TBM_REALISTIC && (_game_mode == GameMode::Normal || _game_mode == GameMode::Editor)) {
 		for (TileIndex t(0); t < Map::Size(); t++) {
-			if (IsTileType(t, MP_RAILWAY) && GetRailTileType(t) == RailTileType::Signals) {
+			if (IsTileType(t, TileType::Railway) && GetRailTileType(t) == RailTileType::Signals) {
 				uint signals = GetPresentSignals(t);
 				if ((signals & 0x3) & ((signals & 0x3) - 1) || (signals & 0xC) & ((signals & 0xC) - 1)) {
 					/* Signals in both directions */
-					ShowErrorMessage(GetEncodedString(STR_CONFIG_SETTING_REALISTIC_BRAKING_SIGNALS_NOT_ALLOWED), {}, WL_ERROR);
+					ShowErrorMessage(GetEncodedString(STR_CONFIG_SETTING_REALISTIC_BRAKING_SIGNALS_NOT_ALLOWED), {}, WarningLevel::Error);
 					ShowExtraViewportWindow(t);
 					SetRedErrorSquare(t);
 					return false;
@@ -511,7 +515,7 @@ static bool CheckTrainBrakingModelChange(int32_t &new_value)
 				if (((signals & 0x3) && IsSignalTypeUnsuitableForRealisticBraking(GetSignalType(t, TRACK_LOWER))) ||
 						((signals & 0xC) && IsSignalTypeUnsuitableForRealisticBraking(GetSignalType(t, TRACK_UPPER)))) {
 					/* Banned signal types present */
-					ShowErrorMessage(GetEncodedString(STR_CONFIG_SETTING_REALISTIC_BRAKING_SIGNALS_NOT_ALLOWED), {}, WL_ERROR);
+					ShowErrorMessage(GetEncodedString(STR_CONFIG_SETTING_REALISTIC_BRAKING_SIGNALS_NOT_ALLOWED), {}, WarningLevel::Error);
 					ShowExtraViewportWindow(t);
 					SetRedErrorSquare(t);
 					return false;
@@ -525,6 +529,8 @@ static bool CheckTrainBrakingModelChange(int32_t &new_value)
 
 static void TrainBrakingModelChanged(int32_t new_value)
 {
+	UpdateRealisticBrakingTypeCache();
+
 	for (Train *t : Train::Iterate()) {
 		if (!t->vehstatus.Test(VehState::Crashed)) {
 			t->crash_anim_pos = 0;
@@ -533,13 +539,13 @@ static void TrainBrakingModelChanged(int32_t new_value)
 			t->UpdateAcceleration();
 		}
 	}
-	if (new_value == TBM_REALISTIC && (_game_mode == GM_NORMAL || _game_mode == GM_EDITOR)) {
+	if (new_value == TBM_REALISTIC && (_game_mode == GameMode::Normal || _game_mode == GameMode::Editor)) {
 		for (TileIndex t(0); t < Map::Size(); t++) {
-			if (IsTileType(t, MP_RAILWAY) && GetRailTileType(t) == RailTileType::Signals) {
+			if (IsTileType(t, TileType::Railway) && GetRailTileType(t) == RailTileType::Signals) {
 				TrackBits bits = GetTrackBits(t);
 				do {
 					Track track = RemoveFirstTrack(&bits);
-					if (HasSignalOnTrack(t, track) && GetSignalType(t, track) == SIGTYPE_BLOCK && HasBit(GetRailReservationTrackBits(t), track)) {
+					if (HasSignalOnTrack(t, track) && GetSignalType(t, track) == SignalType::Block && HasBit(GetRailReservationTrackBits(t), track)) {
 						if (EnsureNoTrainOnTrackBits(t, TrackToTrackBits(track)).Succeeded()) {
 							UnreserveTrack(t, track);
 						}
@@ -553,22 +559,25 @@ static void TrainBrakingModelChanged(int32_t new_value)
 		_long_reserve_disabled = true;
 		for (Train *v : Train::IterateFrontOnly()) {
 			v_cur = v;
-			if (!v->IsPrimaryVehicle() || v->vehstatus.Test(VehState::Crashed) || HasBit(v->subtype, GVSF_VIRTUAL) || v->track == TRACK_BIT_DEPOT) continue;
-			TryPathReserve(v, true, HasStationTileRail(v->tile));
+			Train *moving_front = v->GetMovingFront();
+			if (!v->IsPrimaryVehicle() || v->vehstatus.Test(VehState::Crashed) || HasBit(v->subtype, GVSF_VIRTUAL) || moving_front->track == TRACK_BIT_DEPOT) continue;
+			TryPathReserve(v, true, HasStationTileRail(moving_front->tile));
 		}
 		_long_reserve_disabled = false;
 		for (Train *v : Train::IterateFrontOnly()) {
 			v_cur = v;
-			if (!v->IsPrimaryVehicle() || v->vehstatus.Test(VehState::Crashed) || HasBit(v->subtype, GVSF_VIRTUAL) || v->track == TRACK_BIT_DEPOT) continue;
-			TryPathReserve(v, true, HasStationTileRail(v->tile));
+			Train *moving_front = v->GetMovingFront();
+			if (!v->IsPrimaryVehicle() || v->vehstatus.Test(VehState::Crashed) || HasBit(v->subtype, GVSF_VIRTUAL) || moving_front->track == TRACK_BIT_DEPOT) continue;
+			TryPathReserve(v, true, HasStationTileRail(moving_front->tile));
 			if (v->lookahead != nullptr) v->lookahead->flags.Set(TrainReservationLookAheadFlag::ApplyAdvisory);
 		}
-	} else if (new_value == TBM_ORIGINAL && (_game_mode == GM_NORMAL || _game_mode == GM_EDITOR)) {
+	} else if (new_value == TBM_ORIGINAL && (_game_mode == GameMode::Normal || _game_mode == GameMode::Editor)) {
 		Train *v_cur = nullptr;
 		SCOPE_INFO_FMT([&v_cur], "TrainBrakingModelChanged: {}", VehicleInfoDumper(v_cur));
 		for (Train *v : Train::IterateFrontOnly()) {
 			v_cur = v;
-			if (!v->IsPrimaryVehicle() || v->vehstatus.Test(VehState::Crashed) || HasBit(v->subtype, GVSF_VIRTUAL) || v->track == TRACK_BIT_DEPOT) {
+			Train *moving_front = v->GetMovingFront();
+			if (!v->IsPrimaryVehicle() || v->vehstatus.Test(VehState::Crashed) || HasBit(v->subtype, GVSF_VIRTUAL) || moving_front->track == TRACK_BIT_DEPOT) {
 				v->lookahead.reset();
 				continue;
 			}
@@ -576,7 +585,7 @@ static void TrainBrakingModelChanged(int32_t new_value)
 				_settings_game.vehicle.train_braking_model = TBM_REALISTIC;
 				FreeTrainTrackReservation(v);
 				_settings_game.vehicle.train_braking_model = new_value;
-				TryPathReserve(v, true, HasStationTileRail(v->tile));
+				TryPathReserve(v, true, HasStationTileRail(moving_front->tile));
 			} else {
 				v->lookahead.reset();
 			}
@@ -586,8 +595,8 @@ static void TrainBrakingModelChanged(int32_t new_value)
 	UpdateExtraAspectsVariable();
 	UpdateAllBlockSignals();
 
-	InvalidateWindowData(WC_BUILD_SIGNAL, 0);
-	InvalidateWindowClassesData(WC_GAME_OPTIONS);
+	InvalidateWindowData(WindowClass::BuildSignal, 0);
+	InvalidateWindowClassesData(WindowClass::GameOptions);
 	MarkWholeScreenDirty();
 }
 
@@ -611,22 +620,22 @@ static void TrainSlopeSteepnessChanged(int32_t new_value)
  */
 static void RoadVehAccelerationModelChanged(int32_t new_value)
 {
-	if (_settings_game.vehicle.roadveh_acceleration_model != AM_ORIGINAL) {
+	if (_settings_game.vehicle.roadveh_acceleration_model != AccelerationModel::Original) {
 		for (RoadVehicle *rv : RoadVehicle::IterateFrontOnly()) {
 			rv->CargoChanged();
 		}
 	}
-	if (_settings_game.vehicle.roadveh_acceleration_model == AM_ORIGINAL || !_settings_game.vehicle.improved_breakdowns) {
+	if (_settings_game.vehicle.roadveh_acceleration_model == AccelerationModel::Original || !_settings_game.vehicle.improved_breakdowns) {
 		for (RoadVehicle *rv : RoadVehicle::IterateFrontOnly()) {
 			rv->breakdown_chance_factor = 128;
 		}
 	}
 
 	/* These windows show acceleration values only when realistic acceleration is on. They must be redrawn after a setting change. */
-	SetWindowClassesDirty(WC_ENGINE_PREVIEW);
-	InvalidateWindowClassesData(WC_BUILD_VEHICLE, 0);
-	InvalidateWindowClassesData(WC_BUILD_VIRTUAL_TRAIN, 0);
-	SetWindowClassesDirty(WC_VEHICLE_DETAILS);
+	SetWindowClassesDirty(WindowClass::EnginePreview);
+	InvalidateWindowClassesData(WindowClass::BuildVehicle, 0);
+	InvalidateWindowClassesData(WindowClass::BuildVirtualTrain, 0);
+	SetWindowClassesDirty(WindowClass::VehicleDetails);
 }
 
 /**
@@ -642,27 +651,47 @@ static void RoadVehSlopeSteepnessChanged(int32_t new_value)
 
 static void ProgrammableSignalsShownChanged(int32_t new_value)
 {
-	InvalidateWindowData(WC_BUILD_SIGNAL, 0);
+	InvalidateWindowData(WindowClass::BuildSignal, 0);
+}
+
+
+/**
+ * This function updates the aircraft cache when the aircraft range setting is changed.
+ */
+static void AircraftRangeChanged(int32_t)
+{
+	for (Aircraft *v : Aircraft::Iterate()) {
+		v->acache.cached_max_range = Engine::Get(v->engine_type)->GetRange();
+		v->acache.cached_max_range_sqr = v->acache.cached_max_range * v->acache.cached_max_range;
+
+		/* Reset destination is too far state */
+		if (v->flags.Test(VehicleAirFlag::DestinationTooFar)) {
+			v->flags.Reset(VehicleAirFlag::DestinationTooFar);
+			SetWindowWidgetDirty(WindowClass::VehicleView, v->index, WID_VV_START_STOP);
+			DeleteVehicleNews(v->index, AdviceType::AircraftDestinationTooFar);
+		}
+	}
 }
 
 static void TownFoundingChanged(int32_t new_value)
 {
-	if (_game_mode != GM_EDITOR && _settings_game.economy.found_town == TF_FORBIDDEN) {
-		CloseWindowById(WC_FOUND_TOWN, 0);
+	if (_game_mode != GameMode::Editor && _settings_game.economy.found_town == TownFounding::Forbidden) {
+		CloseWindowById(WindowClass::FoundTown, 0);
 	} else {
-		InvalidateWindowData(WC_FOUND_TOWN, 0);
+		InvalidateWindowData(WindowClass::FoundTown, 0);
 	}
 }
 
 static void InvalidateVehTimetableWindow(int32_t new_value)
 {
-	InvalidateWindowClassesData(WC_VEHICLE_TIMETABLE, VIWD_MODIFY_ORDERS);
-	InvalidateWindowClassesData(WC_SCHDISPATCH_SLOTS, VIWD_MODIFY_ORDERS);
+	InvalidateWindowClassesData(WindowClass::VehicleTimetable, VIWD_MODIFY_ORDERS);
+	InvalidateWindowClassesData(WindowClass::ScheduledDispatchSlots, VIWD_MODIFY_ORDERS);
+	SetWindowClassesDirty(WindowClass::TraceRestrict);
 }
 
 static void ChangeTimetableInTicksMode(int32_t new_value)
 {
-	SetWindowClassesDirty(WC_VEHICLE_ORDERS);
+	SetWindowClassesDirty(WindowClass::VehicleOrders);
 	InvalidateVehTimetableWindow(new_value);
 }
 
@@ -670,16 +699,16 @@ static void UpdateTimeSettings(int32_t new_value)
 {
 	SetupTimeSettings();
 	InvalidateVehTimetableWindow(new_value);
-	InvalidateWindowData(WC_STATUS_BAR, 0, SBI_REINIT);
-	InvalidateWindowClassesData(WC_GAME_OPTIONS);
-	InvalidateWindowClassesData(WC_DEPARTURES_BOARD, 1);
-	InvalidateWindowClassesData(WC_PAYMENT_RATES);
+	InvalidateWindowData(WindowClass::Statusbar, 0, SBI_REINIT);
+	InvalidateWindowClassesData(WindowClass::GameOptions);
+	InvalidateWindowClassesData(WindowClass::DepartureBoard, 1);
+	InvalidateWindowClassesData(WindowClass::CargoPaymentRatesGraph);
 	MarkWholeScreenDirty();
 }
 
 static void ChangeTimeOverrideMode(int32_t new_value)
 {
-	InvalidateWindowClassesData(WC_GAME_OPTIONS);
+	InvalidateWindowClassesData(WindowClass::GameOptions);
 	UpdateTimeSettings(new_value);
 }
 
@@ -689,7 +718,7 @@ static void ZoomMinMaxChanged(int32_t new_value)
 	extern void UpdateFontHeightCache();
 	ConstrainAllViewportsZoom();
 	GfxClearSpriteCache();
-	InvalidateWindowClassesData(WC_SPRITE_ALIGNER);
+	InvalidateWindowClassesData(WindowClass::SpriteAligner);
 	if (AdjustGUIZoom(AGZM_MANUAL)) {
 		ReInitAllWindows(false);
 	}
@@ -721,14 +750,14 @@ static void PlanDisplayModeChanged(int32_t new_value)
  */
 static void InvalidateNewGRFChangeWindows(int32_t new_value)
 {
-	InvalidateWindowClassesData(WC_SAVELOAD);
-	CloseWindowByClass(WC_GAME_OPTIONS);
+	InvalidateWindowClassesData(WindowClass::SaveLoad);
+	CloseWindowByClass(WindowClass::GameOptions);
 	ReInitAllWindows(false);
 }
 
 static void InvalidateCompanyLiveryWindow(int32_t new_value)
 {
-	InvalidateWindowClassesData(WC_COMPANY_COLOUR, -1);
+	InvalidateWindowClassesData(WindowClass::CompanyLivery, -1);
 	ResetVehicleColourMap();
 	MarkWholeScreenDirty();
 }
@@ -794,17 +823,17 @@ static void ScriptMaxMemoryChange(int32_t new_value)
  */
 static void InvalidateCompanyWindow(int32_t new_value)
 {
-	InvalidateWindowClassesData(WC_COMPANY);
-	InvalidateWindowClassesData(WC_GAME_OPTIONS);
+	InvalidateWindowClassesData(WindowClass::Company);
+	InvalidateWindowClassesData(WindowClass::GameOptions);
 }
 
 static void EnableSingleVehSharedOrderGuiChanged(int32_t new_value)
 {
-	for (VehicleType type = VEH_BEGIN; type < VEH_COMPANY_END; type++) {
+	for (VehicleType type = VehicleType::Begin; type < VehicleType::CompanyEnd; type++) {
 		InvalidateWindowClassesData(GetWindowClassForVehicleType(type));
 	}
-	SetWindowClassesDirty(WC_VEHICLE_TIMETABLE);
-	InvalidateWindowClassesData(WC_VEHICLE_ORDERS);
+	SetWindowClassesDirty(WindowClass::VehicleTimetable);
+	InvalidateWindowClassesData(WindowClass::VehicleOrders);
 }
 
 static void CheckYapfRailSignalPenalties(int32_t new_value)
@@ -824,8 +853,8 @@ static void ViewportMapShowTunnelModeChanged(int32_t new_value)
 
 static void ShowVehicleRouteModeChanged(int32_t new_value)
 {
-	InvalidateWindowClassesData(WC_GAME_OPTIONS);
-	InvalidateWindowClassesData(WC_VEHICLE_VIEW, VIWD_ROUTE_OVERLAY);
+	InvalidateWindowClassesData(WindowClass::GameOptions);
+	InvalidateWindowClassesData(WindowClass::VehicleView, VIWD_ROUTE_OVERLAY);
 	MarkWholeScreenDirty();
 }
 
@@ -852,14 +881,14 @@ static void UpdateLinkgraphColours(int32_t new_value)
 
 static void ClimateThresholdModeChanged(int32_t new_value)
 {
-	InvalidateWindowClassesData(WC_GENERATE_LANDSCAPE);
-	InvalidateWindowClassesData(WC_GAME_OPTIONS);
+	InvalidateWindowClassesData(WindowClass::GenerateLandscape);
+	InvalidateWindowClassesData(WindowClass::GameOptions);
 }
 
 static void VelocityUnitsChanged(int32_t new_value)
 {
-	InvalidateWindowClassesData(WC_PAYMENT_RATES);
-	InvalidateWindowClassesData(WC_TRACE_RESTRICT);
+	InvalidateWindowClassesData(WindowClass::CargoPaymentRatesGraph);
+	InvalidateWindowClassesData(WindowClass::TraceRestrict);
 	MarkWholeScreenDirty();
 }
 
@@ -884,7 +913,7 @@ static void TrainSpeedAdaptationChanged(int32_t new_value)
 	for (Train *t : Train::Iterate()) {
 		t->signal_speed_restriction = 0;
 	}
-	SetWindowClassesDirty(WC_VEHICLE_DETAILS);
+	SetWindowClassesDirty(WindowClass::VehicleDetails);
 }
 
 static void EngineLifetimeSettingsChanged(int32_t new_value)
@@ -896,7 +925,7 @@ static void AutosaveModeChanged(int32_t new_value)
 {
 	extern void ChangeAutosaveFrequency(bool reset);
 	ChangeAutosaveFrequency(false);
-	InvalidateWindowClassesData(WC_GAME_OPTIONS);
+	InvalidateWindowClassesData(WindowClass::GameOptions);
 }
 
 static bool TownCouncilToleranceAdjust(int32_t &new_value)
@@ -907,27 +936,27 @@ static bool TownCouncilToleranceAdjust(int32_t &new_value)
 
 static void DifficultyNoiseChange(int32_t new_value)
 {
-	if (_game_mode == GM_NORMAL) {
+	if (_game_mode == GameMode::Normal) {
 		UpdateAirportsNoise();
 		if (_settings_game.economy.station_noise_level) {
-			InvalidateWindowClassesData(WC_TOWN_VIEW, 0);
+			InvalidateWindowClassesData(WindowClass::TownView, 0);
 		}
 	}
 }
 
 static void DifficultyMoneyCheatMultiplayerChange(int32_t new_value)
 {
-	CloseWindowById(WC_CHEATS, 0);
+	CloseWindowById(WindowClass::Cheat, 0);
 }
 
 static void DifficultyRenameTownsMultiplayerChange(int32_t new_value)
 {
-	SetWindowClassesDirty(WC_TOWN_VIEW);
+	SetWindowClassesDirty(WindowClass::TownView);
 }
 
 static void DifficultyOverrideTownSettingsMultiplayerChange(int32_t new_value)
 {
-	SetWindowClassesDirty(WC_TOWN_AUTHORITY);
+	SetWindowClassesDirty(WindowClass::TownAuthority);
 }
 
 static void MaxNoAIsChange(int32_t new_value)
@@ -935,10 +964,10 @@ static void MaxNoAIsChange(int32_t new_value)
 	if (GetGameSettings().difficulty.max_no_competitors != 0 &&
 			AI::GetInfoList()->size() == 0 &&
 			!IsNonAdminNetworkClient()) {
-		ShowErrorMessage(GetEncodedString(STR_WARNING_NO_SUITABLE_AI), {}, WL_CRITICAL);
+		ShowErrorMessage(GetEncodedString(STR_WARNING_NO_SUITABLE_AI), {}, WarningLevel::Critical);
 	}
 
-	InvalidateWindowClassesData(WC_GAME_OPTIONS, 0);
+	InvalidateWindowClassesData(WindowClass::GameOptions, 0);
 }
 
 /**
@@ -949,7 +978,7 @@ static void MaxNoAIsChange(int32_t new_value)
 static bool CheckRoadSide(int32_t &new_value)
 {
 	extern bool RoadVehiclesExistOutsideDepots();
-	return (_game_mode == GM_MENU || !RoadVehiclesExistOutsideDepots());
+	return (_game_mode == GameMode::Menu || !RoadVehiclesExistOutsideDepots());
 }
 
 static void RoadSideChanged(int32_t new_value)
@@ -974,44 +1003,44 @@ static std::optional<uint32_t> ConvertLandscape(std::string_view value)
 
 static bool CheckFreeformEdges(int32_t &new_value)
 {
-	if (_game_mode == GM_MENU) return true;
+	if (_game_mode == GameMode::Menu) return true;
 	if (new_value != 0) {
 		for (Ship *s : Ship::Iterate()) {
 			/* Check if there is a ship on the northern border. */
 			if (TileX(s->tile) == 0 || TileY(s->tile) == 0) {
-				ShowErrorMessage(GetEncodedString(STR_CONFIG_SETTING_EDGES_NOT_EMPTY), {}, WL_ERROR);
+				ShowErrorMessage(GetEncodedString(STR_CONFIG_SETTING_EDGES_NOT_EMPTY), {}, WarningLevel::Error);
 				return false;
 			}
 		}
 		for (const BaseStation *st : BaseStation::Iterate()) {
 			/* Check if there is a non-deleted buoy on the northern border. */
 			if (st->IsInUse() && (TileX(st->xy) == 0 || TileY(st->xy) == 0)) {
-				ShowErrorMessage(GetEncodedString(STR_CONFIG_SETTING_EDGES_NOT_EMPTY), {}, WL_ERROR);
+				ShowErrorMessage(GetEncodedString(STR_CONFIG_SETTING_EDGES_NOT_EMPTY), {}, WarningLevel::Error);
 				return false;
 			}
 		}
 	} else {
 		for (uint i = 0; i < Map::MaxX(); i++) {
 			if (TileHeight(TileXY(i, 1)) != 0) {
-				ShowErrorMessage(GetEncodedString(STR_CONFIG_SETTING_EDGES_NOT_WATER), {}, WL_ERROR);
+				ShowErrorMessage(GetEncodedString(STR_CONFIG_SETTING_EDGES_NOT_WATER), {}, WarningLevel::Error);
 				return false;
 			}
 		}
 		for (uint i = 1; i < Map::MaxX(); i++) {
-			if (!IsTileType(TileXY(i, Map::MaxY() - 1), MP_WATER) || TileHeight(TileXY(1, Map::MaxY())) != 0) {
-				ShowErrorMessage(GetEncodedString(STR_CONFIG_SETTING_EDGES_NOT_WATER), {}, WL_ERROR);
+			if (!IsTileType(TileXY(i, Map::MaxY() - 1), TileType::Water) || TileHeight(TileXY(1, Map::MaxY())) != 0) {
+				ShowErrorMessage(GetEncodedString(STR_CONFIG_SETTING_EDGES_NOT_WATER), {}, WarningLevel::Error);
 				return false;
 			}
 		}
 		for (uint i = 0; i < Map::MaxY(); i++) {
 			if (TileHeight(TileXY(1, i)) != 0) {
-				ShowErrorMessage(GetEncodedString(STR_CONFIG_SETTING_EDGES_NOT_WATER), {}, WL_ERROR);
+				ShowErrorMessage(GetEncodedString(STR_CONFIG_SETTING_EDGES_NOT_WATER), {}, WarningLevel::Error);
 				return false;
 			}
 		}
 		for (uint i = 1; i < Map::MaxY(); i++) {
-			if (!IsTileType(TileXY(Map::MaxX() - 1, i), MP_WATER) || TileHeight(TileXY(Map::MaxX(), i)) != 0) {
-				ShowErrorMessage(GetEncodedString(STR_CONFIG_SETTING_EDGES_NOT_WATER), {}, WL_ERROR);
+			if (!IsTileType(TileXY(Map::MaxX() - 1, i), TileType::Water) || TileHeight(TileXY(Map::MaxX(), i)) != 0) {
+				ShowErrorMessage(GetEncodedString(STR_CONFIG_SETTING_EDGES_NOT_WATER), {}, WarningLevel::Error);
 				return false;
 			}
 		}
@@ -1021,7 +1050,7 @@ static bool CheckFreeformEdges(int32_t &new_value)
 
 static void UpdateFreeformEdges(int32_t new_value)
 {
-	if (_game_mode == GM_MENU) return;
+	if (_game_mode == GameMode::Menu) return;
 
 	if (new_value != 0) {
 		for (uint x = 0; x < Map::SizeX(); x++) MakeVoid(TileXY(x, 0));
@@ -1050,7 +1079,7 @@ bool CheckMapEdgesAreWater(bool allow_non_flat_void)
 		Slope slope;
 		std::tie(slope, h) = GetTilePixelSlopeOutsideMap(x, y);
 		if (slope == SLOPE_FLAT && h == 0) return true;
-		if (allow_non_flat_void && h == 0 && (slope & inner_edge) == 0 && IsTileType(TileXY(x, y), MP_VOID)) return true;
+		if (allow_non_flat_void && h == 0 && (slope & inner_edge) == 0 && IsTileType(TileXY(x, y), TileType::Void)) return true;
 		return false;
 	};
 	check_tile(        0,         0, SLOPE_S);
@@ -1072,10 +1101,10 @@ bool CheckMapEdgesAreWater(bool allow_non_flat_void)
 
 static bool CheckMapEdgeMode(int32_t &new_value)
 {
-	if (_game_mode == GM_MENU || !_settings_game.construction.freeform_edges || new_value == 0) return true;
+	if (_game_mode == GameMode::Menu || !_settings_game.construction.freeform_edges || new_value == 0) return true;
 
 	if (!CheckMapEdgesAreWater(true)) {
-		ShowErrorMessage(GetEncodedString(STR_CONFIG_SETTING_EDGES_NOT_WATER), {}, WL_ERROR);
+		ShowErrorMessage(GetEncodedString(STR_CONFIG_SETTING_EDGES_NOT_WATER), {}, WarningLevel::Error);
 		return false;
 	}
 
@@ -1085,9 +1114,9 @@ static bool CheckMapEdgeMode(int32_t &new_value)
 static void MapEdgeModeChanged(int32_t new_value)
 {
 	MarkAllViewportsDirty(new_value);
-	SetWindowClassesDirty(WC_SMALLMAP);
+	SetWindowClassesDirty(WindowClass::SmallMap);
 
-	if (_game_mode == GM_MENU || !_settings_game.construction.freeform_edges || new_value == 0) return;
+	if (_game_mode == GameMode::Menu || !_settings_game.construction.freeform_edges || new_value == 0) return;
 
 	for (uint x = 0; x <= Map::MaxX(); x++) {
 		SetTileHeight(TileXY(x, 0), 0);
@@ -1102,13 +1131,14 @@ static void MapEdgeModeChanged(int32_t new_value)
 /**
  * Changing the setting "allow multiple NewGRF sets" is not allowed
  * if there are vehicles.
+ * @copydoc IntSettingDesc::PreChangeCheck
  */
 static bool CheckDynamicEngines(int32_t &new_value)
 {
-	if (_game_mode == GM_MENU) return true;
+	if (_game_mode == GameMode::Menu) return true;
 
 	if (!EngineOverrideManager::ResetToCurrentNewGRFConfig()) {
-		ShowErrorMessage(GetEncodedString(STR_CONFIG_SETTING_DYNAMIC_ENGINES_EXISTING_VEHICLES), {}, WL_ERROR);
+		ShowErrorMessage(GetEncodedString(STR_CONFIG_SETTING_DYNAMIC_ENGINES_EXISTING_VEHICLES), {}, WarningLevel::Error);
 		return false;
 	}
 
@@ -1117,14 +1147,14 @@ static bool CheckDynamicEngines(int32_t &new_value)
 
 static bool CheckMaxHeightLevel(int32_t &new_value)
 {
-	if (_game_mode == GM_NORMAL) return false;
-	if (_game_mode != GM_EDITOR) return true;
+	if (_game_mode == GameMode::Normal) return false;
+	if (_game_mode != GameMode::Editor) return true;
 
 	/* Check if at least one mountain on the map is higher than the new value.
 	 * If yes, disallow the change. */
 	for (TileIndex t(0); t < Map::Size(); t++) {
 		if ((int32_t)TileHeight(t) > new_value) {
-			ShowErrorMessage(GetEncodedString(STR_CONFIG_SETTING_TOO_HIGH_MOUNTAIN), {}, WL_ERROR);
+			ShowErrorMessage(GetEncodedString(STR_CONFIG_SETTING_TOO_HIGH_MOUNTAIN), {}, WarningLevel::Error);
 			/* Return old, unchanged value */
 			return false;
 		}
@@ -1142,7 +1172,7 @@ static void StationCatchmentChanged(int32_t new_value)
 
 static bool CheckSharingRail(int32_t &new_value)
 {
-	return CheckSharingChangePossible(VEH_TRAIN, new_value);
+	return CheckSharingChangePossible(VehicleType::Train, new_value);
 }
 
 static void SharingRailChanged(int32_t new_value)
@@ -1152,22 +1182,22 @@ static void SharingRailChanged(int32_t new_value)
 
 static bool CheckSharingRoad(int32_t &new_value)
 {
-	return CheckSharingChangePossible(VEH_ROAD, new_value);
+	return CheckSharingChangePossible(VehicleType::Road, new_value);
 }
 
 static bool CheckSharingWater(int32_t &new_value)
 {
-	return CheckSharingChangePossible(VEH_SHIP, new_value);
+	return CheckSharingChangePossible(VehicleType::Ship, new_value);
 }
 
 static bool CheckSharingAir(int32_t &new_value)
 {
-	return CheckSharingChangePossible(VEH_AIRCRAFT, new_value);
+	return CheckSharingChangePossible(VehicleType::Aircraft, new_value);
 }
 
 static void MaxVehiclesChanged(int32_t new_value)
 {
-	InvalidateWindowClassesData(WC_BUILD_TOOLBAR);
+	InvalidateWindowClassesData(WindowClass::BuildToolbar);
 	MarkWholeScreenDirty();
 }
 
@@ -1177,14 +1207,14 @@ static void ImprovedBreakdownsSettingChanged(int32_t new_value)
 
 	for (Vehicle *v : Vehicle::IterateFrontOnly()) {
 		switch (v->type) {
-			case VEH_TRAIN:
+			case VehicleType::Train:
 				if (v->IsFrontEngine()) {
 					v->breakdown_chance_factor = 128;
 					Train::From(v)->UpdateAcceleration();
 				}
 				break;
 
-			case VEH_ROAD:
+			case VehicleType::Road:
 				if (v->IsFrontEngine()) {
 					v->breakdown_chance_factor = 128;
 				}
@@ -1206,12 +1236,12 @@ static void DayLengthChanged(int32_t new_value)
 
 static void IndustryEventRateChanged(int32_t new_value)
 {
-	if (_game_mode != GM_MENU) StartupIndustryDailyChanges(false);
+	if (_game_mode != GameMode::Menu) StartupIndustryDailyChanges(false);
 }
 
 static void DefaultAllowTownGrowthChanged(int32_t new_value)
 {
-	if (_game_mode != GM_MENU) {
+	if (_game_mode != GameMode::Menu) {
 		extern void UpdateTownGrowthForAllTowns();
 		UpdateTownGrowthForAllTowns();
 	}
@@ -1219,7 +1249,7 @@ static void DefaultAllowTownGrowthChanged(int32_t new_value)
 
 static void TownZoneModeChanged(int32_t new_value)
 {
-	InvalidateWindowClassesData(WC_GAME_OPTIONS);
+	InvalidateWindowClassesData(WindowClass::GameOptions);
 	UpdateTownRadii();
 }
 
@@ -1232,7 +1262,7 @@ static bool CheckTTDPatchSettingFlag(uint flag)
 {
 	extern bool HasTTDPatchFlagBeenObserved(uint flag);
 	if (_networking && HasTTDPatchFlagBeenObserved(flag)) {
-		ShowErrorMessage(GetEncodedString(STR_CONFIG_SETTING_NETWORK_CHANGE_NOT_ALLOWED), GetEncodedString(STR_CONFIG_SETTING_NETWORK_CHANGE_NOT_ALLOWED_NEWGRF), WL_ERROR);
+		ShowErrorMessage(GetEncodedString(STR_CONFIG_SETTING_NETWORK_CHANGE_NOT_ALLOWED), GetEncodedString(STR_CONFIG_SETTING_NETWORK_CHANGE_NOT_ALLOWED_NEWGRF), WarningLevel::Error);
 		return false;
 	}
 
@@ -1287,7 +1317,7 @@ static void UpdateClientConfigValues()
 {
 	NetworkServerUpdateGameInfo();
 
-	InvalidateWindowData(WC_CLIENT_LIST, 0);
+	InvalidateWindowData(WindowClass::NetworkClientList, 0);
 
 	if (_network_server) {
 		NetworkServerSendConfigUpdate();
@@ -1432,14 +1462,14 @@ static bool IndustryCargoScaleGUI(SettingOnGuiCtrlData &data)
 
 static std::pair<StringParameter, StringParameter> CalendarModeDisabledValueText(const IntSettingDesc &sd, int32_t value)
 {
-	return {EconTime::UsingWallclockUnits(_game_mode == GM_MENU) ? sd.str_val : STR_CONFIG_SETTING_DISABLED_TIMEKEEPING_MODE_CALENDAR, value};
+	return {EconTime::UsingWallclockUnits(_game_mode == GameMode::Menu) ? sd.str_val : STR_CONFIG_SETTING_DISABLED_TIMEKEEPING_MODE_CALENDAR, value};
 }
 
 static bool CalendarModeDisabledGUI(SettingOnGuiCtrlData &data)
 {
 	switch (data.type) {
 		case SOGCT_GUI_DISABLE:
-			if (!EconTime::UsingWallclockUnits(_game_mode == GM_MENU)) data.val = 1;
+			if (!EconTime::UsingWallclockUnits(_game_mode == GameMode::Menu)) data.val = 1;
 			return true;
 
 		default:
@@ -1449,14 +1479,14 @@ static bool CalendarModeDisabledGUI(SettingOnGuiCtrlData &data)
 
 [[maybe_unused]] static std::pair<StringParameter, StringParameter> WallclockModeDisabledDropDownText(const IntSettingDesc &sd, int32_t value)
 {
-	return {EconTime::UsingWallclockUnits(_game_mode == GM_MENU) ? STR_CONFIG_SETTING_DISABLED_TIMEKEEPING_MODE_WALLCLOCK : sd.str_val + value, std::monostate{}};
+	return {EconTime::UsingWallclockUnits(_game_mode == GameMode::Menu) ? STR_CONFIG_SETTING_DISABLED_TIMEKEEPING_MODE_WALLCLOCK : sd.str_val + value, std::monostate{}};
 }
 
 [[maybe_unused]] static bool WallclockModeDisabledGUI(SettingOnGuiCtrlData &data)
 {
 	switch (data.type) {
 		case SOGCT_GUI_DISABLE:
-			if (EconTime::UsingWallclockUnits(_game_mode == GM_MENU)) data.val = 1;
+			if (EconTime::UsingWallclockUnits(_game_mode == GameMode::Menu)) data.val = 1;
 			return true;
 
 		default:

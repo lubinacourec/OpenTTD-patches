@@ -12,7 +12,7 @@
 #include "../newgrf.h"
 #include "../newgrf_text.h"
 #include "../newgrf_text_type.h"
-#include "../strings_type.h"
+#include "../strings_id_type.h"
 #include "newgrf_internal.h"
 #include "newgrf_stringmapping.h"
 
@@ -151,7 +151,7 @@ StringID MapGRFStringIDCommon(T grfid, GRFStringID str)
 	}
 }
 
-StringID MapGRFStringID(uint32_t grfid, GRFStringID str)
+StringID MapGRFStringID(GrfID grfid, GRFStringID str)
 {
 	return MapGRFStringIDCommon(grfid, str);
 }

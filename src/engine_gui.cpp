@@ -45,11 +45,13 @@ StringID GetEngineCategoryName(EngineID engine)
 	const Engine *e = Engine::Get(engine);
 	switch (e->type) {
 		default: NOT_REACHED();
-		case VEH_ROAD:
+		case VehicleType::Road:
 			return GetRoadTypeInfo(e->VehInfo<RoadVehicleInfo>().roadtype)->strings.new_engine;
-		case VEH_AIRCRAFT:          return STR_ENGINE_PREVIEW_AIRCRAFT;
-		case VEH_SHIP:              return STR_ENGINE_PREVIEW_SHIP;
-		case VEH_TRAIN:
+		case VehicleType::Aircraft:
+			return STR_ENGINE_PREVIEW_AIRCRAFT;
+		case VehicleType::Ship:
+			return STR_ENGINE_PREVIEW_SHIP;
+		case VehicleType::Train:
 			assert(e->VehInfo<RailVehicleInfo>().railtypes.Any());
 			return GetRailTypeInfo(e->VehInfo<RailVehicleInfo>().railtypes.GetNthSetBit(0).value())->strings.new_loco;
 	}
@@ -57,22 +59,22 @@ StringID GetEngineCategoryName(EngineID engine)
 
 static constexpr std::initializer_list<NWidgetPart> _nested_engine_preview_widgets = {
 	NWidget(NWID_HORIZONTAL),
-		NWidget(WWT_CLOSEBOX, COLOUR_LIGHT_BLUE),
-		NWidget(WWT_CAPTION, COLOUR_LIGHT_BLUE, WID_EP_CAPTION), SetToolTip(STR_TOOLTIP_WINDOW_TITLE_DRAG_THIS),
+		NWidget(WWT_CLOSEBOX, Colours::LightBlue),
+		NWidget(WWT_CAPTION, Colours::LightBlue, WID_EP_CAPTION), SetToolTip(STR_TOOLTIP_WINDOW_TITLE_DRAG_THIS),
 	EndContainer(),
-	NWidget(WWT_PANEL, COLOUR_LIGHT_BLUE),
+	NWidget(WWT_PANEL, Colours::LightBlue),
 		NWidget(NWID_VERTICAL), SetPIP(0, WidgetDimensions::unscaled.vsep_wide, 0), SetPadding(WidgetDimensions::unscaled.modalpopup),
-			NWidget(WWT_EMPTY, INVALID_COLOUR, WID_EP_QUESTION), SetMinimalSize(300, 0), SetFill(1, 0),
+			NWidget(WWT_EMPTY, Colours::Invalid, WID_EP_QUESTION), SetMinimalSize(300, 0), SetFill(1, 0),
 			NWidget(NWID_HORIZONTAL, NWidContainerFlag::EqualSize), SetPIP(85, WidgetDimensions::unscaled.hsep_wide, 85),
-				NWidget(WWT_PUSHTXTBTN, COLOUR_LIGHT_BLUE, WID_EP_NO), SetStringTip(STR_QUIT_NO), SetFill(1, 0),
-				NWidget(WWT_PUSHTXTBTN, COLOUR_LIGHT_BLUE, WID_EP_YES), SetStringTip(STR_QUIT_YES), SetFill(1, 0),
+				NWidget(WWT_PUSHTXTBTN, Colours::LightBlue, WID_EP_NO), SetStringTip(STR_QUIT_NO), SetFill(1, 0),
+				NWidget(WWT_PUSHTXTBTN, Colours::LightBlue, WID_EP_YES), SetStringTip(STR_QUIT_YES), SetFill(1, 0),
 			EndContainer(),
 		EndContainer(),
 	EndContainer(),
 	NWidget(NWID_HORIZONTAL),
-		NWidget(WWT_PUSHTXTBTN, COLOUR_LIGHT_BLUE, WID_EP_PREV), SetStringTip(STR_ENGINE_PREVIEW_PREVIOUS, STR_ENGINE_PREVIEW_PREVIOUS_TOOLTIP), SetFill(1, 0),
-		NWidget(WWT_DROPDOWN, COLOUR_LIGHT_BLUE, WID_EP_LIST), SetToolTip(STR_ENGINE_PREVIEW_ENGINE_LIST_TOOLTIP), SetFill(1, 0),
-		NWidget(WWT_PUSHTXTBTN, COLOUR_LIGHT_BLUE, WID_EP_NEXT), SetStringTip(STR_ENGINE_PREVIEW_NEXT, STR_ENGINE_PREVIEW_NEXT_TOOLTIP), SetFill(1, 0),
+		NWidget(WWT_PUSHTXTBTN, Colours::LightBlue, WID_EP_PREV), SetStringTip(STR_ENGINE_PREVIEW_PREVIOUS, STR_ENGINE_PREVIEW_PREVIOUS_TOOLTIP), SetFill(1, 0),
+		NWidget(WWT_DROPDOWN, Colours::LightBlue, WID_EP_LIST), SetToolTip(STR_ENGINE_PREVIEW_ENGINE_LIST_TOOLTIP), SetFill(1, 0),
+		NWidget(WWT_PUSHTXTBTN, Colours::LightBlue, WID_EP_NEXT), SetStringTip(STR_ENGINE_PREVIEW_NEXT, STR_ENGINE_PREVIEW_NEXT_TOOLTIP), SetFill(1, 0),
 	EndContainer(),
 };
 
@@ -91,6 +93,7 @@ struct EnginePreviewWindow : Window {
 		this->engines.push_back(engine);
 
 		this->InitNested();
+		this->SetWidgetsDisabledState(true, WID_EP_PREV, WID_EP_LIST, WID_EP_NEXT);
 
 		/* There is no way to recover the window; so disallow closure via DEL; unless SHIFT+DEL */
 		this->flags.Set(WindowFlag::Sticky);
@@ -115,7 +118,7 @@ struct EnginePreviewWindow : Window {
 		switch (widget) {
 			case WID_EP_QUESTION: {
 				/* Get size of engine sprite, on loan from depot_gui.cpp */
-				EngineImageType image_type = EIT_PREVIEW;
+				EngineImageType image_type = EngineImageType::Preview;
 
 				/* First determine required the horizontal size. */
 				this->vehicle_space = ScaleSpriteTrad(40);
@@ -126,10 +129,10 @@ struct EnginePreviewWindow : Window {
 					const Engine *e = Engine::Get(engine);
 					switch (e->type) {
 						default: NOT_REACHED();
-						case VEH_TRAIN:    GetTrainSpriteSize(   engine, x, y, x_offs, y_offs, image_type); break;
-						case VEH_ROAD:     GetRoadVehSpriteSize( engine, x, y, x_offs, y_offs, image_type); break;
-						case VEH_SHIP:     GetShipSpriteSize(    engine, x, y, x_offs, y_offs, image_type); break;
-						case VEH_AIRCRAFT: GetAircraftSpriteSize(engine, x, y, x_offs, y_offs, image_type); break;
+						case VehicleType::Train: GetTrainSpriteSize(engine, x, y, x_offs, y_offs, image_type); break;
+						case VehicleType::Road: GetRoadVehSpriteSize(engine, x, y, x_offs, y_offs, image_type); break;
+						case VehicleType::Ship: GetShipSpriteSize(engine, x, y, x_offs, y_offs, image_type); break;
+						case VehicleType::Aircraft: GetAircraftSpriteSize(engine, x, y, x_offs, y_offs, image_type); break;
 					}
 
 					this->vehicle_space = std::max<int>(this->vehicle_space, y - y_offs);
@@ -141,7 +144,7 @@ struct EnginePreviewWindow : Window {
 				for (const EngineID &engine : this->engines) {
 					int title_height = GetStringHeight(GetString(STR_ENGINE_PREVIEW_MESSAGE, GetEngineCategoryName(engine)), size.width);
 					int body_height = GetStringHeight(GetEngineInfoString(engine), size.width);
-					height = std::max(height, title_height + WidgetDimensions::scaled.vsep_wide + GetCharacterHeight(FS_NORMAL) + this->vehicle_space + body_height);
+					height = std::max(height, title_height + WidgetDimensions::scaled.vsep_wide + GetCharacterHeight(FontSize::Normal) + this->vehicle_space + body_height);
 				}
 
 				size.height = height;
@@ -168,15 +171,15 @@ struct EnginePreviewWindow : Window {
 		if (this->selected_index >= this->engines.size()) return;
 
 		EngineID engine = this->engines[selected_index];
-		int y = DrawStringMultiLine(r, GetString(STR_ENGINE_PREVIEW_MESSAGE, GetEngineCategoryName(engine)), TC_FROMSTRING, SA_HOR_CENTER | SA_TOP) + WidgetDimensions::scaled.vsep_wide;
+		int y = DrawStringMultiLine(r, GetString(STR_ENGINE_PREVIEW_MESSAGE, GetEngineCategoryName(engine)), TextColour::FromString, {AlignmentH::Centre, AlignmentV::Top}) + WidgetDimensions::scaled.vsep_wide;
 
-		DrawString(r.left, r.right, y, GetString(STR_ENGINE_NAME, PackEngineNameDParam(engine, EngineNameContext::PreviewNews)), TC_BLACK, SA_HOR_CENTER);
-		y += GetCharacterHeight(FS_NORMAL);
+		DrawString(r.left, r.right, y, GetString(STR_ENGINE_NAME, PackEngineNameDParam(engine, EngineNameContext::PreviewNews)), TextColour::Black, AlignmentH::Centre);
+		y += GetCharacterHeight(FontSize::Normal);
 
-		DrawVehicleEngine(r.left, r.right, this->width >> 1, y + this->vehicle_space / 2, engine, GetEnginePalette(engine, _local_company), EIT_PREVIEW);
+		DrawVehicleEngine(r.left, r.right, this->width >> 1, y + this->vehicle_space / 2, engine, GetEnginePalette(engine, _local_company), EngineImageType::Preview);
 
 		y += this->vehicle_space;
-		DrawStringMultiLine(r.left, r.right, y, r.bottom, GetEngineInfoString(engine), TC_BLACK, SA_CENTER);
+		DrawStringMultiLine(r.left, r.right, y, r.bottom, GetEngineInfoString(engine), TextColour::Black, {AlignmentH::Centre, AlignmentV::Middle});
 	}
 
 	void OnClick([[maybe_unused]] Point pt, WidgetID widget, [[maybe_unused]] int click_count) override
@@ -184,7 +187,7 @@ struct EnginePreviewWindow : Window {
 		switch (widget) {
 			case WID_EP_YES:
 				if (this->selected_index < this->engines.size()) {
-					Command<CMD_WANT_ENGINE_PREVIEW>::Post(this->engines[this->selected_index]);
+					Command<Commands::WantEnginePreview>::Post(this->engines[this->selected_index]);
 				}
 				[[fallthrough]];
 
@@ -272,9 +275,10 @@ struct EnginePreviewWindow : Window {
 	}
 };
 
+/** Window definition for the engine preview window. */
 static WindowDesc _engine_preview_desc(__FILE__, __LINE__,
-	WDP_CENTER, nullptr, 0, 0,
-	WC_ENGINE_PREVIEW, WC_NONE,
+	WindowPosition::Center, nullptr, 0, 0,
+	WindowClass::EnginePreview, WindowClass::None,
 	WindowDefaultFlag::Construction,
 	_nested_engine_preview_widgets
 );
@@ -282,7 +286,7 @@ static WindowDesc _engine_preview_desc(__FILE__, __LINE__,
 
 void ShowEnginePreviewWindow(EngineID engine)
 {
-	EnginePreviewWindow *w = dynamic_cast<EnginePreviewWindow *>(FindWindowByClass(WC_ENGINE_PREVIEW));
+	EnginePreviewWindow *w = dynamic_cast<EnginePreviewWindow *>(FindWindowByClass(WindowClass::EnginePreview));
 	if (w == nullptr) {
 		new EnginePreviewWindow(_engine_preview_desc, engine);
 	} else {
@@ -370,7 +374,7 @@ static std::string GetTrainEngineInfoString(const Engine &e)
 		is_maglev &= GetRailTypeInfo(rt)->acceleration_type == VehicleAccelerationModel::Maglev;
 	}
 
-	if (_settings_game.vehicle.train_acceleration_model != AM_ORIGINAL && !is_maglev) {
+	if (_settings_game.vehicle.train_acceleration_model != AccelerationModel::Original && !is_maglev) {
 		AppendStringInPlace(res, STR_ENGINE_PREVIEW_SPEED_POWER_MAX_TE, PackVelocity(e.GetDisplayMaxSpeed(), e.type), e.GetPower(), e.GetDisplayMaxTractiveEffort());
 		res.push_back('\n');
 	} else {
@@ -420,7 +424,7 @@ static std::string GetRoadVehEngineInfoString(const Engine &e)
 {
 	format_buffer res;
 
-	if (_settings_game.vehicle.roadveh_acceleration_model == AM_ORIGINAL) {
+	if (_settings_game.vehicle.roadveh_acceleration_model == AccelerationModel::Original) {
 		AppendStringInPlace(res, STR_ENGINE_PREVIEW_COST_MAX_SPEED, e.GetCost(), PackVelocity(e.GetDisplayMaxSpeed(), e.type));
 		res.push_back('\n');
 	} else {
@@ -465,16 +469,16 @@ std::string GetEngineInfoString(EngineID engine)
 	const Engine &e = *Engine::Get(engine);
 
 	switch (e.type) {
-		case VEH_TRAIN:
+		case VehicleType::Train:
 			return GetTrainEngineInfoString(e);
 
-		case VEH_ROAD:
+		case VehicleType::Road:
 			return GetRoadVehEngineInfoString(e);
 
-		case VEH_SHIP:
+		case VehicleType::Ship:
 			return GetShipEngineInfoString(e);
 
-		case VEH_AIRCRAFT:
+		case VehicleType::Aircraft:
 			return GetAircraftEngineInfoString(e);
 
 		default: NOT_REACHED();
@@ -489,25 +493,26 @@ std::string GetEngineInfoString(EngineID engine)
  * @param y      Vertical position to use for drawing the engine.
  * @param engine Engine to draw.
  * @param pal    Palette to use for drawing.
+ * @param image_type Context where the image is being drawn.
  */
 void DrawVehicleEngine(int left, int right, int preferred_x, int y, EngineID engine, PaletteID pal, EngineImageType image_type)
 {
 	const Engine *e = Engine::Get(engine);
 
 	switch (e->type) {
-		case VEH_TRAIN:
+		case VehicleType::Train:
 			DrawTrainEngine(left, right, preferred_x, y, engine, pal, image_type);
 			break;
 
-		case VEH_ROAD:
+		case VehicleType::Road:
 			DrawRoadVehEngine(left, right, preferred_x, y, engine, pal, image_type);
 			break;
 
-		case VEH_SHIP:
+		case VehicleType::Ship:
 			DrawShipEngine(left, right, preferred_x, y, engine, pal, image_type);
 			break;
 
-		case VEH_AIRCRAFT:
+		case VehicleType::Aircraft:
 			DrawAircraftEngine(left, right, preferred_x, y, engine, pal, image_type);
 			break;
 

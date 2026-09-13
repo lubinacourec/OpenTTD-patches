@@ -23,24 +23,26 @@
 
 /**
  * Return the rail type of tile, or INVALID_RAILTYPE if this is no rail tile.
+ * @param tile An arbitrary tile.
+ * @return The rail type, or \c INVALID_RAILTYPE.
  */
 RailType GetTileRailType(TileIndex tile)
 {
 	switch (GetTileType(tile)) {
-		case MP_RAILWAY:
+		case TileType::Railway:
 			return GetRailType(tile);
 
-		case MP_ROAD:
+		case TileType::Road:
 			/* rail/road crossing */
 			if (IsLevelCrossing(tile)) return GetRailType(tile);
 			break;
 
-		case MP_STATION:
+		case TileType::Station:
 			if (HasStationRail(tile)) return GetRailType(tile);
 			break;
 
-		case MP_TUNNELBRIDGE:
-			if (GetTunnelBridgeTransportType(tile) == TRANSPORT_RAIL) return GetRailType(tile);
+		case TileType::TunnelBridge:
+			if (GetTunnelBridgeTransportType(tile) == TransportType::Rail) return GetRailType(tile);
 			break;
 
 		default:
@@ -193,7 +195,7 @@ RailTypes AddDateIntroducedRailTypes(RailTypes current, CalTime::Date date)
 		date = std::min<CalTime::Date>(date, CalTime::ConvertYMDToDate(_settings_game.vehicle.no_introduce_vehicles_after, 0, 1) - 1);
 	}
 
-	for (RailType rt = RAILTYPE_BEGIN; rt != RAILTYPE_END; rt++) {
+	for (RailType rt : EnumRange(RAILTYPE_END)) {
 		const RailTypeInfo *rti = GetRailTypeInfo(rt);
 		/* Unused rail type. */
 		if (rti->label == 0) continue;
@@ -231,14 +233,14 @@ RailTypes GetCompanyRailTypes(CompanyID company, bool introduces)
 		date = std::min<CalTime::Date>(date, CalTime::ConvertYMDToDate(_settings_game.vehicle.no_introduce_vehicles_after, 0, 1) - 1);
 	}
 
-	for (const Engine *e : Engine::IterateType(VEH_TRAIN)) {
+	for (const Engine *e : Engine::IterateType(VehicleType::Train)) {
 		const EngineInfo *ei = &e->info;
 
 		if (ei->climates.Test(_settings_game.game_creation.landscape) &&
 				(e->company_avail.Test(company) || date >= e->intro_date + DAYS_IN_YEAR)) {
 			const RailVehicleInfo *rvi = &e->VehInfo<RailVehicleInfo>();
 
-			if (rvi->railveh_type != RAILVEH_WAGON) {
+			if (rvi->railveh_type != RailVehicleType::Wagon) {
 				assert(rvi->railtypes.Any());
 				if (introduces) {
 					rts.Set(GetAllIntroducesRailTypes(rvi->railtypes));
@@ -262,12 +264,12 @@ RailTypes GetRailTypes(bool introduces)
 {
 	RailTypes rts{};
 
-	for (const Engine *e : Engine::IterateType(VEH_TRAIN)) {
+	for (const Engine *e : Engine::IterateType(VehicleType::Train)) {
 		const EngineInfo *ei = &e->info;
 		if (!ei->climates.Test(_settings_game.game_creation.landscape)) continue;
 
 		const RailVehicleInfo *rvi = &e->VehInfo<RailVehicleInfo>();
-		if (rvi->railveh_type != RAILVEH_WAGON) {
+		if (rvi->railveh_type != RailVehicleType::Wagon) {
 			assert(rvi->railtypes.Any());
 			if (introduces) {
 				rts.Set(GetAllIntroducesRailTypes(rvi->railtypes));
@@ -315,7 +317,7 @@ Money RailMaintenanceCost(RailType railtype, uint32_t num, uint32_t total_num)
 {
 	dbg_assert(railtype < RAILTYPE_END);
 	/* 4 bits fraction for the multiplier and 7 bits scaling. 72 is roughly equivalent to the polynomial maintenance cost at 5000 pieces. */
-	return (_price[PR_INFRASTRUCTURE_RAIL] * GetRailTypeInfo(railtype)->maintenance_multiplier * num * GetMaintenanceCostScale(total_num, 72)) >> 11;
+	return (_price[Price::InfrastructureRail] * GetRailTypeInfo(railtype)->maintenance_multiplier * num * GetMaintenanceCostScale(total_num, 72)) >> 11;
 }
 
 /**
@@ -326,5 +328,5 @@ Money RailMaintenanceCost(RailType railtype, uint32_t num, uint32_t total_num)
 Money SignalMaintenanceCost(uint32_t num)
 {
 	/* 1 bit fraction for the multiplier and 7 bits scaling. 33 is roughly equivalent to the polynomial maintenance cost at 1000 pieces. */
-	return (_price[PR_INFRASTRUCTURE_RAIL] * 15 * num * GetMaintenanceCostScale(num, 33)) >> 8;
+	return (_price[Price::InfrastructureRail] * 15 * num * GetMaintenanceCostScale(num, 33)) >> 8;
 }

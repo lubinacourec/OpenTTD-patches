@@ -10,19 +10,23 @@
 #ifndef NEWGRF_COMMONS_H
 #define NEWGRF_COMMONS_H
 
+#include "newgrf_type.h"
 #include "sprite.h"
-#include "command_type.h"
+#include "command_type_fwd_declare.h"
 #include "direction_type.h"
 #include "company_type.h"
 #include "cargo_type.h"
+#include "tile_type.h"
 #include "core/bitmath_func.hpp"
 #include <vector>
 
+struct GRFFile;
+
 /** Context for tile accesses */
-enum TileContext : uint8_t {
-	TCX_NORMAL,         ///< Nothing special.
-	TCX_UPPER_HALFTILE, ///< Querying information about the upper part of a tile with halftile foundation.
-	TCX_ON_BRIDGE,      ///< Querying information about stuff on the bridge (via some bridgehead).
+enum class TileContext : uint8_t {
+	Normal, ///< Nothing special.
+	UpperHalftile, ///< Querying information about the upper part of a tile with halftile foundation.
+	OnBridge, ///< Querying information about stuff on the bridge (via some bridgehead).
 };
 
 /**
@@ -145,7 +149,10 @@ class SpriteLayoutProcessor {
 public:
 	SpriteLayoutProcessor() = default;
 
-	/** Constructor for spritelayout, which do not need preprocessing. */
+	/**
+	 * Constructor for spritelayout, which do not need preprocessing.
+	 * @param raw_layout The raw sprite layout.
+	 */
 	SpriteLayoutProcessor(const NewGRFSpriteLayout &raw_layout) : raw_layout(&raw_layout) {}
 
 	SpriteLayoutProcessor(const NewGRFSpriteLayout &raw_layout, uint32_t orig_offset, uint32_t newgrf_ground_offset, uint32_t newgrf_offset, uint constr_stage, bool separate_ground);
@@ -153,6 +160,7 @@ public:
 	/**
 	 * Get values for variable 10 to resolve sprites for.
 	 * NewStations only.
+	 * @return Iterator over the bits of Var10.
 	 */
 	SetBitIterator<uint8_t, uint32_t> Var10Values() const { return this->var10_values; }
 
@@ -188,7 +196,7 @@ public:
  * if the GRF containing the new entity is not available.
  */
 struct EntityIDMapping {
-	uint32_t grfid;          ///< The GRF ID of the file the entity belongs to
+	GrfID grfid;             ///< The GRF ID of the file the entity belongs to
 	uint16_t entity_id;      ///< The entity ID within the GRF file
 	uint16_t substitute_id;  ///< The (original) entity ID to use if this GRF is not available
 };
@@ -196,13 +204,11 @@ struct EntityIDMapping {
 class OverrideManagerBase {
 protected:
 	std::vector<uint16_t> entity_overrides;
-	std::vector<uint32_t> grfid_overrides;
+	std::vector<GrfID> grfid_overrides;
 
-	uint16_t max_offset;   ///< what is the length of the original entity's array of specs
-	uint16_t max_entities; ///< what is the amount of entities, old and new summed
-
-	uint16_t invalid_id;   ///< ID used to detected invalid entities
-	virtual bool CheckValidNewID(uint16_t testid) { return true; }
+	const uint16_t max_offset;   ///< what is the length of the original entity's array of specs
+	const uint16_t max_entities; ///< what is the amount of entities, old and new summed
+	const uint16_t invalid_id;   ///< ID used to detected invalid entities
 
 public:
 	std::vector<EntityIDMapping> mappings; ///< mapping of ids from grf files.  Public out of convenience
@@ -213,12 +219,12 @@ public:
 	void ResetOverride();
 	void ResetMapping();
 
-	void Add(uint16_t local_id, uint32_t grfid, uint entity_type);
-	virtual uint16_t AddEntityID(uint16_t grf_local_id, uint32_t grfid, uint16_t substitute_id);
+	void Add(uint16_t local_id, GrfID grfid, uint entity_type);
+	virtual uint16_t AddEntityID(uint16_t grf_local_id, GrfID grfid, uint16_t substitute_id);
 
-	uint32_t GetGRFID(uint16_t entity_id) const;
+	GrfID GetGRFID(uint16_t entity_id) const;
 	uint16_t GetSubstituteID(uint16_t entity_id) const;
-	virtual uint16_t GetID(uint16_t grf_local_id, uint32_t grfid) const;
+	virtual uint16_t GetID(uint16_t grf_local_id, GrfID grfid) const;
 
 	inline uint16_t GetMaxMapping() const { return this->max_entities; }
 	inline uint16_t GetMaxOffset() const { return this->max_offset; }
@@ -241,8 +247,8 @@ public:
 	IndustryOverrideManager(uint16_t offset, uint16_t maximum, uint16_t invalid) :
 			OverrideManagerBase(offset, maximum, invalid) {}
 
-	uint16_t AddEntityID(uint16_t grf_local_id, uint32_t grfid, uint16_t substitute_id) override;
-	uint16_t GetID(uint16_t grf_local_id, uint32_t grfid) const override;
+	uint16_t AddEntityID(uint16_t grf_local_id, GrfID grfid, uint16_t substitute_id) override;
+	uint16_t GetID(uint16_t grf_local_id, GrfID grfid) const override;
 
 	void SetEntitySpec(IndustrySpec &&inds);
 };
@@ -250,8 +256,6 @@ public:
 
 struct IndustryTileSpec;
 class IndustryTileOverrideManager : public OverrideManagerBase {
-protected:
-	bool CheckValidNewID(uint16_t testid) override { return testid != 0xFF; }
 public:
 	IndustryTileOverrideManager(uint16_t offset, uint16_t maximum, uint16_t invalid) :
 			OverrideManagerBase(offset, maximum, invalid) {}
@@ -270,8 +274,6 @@ public:
 
 struct AirportTileSpec;
 class AirportTileOverrideManager : public OverrideManagerBase {
-protected:
-	bool CheckValidNewID(uint16_t testid) override { return testid != 0xFF; }
 public:
 	AirportTileOverrideManager(uint16_t offset, uint16_t maximum, uint16_t invalid) :
 			OverrideManagerBase(offset, maximum, invalid) {}
@@ -281,8 +283,6 @@ public:
 
 struct ObjectSpec;
 class ObjectOverrideManager : public OverrideManagerBase {
-protected:
-	bool CheckValidNewID(uint16_t testid) override { return testid != 0xFF; }
 public:
 	ObjectOverrideManager(uint16_t offset, uint16_t maximum, uint16_t invalid) :
 			OverrideManagerBase(offset, maximum, invalid) {}
@@ -297,13 +297,13 @@ extern AirportOverrideManager _airport_mngr;
 extern AirportTileOverrideManager _airporttile_mngr;
 extern ObjectOverrideManager _object_mngr;
 
-uint32_t GetTerrainType(TileIndex tile, TileContext context = TCX_NORMAL);
-TileIndex GetNearbyTile(uint8_t parameter, TileIndex tile, bool signed_offsets = true, Axis axis = INVALID_AXIS);
+uint32_t GetTerrainType(TileIndex tile, TileContext context = TileContext::Normal);
+TileIndex GetNearbyTile(uint8_t parameter, TileIndex tile, bool signed_offsets = true, Axis axis = Axis::Invalid);
 uint32_t GetNearbyTileInformation(TileIndex tile, bool grf_version8, uint32_t mask);
 uint32_t GetCompanyInfo(CompanyID owner, const struct Livery *l = nullptr);
 CommandCost GetErrorMessageFromLocationCallbackResult(uint16_t cb_res, std::span<const int32_t> textstack, const GRFFile *grffile, StringID default_error);
 
-void ErrorUnknownCallbackResult(uint32_t grfid, uint16_t cbid, uint16_t cb_res);
+void ErrorUnknownCallbackResult(GrfID grfid, uint16_t cbid, uint16_t cb_res);
 bool ConvertBooleanCallback(const struct GRFFile *grffile, uint16_t cbid, uint16_t cb_res);
 bool Convert8bitBooleanCallback(const struct GRFFile *grffile, uint16_t cbid, uint16_t cb_res);
 
@@ -312,7 +312,7 @@ bool Convert8bitBooleanCallback(const struct GRFFile *grffile, uint16_t cbid, ui
  */
 struct GRFFilePropsBase {
 	uint16_t local_id = 0;                       ///< id defined by the grf file for this entity
-	uint32_t grfid = 0;                          ///< grfid that introduced this entity.
+	GrfID grfid{};                               ///< grfid that introduced this entity.
 	const struct GRFFile *grffile = nullptr;     ///< grf file that introduced this entity
 
 	void SetGRFFile(const struct GRFFile *grffile);
@@ -368,7 +368,7 @@ struct FixedGRFFileProps : GRFFilePropsBase {
 enum class StandardSpriteGroup {
 	Default, ///< Default type used when no more-specific group matches.
 	Purchase, ///< Used before an entity exists.
-	End
+	End, ///< End marker.
 };
 
 /**
@@ -379,6 +379,7 @@ struct StandardGRFFileProps : FixedGRFFileProps<StandardSpriteGroup, static_cast
 
 	/**
 	 * Check whether the entity has sprite groups.
+	 * @return \c true iff this has a default sprite group.
 	 */
 	bool HasSpriteGroups() const
 	{
@@ -388,6 +389,7 @@ struct StandardGRFFileProps : FixedGRFFileProps<StandardSpriteGroup, static_cast
 	/**
 	 * Get the standard sprite group.
 	 * @param entity_exists Whether the entity exists (true), or is being constructed or shown in the GUI (false).
+	 * @return The purchase sprite group if \c entity_exists is \c true and it exists, otherwise the default sprite group or \c nullptr.
 	 */
 	const struct SpriteGroup *GetSpriteGroup(bool entity_exists) const
 	{
@@ -519,20 +521,23 @@ struct VariableGRFFileProps : VariableGRFFilePropsBase {
  * Sprite groups indexed by CargoType.
  */
 struct CargoGRFFileProps : VariableGRFFileProps<CargoType> {
-	static constexpr CargoType SG_DEFAULT = NUM_CARGO; ///< Default type used when no more-specific cargo matches.
-	static constexpr CargoType SG_PURCHASE = NUM_CARGO + 1; ///< Used in purchase lists before an item exists.
-	static constexpr CargoType SG_DEFAULT_NA = NUM_CARGO + 2; ///< Used only by stations and roads when no more-specific cargo matches.
+	static constexpr CargoType SG_DEFAULT{NUM_CARGO}; ///< Default type used when no more-specific cargo matches.
+	static constexpr CargoType SG_PURCHASE{NUM_CARGO + 1}; ///< Used in purchase lists before an item exists.
+	static constexpr CargoType SG_DEFAULT_NA{NUM_CARGO + 2}; ///< Used only by stations and roads when no more-specific cargo matches.
 };
 
 /**
  * NewGRF entities which can replace default entities.
  */
 struct SubstituteGRFFileProps : StandardGRFFileProps {
-	/** Set all default data constructor for the props. */
+	/**
+	 * Set all default data constructor for the props.
+	 * @param subst_id The id of the entity to replace.
+	 */
 	constexpr SubstituteGRFFileProps(uint16_t subst_id = 0) : subst_id(subst_id), override_id(subst_id) {}
 
-	uint16_t subst_id;
-	uint16_t override_id; ///< id of the entity been replaced by
+	uint16_t subst_id; ///< The id of the entity to replace.
+	uint16_t override_id; ///< The id of the entity been replaced by.
 };
 
 /** Container for a label for rail or road type conversion. */

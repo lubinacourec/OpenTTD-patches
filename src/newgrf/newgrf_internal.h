@@ -16,18 +16,19 @@
 #include "../newgrf_commons.h"
 #include "../newgrf_config.h"
 #include "../spriteloader/sprite_file_type.hpp"
+#include "../core/enum_type.hpp"
 #include "newgrf_bytereader.h"
 
 #include "../3rdparty/cpp-btree/btree_map.h"
 #include <vector>
 
 /** Possible return values for the GrfChangeInfoHandler functions */
-enum ChangeInfoResult : uint8_t {
-	CIR_SUCCESS,    ///< Variable was parsed and read
-	CIR_DISABLED,   ///< GRF was disabled due to error
-	CIR_UNHANDLED,  ///< Variable was parsed but unread
-	CIR_UNKNOWN,    ///< Variable is unknown
-	CIR_INVALID_ID, ///< Attempt to modify an invalid ID
+enum class ChangeInfoResult : uint8_t {
+	Success, ///< Variable was parsed and read
+	Disabled, ///< GRF was disabled due to error
+	Unhandled, ///< Variable was parsed but unread
+	Unknown, ///< Variable is unknown
+	InvalidId, ///< Attempt to modify an invalid ID
 };
 
 ChangeInfoResult HandleAction0PropertyDefault(ByteReader &buf, int prop);
@@ -36,18 +37,59 @@ bool MappedPropertyLengthMismatch(ByteReader &buf, uint expected_size, const GRF
 /** GRF feature handler */
 template <GrfSpecFeature TFeature>
 struct GrfChangeInfoHandler {
+	/**
+	 * Implementation of the \ref GrfLoadingStage::Reserve stage of this feature.
+	 * @param first The first id of the feature instance (engine, station, ...) to reserve for.
+	 * @param last The id to stop iterating at (exclusive).
+	 * @param prop The property to reserve for.
+	 * @param buf The buffer containing the sprite data.
+	 * @return Whether it was successful, or why it wasn't.
+	 */
 	static ChangeInfoResult Reserve(uint first, uint last, int prop, const GRFFilePropertyRemapEntry *mapping_entry, ByteReader &buf);
+
+	/**
+	 * Implementation of the \ref GrfLoadingStage::Activation stage of this feature.
+	 * @param first The first id of the feature instance (engine, station, ...) to activate for.
+	 * @param last The id to stop iterating at (exclusive).
+	 * @param prop The property to activate for.
+	 * @param buf The buffer containing the sprite data.
+	 * @return Whether it was successful, or why it wasn't.
+	 */
 	static ChangeInfoResult Activation(uint first, uint last, int prop, const GRFFilePropertyRemapEntry *mapping_entry, ByteReader &buf);
 };
 
 /** GRF action handler */
 template <uint8_t TAction>
 struct GrfActionHandler {
+	/**
+	 * Implementation of the \ref GrfLoadingStage::FileScan stage of this action.
+	 * @param buf The buffer containing the sprite data.
+	 */
 	static void FileScan(ByteReader &buf);
+	/**
+	 * Implementation of the \ref GrfLoadingStage::SafetyScan stage of this action.
+	 * @param buf The buffer containing the sprite data.
+	 */
 	static void SafetyScan(ByteReader &buf);
+	/**
+	 * Implementation of the \ref GrfLoadingStage::LabelScan stage of this action.
+	 * @param buf The buffer containing the sprite data.
+	 */
 	static void LabelScan(ByteReader &buf);
+	/**
+	 * Implementation of the \ref GrfLoadingStage::Init stage of this action.
+	 * @param buf The buffer containing the sprite data.
+	 */
 	static void Init(ByteReader &buf);
+	/**
+	 * Implementation of the \ref GrfLoadingStage::Reserve stage of this action.
+	 * @param buf The buffer containing the sprite data.
+	 */
 	static void Reserve(ByteReader &buf);
+	/**
+	 * Implementation of the \ref GrfLoadingStage::Activation stage of this action.
+	 * @param buf The buffer containing the sprite data.
+	 */
 	static void Activation(ByteReader &buf);
 };
 
@@ -64,7 +106,7 @@ private:
 	};
 
 	/** Currently referenceable spritesets */
-	btree::btree_map<uint, SpriteSet> spritesets[GSF_END];
+	EnumIndexArray<btree::btree_map<uint, SpriteSet>, GrfSpecFeature, GrfSpecFeature::End> spritesets{};
 
 public:
 	/* Global state */
@@ -96,7 +138,7 @@ public:
 	 */
 	void AddSpriteSets(GrfSpecFeature feature, SpriteID first_sprite, uint first_set, uint numsets, uint numents)
 	{
-		assert(feature < GSF_END);
+		assert(feature < GrfSpecFeature::End);
 		for (uint i = 0; i < numsets; i++) {
 			SpriteSet &set = this->spritesets[feature][first_set + i];
 			set.sprite = first_sprite + i * numents;
@@ -112,7 +154,7 @@ public:
 	 */
 	bool HasValidSpriteSets(GrfSpecFeature feature) const
 	{
-		assert(feature < GSF_END);
+		assert(feature < GrfSpecFeature::End);
 		return !this->spritesets[feature].empty();
 	}
 
@@ -161,7 +203,7 @@ public:
 	 */
 	SpriteSetInfo GetSpriteSetInfo(GrfSpecFeature feature, uint set) const
 	{
-		assert(feature < GSF_END);
+		assert(feature < GrfSpecFeature::End);
 		auto iter = this->spritesets[feature].find(set);
 		return iter != this->spritesets[feature].end() ? SpriteSetInfo(iter->second) : SpriteSetInfo();
 	}
@@ -171,21 +213,17 @@ using SpriteSetInfo = GrfProcessingState::SpriteSetInfo;
 
 extern GrfProcessingState _cur_gps;
 
+/** A location within a NewGRF, like file:line but in the context of NewGRFs. */
 struct GRFLocation {
-	uint32_t grfid;
-	uint32_t nfoline;
+	GrfID grfid; ///< Identifier of the NewGRF this refers to.
+	uint32_t nfoline; ///< The line of NFO this refers to.
 
-	GRFLocation(uint32_t grfid, uint32_t nfoline) : grfid(grfid), nfoline(nfoline) { }
-
-	bool operator <(const GRFLocation &other) const
-	{
-		return this->grfid < other.grfid || (this->grfid == other.grfid && this->nfoline < other.nfoline);
-	}
-
-	bool operator ==(const GRFLocation &other) const
-	{
-		return this->grfid == other.grfid && this->nfoline == other.nfoline;
-	}
+	/**
+	 * Compare with another location.
+	 * @param other The other location to compare to.
+	 * @return The std::strong_ordering of the comparison.
+	 */
+	constexpr auto operator<=>(const GRFLocation &other) const = default;
 };
 
 using GRFLineToSpriteOverride = btree::btree_map<GRFLocation, std::unique_ptr<uint8_t[]>>;
@@ -196,7 +234,7 @@ extern bool _action6_override_active;
 
 extern GrfMiscBits _misc_grf_features;
 
-void SetNewGRFOverride(uint32_t source_grfid, uint32_t target_grfid);
+void SetNewGRFOverride(GrfID source_grfid, GrfID target_grfid);
 GRFFile *GetCurrentGRFOverride();
 
 std::span<const CargoLabel> GetCargoTranslationTable(const GRFFile &grffile);
@@ -210,7 +248,7 @@ void MapSpriteMappingRecolour(PalSpriteID *grf_sprite);
 TileLayoutFlags ReadSpriteLayoutSprite(ByteReader &buf, bool read_flags, bool invert_action1_flag, bool use_cur_spritesets, GrfSpecFeature feature, PalSpriteID *grf_sprite, uint16_t *max_sprite_offset = nullptr, uint16_t *max_palette_offset = nullptr);
 bool ReadSpriteLayout(ByteReader &buf, uint num_building_sprites, bool use_cur_spritesets, GrfSpecFeature feature, bool allow_var10, bool no_z_position, NewGRFSpriteLayout *dts);
 
-GRFFile *GetFileByGRFID(uint32_t grfid);
+GRFFile *GetFileByGRFID(GrfID grfid);
 GRFError *DisableGrf(StringID message = {}, GRFConfig *config = nullptr);
 void DisableStaticNewGRFInfluencingNonStaticNewGRFs(GRFConfig &c);
 bool HandleChangeInfoResult(std::string_view caller, ChangeInfoResult cir, GrfSpecFeature feature, int property);

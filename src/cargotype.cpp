@@ -25,8 +25,8 @@
 #include "safeguards.h"
 
 CargoSpec CargoSpec::array[NUM_CARGO];
-std::array<std::vector<CargoType>, NUM_TPE> CargoSpec::town_production_cargoes{};
-std::array<CargoTypes, NUM_TPE> CargoSpec::town_production_cargo_mask{};
+EnumIndexArray<std::vector<CargoType>, TownProductionEffect, TownProductionEffect::End> CargoSpec::town_production_cargoes{};
+EnumIndexArray<CargoTypes, TownProductionEffect, TownProductionEffect::End> CargoSpec::town_production_cargo_mask{};
 
 /**
  * Bitmask of cargo types available. This includes phony cargoes like regearing cargoes.
@@ -71,7 +71,7 @@ void SetupCargoForClimate(LandscapeType l)
 {
 	assert(to_underlying(l) < std::size(_default_climate_cargo));
 
-	_cargo_mask = 0;
+	_cargo_mask.Reset();
 	_default_cargo_labels.clear();
 	_climate_dependent_cargo_labels.fill(CT_INVALID);
 	_climate_independent_cargo_labels.fill(CT_INVALID);
@@ -100,7 +100,7 @@ void SetupCargoForClimate(LandscapeType l)
 		*insert = std::visit(visitor{}, cl);
 
 		if (insert->IsValid()) {
-			SetBit(_cargo_mask, insert->Index());
+			_cargo_mask.Set(insert->Index());
 			_default_cargo_labels.push_back(insert->label);
 			_climate_dependent_cargo_labels[insert->Index()] = insert->label;
 			_climate_independent_cargo_labels[insert->bitnum] = insert->label;
@@ -207,7 +207,7 @@ std::array<uint8_t, NUM_CARGO> _sorted_cargo_types;        ///< Sort order of ca
 std::vector<const CargoSpec *> _sorted_cargo_specs;        ///< Cargo specifications sorted alphabetically by name.
 std::span<const CargoSpec *> _sorted_standard_cargo_specs; ///< Standard cargo specifications sorted alphabetically by name.
 
-/** Sort cargo specifications by their name. */
+/** Sort cargo specifications by their name. @copydoc GUIList::Sorter */
 static bool CargoSpecNameSorter(const CargoSpec * const &a, const CargoSpec * const &b)
 {
 	format_buffer a_name;
@@ -221,7 +221,7 @@ static bool CargoSpecNameSorter(const CargoSpec * const &a, const CargoSpec * co
 	return (res != 0) ? res < 0 : (a->bitnum < b->bitnum);
 }
 
-/** Sort cargo specifications by their cargo class. */
+/** Sort cargo specifications by their cargo class. @copydoc GUIList::Sorter */
 static bool CargoSpecClassSorter(const CargoSpec * const &a, const CargoSpec * const &b)
 {
 	int res = b->classes.Test(CargoClass::Passengers) - a->classes.Test(CargoClass::Passengers);
@@ -242,7 +242,7 @@ static bool CargoSpecClassSorter(const CargoSpec * const &a, const CargoSpec * c
 void InitializeSortedCargoSpecs()
 {
 	for (auto &tpc : CargoSpec::town_production_cargoes) tpc.clear();
-	for (auto &tpc : CargoSpec::town_production_cargo_mask) tpc = 0;
+	for (auto &tpc : CargoSpec::town_production_cargo_mask) tpc = CargoTypes{};
 	_sorted_cargo_specs.clear();
 	/* Add each cargo spec to the list, and determine the largest cargo icon size. */
 	for (const CargoSpec *cargo : CargoSpec::Iterate()) {
@@ -258,15 +258,15 @@ void InitializeSortedCargoSpecs()
 	}
 
 	/* Count the number of standard cargos and fill the mask. */
-	_standard_cargo_mask = 0;
+	_standard_cargo_mask.Reset();
 	uint8_t nb_standard_cargo = 0;
 	for (const auto &cargo : _sorted_cargo_specs) {
-		assert(cargo->town_production_effect != INVALID_TPE);
+		assert(cargo->town_production_effect != TownProductionEffect::Invalid);
 		CargoSpec::town_production_cargoes[cargo->town_production_effect].push_back(cargo->Index());
-		SetBit(CargoSpec::town_production_cargo_mask[cargo->town_production_effect], cargo->Index());
+		CargoSpec::town_production_cargo_mask[cargo->town_production_effect].Set(cargo->Index());
 		if (cargo->classes.Test(CargoClass::Special)) break;
 		nb_standard_cargo++;
-		SetBit(_standard_cargo_mask, cargo->Index());
+		_standard_cargo_mask.Set(cargo->Index());
 	}
 
 	/* _sorted_standard_cargo_specs is a subset of _sorted_cargo_specs. */

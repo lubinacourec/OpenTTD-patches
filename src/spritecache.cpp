@@ -39,7 +39,7 @@
 
 #include "safeguards.h"
 
-/* Default of 4MB spritecache */
+/** Default of 4MB spritecache. */
 uint _sprite_cache_size = 4;
 
 size_t _spritecache_bytes_used = 0;
@@ -110,6 +110,7 @@ SpriteFile &OpenCachedSpriteFile(const std::string &filename, Subdirectory subdi
 
 /**
  * Skip the given amount of sprite graphics data.
+ * @param file The file to read from.
  * @param type the type of sprite (compressed etc)
  * @param num the amount of sprites to skip
  * @return true if the data could be correctly skipped.
@@ -181,7 +182,7 @@ uint32_t GetSpriteLocalID(SpriteID sprite)
 
 /**
  * Count the sprites which originate from a specific file in a range of SpriteIDs.
- * @param file The loaded SpriteFile.
+ * @param filename The loaded SpriteFile.
  * @param begin First sprite in range.
  * @param end First sprite not in range.
  * @return Number of sprites.
@@ -437,7 +438,7 @@ static bool ResizeSprites(SpriteLoader::SpriteCollection &sprite, LowZoomLevels 
 	if (!PadSprites(sprite, sprite_avail, encoder)) return false;
 
 	/* Create other missing zoom levels */
-	for (ZoomLevel zoom = ZoomLevel::In2x; zoom != ZoomLevel::SpriteEnd; zoom++) {
+	for (ZoomLevel zoom : EnumRange(ZoomLevel::In2x, ZoomLevel::SpriteEnd)) {
 		if (sprite_avail.Test(zoom)) {
 			/* Check that size and offsets match the fully zoomed image. */
 			[[maybe_unused]] const auto &root_sprite = sprite[ZoomLevel::Min];
@@ -635,7 +636,7 @@ size_t GetGRFSpriteOffset(uint32_t id)
 
 /**
  * Parse the sprite section of GRFs.
- * @param container_version Container version of the GRF we're currently processing.
+ * @param file The file to read the sprite offsets for.
  */
 void ReadGRFSpriteOffsets(SpriteFile &file)
 {
@@ -689,7 +690,6 @@ void ReadGRFSpriteOffsets(SpriteFile &file)
  * @param load_index Global sprite index.
  * @param file GRF to load from.
  * @param file_sprite_id Sprite number in the GRF.
- * @param container_version Container version of the GRF.
  * @return True if a valid sprite was loaded, false on any error.
  */
 bool LoadNextSprite(SpriteID load_index, SpriteFile &file, uint file_sprite_id)
@@ -786,12 +786,16 @@ void DupSprite(SpriteID old_spr, SpriteID new_spr)
 	SpriteCache *scnew = AllocateSpriteCache(new_spr); // may reallocate: so put it first
 	SpriteCache *scold = GetSpriteCache(old_spr);
 
+	scnew->Clear();
 	scnew->file = scold->file;
 	scnew->file_pos = scold->file_pos;
 	scnew->id = scold->id;
 	scnew->SetType(scold->GetType());
 	scnew->flags = scold->flags;
 	scnew->SetWarned(false);
+	if (scold->GetType() == SpriteType::Recolour) {
+		scnew->AssignRecolourSpriteData(scold->GetPtr());
+	}
 }
 
 static size_t GetSpriteCacheUsage()

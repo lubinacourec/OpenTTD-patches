@@ -46,8 +46,7 @@ public:
 
 	/**
 	 * Add text to the output buffer.
-	 * @param text   Text to store.
-	 * @param length Length of the text in bytes.
+	 * @param text Text to store.
 	 * @return Number of bytes actually stored.
 	 */
 	size_t Add(const char *text, size_t length)
@@ -162,8 +161,8 @@ private:
 struct SettingsIniFile : IniLoadFile {
 	/**
 	 * Construct a new ini loader.
-	 * @param list_group_names A list with group names that should be loaded as lists instead of variables. @see IGT_LIST
-	 * @param seq_group_names  A list with group names that should be loaded as lists of names. @see IGT_SEQUENCE
+	 * @param list_group_names A list with group names that should be loaded as lists instead of variables. @see IniGroupType::List
+	 * @param seq_group_names  A list with group names that should be loaded as lists of names. @see IniGroupType::Sequence
 	 */
 	SettingsIniFile(const IniGroupNameList &list_group_names = {}, const IniGroupNameList &seq_group_names = {}) :
 			IniLoadFile(list_group_names, seq_group_names)
@@ -202,14 +201,14 @@ static const char *VALIDATION_GROUP_NAME = "validation"; ///< Name of the group 
 static const char *DEFAULTS_GROUP_NAME  = "defaults"; ///< Name of the group containing default values for the template variables.
 
 /**
- * Dump a #IGT_SEQUENCE group into #_stored_output.
+ * Dump a #IniGroupType::Sequence group into #_stored_output.
  * @param ifile      Loaded INI data.
  * @param group_name Name of the group to copy.
  */
 static void DumpGroup(const IniLoadFile &ifile, const char * const group_name)
 {
 	const IniGroup *grp = ifile.GetGroup(group_name);
-	if (grp != nullptr && grp->type == IGT_SEQUENCE) {
+	if (grp != nullptr && grp->type == IniGroupType::Sequence) {
 		for (const IniItem &item : grp->items) {
 			if (!item.name.empty()) {
 				_stored_output.Add(item.name.c_str());
@@ -388,8 +387,8 @@ static void AppendFile(const char *fname, FILE *out_fp)
 
 /**
  * Compare two files for identity.
- * @param n1 First file.
- * @param n2 Second file.
+ * @param path1 First file.
+ * @param path2 Second file.
  * @return True if both files are identical.
  */
 static bool CompareFiles(const char *n1, const char *n2)
@@ -444,14 +443,14 @@ static const OptionData _opts[] = {
  *
  * Last but not least, the [post-amble] group is copied verbatim.
  *
- * @param fname  Ini file to process. @return Exit status of the processing.
+ * @param fname Ini file to process.
  */
 static void ProcessIniFile(const char *fname)
 {
 	static const IniLoadFile::IniGroupNameList seq_groups = {PREAMBLE_GROUP_NAME, TABLESTART_GROUP_NAME, POSTAMBLE_GROUP_NAME};
 
 	SettingsIniFile ini{{}, seq_groups};
-	ini.LoadFromDisk(fname, NO_DIRECTORY);
+	ini.LoadFromDisk(fname, Subdirectory::None);
 
 	_table_list_output.Clear();
 
@@ -469,6 +468,7 @@ static void ProcessIniFile(const char *fname)
  * And the main program (what else?)
  * @param argc Number of command-line arguments including the program name itself.
  * @param argv Vector of the command-line arguments.
+ * @return The exit code of the application.
  */
 int CDECL main(int argc, char *argv[])
 {

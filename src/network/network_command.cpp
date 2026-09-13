@@ -122,7 +122,7 @@ void NetworkExecuteLocalCommandQueue()
 
 	/* Local company may have changed, so we should not restore the old value */
 	_current_company = _local_company;
-	_cmd_client_id = INVALID_CLIENT_ID;
+	_cmd_client_id = ClientID::Invalid;
 
 	if (record_sync_event) RecordSyncEvent(NSRE_CMD);
 }
@@ -147,7 +147,7 @@ static void DistributeCommandPacket(CommandPacket cp, const NetworkClientSocket 
 	cp.frame = _frame_counter_max + 1;
 
 	for (NetworkClientSocket *cs : NetworkClientSocket::Iterate()) {
-		if (cs->status >= NetworkClientSocket::STATUS_MAP) {
+		if (cs->status >= NetworkClientSocket::ClientStatus::Map) {
 			/* Callbacks are only send back to the client who sent them in the
 			 *  first place. This filters that out. */
 			cp.callback = (cs != owner) ? CommandCallback::None : callback;

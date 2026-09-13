@@ -12,7 +12,7 @@
 #include "cheat_type.h"
 #include "company_base.h"
 #include "company_func.h"
-#include "currency.h"
+#include "currency_func.h"
 #include "date_func.h"
 #include "sl/saveload.h"
 #include "textbuf_gui.h"
@@ -33,7 +33,6 @@
 #include "order_backup.h"
 #include "order_base.h"
 #include "vehicle_base.h"
-#include "currency.h"
 #include "core/geometry_func.hpp"
 #include "core/string_consumer.hpp"
 #include "settings_type.h"
@@ -67,9 +66,9 @@ static int32_t _money_cheat_amount = 10000000;
 static int32_t ClickMoneyCheat(int32_t new_value, int32_t change_direction)
 {
 	if (IsNetworkSettingsAdmin()) {
-		Command<CMD_MONEY_CHEAT_ADMIN>::Post(Money(_money_cheat_amount) * change_direction);
+		Command<Commands::MoneyCheatAdmin>::Post(Money(_money_cheat_amount) * change_direction);
 	} else {
-		Command<CMD_MONEY_CHEAT>::Post(Money(_money_cheat_amount) * change_direction);
+		Command<Commands::MoneyCheat>::Post(Money(_money_cheat_amount) * change_direction);
 	}
 	return _money_cheat_amount;
 }
@@ -103,7 +102,7 @@ static int32_t ClickChangeCompanyCheat(int32_t new_value, int32_t change_directi
 static int32_t ClickSetProdCheat(int32_t new_value, int32_t change_direction)
 {
 	_cheats.setup_prod.value = (new_value != 0);
-	InvalidateWindowClassesData(WC_INDUSTRY_VIEW);
+	InvalidateWindowClassesData(WindowClass::IndustryView);
 	return _cheats.setup_prod.value;
 }
 
@@ -140,10 +139,11 @@ static int32_t ClickChangeDateCheat(int32_t new_value, int32_t change_direction)
 	}
 
 	EnginesMonthlyLoop();
-	InvalidateWindowClassesData(WC_BUILD_STATION, 0);
-	InvalidateWindowClassesData(WC_BUS_STATION, 0);
-	InvalidateWindowClassesData(WC_BUILD_OBJECT, 0);
-	InvalidateWindowClassesData(WC_FINANCES, 0);
+	InvalidateWindowClassesData(WindowClass::BuildStation, 0);
+	InvalidateWindowClassesData(WindowClass::BuildBusStation, 0);
+	InvalidateWindowClassesData(WindowClass::BuildTruckStation, 0);
+	InvalidateWindowClassesData(WindowClass::BuildObject, 0);
+	InvalidateWindowClassesData(WindowClass::Finances, 0);
 	ResetSignalVariant();
 	MarkWholeScreenDirty();
 	return CalTime::CurYear().base();
@@ -164,7 +164,7 @@ static int32_t ClickChangeMaxHlCheat(int32_t new_value, int32_t change_direction
 	 * If yes, disallow the change. */
 	for (TileIndex t(0); t < Map::Size(); t++) {
 		if ((int32_t)TileHeight(t) > new_value) {
-			ShowErrorMessage(GetEncodedString(STR_CONFIG_SETTING_TOO_HIGH_MOUNTAIN), {}, WL_ERROR);
+			ShowErrorMessage(GetEncodedString(STR_CONFIG_SETTING_TOO_HIGH_MOUNTAIN), {}, WarningLevel::Error);
 			/* Return old, unchanged value */
 			return _settings_game.construction.map_height_limit;
 		}
@@ -175,7 +175,7 @@ static int32_t ClickChangeMaxHlCheat(int32_t new_value, int32_t change_direction
 	ReloadNewGRFData();
 
 	/* The smallmap uses an index from heightlevels to colours. Trigger rebuilding it. */
-	InvalidateWindowClassesData(WC_SMALLMAP, 2);
+	InvalidateWindowClassesData(WindowClass::SmallMap, 2);
 
 	return _settings_game.construction.map_height_limit;
 }
@@ -242,15 +242,15 @@ static_assert(CHT_NUM_CHEATS == lengthof(_cheats_ui));
 /** Widget definitions of the cheat GUI. */
 static constexpr std::initializer_list<NWidgetPart> _nested_cheat_widgets = {
 	NWidget(NWID_HORIZONTAL),
-		NWidget(WWT_CLOSEBOX, COLOUR_GREY),
-		NWidget(WWT_CAPTION, COLOUR_GREY), SetStringTip(STR_CHEATS, STR_TOOLTIP_WINDOW_TITLE_DRAG_THIS),
-		NWidget(WWT_SHADEBOX, COLOUR_GREY),
-		NWidget(WWT_STICKYBOX, COLOUR_GREY),
+		NWidget(WWT_CLOSEBOX, Colours::Grey),
+		NWidget(WWT_CAPTION, Colours::Grey), SetStringTip(STR_CHEATS, STR_TOOLTIP_WINDOW_TITLE_DRAG_THIS),
+		NWidget(WWT_SHADEBOX, Colours::Grey),
+		NWidget(WWT_STICKYBOX, Colours::Grey),
 	EndContainer(),
-	NWidget(WWT_PANEL, COLOUR_GREY),
+	NWidget(WWT_PANEL, Colours::Grey),
 		NWidget(NWID_VERTICAL), SetPadding(WidgetDimensions::unscaled.framerect),
-			NWidget(WWT_EMPTY, INVALID_COLOUR, WID_C_PANEL),
-			NWidget(WWT_EMPTY, INVALID_COLOUR, WID_C_SETTINGS),
+			NWidget(WWT_EMPTY, Colours::Invalid, WID_C_PANEL),
+			NWidget(WWT_EMPTY, Colours::Invalid, WID_C_SETTINGS),
 		EndContainer(),
 	EndContainer(),
 };
@@ -299,7 +299,7 @@ struct CheatWindow : Window {
 		uint text_left   = ir.left + (rtl ? 0 : WidgetDimensions::scaled.hsep_wide * 3 + this->box.width + SETTING_BUTTON_WIDTH);
 		uint text_right  = ir.right - (rtl ? WidgetDimensions::scaled.hsep_wide * 3 + this->box.width + SETTING_BUTTON_WIDTH : 0);
 
-		int text_y_offset = (this->line_height - GetCharacterHeight(FS_NORMAL)) / 2;
+		int text_y_offset = (this->line_height - GetCharacterHeight(FontSize::Normal)) / 2;
 		int box_y_offset = (this->line_height - this->box.height) / 2;
 		int button_y_offset = (this->line_height - SETTING_BUTTON_HEIGHT) / 2;
 		int icon_y_offset = (this->line_height - this->icon.height) / 2;
@@ -316,7 +316,7 @@ struct CheatWindow : Window {
 					/* Change inflation factors */
 
 					/* Draw [<][>] boxes for settings of an integer-type */
-					DrawArrowButtons(button_left, y + button_y_offset, COLOUR_YELLOW, clicked - (i * 2), true, true);
+					DrawArrowButtons(button_left, y + button_y_offset, Colours::Yellow, clicked - (i * 2), true, true);
 
 					uint64_t val = (uint64_t)ReadValue(ce->variable, SLE_UINT64);
 					str = GetString(ce->str, val * 1000 >> 16, 3);
@@ -326,7 +326,7 @@ struct CheatWindow : Window {
 				case SLE_BOOL: {
 					bool on = (*(bool*)ce->variable);
 
-					DrawBoolButton(button_left, y + button_y_offset, COLOUR_YELLOW, COLOUR_GREY, on, true);
+					DrawBoolButton(button_left, y + button_y_offset, Colours::Yellow, Colours::Grey, on, true);
 					str = GetString(ce->str, on ? STR_CONFIG_SETTING_ON : STR_CONFIG_SETTING_OFF);
 					break;
 				}
@@ -335,7 +335,7 @@ struct CheatWindow : Window {
 					int32_t val = static_cast<int32_t>(ReadValue(ce->variable, ce->type));
 
 					/* Draw [<][>] boxes for settings of an integer-type */
-					DrawArrowButtons(button_left, y + button_y_offset, COLOUR_YELLOW, clicked - (i * 2), true, true);
+					DrawArrowButtons(button_left, y + button_y_offset, Colours::Yellow, clicked - (i * 2), true, true);
 
 					switch (ce->str) {
 						/* Display date for change date cheat */
@@ -386,7 +386,7 @@ struct CheatWindow : Window {
 		Rect buttons = r.WithWidth(SETTING_BUTTON_WIDTH, rtl);
 		Rect text = r.Indent(SETTING_BUTTON_WIDTH + WidgetDimensions::scaled.hsep_wide, rtl);
 		buttons.top += (r.Height() - SETTING_BUTTON_HEIGHT) / 2;
-		text.top += (r.Height() - GetCharacterHeight(FS_NORMAL)) / 2;
+		text.top += (r.Height() - GetCharacterHeight(FontSize::Normal)) / 2;
 
 		/* We do not allow changes of some items when we are a client in a network game */
 		bool editable = sd->IsEditable();
@@ -394,18 +394,18 @@ struct CheatWindow : Window {
 		int32_t value = sd->Read(&GetGameSettings());
 		if (sd->IsBoolSetting()) {
 			/* Draw checkbox for boolean-value either on/off */
-			DrawBoolButton(buttons.left, buttons.top, COLOUR_YELLOW, COLOUR_GREY, value != 0, editable);
+			DrawBoolButton(buttons.left, buttons.top, Colours::Yellow, Colours::Grey, value != 0, editable);
 		} else if (sd->flags.Test(SettingFlag::GuiDropdown)) {
 			/* Draw [v] button for settings of an enum-type */
-			DrawDropDownButton(buttons.left, buttons.top, COLOUR_YELLOW, state != 0, editable);
+			DrawDropDownButton(buttons.left, buttons.top, Colours::Yellow, state != 0, editable);
 		} else {
 			/* Draw [<][>] boxes for settings of an integer-type */
 			auto [min_val, max_val] = sd->GetRange();
-			DrawArrowButtons(buttons.left, buttons.top, COLOUR_YELLOW, state,
+			DrawArrowButtons(buttons.left, buttons.top, Colours::Yellow, state,
 					editable && value != (sd->flags.Test(SettingFlag::GuiZeroIsSpecial) ? 0 : min_val), editable && static_cast<uint32_t>(value) != max_val);
 		}
 		auto [param1, param2] = sd->GetValueParams(value);
-		DrawString(text.left, text.right, text.top, GetString(sd->GetTitle(), STR_CONFIG_SETTING_VALUE, param1, param2), TC_LIGHT_BLUE);
+		DrawString(text.left, text.right, text.top, GetString(sd->GetTitle(), STR_CONFIG_SETTING_VALUE, param1, param2), TextColour::LightBlue);
 	}
 
 	void UpdateWidgetSize(WidgetID widget, Dimension &size, [[maybe_unused]] const Dimension &padding, [[maybe_unused]] Dimension &fill, [[maybe_unused]] Dimension &resize) override
@@ -455,7 +455,7 @@ struct CheatWindow : Window {
 
 		this->line_height = std::max(this->box.height, this->icon.height);
 		this->line_height = std::max<uint>(this->line_height, SETTING_BUTTON_HEIGHT);
-		this->line_height = std::max<uint>(this->line_height, GetCharacterHeight(FS_NORMAL)) + WidgetDimensions::scaled.framerect.Vertical();
+		this->line_height = std::max<uint>(this->line_height, GetCharacterHeight(FontSize::Normal)) + WidgetDimensions::scaled.framerect.Vertical();
 
 		size.width = width + WidgetDimensions::scaled.hsep_wide * 4 + this->box.width + SETTING_BUTTON_WIDTH /* stuff on the left */ + WidgetDimensions::scaled.hsep_wide * 2 /* extra spacing on right */;
 		size.height = this->line_height * lines;
@@ -548,7 +548,7 @@ struct CheatWindow : Window {
 				uint64_t oldvalue = (uint64_t)ReadValue(ce->variable, SLE_UINT64);
 				uint64_t value = oldvalue + (uint64_t)(get_arrow_button_value() << 16);
 				value = Clamp<uint64_t>(value, 1 << 16, MAX_INFLATION);
-				Command<CMD_CHEAT_SETTING>::Post(cheat, static_cast<uint32_t>(value));
+				Command<Commands::CheatSetting>::Post(cheat, static_cast<uint32_t>(value));
 				if (value != oldvalue) register_arrow_button_clicked();
 				break;
 			}
@@ -570,7 +570,7 @@ struct CheatWindow : Window {
 
 		if (value != oldvalue) {
 			if (_networking || cheat == CHT_STATION_RATING || cheat == CHT_TOWN_RATING) {
-				if (btn != CHT_MONEY) Command<CMD_CHEAT_SETTING>::Post(cheat, static_cast<uint32_t>(value));
+				if (btn != CHT_MONEY) Command<Commands::CheatSetting>::Post(cheat, static_cast<uint32_t>(value));
 			} else {
 				WriteValue(ce->variable, ce->type, static_cast<int64_t>(value));
 			}
@@ -726,7 +726,7 @@ struct CheatWindow : Window {
 		if (ce->type == SLF_ALLOW_CONTROL) {
 			format_buffer_sized<64> tmp_buffer;
 			str_replace_wchar(tmp_buffer, *str, GetDecimalSeparatorChar(), '.');
-			Command<CMD_CHEAT_SETTING>::Post(clicked_cheat, (uint32_t)Clamp<uint64_t>(atof(tmp_buffer.c_str()) * 65536.0, 1 << 16, MAX_INFLATION));
+			Command<Commands::CheatSetting>::Post(clicked_cheat, (uint32_t)Clamp<uint64_t>(atof(tmp_buffer.c_str()) * 65536.0, 1 << 16, MAX_INFLATION));
 			return;
 		}
 		if (ce->mode == CNM_MONEY) {
@@ -736,9 +736,9 @@ struct CheatWindow : Window {
 			if (!_networking) *ce->been_used = true;
 			Money money = *llvalue / GetCurrency().rate;
 			if (IsNetworkSettingsAdmin()) {
-				Command<CMD_MONEY_CHEAT_ADMIN>::Post(money);
+				Command<Commands::MoneyCheatAdmin>::Post(money);
 			} else {
-				Command<CMD_MONEY_CHEAT>::Post(money);
+				Command<Commands::MoneyCheat>::Post(money);
 			}
 			return;
 		}
@@ -758,21 +758,21 @@ struct CheatWindow : Window {
 
 /** Window description of the cheats GUI. */
 static WindowDesc _cheats_desc(__FILE__, __LINE__,
-	WDP_AUTO, "cheats", 0, 0,
-	WC_CHEATS, WC_NONE,
+	WindowPosition::Automatic, "cheats", 0, 0,
+	WindowClass::Cheat, WindowClass::None,
 	{},
 	_nested_cheat_widgets
 );
 
 bool CheatWindowMayBeShown()
 {
-	return _game_mode != GM_EDITOR && (!IsNonAdminNetworkClient() || _settings_game.difficulty.money_cheat_in_multiplayer);
+	return _game_mode != GameMode::Editor && (!IsNonAdminNetworkClient() || _settings_game.difficulty.money_cheat_in_multiplayer);
 }
 
 /** Open cheat window. */
 void ShowCheatWindow()
 {
-	CloseWindowById(WC_CHEATS, 0);
+	CloseWindowById(WindowClass::Cheat, 0);
 	if (CheatWindowMayBeShown()) {
 		new CheatWindow(_cheats_desc);
 	}

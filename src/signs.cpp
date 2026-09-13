@@ -41,9 +41,9 @@ void Sign::UpdateVirtCoord()
 	if (IsHeadless()) return;
 	Point pt = RemapCoords(this->x, this->y, this->z);
 
-	if (_viewport_sign_kdtree_valid && this->sign.kdtree_valid) _viewport_sign_kdtree.Remove(ViewportSignKdtreeItem::MakeSign(this->index));
+	if (_viewport_sign_kdtree_valid && this->sign.kdtree_valid()) _viewport_sign_kdtree.Remove(ViewportSignKdtreeItem::MakeSign(this->index));
 
-	bool shown = HasBit(_display_opt, DO_SHOW_SIGNS) && !(this->IsCompetitorOwned() && !HasBit(_display_opt, DO_SHOW_COMPETITOR_SIGNS));
+	bool shown = _display_opt.Test(DisplayOption::ShowSigns) && !(this->IsCompetitorOwned() && !_display_opt.Test(DisplayOption::ShowCompetitorSigns));
 	auto params = MakeParameters(this->index);
 	this->sign.UpdatePosition(shown ? ZoomLevel::SpriteMax : ZoomLevel::End, pt.x, pt.y - 6 * ZOOM_BASE, params, STR_WHITE_SIGN);
 
@@ -65,6 +65,6 @@ void UpdateAllSignVirtCoords()
  */
 bool CompanyCanEditSign(const Sign *si)
 {
-	if (si->owner == OWNER_DEITY && _current_company != OWNER_DEITY && _game_mode != GM_EDITOR) return false;
+	if (si->owner == OWNER_DEITY && _current_company != OWNER_DEITY && _game_mode != GameMode::Editor) return false;
 	return true;
 }

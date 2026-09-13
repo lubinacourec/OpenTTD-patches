@@ -16,6 +16,7 @@
 #include "core/pool_type.hpp"
 #include "core/container_func.hpp"
 #include "core/strong_typedef_type.hpp"
+#include "command_type.h"
 #include "rail_map.h"
 #include "tile_type.h"
 #include "group_type.h"
@@ -189,6 +190,8 @@ enum TraceRestrictItemType : uint8_t {
 	TRIT_COND_TARGET_DIRECTION    = 31,   ///< Test direction of order target tile relative to this signal tile
 	TRIT_COND_RESERVATION_THROUGH = 32,   ///< Test if train reservation passes through tile
 	TRIT_COND_TRAIN_IN_SLOT_GROUP = 33,   ///< Test train slot membership
+	TRIT_COND_ORDER_STOP_LOCATION = 34,   ///< Test train stop location (near/middle/far/through load)
+	TRIT_COND_TIMETABLE_STATE     = 35,   ///< Test train lateness/earliness
 
 	TRIT_COND_END                 = 48,   ///< End (exclusive) of conditional item types, note that this has the same value as TRIT_REVERSE
 	TRIT_REVERSE                  = 48,   ///< Reverse behind/at signal
@@ -226,10 +229,10 @@ enum TraceRestrictNullTypeSpecialValue : uint8_t {
  * Enumeration of TraceRestrictItemvalue type field when value type is TRVT_DIRECTION
  */
 enum TraceRestrictDirectionTypeSpecialValue : uint8_t {
-	TRNTSV_NE                     = 0,       ///< DIAGDIR_NE: entering at NE tile edge
-	TRNTSV_SE                     = 1,       ///< DIAGDIR_SE: entering at SE tile edge
-	TRNTSV_SW                     = 2,       ///< DIAGDIR_SW: entering at SW tile edge
-	TRNTSV_NW                     = 3,       ///< DIAGDIR_NW: entering at NW tile edge
+	TRNTSV_NE                     = 0,       ///< DiagDirection::NE: entering at NE tile edge
+	TRNTSV_SE                     = 1,       ///< DiagDirection::SE: entering at SE tile edge
+	TRNTSV_SW                     = 2,       ///< DiagDirection::SW: entering at SW tile edge
+	TRNTSV_NW                     = 3,       ///< DiagDirection::NW: entering at NW tile edge
 	TRDTSV_FRONT                  = 4,       ///< entering at front face of signal
 	TRDTSV_BACK                   = 5,       ///< entering at rear face of signal
 	TRDTSV_TUNBRIDGE_ENTER        = 32,      ///< signal is a tunnel/bridge entrance
@@ -301,6 +304,15 @@ enum TraceRestrictPathfinderPenaltyAuxField : uint8_t {
 enum TraceRestrictTargetDirectionCondAuxField : uint8_t {
 	TRTDCAF_CURRENT_ORDER         = 0,       ///< Current order
 	TRTDCAF_NEXT_ORDER            = 1,       ///< Next order
+	/* space up to 3 */
+};
+
+/**
+ * TraceRestrictItem auxiliary type field, for TRIT_COND_TIMETABLE_STATE
+ */
+enum TraceRestrictTimetableStateCondAuxField : uint8_t {
+	TRTSCAF_LATENESS              = 0,       ///< Lateness
+	TRTSCAF_EARLINESS             = 1,       ///< Earliness
 	/* space up to 3 */
 };
 
@@ -381,6 +393,8 @@ enum TraceRestrictTrainStatusValueField : uint8_t {
 	TRTSVF_LOST                        =  9,      ///< Train is lost
 	TRTSVF_REQUIRES_SERVICE            = 10,      ///< Train requires service
 	TRTSVF_STOPPING_AT_STATION_WAYPOINT= 11,      ///< Train stops at destination station/waypoint
+	TRTSVF_DRIVING_BACKWARDS           = 12,      ///< Train is driving backwards
+	TRTSVF_DRIVING_BACKWARDS_NO_CAB    = 13,      ///< Train is driving backwards (no rear cab)
 };
 
 /**
@@ -545,6 +559,12 @@ namespace TracerestrictDetail {
 				return GroupID(this->GetValue());
 			}
 
+			/** Get value field, as a cargo type */
+			CargoType GetValueAsCargoType() const
+			{
+				return static_cast<CargoType>(this->GetValue());
+			}
+
 			/** Set type field */
 			inline void SetType(TraceRestrictItemType type)
 			{
@@ -615,6 +635,12 @@ namespace TracerestrictDetail {
 			inline void SetValue(GroupID value)
 			{
 				this->SetValue(value.base());
+			}
+
+			/** Set value field (cargo type) */
+			inline void SetValue(CargoType value)
+			{
+				this->SetValue(to_underlying(value));
 			}
 
 			/** Is the type field a conditional type? */
@@ -810,6 +836,7 @@ enum TraceRestrictProgramActionsUsedFlags : uint32_t {
 	TRPAUF_REVERSE_AT             = 1 << 20, ///< Reverse at signal
 	TRPAUF_COUNTER_CONDITIONALS   = 1 << 21, ///< Counter conditionals are present
 	TRPAUF_IS_BACKUP              = 1 << 22, ///< This program is a backup
+	TRPAUF_DRIVE_DIR_CONDITIONALS = 1 << 23, ///< Driving direction conditionals are present
 };
 DECLARE_ENUM_AS_BIT_SET(TraceRestrictProgramActionsUsedFlags)
 
@@ -835,11 +862,11 @@ DECLARE_ENUM_AS_BIT_SET(TraceRestrictProgramInputSlotPermissions)
 /**
  * Enumeration for TraceRestrictProgramInput::input_flags
  */
-enum TraceRestrictProgramInputFlags : uint8_t {
-	TRPIF_NONE                    = 0,       ///< No flags set
-	TRPIF_PASSED_STOP             = 1 << 0,  ///< Train has passed stop
+enum class TraceRestrictProgramInputFlag : uint8_t {
+	PassedStop,             ///< Train has passed stop
+	InvertDrivingDirection, ///< Invert whether train is considered to be driving backwards
 };
-DECLARE_ENUM_AS_BIT_SET(TraceRestrictProgramInputFlags)
+using TraceRestrictProgramInputFlags = EnumBitSet<TraceRestrictProgramInputFlag, uint8_t>;
 
 struct TraceRestrictSlotTemporaryState {
 	ankerl::svector<TraceRestrictSlotID, 8> veh_temporarily_added;
@@ -904,8 +931,8 @@ struct TraceRestrictProgramInput {
 	PreviousSignalProc *previous_signal_callback; ///< Callback to retrieve tile and direction of previous signal, may be nullptr
 	const void *previous_signal_ptr;              ///< Opaque pointer suitable to be passed to previous_signal_callback
 
-	TraceRestrictProgramInput(TileIndex tile_, Trackdir trackdir_, PreviousSignalProc *previous_signal_callback_, const void *previous_signal_ptr_)
-			: tile(tile_), trackdir(trackdir_), input_flags(TRPIF_NONE), permitted_slot_operations(TRPISP_NONE),
+	TraceRestrictProgramInput(TileIndex tile_, Trackdir trackdir_, PreviousSignalProc *previous_signal_callback_, const void *previous_signal_ptr_, TraceRestrictProgramInputFlags input_flags_ = {})
+			: tile(tile_), trackdir(trackdir_), input_flags(input_flags_), permitted_slot_operations(TRPISP_NONE),
 			previous_signal_callback(previous_signal_callback_), previous_signal_ptr(previous_signal_ptr_) { }
 };
 
@@ -1013,6 +1040,7 @@ enum TraceRestrictConditionOpType : uint8_t {
 	TRCOT_NONE                    = 0, ///< takes no condition op
 	TRCOT_BINARY                  = 1, ///< takes "is" and "is not" condition ops
 	TRCOT_ALL                     = 2, ///< takes all condition ops (i.e. all relational ops)
+	TRCOT_LT_GTE                  = 3, ///< takes < and >= only
 };
 
 /**
@@ -1025,6 +1053,7 @@ enum TraceRestrictValueType : uint8_t {
 	TRVT_INT,                      ///< takes an unsigned integer value
 	TRVT_DENY,                     ///< takes a value 0 = deny, 1 = allow (cancel previous deny)
 	TRVT_SPEED,                    ///< takes an integer speed value
+	TRVT_TICK_COUNT,               ///< takes an integer tick count
 	TRVT_ORDER,                    ///< takes an order target ID, as per the auxiliary field as type: TraceRestrictOrderCondAuxField
 	TRVT_CARGO_ID,                 ///< takes a CargoType
 	TRVT_DIRECTION,                ///< takes a TraceRestrictDirectionTypeSpecialValue
@@ -1056,6 +1085,7 @@ enum TraceRestrictValueType : uint8_t {
 	TRVT_ORDER_TARGET_DIAGDIR,     ///< takes a DiagDirection, and the order type in the auxiliary field
 	TRVT_TILE_INDEX_THROUGH,       ///< takes a TileIndex in the next item slot (passes through)
 	TRVT_LABEL_INDEX,              ///< takes a label ID
+	TRVT_ORDER_STOP_LOCATION,      ///< takes an OrderStopLocation
 };
 
 /**
@@ -1066,7 +1096,7 @@ struct TraceRestrictTypePropertySet {
 	TraceRestrictValueType value_type;
 };
 
-void SetTraceRestrictValueDefault(TraceRestrictInstructionItemRef item, TraceRestrictValueType value_type);
+void SetTraceRestrictValueDefault(TraceRestrictInstructionItemRef item, TraceRestrictValueType value_type, bool gui_context = false);
 void SetTraceRestrictTypeAndNormalise(TraceRestrictInstructionItemRef item, TraceRestrictItemType type, uint8_t aux_data = 0);
 
 /**
@@ -1099,6 +1129,11 @@ inline TraceRestrictTypePropertySet GetTraceRestrictTypeProperties(TraceRestrict
 			case TRIT_COND_NEXT_ORDER:
 			case TRIT_COND_LAST_STATION:
 				out.value_type = TRVT_ORDER;
+				out.cond_type = TRCOT_BINARY;
+				break;
+
+			case TRIT_COND_ORDER_STOP_LOCATION:
+				out.value_type = TRVT_ORDER_STOP_LOCATION;
 				out.cond_type = TRCOT_BINARY;
 				break;
 
@@ -1220,6 +1255,11 @@ inline TraceRestrictTypePropertySet GetTraceRestrictTypeProperties(TraceRestrict
 				out.cond_type = TRCOT_BINARY;
 				break;
 
+			case TRIT_COND_TIMETABLE_STATE:
+				out.value_type = TRVT_TICK_COUNT;
+				out.cond_type = TRCOT_LT_GTE;
+				break;
+
 			default:
 				NOT_REACHED();
 				break;
@@ -1306,6 +1346,7 @@ inline bool IsTraceRestrictTypeAuxSubtype(TraceRestrictItemType type)
 		case TRIT_COND_SLOT_OCCUPANCY:
 		case TRIT_COND_PBS_ENTRY_SIGNAL:
 		case TRIT_COND_CATEGORY:
+		case TRIT_COND_TIMETABLE_STATE:
 			return true;
 
 		default:
@@ -1354,9 +1395,9 @@ void TraceRestrictNotifySignalRemoval(TileIndex tile, Track track);
 inline bool IsRestrictedSignalTile(TileIndex t)
 {
 	switch (GetTileType(t)) {
-		case MP_RAILWAY:
+		case TileType::Railway:
 			return IsRestrictedSignal(t);
-		case MP_TUNNELBRIDGE:
+		case TileType::TunnelBridge:
 			return IsTunnelBridgeRestrictedSignal(t);
 		default:
 			return false;
@@ -1435,7 +1476,7 @@ struct TraceRestrictSlot : TraceRestrictSlotPool::PoolItem<&_tracerestrictslot_p
 	static void ValidateSlotGroupDescendants(std::function<void(std::string_view)> log);
 	static void PreCleanPool();
 
-	TraceRestrictSlot(TraceRestrictSlotID index, CompanyID owner = CompanyID::Invalid(), VehicleType type = VEH_TRAIN) :
+	TraceRestrictSlot(TraceRestrictSlotID index, CompanyID owner = CompanyID::Invalid(), VehicleType type = VehicleType::Train) :
 		PoolItemBase(index), owner(owner), vehicle_type(type) {}
 
 	~TraceRestrictSlot()
@@ -1524,7 +1565,7 @@ struct TraceRestrictSlotGroup : TraceRestrictSlotGroupPool::PoolItem<&_tracerest
 	ankerl::svector<TraceRestrictSlotID, 8> contained_slots; ///< NOSAVE: slots directly and indirectly contained in this slot group, sorted
 	bool folded = false;        ///< NOSAVE: Is this slot group folded in the slot view?
 
-	TraceRestrictSlotGroup(TraceRestrictSlotGroupID index, CompanyID owner = CompanyID::Invalid(), VehicleType type = VEH_TRAIN) :
+	TraceRestrictSlotGroup(TraceRestrictSlotGroupID index, CompanyID owner = CompanyID::Invalid(), VehicleType type = VehicleType::Train) :
 		PoolItemBase(index), owner(owner), vehicle_type(type), parent(INVALID_TRACE_RESTRICT_SLOT_GROUP) {}
 
 	void AddSlotsToParentGroups();

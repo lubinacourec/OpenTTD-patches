@@ -316,7 +316,7 @@ void StateGameLoop_LinkGraphPauseControl()
 	if (_pause_mode.Test(PauseMode::LinkGraph)) {
 		/* We are paused waiting on a job, check the job every tick */
 		if (!LinkGraphSchedule::instance.IsJoinWithUnfinishedJobDue()) {
-			Command<CMD_PAUSE>::Post(PauseMode::LinkGraph, false);
+			Command<Commands::Pause>::Post(PauseMode::LinkGraph, false);
 		}
 	} else if (_pause_mode.None()) {
 		int interval = _settings_game.linkgraph.recalc_interval * DAY_TICKS / SECONDS_PER_DAY;
@@ -324,7 +324,7 @@ void StateGameLoop_LinkGraphPauseControl()
 		if (offset == (interval / 2) - 2) {
 			/* perform check 2 ticks before we would join */
 			if (LinkGraphSchedule::instance.IsJoinWithUnfinishedJobDue()) {
-				Command<CMD_PAUSE>::Post(PauseMode::LinkGraph, true);
+				Command<Commands::Pause>::Post(PauseMode::LinkGraph, true);
 			}
 		}
 	}
@@ -354,10 +354,10 @@ void OnTick_LinkGraph()
 		LinkGraphSchedule::instance.SpawnNext();
 	} else if (offset == interval / 2) {
 		if (!_networking || _network_server) {
-			PerformanceMeasurer::SetInactive(PFE_GL_LINKGRAPH);
+			PerformanceMeasurer::SetInactive(PerformanceElement::GameLoopLinkGraph);
 			LinkGraphSchedule::instance.JoinNext();
 		} else {
-			PerformanceMeasurer framerate(PFE_GL_LINKGRAPH);
+			PerformanceMeasurer framerate(PerformanceElement::GameLoopLinkGraph);
 			LinkGraphSchedule::instance.JoinNext();
 		}
 	}

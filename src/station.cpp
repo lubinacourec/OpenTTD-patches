@@ -64,11 +64,11 @@ BaseStation::~BaseStation()
 {
 	if (CleaningPool()) return;
 
-	CloseWindowById(WC_TRAINS_LIST,   VehicleListIdentifier(VL_STATION_LIST, VEH_TRAIN,    this->owner, this->index).ToWindowNumber());
-	CloseWindowById(WC_ROADVEH_LIST,  VehicleListIdentifier(VL_STATION_LIST, VEH_ROAD,     this->owner, this->index).ToWindowNumber());
-	CloseWindowById(WC_SHIPS_LIST,    VehicleListIdentifier(VL_STATION_LIST, VEH_SHIP,     this->owner, this->index).ToWindowNumber());
-	CloseWindowById(WC_AIRCRAFT_LIST, VehicleListIdentifier(VL_STATION_LIST, VEH_AIRCRAFT, this->owner, this->index).ToWindowNumber());
-	CloseWindowById(WC_STATION_CARGO, this->index);
+	CloseWindowById(WindowClass::TrainList,       VehicleListIdentifier(VehicleListType::Station, VehicleType::Train,    this->owner, this->index).ToWindowNumber());
+	CloseWindowById(WindowClass::RoadVehicleList, VehicleListIdentifier(VehicleListType::Station, VehicleType::Road,     this->owner, this->index).ToWindowNumber());
+	CloseWindowById(WindowClass::ShipList,        VehicleListIdentifier(VehicleListType::Station, VehicleType::Ship,     this->owner, this->index).ToWindowNumber());
+	CloseWindowById(WindowClass::AircraftList,    VehicleListIdentifier(VehicleListType::Station, VehicleType::Aircraft, this->owner, this->index).ToWindowNumber());
+	CloseWindowById(WindowClass::StationCargoGraph, this->index);
 
 	extern void CloseStationDeparturesWindow(StationID station);
 	CloseStationDeparturesWindow(this->index);
@@ -112,7 +112,7 @@ Station::~Station()
 		if (a->targetairport == this->index) a->targetairport = StationID::Invalid();
 	}
 
-	for (CargoType cargo = 0; cargo < NUM_CARGO; ++cargo) {
+	for (CargoType cargo : EnumRange(NUM_CARGO)) {
 		LinkGraph *lg = LinkGraph::GetIfValid(this->goods[cargo].link_graph);
 		if (lg == nullptr) continue;
 
@@ -150,13 +150,13 @@ Station::~Station()
 
 	if (this->owner == OWNER_NONE) {
 		/* Invalidate all in case of oil rigs. */
-		InvalidateWindowClassesData(WC_STATION_LIST, 0);
+		InvalidateWindowClassesData(WindowClass::StationList, 0);
 	} else {
-		InvalidateWindowData(WC_STATION_LIST, this->owner, 0);
+		InvalidateWindowData(WindowClass::StationList, this->owner, 0);
 	}
 
-	CloseWindowById(WC_STATION_VIEW, index);
-	DeleteNewGRFInspectWindow(GSF_FAKE_STATION_STRUCT, this->index.base());
+	CloseWindowById(WindowClass::StationView, index);
+	DeleteNewGRFInspectWindow(GrfSpecFeature::FakeStationStruct, this->index.base());
 
 	/* Now delete all orders that go to the station */
 	RemoveOrderFromAllVehicles(OT_GOTO_STATION, this->index);
@@ -173,7 +173,7 @@ Station::~Station()
 	CargoPacket::InvalidateAllFrom(this->index);
 
 	_station_kdtree.Remove(this->index);
-	if (_viewport_sign_kdtree_valid && this->sign.kdtree_valid) _viewport_sign_kdtree.Remove(ViewportSignKdtreeItem::MakeStation(this->index));
+	if (_viewport_sign_kdtree_valid && this->sign.kdtree_valid()) _viewport_sign_kdtree.Remove(ViewportSignKdtreeItem::MakeStation(this->index));
 
 	if (ShouldShowBaseStationViewportLabel(this)) this->sign.MarkDirty(ZoomLevel::SpriteMax);
 }
@@ -182,10 +182,11 @@ Station::~Station()
 /**
  * Invalidating of the JoinStation window has to be done
  * after removing item from the pool.
+ * @copydoc Pool::PoolItem::PostDestructor
  */
-void BaseStation::PostDestructor(size_t)
+void BaseStation::PostDestructor([[maybe_unused]] size_t index)
 {
-	InvalidateWindowData(WC_SELECT_STATION, 0, 0);
+	InvalidateWindowData(WindowClass::JoinStation, 0, 0);
 }
 
 bool BaseStation::SetRoadStopTileData(TileIndex tile, uint8_t data, bool animation)
@@ -242,6 +243,8 @@ RoadStop *Station::GetPrimaryRoadStop(const RoadVehicle *v) const
 /**
  * Called when new facility is built on the station. If it is the first facility
  * it initializes also 'xy' and 'random_bits' members
+ * @param new_facility_bit The new facility.
+ * @param facil_xy The location where this facility is built.
  */
 void Station::AddFacility(StationFacility new_facility_bit, TileIndex facil_xy)
 {
@@ -252,12 +255,12 @@ void Station::AddFacility(StationFacility new_facility_bit, TileIndex facil_xy)
 	this->facilities.Set(new_facility_bit);
 	this->owner = _current_company;
 	this->build_date = CalTime::CurDate();
-	SetWindowClassesDirty(WC_VEHICLE_ORDERS);
+	SetWindowClassesDirty(WindowClass::VehicleOrders);
 }
 
 /**
  * Marks the tiles of the station as dirty.
- *
+ * @param cargo_change Whether only cargo amounts changed.
  * @ingroup dirty
  */
 void Station::MarkTilesDirty(bool cargo_change) const
@@ -307,7 +310,7 @@ void Station::MarkTilesDirty(bool cargo_change) const
 	TileIndex start_tile = tile;
 	uint length = 0;
 	dbg_assert_tile(IsRailStationTile(tile), tile);
-	dbg_assert(dir < DIAGDIR_END);
+	dbg_assert(dir < DiagDirection::End);
 
 	do {
 		length++;
@@ -321,12 +324,12 @@ void Station::MarkTilesDirty(bool cargo_change) const
  * Get the catchment size of an individual station tile.
  * @param tile Station tile to get catchment size of.
  * @param st Associated station of station tile.
- * @pre IsTileType(tile, MP_STATION)
+ * @pre IsTileType(tile, TileType::Station)
  * @return The catchment size of the station tile.
  */
 static uint GetTileCatchmentRadius(TileIndex tile, const Station *st)
 {
-	dbg_assert(IsTileType(tile, MP_STATION));
+	dbg_assert(IsTileType(tile, TileType::Station));
 
 	const int32_t inc = _settings_game.station.catchment_increase;
 
@@ -463,9 +466,9 @@ void Station::RemoveFromAllNearbyLists()
 
 	for (TileIndex tile : this->catchment_tiles) {
 		TileType type = GetTileType(tile);
-		if (type == MP_HOUSE) {
+		if (type == TileType::House) {
 			towns.insert(GetTownIndex(tile));
-		} else if (type == MP_INDUSTRY) {
+		} else if (type == TileType::Industry) {
 			industries.insert(GetIndustryIndex(tile));
 		}
 	}
@@ -485,7 +488,7 @@ bool Station::CatchmentCoversTown(TownID t) const
 {
 	BitmapTileIterator it(this->catchment_tiles);
 	for (TileIndex tile = it; tile != INVALID_TILE; tile = ++it) {
-		if (IsTileType(tile, MP_HOUSE) && GetTownIndex(tile) == t) return true;
+		if (IsTileType(tile, TileType::House) && GetTownIndex(tile) == t) return true;
 	}
 	return false;
 }
@@ -509,7 +512,7 @@ void Station::RecomputeCatchment(bool no_clear_nearby_lists)
 		/* Station is associated with an industry, so we only need to deliver to that industry. */
 		this->catchment_tiles.Initialize(this->industry->location);
 		for (TileIndex tile : this->industry->location) {
-			if (IsTileType(tile, MP_INDUSTRY) && GetIndustryIndex(tile) == this->industry->index) {
+			if (IsTileType(tile, TileType::Industry) && GetIndustryIndex(tile) == this->industry->index) {
 				this->catchment_tiles.SetTile(tile);
 			}
 		}
@@ -525,7 +528,7 @@ void Station::RecomputeCatchment(bool no_clear_nearby_lists)
 		TileArea ta(TileXY(this->rect.left, this->rect.top), TileXY(this->rect.right, this->rect.bottom));
 		this->station_tiles = 0;
 		for (TileIndex tile : ta) {
-			if (!IsTileType(tile, MP_STATION) || GetStationIndex(tile) != this->index) continue;
+			if (!IsTileType(tile, TileType::Station) || GetStationIndex(tile) != this->index) continue;
 			this->station_tiles++;
 		}
 		return;
@@ -537,7 +540,7 @@ void Station::RecomputeCatchment(bool no_clear_nearby_lists)
 	TileArea ta(TileXY(this->rect.left, this->rect.top), TileXY(this->rect.right, this->rect.bottom));
 	this->station_tiles = 0;
 	for (TileIndex tile : ta) {
-		if (!IsTileType(tile, MP_STATION) || GetStationIndex(tile) != this->index) continue;
+		if (!IsTileType(tile, TileType::Station) || GetStationIndex(tile) != this->index) continue;
 
 		this->station_tiles++;
 
@@ -552,11 +555,11 @@ void Station::RecomputeCatchment(bool no_clear_nearby_lists)
 	/* Search catchment tiles for towns and industries */
 	BitmapTileIterator it(this->catchment_tiles);
 	for (TileIndex tile = it; tile != INVALID_TILE; tile = ++it) {
-		if (IsTileType(tile, MP_HOUSE)) {
+		if (IsTileType(tile, TileType::House)) {
 			Town *t = Town::GetByTile(tile);
 			t->stations_near.insert(this);
 		}
-		if (IsTileType(tile, MP_INDUSTRY)) {
+		if (IsTileType(tile, TileType::Industry)) {
 			Industry *i = Industry::GetByTile(tile);
 
 			/* Ignore industry if it has a neutral station. It already can't be this station. */
@@ -673,7 +676,7 @@ CommandCost StationRect::BeforeAddRect(TileIndex tile, int w, int h, StationRect
 {
 	TileArea ta(TileXY(left_a, top_a), TileXY(right_a, bottom_a));
 	for (TileIndex tile : ta) {
-		if (IsTileType(tile, MP_STATION) && GetStationIndex(tile) == st_id) return true;
+		if (IsTileType(tile, TileType::Station) && GetStationIndex(tile) == st_id) return true;
 	}
 
 	return false;
@@ -756,7 +759,7 @@ StationRect& StationRect::operator = (const Rect &src)
 Money StationMaintenanceCost(uint32_t num)
 {
 	/* 7 bits scaling. 23 is roughly equivalent to the polynomial maint cost at 500 pieces. */
-	return (_price[PR_INFRASTRUCTURE_STATION] * num * GetMaintenanceCostScale(num, 23)) >> 7;
+	return (_price[Price::InfrastructureStation] * num * GetMaintenanceCostScale(num, 23)) >> 7;
 }
 
 /**
@@ -770,7 +773,7 @@ Money AirportMaintenanceCost(Owner owner)
 
 	for (const Station *st : Station::Iterate()) {
 		if (st->owner == owner && st->facilities.Test(StationFacility::Airport)) {
-			total_cost += _price[PR_INFRASTRUCTURE_AIRPORT] * st->airport.GetSpec()->maintenance_cost;
+			total_cost += _price[Price::InfrastructureAirport] * st->airport.GetSpec()->maintenance_cost;
 		}
 	}
 	/* 3 bits fraction for the maintenance cost factor. */

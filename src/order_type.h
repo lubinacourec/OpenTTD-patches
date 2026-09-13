@@ -125,28 +125,31 @@ inline bool IsDeparturesOrderLabelSubType(OrderLabelSubType subtype)
 }
 
 /**
- * Flags related to the unloading order.
+ * Unloading order types.
  */
-enum OrderUnloadFlags : uint8_t {
-	OUF_UNLOAD_IF_POSSIBLE = 0,      ///< Unload all cargo that the station accepts.
-	OUFB_UNLOAD            = 1 << 0, ///< Force unloading all cargo onto the platform, possibly not getting paid.
-	OUFB_TRANSFER          = 1 << 1, ///< Transfer all cargo onto the platform.
-	OUFB_NO_UNLOAD         = 1 << 2, ///< Totally no unloading will be done.
-	OUFB_CARGO_TYPE_UNLOAD = 1 << 3, ///< Unload actions are defined per cargo type.
-	OUFB_CARGO_TYPE_UNLOAD_ENCODING = (1 << 0) | (1 << 2), ///< Raw encoding of OUFB_CARGO_TYPE_UNLOAD
+enum class OrderUnloadType : uint8_t {
+	UnloadIfPossible = 0, ///< Unload all cargo that the station accepts.
+	Unload           = 1, ///< Force unloading all cargo onto the platform, possibly not getting paid.
+	Transfer         = 2, ///< Transfer all cargo onto the platform.
+	NoUnload         = 4, ///< Totally no unloading will be done.
+	CargoTypeUnload  = 5, ///< Unload actions are defined per cargo type.
 };
 
 /**
- * Flags related to the loading order.
+ * Loading order types.
  */
-enum OrderLoadFlags : uint8_t {
-	OLF_LOAD_IF_POSSIBLE = 0,      ///< Load as long as there is cargo that fits in the train.
-	OLFB_FULL_LOAD       = 1 << 1, ///< Full load all cargoes of the consist.
-	OLF_FULL_LOAD_ANY    = 3,      ///< Full load a single cargo of the consist.
-	OLFB_NO_LOAD         = 4,      ///< Do not load anything.
-	OLFB_CARGO_TYPE_LOAD = 1 << 3, ///< Load actions are defined per cargo type.
-	OLFB_CARGO_TYPE_LOAD_ENCODING = (1 << 1) | 4, ///< Raw encoding of OLFB_CARGO_TYPE_LOAD
+enum class OrderLoadType : uint8_t {
+	LoadIfPossible = 0, ///< Load as long as there is cargo that fits in the train.
+	FullLoad       = 2, ///< Full load all cargoes of the consist.
+	FullLoadAny    = 3, ///< Full load a single cargo of the consist.
+	NoLoad         = 4, ///< Do not load anything.
+	CargoTypeLoad  = 6, ///< Load actions are defined per cargo type.
 };
+
+constexpr inline bool IsFullLoadOrderLoadType(OrderLoadType load_type)
+{
+	return load_type == OrderLoadType::FullLoad || load_type == OrderLoadType::FullLoadAny;
+}
 
 /**
  * Non-stop order flags.
@@ -162,23 +165,25 @@ enum OrderNonStopFlags : uint8_t {
 /**
  * Where to stop the trains.
  */
-enum OrderStopLocation : uint8_t {
-	OSL_PLATFORM_NEAR_END = 0, ///< Stop at the near end of the platform
-	OSL_PLATFORM_MIDDLE   = 1, ///< Stop at the middle of the platform
-	OSL_PLATFORM_FAR_END  = 2, ///< Stop at the far end of the platform
-	OSL_PLATFORM_THROUGH  = 3, ///< Load/unload through the platform
-	OSL_END
+enum class OrderStopLocation : uint8_t {
+	NearEnd  = 0, ///< Stop at the near end of the platform
+	Middle   = 1, ///< Stop at the middle of the platform
+	FarEnd   = 2, ///< Stop at the far end of the platform
+	Through  = 3, ///< Load/unload through the platform
+	End,          ///< End marker.
 };
 
 /**
  * Reasons that could cause us to go to the depot.
  */
-enum OrderDepotTypeFlags : uint8_t {
-	ODTF_MANUAL          = 0,      ///< Manually initiated order.
-	ODTFB_SERVICE        = 1 << 0, ///< This depot order is because of the servicing limit.
-	ODTFB_PART_OF_ORDERS = 1 << 1, ///< This depot order is because of a regular order.
-	ODTFB_BREAKDOWN      = 1 << 2, ///< This depot order is because of a breakdown.
+enum class OrderDepotTypeFlag : uint8_t {
+	Service              = 0, ///< This depot order is because of the servicing limit.
+	PartOfOrders         = 1, ///< This depot order is because of a regular order.
+	Breakdown            = 2, ///< This depot order is because of a breakdown.
 };
+
+/** Bitset of \c OrderDepotTypeFlag elements. */
+using OrderDepotTypeFlags = EnumBitSet<OrderDepotTypeFlag, uint8_t>;
 
 /**
  * Actions that can be performed when the vehicle enters the depot.
@@ -195,11 +200,10 @@ DECLARE_ENUM_AS_BIT_SET(OrderDepotActionFlags)
 /**
  * Extra depot flags.
  */
-enum OrderDepotExtraFlags {
-	ODEF_NONE           = 0,      ///< No flags.
-	ODEFB_SPECIFIC      = 1 << 0, ///< This order is for a specific depot.
+enum class OrderDepotExtraFlag : uint8_t {
+	Specific            = 0, ///< This order is for a specific depot.
 };
-DECLARE_ENUM_AS_BIT_SET(OrderDepotExtraFlags)
+using OrderDepotExtraFlags = EnumBitSet<OrderDepotExtraFlag, uint8_t>;
 
 /**
  * Flags for go to waypoint orders
@@ -212,55 +216,57 @@ using OrderWaypointFlags = EnumBitSet<OrderWaypointFlag, uint8_t>;
 /**
  * Variables (of a vehicle) to 'cause' skipping on.
  */
-enum OrderConditionVariable : uint8_t {
-	OCV_LOAD_PERCENTAGE,    ///< Skip based on the amount of load
-	OCV_RELIABILITY,        ///< Skip based on the reliability
-	OCV_MAX_SPEED,          ///< Skip based on the maximum speed
-	OCV_AGE,                ///< Skip based on the age
-	OCV_REQUIRES_SERVICE,   ///< Skip when the vehicle requires service
-	OCV_UNCONDITIONALLY,    ///< Always skip
-	OCV_REMAINING_LIFETIME, ///< Skip based on the remaining lifetime
-	OCV_MAX_RELIABILITY,    ///< Skip based on the maximum reliability
-	OCV_CARGO_WAITING,      ///< Skip if specified cargo is waiting at station
-	OCV_CARGO_ACCEPTANCE,   ///< Skip if specified cargo is accepted at station
-	OCV_FREE_PLATFORMS,     ///< Skip based on free platforms at station
-	OCV_PERCENT,            ///< Skip xx percent of times
-	OCV_SLOT_OCCUPANCY,     ///< Test if vehicle slot is fully occupied, or empty
-	OCV_VEH_IN_SLOT,        ///< Test if vehicle is in slot
-	OCV_CARGO_LOAD_PERCENTAGE, ///< Skip based on the amount of load of a specific cargo
-	OCV_CARGO_WAITING_AMOUNT,  ///< Skip based on the amount of a specific cargo waiting at station
-	OCV_COUNTER_VALUE,      ///< Skip based on counter value
-	OCV_TIME_DATE,          ///< Skip based on current time/date
-	OCV_TIMETABLE,          ///< Skip based on timetable state
-	OCV_DISPATCH_SLOT,      ///< Skip based on scheduled dispatch slot state
-	OCV_CARGO_WAITING_AMOUNT_PERCENTAGE, ///< Skip based on the amount of a specific cargo waiting at station, relative to the vehicle capacity
-	OCV_VEH_IN_SLOT_GROUP,  ///< Test if vehicle is in slot group
-	OCV_END
+enum class OrderConditionVariable : uint8_t {
+	LoadPercentage               =  0, ///< Skip based on the amount of load
+	Reliability                  =  1, ///< Skip based on the reliability
+	MaxSpeed                     =  2, ///< Skip based on the maximum speed
+	Age                          =  3, ///< Skip based on the age
+	RequiresService              =  4, ///< Skip when the vehicle requires service
+	Unconditionally              =  5, ///< Always skip
+	RemainingLifetime            =  6, ///< Skip based on the remaining lifetime
+	MaxReliability               =  7, ///< Skip based on the maximum reliability
+	/* end of upstream variables */
+	CargoWaiting                 =  8, ///< Skip if specified cargo is waiting at station
+	CargoAcceptance              =  9, ///< Skip if specified cargo is accepted at station
+	FreePlatforms                = 10, ///< Skip based on free platforms at station
+	Percent                      = 11, ///< Skip xx percent of times
+	SlotOccupancy                = 12, ///< Test if vehicle slot is fully occupied, or empty
+	VehicleInSlot                = 13, ///< Test if vehicle is in slot
+	CargoLoadPercentage          = 14, ///< Skip based on the amount of load of a specific cargo
+	CargoWaitingAmount           = 15, ///< Skip based on the amount of a specific cargo waiting at station
+	CounterValue                 = 16, ///< Skip based on counter value
+	TimeDate                     = 17, ///< Skip based on current time/date
+	Timetable                    = 18, ///< Skip based on timetable state
+	DispatchSlot                 = 19, ///< Skip based on scheduled dispatch slot state
+	CargoWaitingAmountPercentage = 20, ///< Skip based on the amount of a specific cargo waiting at station, relative to the vehicle capacity
+	VehicleInSlotGroup           = 21, ///< Test if vehicle is in slot group
+	DrivingBackwards             = 22, ///< Skip when the train is driving backwards, upstream value = 8
+	End, ///< End marker.
 };
 
 inline bool ConditionVariableHasStationID(OrderConditionVariable ocv)
 {
-	return ocv == OCV_CARGO_WAITING || ocv == OCV_CARGO_ACCEPTANCE || ocv == OCV_FREE_PLATFORMS || ocv == OCV_CARGO_WAITING_AMOUNT || ocv == OCV_CARGO_WAITING_AMOUNT_PERCENTAGE;
+	return ocv == OrderConditionVariable::CargoWaiting || ocv == OrderConditionVariable::CargoAcceptance || ocv == OrderConditionVariable::FreePlatforms || ocv == OrderConditionVariable::CargoWaitingAmount || ocv == OrderConditionVariable::CargoWaitingAmountPercentage;
 }
 
 inline bool ConditionVariableTestsCargoWaitingAmount(OrderConditionVariable ocv)
 {
-	return ocv == OCV_CARGO_WAITING_AMOUNT || ocv == OCV_CARGO_WAITING_AMOUNT_PERCENTAGE;
+	return ocv == OrderConditionVariable::CargoWaitingAmount || ocv == OrderConditionVariable::CargoWaitingAmountPercentage;
 }
 
 /**
  * Comparator for the skip reasoning.
  */
-enum OrderConditionComparator : uint8_t {
-	OCC_EQUALS,      ///< Skip if both values are equal
-	OCC_NOT_EQUALS,  ///< Skip if both values are not equal
-	OCC_LESS_THAN,   ///< Skip if the value is less than the limit
-	OCC_LESS_EQUALS, ///< Skip if the value is less or equal to the limit
-	OCC_MORE_THAN,   ///< Skip if the value is more than the limit
-	OCC_MORE_EQUALS, ///< Skip if the value is more or equal to the limit
-	OCC_IS_TRUE,     ///< Skip if the variable is true
-	OCC_IS_FALSE,    ///< Skip if the variable is false
-	OCC_END
+enum class OrderConditionComparator : uint8_t {
+	Equal           = 0, ///< Skip if both values are equal
+	NotEqual        = 1, ///< Skip if both values are not equal
+	LessThan        = 2, ///< Skip if the value is less than the limit
+	LessThanOrEqual = 3, ///< Skip if the value is less or equal to the limit
+	MoreThan        = 4, ///< Skip if the value is more than the limit
+	MoreThanOrEqual = 5, ///< Skip if the value is more or equal to the limit
+	IsTrue          = 6, ///< Skip if the variable is true
+	IsFalse         = 7, ///< Skip if the variable is false
+	End
 };
 
 
@@ -326,7 +332,7 @@ enum OrderTimetableConditionMode {
 };
 
 /**
- * Condition value field for OCV_DISPATCH_SLOT
+ * Condition value field for OrderConditionVariable::DispatchSlot
  *  0                   1
  *  0 1 2 3 4 5 6 7 8 9 0
  * +-+-+-+-+-+-+-+-+-+-+-+

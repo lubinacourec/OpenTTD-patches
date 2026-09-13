@@ -95,7 +95,8 @@ struct StringReader {
 
 	/**
 	 * Handle the pragma of the file.
-	 * @param str    The pragma string to parse.
+	 * @param str The pragma string to parse.
+	 * @param lang The header metadata to write the parsed pragma data to.
 	 */
 	virtual void HandlePragma(std::string_view str, LanguagePackHeader &lang);
 
@@ -166,7 +167,7 @@ struct CmdPair {
 
 struct ParsedCommandStruct {
 	std::vector<CmdPair> non_consuming_commands;
-	std::array<const CmdStruct*, 32> consuming_commands{ nullptr }; // ordered by param #
+	std::array<const CmdStruct*, 32> consuming_commands{ nullptr }; ///< Ordered by param #.
 };
 
 const CmdStruct *TranslateCmdForCompare(const CmdStruct *a);

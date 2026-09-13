@@ -16,11 +16,25 @@
 static const uint ICON_CMDLN_SIZE     = 1024; ///< maximum length of a typed in command
 
 /** Return values of console hooks (#IConsoleHook). */
-enum ConsoleHookResult : uint8_t {
-	CHR_ALLOW,    ///< Allow command execution.
-	CHR_DISALLOW, ///< Disallow command execution.
-	CHR_HIDE,     ///< Hide the existence of the command.
+enum class ConsoleHookResult : uint8_t {
+	Allow, ///< Allow command execution.
+	Disallow, ///< Disallow command execution.
+	Hide, ///< Hide the existence of the command.
 };
+
+/**
+ * Entrypoint of a console command.
+ * @param argv The arguments to the command.
+ * @return \c true iff the command is handled correctly, i.e. \c false to show a help message.
+ */
+using IConsoleCmdProc = bool(std::span<std::string_view> argv);
+
+/**
+ * Checks whether the command may be executed.
+ * @param echo Whether to print an error message or not.
+ * @return Whether to allow the command or not.
+ */
+using IConsoleHook = ConsoleHookResult(bool echo);
 
 /**
  * --Commands--
@@ -30,8 +44,6 @@ enum ConsoleHookResult : uint8_t {
  * If you want to handle multiple words as one, enclose them in double-quotes
  * eg. 'say "hello everybody"'
  */
-using IConsoleCmdProc = bool(std::span<std::string_view>);
-using IConsoleHook = ConsoleHookResult(bool);
 struct IConsoleCmd {
 	IConsoleCmd(std::string_view name, IConsoleCmdProc *proc, IConsoleHook *hook, bool unlisted) : name(name), proc(proc), hook(hook), unlisted(unlisted) {}
 
@@ -84,6 +96,6 @@ void IConsoleStdLibRegister();
 
 void IConsoleGUIInit();
 void IConsoleGUIFree();
-void IConsoleGUIPrint(TextColour colour_code, std::string str);
+void IConsoleGUIPrint(ExtendedTextColour colour_code, std::string str);
 
 #endif /* CONSOLE_INTERNAL_H */

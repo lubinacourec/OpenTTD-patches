@@ -10,7 +10,6 @@
 #ifndef FIOS_H
 #define FIOS_H
 
-#include "gfx_type.h"
 #include "company_base.h"
 #include "newgrf_config.h"
 #include "network/core/tcp_content_type.h"
@@ -25,13 +24,20 @@ enum SaveLoadInvalidateWindowData : uint8_t {
 	SLIWD_FILTER_CHANGES,        ///< The filename filter has changed (via the editbox)
 };
 
+/** Outcome of a directory creation attempt. */
+enum class DirectoryCreateResult : uint8_t {
+	Success,            ///< Directory was created.
+	AlreadyExists,      ///< A file or directory with that name already exists.
+	PermissionDenied,   ///< The OS rejected the operation for permission reasons.
+	OtherError,         ///< Any other filesystem error.
+};
+
 /** Deals with finding savegames */
 struct FiosItem {
 	FiosType type;
 	uint64_t mtime;
 	EncodedString title;
 	std::string name;
-	bool operator< (const FiosItem &other) const;
 };
 
 /** List of file information. */
@@ -40,17 +46,9 @@ public:
 	void BuildFileList(AbstractFileType abstract_filetype, SaveLoadOperation fop, bool show_dirs);
 	const FiosItem *FindItem(std::string_view file);
 };
-
-enum SortingBits : uint8_t {
-	SORT_ASCENDING  = 0,
-	SORT_DESCENDING = 1,
-	SORT_BY_DATE    = 0,
-	SORT_BY_NAME    = 2
-};
-DECLARE_ENUM_AS_BIT_SET(SortingBits)
-
-/* Variables to display file lists */
-extern SortingBits _savegame_sort_order;
+bool FiosItemSorter(const FiosItem &a, const FiosItem &b);
+bool FiosItemNameSorter(const FiosItem &a, const FiosItem &b);
+bool FiosItemModificationDateSorter(const FiosItem &a, const FiosItem &b);
 
 struct FiosOrderListInfo {
 	const Vehicle * const veh;
@@ -76,6 +74,7 @@ std::optional<uint64_t> FiosGetDiskFreeSpace(const std::string &path);
 std::string FiosMakeHeightmapName(const char *name);
 std::string FiosMakeSavegameName(const char *name);
 std::string FiosMakeOrderListName(const char *name);
+DirectoryCreateResult FiosCreateDirectory(std::string_view name);
 
 FiosType FiosGetSavegameListCallback(SaveLoadOperation fop, const std::string &file, const char *ext, char *title, const char *last);
 FiosType FiosGetScenarioListCallback(SaveLoadOperation fop, const std::string &file, const char *ext, char *title, const char *last);

@@ -16,18 +16,21 @@
 #include "vehicle_type.h"
 #include "base_consist.h"
 #include "order_base.h"
-#include "sl/saveload_common.h"
+#include "sl/saveload_common_type.h"
 #include <vector>
 
 /** Unique identifier for an order backup. */
 struct OrderBackupIDTag : public PoolIDTraits<uint8_t, 255, 0xFF> {};
 using OrderBackupID = PoolID<OrderBackupIDTag>;
 struct OrderBackup;
+enum class ClientID : uint32_t;
 
 /** The pool type for order backups. */
 using OrderBackupPool = Pool<OrderBackup, OrderBackupID, 1>;
 /** The pool with order backups. */
 extern OrderBackupPool _order_backup_pool;
+/** An item in the OrderBackupPool. */
+using OrderBackupPoolItem = OrderBackupPool::PoolItem<&_order_backup_pool>;
 
 namespace upstream_sl {
 	SaveLoadTable GetOrderBackupDescription();
@@ -38,7 +41,7 @@ namespace upstream_sl {
  * Data for backing up an order of a vehicle so it can be
  * restored after a vehicle is rebuilt in the same depot.
  */
-struct OrderBackup : OrderBackupPool::PoolItem<&_order_backup_pool>, BaseConsist {
+struct OrderBackup : OrderBackupPoolItem, BaseConsist {
 private:
 	friend NamedSaveLoadTable GetOrderBackupDescription(); ///< Saving and loading of order backups.
 	friend struct OrderBackupDispatchScheduleStructHandler; ///< Saving and loading of order backups.
@@ -49,7 +52,7 @@ private:
 	friend void Load_BKOR();              ///< Creating empty orders upon savegame loading.
 	friend void Save_BKOR();              ///< Saving orders upon savegame saving.
 	friend upstream_sl::BKORChunkHandler;
-	uint32_t user = 0;                    ///< The user that requested the backup.
+	ClientID user{};                      ///< The user that requested the backup.
 	TileIndex tile = INVALID_TILE;        ///< Tile of the depot where the order was changed.
 	GroupID group = GroupID::Invalid();   ///< The group the vehicle was part of.
 
@@ -62,19 +65,19 @@ private:
 
 	void DoRestore(Vehicle *v);
 
-	friend OrderBackupPool::PoolItem<&_order_backup_pool>;
+	friend OrderBackupPoolItem; ///< Loading of order backups.
 	/** Creation for savegame restoration. */
 	OrderBackup(OrderBackupID index) : PoolItemBase(index) {}
-	OrderBackup(OrderBackupID index, const Vehicle *v, uint32_t user);
+	OrderBackup(OrderBackupID index, const Vehicle *v, ClientID user);
 
 public:
 	~OrderBackup();
 
-	static void Backup(const Vehicle *v, uint32_t user);
-	static void Restore(Vehicle *v, uint32_t user);
+	static void Backup(const Vehicle *v, ClientID user);
+	static void Restore(Vehicle *v, ClientID user);
 
-	static void ResetOfUser(TileIndex tile, uint32_t user);
-	static void ResetUser(uint32_t user);
+	static void ResetOfUser(TileIndex tile, ClientID user);
+	static void ResetUser(ClientID user);
 	static void Reset(TileIndex tile = INVALID_TILE, bool from_gui = true);
 
 	static void ClearGroup(GroupID group);

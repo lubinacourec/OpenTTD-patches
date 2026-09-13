@@ -133,7 +133,7 @@ void Save_ERNC()
 			if (e->info.callback_mask.Test(VehicleCallbackMask::CustomRefit)) {
 				count++;
 				SlWriteUint16(e->index);
-				SlWriteUint64(e->info.refit_mask);
+				SlWriteUint64(e->info.refit_mask.base());
 			}
 		}
 	});
@@ -162,7 +162,7 @@ void Load_ERNC()
 	_engine_refit_network_caches.reserve(count);
 	for (uint32_t idx = 0; idx < count; idx++) {
 		EngineID id = static_cast<EngineID>(SlReadUint16());
-		CargoTypes refit_mask = SlReadUint64();
+		CargoTypes refit_mask{SlReadUint64()};
 		_engine_refit_network_caches.push_back({ id, refit_mask });
 	}
 }
@@ -207,8 +207,8 @@ static ChunkSaveLoadSpecialOpResult Special_ERNC(uint32_t chunk_id, ChunkSaveLoa
 static const ChunkHandler engine_chunk_handlers[] = {
 	MakeUpstreamChunkHandler<'EIDS', GeneralUpstreamChunkLoadInfo>(),
 	MakeUpstreamChunkHandler<'ENGN', GeneralUpstreamChunkLoadInfo>(),
-	{ 'ENGS', nullptr,   Load_ENGS, nullptr, nullptr, CH_READONLY  },
-	{ 'ERNC', Save_ERNC, Load_ERNC, nullptr, nullptr, CH_RIFF, Special_ERNC },
+	{ 'ENGS', nullptr,   Load_ENGS, nullptr, nullptr, ChunkType::ReadOnly  },
+	{ 'ERNC', Save_ERNC, Load_ERNC, nullptr, nullptr, ChunkType::Riff, Special_ERNC },
 };
 
 extern const ChunkHandlerTable _engine_chunk_handlers(engine_chunk_handlers);

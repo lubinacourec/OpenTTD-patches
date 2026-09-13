@@ -1321,8 +1321,8 @@ STR_CONFIG_SETTING_CONSTRUCTION_COSTS_HELPTEXT                  :Alege nivelul d
 STR_CONFIG_SETTING_RECESSIONS                                   :Recesiuni: {STRING}
 STR_CONFIG_SETTING_RECESSIONS_HELPTEXT                          :Dacă este activată, recesiunile pot apărea periodic. În timpul unei recesiuni toată producția este semnificativ mai scăzută (revine la nivelul anterior când recesiunea se încheie)
 
-STR_CONFIG_SETTING_TRAIN_REVERSING                              :Nu permite întoarcerea trenurilor in statie: {STRING}
-STR_CONFIG_SETTING_TRAIN_REVERSING_HELPTEXT                     :Dacă este activată, trenurile nu vor întoarce într-o stație care nu este capăt de linie, chiar dacă există o cale mai scurtă către destinația următoare la întoarcere
+
+###length 3
 
 STR_CONFIG_SETTING_DISASTERS                                    :Dezastre: {STRING}
 STR_CONFIG_SETTING_DISASTERS_HELPTEXT                           :Comută dezastre care ocazional pot bloca sau distruge vehicule sau infrastructură
@@ -1345,7 +1345,6 @@ STR_CONFIG_SETTING_CATCHMENT_HELPTEXT                           :Permite zone di
 
 STR_CONFIG_SETTING_SERVE_NEUTRAL_INDUSTRIES                     :Stațiile companiei pot deservi industrii cu stații neutre atașate: {STRING}
 STR_CONFIG_SETTING_SERVE_NEUTRAL_INDUSTRIES_HELPTEXT            :Când este activată, industriile cu stații atașate (cum ar fi platformele petroliere) pot fi deservite și de stații deținute de companie construite în apropiere. Când sunt dezactivate, aceste industrii pot fi deservite numai de stațiile atașate. Orice stație a companiei din apropiere nu le va putea deservi și nici stația atașată nu va deservi altceva decât industria
-
 
 STR_CONFIG_SETTING_EXTRADYNAMITE                                :Permite demolarea unui nr. mai mare de drumuri, poduri și tunele deținute de oraș: {STRING}
 STR_CONFIG_SETTING_EXTRADYNAMITE_HELPTEXT                       :Facilitează eliminarea de clădiri și infrastructură deținute de oraș
@@ -1528,6 +1527,8 @@ STR_CONFIG_SETTING_INDUSTRY_CARGO_SCALE                         :Ajustarea produ
 STR_CONFIG_SETTING_INDUSTRY_CARGO_SCALE_HELPTEXT                :Ajustarea producției de mărfuri cu acest procent.
 STR_CONFIG_SETTING_CARGO_SCALE_VALUE                            :{NUM}%
 
+###setting-zero-is-special
+
 STR_CONFIG_SETTING_AUTORENEW_VEHICLE                            :Înnoire automată pentru vehiculele învechite: {STRING}
 STR_CONFIG_SETTING_AUTORENEW_VEHICLE_HELPTEXT                   :După activare, orice vehicul care este învechit va fi înnoit automat când condițiile de înlocuire automată sunt îndeplinite
 
@@ -1596,6 +1597,8 @@ STR_CONFIG_SETTING_ROUGHNESS_OF_TERRAIN_VERY_SMOOTH             :Foarte fin
 STR_CONFIG_SETTING_ROUGHNESS_OF_TERRAIN_SMOOTH                  :Fin
 STR_CONFIG_SETTING_ROUGHNESS_OF_TERRAIN_ROUGH                   :Dur
 STR_CONFIG_SETTING_ROUGHNESS_OF_TERRAIN_VERY_ROUGH              :Foarte dur
+
+###length 4
 
 STR_CONFIG_SETTING_VARIETY                                      :Distribuția varietății: {STRING}
 STR_CONFIG_SETTING_VARIETY_HELPTEXT                             :Alegeți dacă harta conține atât munți, cât și zone plane. Cu cât varietatea este mai mare, cu atât mai multe diferențe de altitudine între zonele muntoase și cele plate.
@@ -1753,12 +1756,7 @@ STR_CONFIG_SETTING_TIMETABLE_SHOW_ARRIVAL_DEPARTURE_HELPTEXT    :Arată timpii e
 STR_CONFIG_SETTING_QUICKGOTO                                    :Creare rapidă a comenzilor pentru vehicule: {STRING}
 STR_CONFIG_SETTING_QUICKGOTO_HELPTEXT                           :Preselectează cursorul "mergi la" când se deschide fereastra de comenzi
 
-STR_CONFIG_SETTING_DEFAULT_RAIL_TYPE                            :Tipul implicit de șină (după joc nou/încarcare joc): {STRING}
-STR_CONFIG_SETTING_DEFAULT_RAIL_TYPE_HELPTEXT                   :Tipul de cale feroviară care va fi ales la pornirea sau îmcărcarea jocului. 'Prima disponibilă' alege cel mai nou tip de cale feroviară și 'Cea mai folosită' alege tipul cel mai des folosit în acel moment.
 ###length 3
-STR_CONFIG_SETTING_DEFAULT_RAIL_TYPE_FIRST                      :Prima disponibilă
-STR_CONFIG_SETTING_DEFAULT_RAIL_TYPE_LAST                       :Ultima disponibilă
-STR_CONFIG_SETTING_DEFAULT_RAIL_TYPE_MOST_USED                  :Cea mai folosită
 
 STR_CONFIG_SETTING_SHOW_TRACK_RESERVATION                       :Arată liniile rezervate: {STRING}
 STR_CONFIG_SETTING_SHOW_TRACK_RESERVATION_HELPTEXT              :Acordă căilor feroviare rezervate o culoare diferită pentru a depista mai ușor probleme cum ar fi trenuri refuzând intrarea în secțiuni bazate pe căi stabilite anterior
@@ -1864,6 +1862,7 @@ STR_CONFIG_SETTING_STATION_LENGTH_LOADING_PENALTY_HELPTEXT      :Când este acti
 
 STR_CONFIG_SETTING_WAGONSPEEDLIMITS                             :Activează limite de viteză pentru vagoane: {STRING}
 STR_CONFIG_SETTING_WAGONSPEEDLIMITS_HELPTEXT                    :Dacă este activată, folosește și limita de viteză a vagoanelor pentru a stabili viteza maximă a trenului
+
 
 STR_CONFIG_SETTING_DISABLE_ELRAILS                              :Dezactivează șinele electrice: {STRING}
 STR_CONFIG_SETTING_DISABLE_ELRAILS_HELPTEXT                     :Prin activarea acestei opțiuni, se dezactivează cerința de a avea cale feroviară electrificată pentru a putea folosi locomotive electrice pe această cale feroviară
@@ -2184,7 +2183,7 @@ STR_CONFIG_ERROR_INVALID_BASE_GRAPHICS_NOT_FOUND                :{WHITE}... setu
 STR_CONFIG_ERROR_INVALID_BASE_SOUNDS_NOT_FOUND                  :{WHITE}... setul de bază pentru sunete '{STRING}' este ignorat: nu a fost găsit
 STR_CONFIG_ERROR_INVALID_BASE_MUSIC_NOT_FOUND                   :{WHITE}... setul de bază pentru muzică '{STRING}' este ignorat: nu a fost găsit
 
-# Video initalization errors
+# Video initialization errors
 STR_VIDEO_DRIVER_ERROR                                          :{WHITE}Eroare în setările video...
 STR_VIDEO_DRIVER_ERROR_NO_HARDWARE_ACCELERATION                 :{WHITE}... GPU incompatibil. Accelerarea hardware este dezactivată
 STR_VIDEO_DRIVER_ERROR_HARDWARE_ACCELERATION_CRASH              :{WHITE}... Driverul GPU a dus la prăbușirea jocului. Accelerarea hardware a fost dezactivată
@@ -2437,15 +2436,13 @@ STR_NETWORK_CONNECTING_WAITING                                  :{BLACK}{NUM} {P
 STR_NETWORK_CONNECTING_DOWNLOADING_1                            :{BLACK}{BYTES} descărcat până acum
 STR_NETWORK_CONNECTING_DOWNLOADING_2                            :{BLACK}{BYTES} / {BYTES} descărcați până acum
 
-###length 8
+###length 6
 STR_NETWORK_CONNECTING_1                                        :{BLACK}(1/6) Conectare...
 STR_NETWORK_CONNECTING_2                                        :{BLACK}(2/6) Autorizare...
 STR_NETWORK_CONNECTING_3                                        :{BLACK}(3/6) Așteptați...
 STR_NETWORK_CONNECTING_4                                        :{BLACK}(4/6) Descărcare hartă...
 STR_NETWORK_CONNECTING_5                                        :{BLACK}(5/6) Prelucrare date...
 STR_NETWORK_CONNECTING_6                                        :{BLACK}(6/6) Înregistrare...
-STR_NETWORK_CONNECTING_SPECIAL_1                                :{BLACK}Preluare informații joc...
-STR_NETWORK_CONNECTING_SPECIAL_2                                :{BLACK}Preluare informații companie...
 
 STR_NETWORK_CONNECTION_DISCONNECT                               :{BLACK}Deconectare
 
@@ -2849,7 +2846,6 @@ STR_STATION_CLASS_WAYP_WAYPOINT                                 :Punct intermedi
 
 # Signal window
 STR_BUILD_SIGNAL_CAPTION                                        :{WHITE}Alegere semnal
-STR_BUILD_SIGNAL_TOGGLE_ADVANCED_SIGNAL_TOOLTIP                 :{BLACK}Comută afișarea tipurilor de semnal avansate
 STR_BUILD_SIGNAL_SEMAPHORE_NORM_TOOLTIP                         :{BLACK}Semnal standard (semafor){}Acesta este cel mai simplu tip de semnal, permițând numai unui tren să fie în același bloc, la un moment dat
 STR_BUILD_SIGNAL_SEMAPHORE_ENTRY_TOOLTIP                        :{BLACK}Semnal de intrare (semafor){}Verde, atat timp cât există unul sau mai multe semnale verzi de ieșire din secțiunea următoare a căii ferate. Altfel indică roșu
 STR_BUILD_SIGNAL_SEMAPHORE_EXIT_TOOLTIP                         :{BLACK}Semnal de ieșire (semafor){}Se comportă în același fel ca semnalul normal, dar este necesar pentru declanșarea culorii corecte la presemnalizatoarele de intrare și cele combinate
@@ -3965,10 +3961,10 @@ STR_INDUSTRY_DIRECTORY_CAPTION                                  :{WHITE}Industri
 STR_INDUSTRY_DIRECTORY_NONE                                     :{ORANGE}- Nimic-
 STR_INDUSTRY_DIRECTORY_ITEM_INFO                                :{BLACK}{CARGO_LONG}{STRING}{YELLOW} ({COMMA}% transportat)
 STR_INDUSTRY_DIRECTORY_ITEM_NOPROD                              :{ORANGE}{INDUSTRY}
-STR_INDUSTRY_DIRECTORY_ITEM_PROD1                               :{ORANGE}{INDUSTRY} {STRING}
-STR_INDUSTRY_DIRECTORY_ITEM_PROD2                               :{ORANGE}{INDUSTRY} {STRING}, {STRING}
-STR_INDUSTRY_DIRECTORY_ITEM_PROD3                               :{ORANGE}{INDUSTRY} {STRING}, {STRING}, {STRING}
-STR_INDUSTRY_DIRECTORY_ITEM_PRODMORE                            :{ORANGE}{INDUSTRY} {STRING}, {STRING}, {STRING} și încă {NUM}...
+STR_INDUSTRY_DIRECTORY_ITEM_PROD1                               :{ORANGE}{INDUSTRY} {BLACK}{STRING}
+STR_INDUSTRY_DIRECTORY_ITEM_PROD2                               :{ORANGE}{INDUSTRY} {BLACK}{STRING}, {STRING}
+STR_INDUSTRY_DIRECTORY_ITEM_PROD3                               :{ORANGE}{INDUSTRY} {BLACK}{STRING}, {STRING}, {STRING}
+STR_INDUSTRY_DIRECTORY_ITEM_PRODMORE                            :{ORANGE}{INDUSTRY} {BLACK}{STRING}, {STRING}, {STRING} și încă {NUM}...
 STR_INDUSTRY_DIRECTORY_LIST_TOOLTIP                             :{BLACK}Numele industriilor - clic pe nume pentru focalizarea pe industrie. Ctrl+Click pentru a deschide o fereastră cu locația industriei
 STR_INDUSTRY_DIRECTORY_ACCEPTED_CARGO_FILTER                    :{BLACK}Marfă acceptată: {SILVER}{STRING}
 STR_INDUSTRY_DIRECTORY_PRODUCED_CARGO_FILTER                    :{BLACK}Marfă produsă: {SILVER}{STRING}
@@ -4118,6 +4114,8 @@ STR_PURCHASE_INFO_ALL_BUT                                       :Toate, cu excep
 STR_PURCHASE_INFO_MAX_TE                                        :{BLACK}Efort tractor max.: {GOLD}{FORCE}
 STR_PURCHASE_INFO_AIRCRAFT_RANGE                                :{BLACK}Rază acțiune: {GOLD}{COMMA} pătrățele
 STR_PURCHASE_INFO_AIRCRAFT_TYPE                                 :{BLACK}Tip de aeronavă: {GOLD}{STRING}
+
+# Vehicle sort details
 
 ###length 3
 STR_CARGO_TYPE_FILTER_ALL                                       :Toate tipurile de marfă
@@ -4456,7 +4454,6 @@ STR_VEHICLE_INFO_PROFIT_THIS_YEAR_LAST_YEAR                     :{BLACK}Profit p
 STR_VEHICLE_INFO_PROFIT_THIS_YEAR_LAST_YEAR_MIN_PERFORMANCE     :{BLACK}Profit anul curent: {LTBLUE}{CURRENCY_LONG} (anul trecut: {CURRENCY_LONG}) {BLACK}performanta minima: {LTBLUE}{POWER_TO_WEIGHT}
 STR_VEHICLE_INFO_PROFIT_THIS_PERIOD_LAST_PERIOD                 :{BLACK}Profit perioada curentă: {LTBLUE}{CURRENCY_LONG} (ultima perioadă: {CURRENCY_LONG})
 STR_VEHICLE_INFO_PROFIT_THIS_PERIOD_LAST_PERIOD_MIN_PERFORMANCE :{BLACK}Profit perioada curentă: {LTBLUE}{CURRENCY_LONG} (ultima perioadă: {CURRENCY_LONG}) {BLACK}Performanță minimă: {LTBLUE}{POWER_TO_WEIGHT}
-STR_VEHICLE_INFO_RELIABILITY_BREAKDOWNS                         :{BLACK}Eficiență: {LTBLUE}{COMMA}%  {BLACK}Defecțiuni de la ultimul service: {LTBLUE}{COMMA}
 
 STR_VEHICLE_INFO_BUILT_VALUE                                    :{LTBLUE}{ENGINE} {BLACK}Construit: {LTBLUE}{NUM}{BLACK} Valoare: {LTBLUE}{CURRENCY_LONG}
 STR_VEHICLE_INFO_NO_CAPACITY                                    :{BLACK}Capacitate: {LTBLUE}Nimic{STRING}
@@ -4596,7 +4593,7 @@ STR_ORDER_HANGAR_ACTION_TOOLTIP                                 :{BLACK}Selecta�
 STR_ORDER_CONDITIONAL_VARIABLE_TOOLTIP                          :{BLACK}Datele vehiculului pe care se bazează
 
 # Conditional order variables, must follow order of OrderConditionVariable enum
-###length 8
+###length 9
 STR_ORDER_CONDITIONAL_LOAD_PERCENTAGE                           :Procentaj încărcare
 STR_ORDER_CONDITIONAL_RELIABILITY                               :Eficiență
 STR_ORDER_CONDITIONAL_MAX_SPEED                                 :Viteză maximă
@@ -5000,7 +4997,6 @@ STR_ERROR_CAN_T_GENERATE_TOWN                                   :{WHITE}Nu pot c
 STR_ERROR_CAN_T_RENAME_TOWN                                     :{WHITE}Nu se poate redenumi orașul...
 STR_ERROR_CAN_T_FOUND_TOWN_HERE                                 :{WHITE}Nu se poate construi un oraș aici...
 STR_ERROR_CAN_T_EXPAND_TOWN                                     :{WHITE}Orașul nu poate fi extins...
-STR_ERROR_TOO_CLOSE_TO_EDGE_OF_MAP_SUB                          :{WHITE}... prea aproape de marginea hărții
 STR_ERROR_TOO_CLOSE_TO_ANOTHER_TOWN                             :{WHITE}... prea aproape de alt oraș
 STR_ERROR_TOO_MANY_TOWNS                                        :{WHITE}... prea multe orașe
 STR_ERROR_NO_SPACE_FOR_TOWN                                     :{WHITE}... nu mai este loc pe hartă

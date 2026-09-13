@@ -40,7 +40,7 @@ void RebuildTownCaches(bool cargo_update_required)
 	}
 
 	for (TileIndex t(0); t < Map::Size(); t++) {
-		if (!IsTileType(t, MP_HOUSE)) continue;
+		if (!IsTileType(t, TileType::House)) continue;
 
 		HouseID house_id = GetTranslatedHouseID(GetCleanHouseType(t));
 		Town *town = Town::GetByTile(t);
@@ -69,7 +69,7 @@ static void CheckMultiTileHouseTypes(bool &cargo_update_required, bool translate
 
 	/* Check for cases when a NewGRF has set a wrong house substitute type. */
 	for (TileIndex t(0); t < Map::Size(); t++) {
-		if (!IsTileType(t, MP_HOUSE)) continue;
+		if (!IsTileType(t, TileType::House)) continue;
 
 		HouseID house_type = get_clean_house_type(t);
 		TileIndex north_tile = t + GetHouseNorthPart(house_type); // modifies 'house_type'!
@@ -78,17 +78,17 @@ static void CheckMultiTileHouseTypes(bool &cargo_update_required, bool translate
 			bool valid_house = true;
 			if (hs->building_flags.Test(BuildingFlag::Size2x1)) {
 				TileIndex tile = t + TileDiffXY(1, 0);
-				if (!IsTileType(tile, MP_HOUSE) || get_clean_house_type(tile) != house_type + 1) valid_house = false;
+				if (!IsTileType(tile, TileType::House) || get_clean_house_type(tile) != house_type + 1) valid_house = false;
 			} else if (hs->building_flags.Test(BuildingFlag::Size1x2)) {
 				TileIndex tile = t + TileDiffXY(0, 1);
-				if (!IsTileType(tile, MP_HOUSE) || get_clean_house_type(tile) != house_type + 1) valid_house = false;
+				if (!IsTileType(tile, TileType::House) || get_clean_house_type(tile) != house_type + 1) valid_house = false;
 			} else if (hs->building_flags.Test(BuildingFlag::Size2x2)) {
 				TileIndex tile = t + TileDiffXY(0, 1);
-				if (!IsTileType(tile, MP_HOUSE) || get_clean_house_type(tile) != house_type + 1) valid_house = false;
+				if (!IsTileType(tile, TileType::House) || get_clean_house_type(tile) != house_type + 1) valid_house = false;
 				tile = t + TileDiffXY(1, 0);
-				if (!IsTileType(tile, MP_HOUSE) || get_clean_house_type(tile) != house_type + 2) valid_house = false;
+				if (!IsTileType(tile, TileType::House) || get_clean_house_type(tile) != house_type + 2) valid_house = false;
 				tile = t + TileDiffXY(1, 1);
-				if (!IsTileType(tile, MP_HOUSE) || get_clean_house_type(tile) != house_type + 3) valid_house = false;
+				if (!IsTileType(tile, TileType::House) || get_clean_house_type(tile) != house_type + 3) valid_house = false;
 			}
 			/* If not all tiles of this house are present remove the house.
 			 * The other tiles will get removed later in this loop because
@@ -97,7 +97,7 @@ static void CheckMultiTileHouseTypes(bool &cargo_update_required, bool translate
 				DoClearSquare(t);
 				cargo_update_required = true;
 			}
-		} else if (!IsTileType(north_tile, MP_HOUSE) || get_clean_house_type(north_tile) != house_type) {
+		} else if (!IsTileType(north_tile, TileType::House) || get_clean_house_type(north_tile) != house_type) {
 			/* This tile should be part of a multi-tile building but the
 			 * north tile of this house isn't on the map. */
 			DoClearSquare(t);
@@ -117,7 +117,7 @@ static void CheckMultiTileHouseTypes(bool &cargo_update_required, bool translate
 void UpdateHousesAndTowns(bool cargo_update_required)
 {
 	for (TileIndex t(0); t < Map::Size(); t++) {
-		if (!IsTileType(t, MP_HOUSE)) continue;
+		if (!IsTileType(t, TileType::House)) continue;
 
 		HouseID house_id = GetCleanHouseType(t);
 		if (!HouseSpec::Get(house_id)->enabled && house_id >= NEW_HOUSE_OFFSET) {
@@ -243,6 +243,62 @@ struct TownSuppliedStructHandler final : public TypedSaveLoadStructHandler<TownS
 	}
 };
 
+struct TownAcceptedHistoryStructHandler final : public TypedSaveLoadStructHandler<TownAcceptedHistoryStructHandler, Town::AcceptedCargo> {
+	NamedSaveLoadTable GetDescription() const override
+	{
+		static const NamedSaveLoad _supplied_history_desc[] = {
+			NSL("accepted", SLE_VAR(Town::AcceptedHistory, accepted, SLE_UINT32)),
+		};
+		return _supplied_history_desc;
+	}
+
+	void Save(Town::AcceptedCargo *p) const override
+	{
+		SlSetStructListLength(p->history.size());
+
+		for (auto &h : p->history) {
+			SlObject(&h, this->GetLoadDescription());
+		}
+	}
+
+	void Load(Town::AcceptedCargo *p) const override
+	{
+		size_t len = SlGetStructListLength(p->history.size());
+
+		for (auto &h : p->history) {
+			if (--len > p->history.size()) break; // unsigned so wraps after hitting zero.
+			SlObject(&h, this->GetLoadDescription());
+		}
+	}
+};
+
+struct TownAcceptedStructHandler final : public TypedSaveLoadStructHandler<TownAcceptedStructHandler, Town> {
+	NamedSaveLoadTable GetDescription() const override
+	{
+		static const NamedSaveLoad _supplied_desc[] = {
+			NSL("cargo", SLE_VAR(Town::AcceptedCargo, cargo, SLE_UINT8)),
+			NSLT_STRUCTLIST<TownAcceptedHistoryStructHandler>("history"),
+		};
+		return _supplied_desc;
+	}
+
+	void Save(Town *t) const override
+	{
+		SlSetStructListLength(t->accepted.size());
+		for (Town::AcceptedCargo &p : t->accepted) {
+			SlObjectSaveFiltered(&p, this->GetLoadDescription());
+		}
+	}
+
+	void Load(Town *t) const override
+	{
+		t->accepted.resize(SlGetStructListLength(NUM_CARGO));
+		for (Town::AcceptedCargo &p : t->accepted) {
+			SlObjectLoadFiltered(&p, this->GetLoadDescription());
+		}
+	}
+};
+
 struct TownReceivedStructHandler final : public TypedSaveLoadStructHandler<TownReceivedStructHandler, Town> {
 	NamedSaveLoadTable GetDescription() const override
 	{
@@ -261,7 +317,7 @@ struct TownReceivedStructHandler final : public TypedSaveLoadStructHandler<TownR
 	{
 		size_t count = SlGetStructListLength(std::size(t->received));
 		for (size_t i = 0; i < count; i++) {
-			SlObjectLoadFiltered(&t->received[i], this->GetLoadDescription());
+			SlObjectLoadFiltered(&t->received[static_cast<TownAcceptanceEffect>(i)], this->GetLoadDescription());
 		}
 	}
 };
@@ -352,14 +408,14 @@ static const NamedSaveLoad _town_desc[] = {
 	NSL("",                                SLE_CONDNULL(2, SL_MIN_VERSION, SLV_164)), ///< pct_pass_transported / pct_mail_transported, now computed on the fly
 	NSL("",                                SLE_CONDNULL_X(3, SL_MIN_VERSION, SL_MAX_VERSION, SlXvFeatureTest(XSLFTO_AND, XSLFI_CHILLPP, SL_CHILLPP_232))),
 
-	NSL("received[TE_FOOD].old_act",       SLE_CONDVAR(Town, received[TAE_FOOD].old_act,      SLE_UINT16,                 SL_MIN_VERSION, SLV_165)),
-	NSL("received[TAE_WATER].old_act",     SLE_CONDVAR(Town, received[TAE_WATER].old_act,     SLE_UINT16,                 SL_MIN_VERSION, SLV_165)),
+	NSL("received[TE_FOOD].old_act",       SLE_CONDVAR(Town, received[TownAcceptanceEffect::Food].old_act,      SLE_UINT16,                 SL_MIN_VERSION, SLV_165)),
+	NSL("received[TAE_WATER].old_act",     SLE_CONDVAR(Town, received[TownAcceptanceEffect::Water].old_act,     SLE_UINT16,                 SL_MIN_VERSION, SLV_165)),
 	NSL("",                                SLE_CONDNULL_X(2, SL_MIN_VERSION, SL_MAX_VERSION, SlXvFeatureTest(XSLFTO_AND, XSLFI_CHILLPP, SL_CHILLPP_232))),
-	NSL("received[TE_FOOD].new_act",       SLE_CONDVAR(Town, received[TAE_FOOD].new_act,      SLE_UINT16,                 SL_MIN_VERSION, SLV_165)),
-	NSL("received[TE_WATER].new_act",      SLE_CONDVAR(Town, received[TAE_WATER].new_act,     SLE_UINT16,                 SL_MIN_VERSION, SLV_165)),
+	NSL("received[TE_FOOD].new_act",       SLE_CONDVAR(Town, received[TownAcceptanceEffect::Food].new_act,      SLE_UINT16,                 SL_MIN_VERSION, SLV_165)),
+	NSL("received[TE_WATER].new_act",      SLE_CONDVAR(Town, received[TownAcceptanceEffect::Water].new_act,     SLE_UINT16,                 SL_MIN_VERSION, SLV_165)),
 	NSL("",                                SLE_CONDNULL_X(2, SL_MIN_VERSION, SL_MAX_VERSION, SlXvFeatureTest(XSLFTO_AND, XSLFI_CHILLPP, SL_CHILLPP_232))),
 
-	NSL("goal",                            SLE_CONDARR(Town, goal, SLE_UINT32, NUM_TAE, SLV_165, SL_MAX_VERSION)),
+	NSL("goal",                            SLE_CONDARR(Town, goal, SLE_UINT32, to_underlying(TownAcceptanceEffect::End), SLV_165, SL_MAX_VERSION)),
 
 	NSL("text",                            SLE_CONDSSTR(Town, text, SLE_STR | SLF_ALLOW_CONTROL, SLV_168, SL_MAX_VERSION)),
 
@@ -401,6 +457,7 @@ static const NamedSaveLoad _town_desc[] = {
 
 	NSLT_STRUCTLIST<TownOldSuppliedStructHandler>("supplied", SL_MIN_VERSION, SL_MAX_VERSION, SlXvFeatureTest(XSLFTO_AND, XSLFI_TOWN_SUPPLY_HISTORY, 0, 0)),
 	NSLT_STRUCTLIST<TownSuppliedStructHandler>("supplied", SL_MIN_VERSION, SL_MAX_VERSION, SlXvFeatureTest(XSLFTO_AND, XSLFI_TOWN_SUPPLY_HISTORY, 1)),
+	NSLT_STRUCTLIST<TownAcceptedStructHandler>("accepted"),
 	NSLT_STRUCTLIST<TownReceivedStructHandler>("received"),
 	NSLT_STRUCT<TownSettingsOverrideStructHandler>("setting_overrides"),
 };
@@ -441,7 +498,7 @@ static void Load_TOWN()
 	}
 
 	uint num_cargo = IsSavegameVersionBefore(SLV_EXTEND_CARGOTYPES) ? 32 : NUM_CARGO;
-	static_assert(static_cast<uint>(TAE_BEGIN) == 0 && static_cast<uint>(NUM_TAE) == 6);
+	static_assert(static_cast<size_t>(TownAcceptanceEffect::Begin) == 0 && static_cast<size_t>(TownAcceptanceEffect::End) == 6);
 
 	int index;
 	while ((index = SlIterateArray()) != -1) {
@@ -453,7 +510,7 @@ static void Load_TOWN()
 		}
 
 		if (!SlIsTableChunk()) {
-			for (CargoType i = 0; i < num_cargo; i++) {
+			for (CargoType i{}; i < num_cargo; i++) {
 				TransportedCargoStat<uint32_t> cargo_stat{};
 				SlObjectLoadFiltered(&cargo_stat, supplied_desc);
 
@@ -466,8 +523,8 @@ static void Load_TOWN()
 				s.history[THIS_MONTH].production = cargo_stat.new_max;
 				s.history[THIS_MONTH].transported = cargo_stat.new_act;
 			}
-			for (int i = TAE_BEGIN; i < NUM_TAE; i++) {
-				SlObjectLoadFiltered(&t->received[i], received_desc);
+			for (TownAcceptanceEffect tae = TownAcceptanceEffect::Begin; tae != TownAcceptanceEffect::End; tae++) {
+				SlObjectLoadFiltered(&t->received[tae], received_desc);
 			}
 
 			if ((!IsSavegameVersionBefore(SLV_166) && IsSavegameVersionBefore(SLV_REMOVE_TOWN_CARGO_CACHE)) || SlXvIsFeaturePresent(XSLFI_TOWN_CARGO_MATRIX)) {
@@ -482,10 +539,10 @@ static void Load_TOWN()
 
 		if (IsSavegameVersionBefore(SLV_165)) {
 			/* Passengers and mail were always treated as slots 0 and 2 in older saves. */
-			auto &pass = t->supplied.emplace_back(0);
+			auto &pass = t->supplied.emplace_back(static_cast<CargoType>(0));
 			pass.history[LAST_MONTH] = _old_pass_supplied[LAST_MONTH];
 			pass.history[THIS_MONTH] = _old_pass_supplied[THIS_MONTH];
-			auto &mail = t->supplied.emplace_back(2);
+			auto &mail = t->supplied.emplace_back(static_cast<CargoType>(2));
 			mail.history[LAST_MONTH] = _old_mail_supplied[LAST_MONTH];
 			mail.history[THIS_MONTH] = _old_mail_supplied[THIS_MONTH];
 		}
@@ -592,9 +649,9 @@ static ChunkSaveLoadSpecialOpResult Special_TNNC(uint32_t chunk_id, ChunkSaveLoa
 
 /** Chunk handler for towns. */
 static const ChunkHandler town_chunk_handlers[] = {
-	{ 'HIDS', Save_HIDS, Load_HIDS, nullptr,   nullptr, CH_TABLE },
-	{ 'CITY', Save_TOWN, Load_TOWN, Ptrs_TOWN, nullptr, CH_TABLE },
-	{ 'TNNC', Save_TNNC, Load_TNNC, nullptr,   nullptr, CH_RIFF,  Special_TNNC },
+	{ 'HIDS', Save_HIDS, Load_HIDS, nullptr,   nullptr, ChunkType::Table },
+	{ 'CITY', Save_TOWN, Load_TOWN, Ptrs_TOWN, nullptr, ChunkType::Table },
+	{ 'TNNC', Save_TNNC, Load_TNNC, nullptr,   nullptr, ChunkType::Riff,  Special_TNNC },
 };
 
 extern const ChunkHandlerTable _town_chunk_handlers(town_chunk_handlers);

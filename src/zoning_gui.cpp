@@ -153,35 +153,35 @@ struct ZoningWindow : public Window {
 				return;
 		}
 		size.width += padding.width;
-		size.height = GetCharacterHeight(FS_NORMAL) + WidgetDimensions::scaled.dropdowntext.Vertical();
+		size.height = GetCharacterHeight(FontSize::Normal) + WidgetDimensions::scaled.dropdowntext.Vertical();
 	}
 };
 
 static constexpr NWidgetPart _nested_zoning_widgets[] = {
 	NWidget(NWID_HORIZONTAL),
-		NWidget(WWT_CLOSEBOX, COLOUR_GREY),
-		NWidget(WWT_CAPTION, COLOUR_GREY, ZTW_CAPTION), SetStringTip(STR_ZONING_TOOLBAR, STR_TOOLTIP_WINDOW_TITLE_DRAG_THIS),
-		NWidget(WWT_SHADEBOX, COLOUR_GREY),
-		NWidget(WWT_STICKYBOX, COLOUR_GREY),
+		NWidget(WWT_CLOSEBOX, Colours::Grey),
+		NWidget(WWT_CAPTION, Colours::Grey, ZTW_CAPTION), SetStringTip(STR_ZONING_TOOLBAR, STR_TOOLTIP_WINDOW_TITLE_DRAG_THIS),
+		NWidget(WWT_SHADEBOX, Colours::Grey),
+		NWidget(WWT_STICKYBOX, Colours::Grey),
 	EndContainer(),
 
-	NWidget(WWT_PANEL, COLOUR_GREY),
+	NWidget(WWT_PANEL, Colours::Grey),
 		NWidget(NWID_HORIZONTAL), SetPIP(10, 3, 10),
 			NWidget(NWID_VERTICAL), SetPadding(5, 0, 5, 0), SetPIP(0, 5, 0),
-				NWidget(WWT_TEXT, INVALID_COLOUR), SetStringTip(STR_ZONING_OUTER, STR_ZONING_OUTER_INFO), SetResize(1, 0), SetPadding(1, 6, 1, 6),
-				NWidget(WWT_TEXT, INVALID_COLOUR), SetStringTip(STR_ZONING_INNER, STR_ZONING_INNER_INFO), SetResize(1, 0), SetPadding(1, 6, 1, 6),
+				NWidget(WWT_TEXT, Colours::Invalid), SetStringTip(STR_ZONING_OUTER, STR_ZONING_OUTER_INFO), SetResize(1, 0), SetPadding(1, 6, 1, 6),
+				NWidget(WWT_TEXT, Colours::Invalid), SetStringTip(STR_ZONING_INNER, STR_ZONING_INNER_INFO), SetResize(1, 0), SetPadding(1, 6, 1, 6),
 			EndContainer(),
 			NWidget(NWID_VERTICAL), SetPadding(5, 0, 5, 0), SetPIP(0, 5, 0),
-				NWidget(WWT_DROPDOWN, COLOUR_GREY, ZTW_OUTER_DROPDOWN), SetFill(1, 0),
-				NWidget(WWT_DROPDOWN, COLOUR_GREY, ZTW_INNER_DROPDOWN), SetFill(1, 0),
+				NWidget(WWT_DROPDOWN, Colours::Grey, ZTW_OUTER_DROPDOWN), SetFill(1, 0),
+				NWidget(WWT_DROPDOWN, Colours::Grey, ZTW_INNER_DROPDOWN), SetFill(1, 0),
 			EndContainer(),
 		EndContainer(),
 	EndContainer()
 };
 
 static WindowDesc _zoning_desc (__FILE__, __LINE__,
-	WDP_CENTER, "zoning_gui", 0, 0,
-	WC_ZONING_TOOLBAR, WC_NONE,
+	WindowPosition::Center, "zoning_gui", 0, 0,
+	WindowClass::ZoningToolbar, WindowClass::None,
 	{},
 	_nested_zoning_widgets
 );

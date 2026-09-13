@@ -103,91 +103,91 @@ enum TemplateReplaceWindowWidgets : WidgetID {
 static constexpr NWidgetPart _template_replace_widgets[] = {
 	// Title bar
 	NWidget(NWID_HORIZONTAL),
-		NWidget(WWT_CLOSEBOX, COLOUR_GREY),
-		NWidget(WWT_CAPTION, COLOUR_GREY, TRW_CAPTION),
-		NWidget(WWT_SHADEBOX, COLOUR_GREY),
-		NWidget(WWT_DEFSIZEBOX, COLOUR_GREY),
-		NWidget(WWT_STICKYBOX, COLOUR_GREY),
+		NWidget(WWT_CLOSEBOX, Colours::Grey),
+		NWidget(WWT_CAPTION, Colours::Grey, TRW_CAPTION),
+		NWidget(WWT_SHADEBOX, Colours::Grey),
+		NWidget(WWT_DEFSIZEBOX, Colours::Grey),
+		NWidget(WWT_STICKYBOX, Colours::Grey),
 	EndContainer(),
 	//Top Matrix
 	NWidget(NWID_VERTICAL),
 		NWidget(NWID_HORIZONTAL),
-			NWidget(WWT_PANEL, COLOUR_GREY),
-				NWidget(WWT_TEXT, INVALID_COLOUR, TRW_WIDGET_INSET_GROUPS), SetPadding(2, 2, 2, 2), SetResize(1, 0), SetFill(1, 1), SetStringTip(STR_TMPL_MAINGUI_DEFINEDGROUPS, STR_NULL),
+			NWidget(WWT_PANEL, Colours::Grey),
+				NWidget(WWT_TEXT, Colours::Invalid, TRW_WIDGET_INSET_GROUPS), SetPadding(2, 2, 2, 2), SetResize(1, 0), SetFill(1, 1), SetStringTip(STR_TMPL_MAINGUI_DEFINEDGROUPS, STR_NULL),
 			EndContainer(),
-			NWidget(WWT_PUSHTXTBTN, COLOUR_GREY, TRW_WIDGET_COLLAPSE_ALL_GROUPS), SetFill(0, 1), SetStringTip(STR_GROUP_COLLAPSE_ALL, STR_GROUP_COLLAPSE_ALL),
-			NWidget(WWT_PUSHTXTBTN, COLOUR_GREY, TRW_WIDGET_EXPAND_ALL_GROUPS), SetFill(0, 1), SetStringTip(STR_GROUP_EXPAND_ALL, STR_GROUP_EXPAND_ALL),
+			NWidget(WWT_PUSHTXTBTN, Colours::Grey, TRW_WIDGET_COLLAPSE_ALL_GROUPS), SetFill(0, 1), SetStringTip(STR_GROUP_COLLAPSE_ALL, STR_GROUP_COLLAPSE_ALL),
+			NWidget(WWT_PUSHTXTBTN, Colours::Grey, TRW_WIDGET_EXPAND_ALL_GROUPS), SetFill(0, 1), SetStringTip(STR_GROUP_EXPAND_ALL, STR_GROUP_EXPAND_ALL),
 		EndContainer(),
 		NWidget(NWID_HORIZONTAL),
-			NWidget(WWT_MATRIX, COLOUR_GREY, TRW_WIDGET_TOP_MATRIX), SetMinimalSize(216, 0), SetFill(1, 1), SetMatrixDataTip(1, 0, STR_NULL), SetResize(1, 0), SetScrollbar(TRW_WIDGET_TOP_SCROLLBAR),
-			NWidget(NWID_VSCROLLBAR, COLOUR_GREY, TRW_WIDGET_TOP_SCROLLBAR),
+			NWidget(WWT_MATRIX, Colours::Grey, TRW_WIDGET_TOP_MATRIX), SetMinimalSize(216, 0), SetFill(1, 1), SetMatrixDataTip(1, 0, STR_NULL), SetResize(1, 0), SetScrollbar(TRW_WIDGET_TOP_SCROLLBAR),
+			NWidget(NWID_VSCROLLBAR, Colours::Grey, TRW_WIDGET_TOP_SCROLLBAR),
 		EndContainer(),
 	EndContainer(),
 	// Template Display
 	NWidget(NWID_VERTICAL),
-		NWidget(WWT_PANEL, COLOUR_GREY),
-			NWidget(WWT_TEXT, INVALID_COLOUR, TRW_WIDGET_INSET_TEMPLATES), SetPadding(2, 2, 2, 2), SetResize(1, 0), SetStringTip(STR_TMPL_AVAILABLE_TEMPLATES, STR_NULL),
+		NWidget(WWT_PANEL, Colours::Grey),
+			NWidget(WWT_TEXT, Colours::Invalid, TRW_WIDGET_INSET_TEMPLATES), SetPadding(2, 2, 2, 2), SetResize(1, 0), SetStringTip(STR_TMPL_AVAILABLE_TEMPLATES, STR_NULL),
 		EndContainer(),
 		NWidget(NWID_HORIZONTAL),
-			NWidget(WWT_MATRIX, COLOUR_GREY, TRW_WIDGET_BOTTOM_MATRIX), SetMinimalSize(216, 0), SetFill(1, 1), SetMatrixDataTip(1, 0, STR_NULL), SetResize(1, 1), SetScrollbar(TRW_WIDGET_MIDDLE_SCROLLBAR),
-			NWidget(NWID_VSCROLLBAR, COLOUR_GREY, TRW_WIDGET_MIDDLE_SCROLLBAR),
+			NWidget(WWT_MATRIX, Colours::Grey, TRW_WIDGET_BOTTOM_MATRIX), SetMinimalSize(216, 0), SetFill(1, 1), SetMatrixDataTip(1, 0, STR_NULL), SetResize(1, 1), SetScrollbar(TRW_WIDGET_MIDDLE_SCROLLBAR),
+			NWidget(NWID_VSCROLLBAR, Colours::Grey, TRW_WIDGET_MIDDLE_SCROLLBAR),
 		EndContainer(),
 	EndContainer(),
 	// Info Area
 	NWidget(NWID_VERTICAL),
-		NWidget(WWT_PANEL, COLOUR_GREY),
-			NWidget(WWT_TEXT, INVALID_COLOUR, TRW_WIDGET_TMPL_INFO_INSET), SetPadding(2, 2, 2, 2), SetResize(1, 0), SetStringTip(STR_TMPL_TEMPLATE_INFO, STR_NULL),
+		NWidget(WWT_PANEL, Colours::Grey),
+			NWidget(WWT_TEXT, Colours::Invalid, TRW_WIDGET_TMPL_INFO_INSET), SetPadding(2, 2, 2, 2), SetResize(1, 0), SetStringTip(STR_TMPL_TEMPLATE_INFO, STR_NULL),
 		EndContainer(),
 		NWidget(NWID_HORIZONTAL),
-			NWidget(WWT_PANEL, COLOUR_GREY, TRW_WIDGET_TMPL_INFO_PANEL), SetMinimalSize(216,120), SetResize(1,0), SetScrollbar(TRW_WIDGET_BOTTOM_SCROLLBAR), EndContainer(),
-			NWidget(NWID_VSCROLLBAR, COLOUR_GREY, TRW_WIDGET_BOTTOM_SCROLLBAR),
+			NWidget(WWT_PANEL, Colours::Grey, TRW_WIDGET_TMPL_INFO_PANEL), SetMinimalSize(216,120), SetResize(1,0), SetScrollbar(TRW_WIDGET_BOTTOM_SCROLLBAR), EndContainer(),
+			NWidget(NWID_VSCROLLBAR, Colours::Grey, TRW_WIDGET_BOTTOM_SCROLLBAR),
 		EndContainer(),
 	EndContainer(),
 	// Control Area
-	NWidget(WWT_PANEL, COLOUR_GREY),
+	NWidget(WWT_PANEL, Colours::Grey),
 		NWidget(NWID_VERTICAL),
 			// Config header
-			NWidget(WWT_PANEL, COLOUR_GREY, TRW_WIDGET_TMPL_CONFIG_HEADER), SetMinimalSize(0, 12), SetFill(1, 0), SetResize(1, 0), EndContainer(),
+			NWidget(WWT_PANEL, Colours::Grey, TRW_WIDGET_TMPL_CONFIG_HEADER), SetMinimalSize(0, 12), SetFill(1, 0), SetResize(1, 0), EndContainer(),
 			// Config buttons
 			NWidget(NWID_HORIZONTAL),
-				NWidget(WWT_TEXTBTN, COLOUR_GREY, TRW_WIDGET_TMPL_BUTTONS_CONFIGTMPL_REFIT_AS_TEMPLATE), SetMinimalSize(100, 12), SetFill(1, 0), SetResize(1, 0), SetStringTip(STR_TMPL_SET_REFIT_AS_TEMPLATE, STR_TMPL_SET_REFIT_AS_TEMPLATE_TIP),
-				NWidget(WWT_TEXTBTN, COLOUR_GREY, TRW_WIDGET_TMPL_BUTTONS_CONFIGTMPL_REFIT_AS_INCOMING), SetMinimalSize(100, 12), SetFill(1, 0), SetResize(1, 0), SetStringTip(STR_TMPL_SET_REFIT_AS_INCOMING, STR_TMPL_SET_REFIT_AS_INCOMING_TIP),
+				NWidget(WWT_TEXTBTN, Colours::Grey, TRW_WIDGET_TMPL_BUTTONS_CONFIGTMPL_REFIT_AS_TEMPLATE), SetMinimalSize(100, 12), SetFill(1, 0), SetResize(1, 0), SetStringTip(STR_TMPL_SET_REFIT_AS_TEMPLATE, STR_TMPL_SET_REFIT_AS_TEMPLATE_TIP),
+				NWidget(WWT_TEXTBTN, Colours::Grey, TRW_WIDGET_TMPL_BUTTONS_CONFIGTMPL_REFIT_AS_INCOMING), SetMinimalSize(100, 12), SetFill(1, 0), SetResize(1, 0), SetStringTip(STR_TMPL_SET_REFIT_AS_INCOMING, STR_TMPL_SET_REFIT_AS_INCOMING_TIP),
 				NWidget(NWID_SPACER), SetFill(0, 0), SetMinimalSize(2, 0), SetResize(0, 0),
-				NWidget(WWT_TEXTBTN, COLOUR_GREY, TRW_WIDGET_TMPL_BUTTONS_CONFIGTMPL_REUSE), SetMinimalSize(100, 12), SetFill(1, 0), SetResize(1, 0), SetStringTip(STR_TMPL_SET_USEDEPOT, STR_TMPL_SET_USEDEPOT_TIP),
-				NWidget(WWT_TEXTBTN, COLOUR_GREY, TRW_WIDGET_TMPL_BUTTONS_CONFIGTMPL_KEEP), SetMinimalSize(100, 12), SetFill(1, 0), SetResize(1, 0), SetStringTip(STR_TMPL_SET_KEEPREMAINDERS, STR_TMPL_SET_KEEPREMAINDERS_TIP),
+				NWidget(WWT_TEXTBTN, Colours::Grey, TRW_WIDGET_TMPL_BUTTONS_CONFIGTMPL_REUSE), SetMinimalSize(100, 12), SetFill(1, 0), SetResize(1, 0), SetStringTip(STR_TMPL_SET_USEDEPOT, STR_TMPL_SET_USEDEPOT_TIP),
+				NWidget(WWT_TEXTBTN, Colours::Grey, TRW_WIDGET_TMPL_BUTTONS_CONFIGTMPL_KEEP), SetMinimalSize(100, 12), SetFill(1, 0), SetResize(1, 0), SetStringTip(STR_TMPL_SET_KEEPREMAINDERS, STR_TMPL_SET_KEEPREMAINDERS_TIP),
 				NWidget(NWID_SPACER), SetFill(0, 0), SetMinimalSize(2, 0), SetResize(0, 0),
-				NWidget(WWT_TEXTBTN, COLOUR_GREY, TRW_WIDGET_TMPL_BUTTONS_CONFIGTMPL_OLD_ONLY), SetMinimalSize(100, 12), SetFill(1, 0), SetResize(1, 0), SetStringTip(STR_TMPL_SET_OLD_ONLY, STR_TMPL_SET_OLD_ONLY_TIP),
-				NWidget(WWT_PANEL, COLOUR_GREY, TRW_WIDGET_TMPL_BUTTONS_CONFIG_RIGHTPANEL), SetMinimalSize(12, 12), SetFill(0, 0), SetResize(0, 0), EndContainer(),
+				NWidget(WWT_TEXTBTN, Colours::Grey, TRW_WIDGET_TMPL_BUTTONS_CONFIGTMPL_OLD_ONLY), SetMinimalSize(100, 12), SetFill(1, 0), SetResize(1, 0), SetStringTip(STR_TMPL_SET_OLD_ONLY, STR_TMPL_SET_OLD_ONLY_TIP),
+				NWidget(WWT_PANEL, Colours::Grey, TRW_WIDGET_TMPL_BUTTONS_CONFIG_RIGHTPANEL), SetMinimalSize(12, 12), SetFill(0, 0), SetResize(0, 0), EndContainer(),
 			EndContainer(),
 			NWidget(NWID_SPACER), SetFill(1, 0), SetMinimalSize(0, 2), SetResize(1, 0),
 			// Edit buttons
 			NWidget(NWID_HORIZONTAL),
-				NWidget(WWT_PUSHTXTBTN, COLOUR_GREY, TRW_WIDGET_TMPL_BUTTONS_DEFINE), SetMinimalSize(75, 12), SetFill(1, 0), SetResize(1, 0), SetStringTip(STR_TMPL_DEFINE_TEMPLATE, STR_TMPL_DEFINE_TEMPLATE),
-				NWidget(WWT_PUSHTXTBTN, COLOUR_GREY, TRW_WIDGET_TMPL_BUTTONS_EDIT), SetMinimalSize(75, 12), SetFill(1, 0), SetResize(1, 0), SetStringTip(STR_TMPL_EDIT_TEMPLATE, STR_TMPL_EDIT_TEMPLATE),
-				NWidget(WWT_TEXTBTN, COLOUR_GREY, TRW_WIDGET_TMPL_BUTTONS_CLONE), SetMinimalSize(75, 12), SetFill(1, 0), SetResize(1, 0), SetStringTip(STR_TMPL_CREATE_CLONE_VEH, STR_TMPL_CREATE_CLONE_VEH),
-				NWidget(WWT_PUSHTXTBTN, COLOUR_GREY, TRW_WIDGET_TMPL_BUTTONS_DELETE), SetMinimalSize(75, 12), SetFill(1, 0), SetResize(1, 0), SetStringTip(STR_TMPL_DELETE_TEMPLATE, STR_TMPL_DELETE_TEMPLATE),
-				NWidget(WWT_PUSHTXTBTN, COLOUR_GREY, TRW_WIDGET_TMPL_BUTTONS_RENAME), SetMinimalSize(75, 12), SetFill(1, 0), SetResize(1, 0), SetStringTip(STR_BUTTON_RENAME, STR_TMPL_RENAME_TEMPLATE),
-				NWidget(WWT_PANEL, COLOUR_GREY, TRW_WIDGET_TMPL_BUTTONS_EDIT_RIGHTPANEL), SetMinimalSize(12, 12), SetFill(0, 0), SetResize(0, 0), EndContainer(),
+				NWidget(WWT_PUSHTXTBTN, Colours::Grey, TRW_WIDGET_TMPL_BUTTONS_DEFINE), SetMinimalSize(75, 12), SetFill(1, 0), SetResize(1, 0), SetStringTip(STR_TMPL_DEFINE_TEMPLATE, STR_TMPL_DEFINE_TEMPLATE),
+				NWidget(WWT_PUSHTXTBTN, Colours::Grey, TRW_WIDGET_TMPL_BUTTONS_EDIT), SetMinimalSize(75, 12), SetFill(1, 0), SetResize(1, 0), SetStringTip(STR_TMPL_EDIT_TEMPLATE, STR_TMPL_EDIT_TEMPLATE),
+				NWidget(WWT_TEXTBTN, Colours::Grey, TRW_WIDGET_TMPL_BUTTONS_CLONE), SetMinimalSize(75, 12), SetFill(1, 0), SetResize(1, 0), SetStringTip(STR_TMPL_CREATE_CLONE_VEH, STR_TMPL_CREATE_CLONE_VEH),
+				NWidget(WWT_PUSHTXTBTN, Colours::Grey, TRW_WIDGET_TMPL_BUTTONS_DELETE), SetMinimalSize(75, 12), SetFill(1, 0), SetResize(1, 0), SetStringTip(STR_TMPL_DELETE_TEMPLATE, STR_TMPL_DELETE_TEMPLATE),
+				NWidget(WWT_PUSHTXTBTN, Colours::Grey, TRW_WIDGET_TMPL_BUTTONS_RENAME), SetMinimalSize(75, 12), SetFill(1, 0), SetResize(1, 0), SetStringTip(STR_BUTTON_RENAME, STR_TMPL_RENAME_TEMPLATE),
+				NWidget(WWT_PANEL, Colours::Grey, TRW_WIDGET_TMPL_BUTTONS_EDIT_RIGHTPANEL), SetMinimalSize(12, 12), SetFill(0, 0), SetResize(0, 0), EndContainer(),
 			EndContainer(),
 		EndContainer(),
 		// Start/Stop buttons
 		NWidget(NWID_HORIZONTAL),
-			NWidget(WWT_PUSHTXTBTN, COLOUR_GREY, TRW_WIDGET_START), SetMinimalSize(150, 12), SetStringTip(STR_TMPL_RPL_START, STR_TMPL_RPL_START_TOOLTIP),
-			NWidget(WWT_PANEL, COLOUR_GREY, TRW_WIDGET_TRAIN_FLUFF_LEFT), SetMinimalSize(15, 12), EndContainer(),
-			NWidget(WWT_DROPDOWN, COLOUR_GREY, TRW_WIDGET_TRAIN_RAILTYPE_DROPDOWN), SetMinimalSize(150, 12), SetToolTip(STR_REPLACE_RAILTYPE_TOOLTIP), SetResize(1, 0),
-			NWidget(WWT_PANEL, COLOUR_GREY, TRW_WIDGET_TRAIN_FLUFF_RIGHT), SetMinimalSize(16, 12), EndContainer(),
-			NWidget(WWT_PUSHTXTBTN, COLOUR_GREY, TRW_WIDGET_STOP), SetMinimalSize(150, 12), SetStringTip(STR_TMPL_RPL_STOP, STR_TMPL_RPL_STOP_TOOLTIP),
-			NWidget(WWT_RESIZEBOX, COLOUR_GREY),
+			NWidget(WWT_PUSHTXTBTN, Colours::Grey, TRW_WIDGET_START), SetMinimalSize(150, 12), SetStringTip(STR_TMPL_RPL_START, STR_TMPL_RPL_START_TOOLTIP),
+			NWidget(WWT_PANEL, Colours::Grey, TRW_WIDGET_TRAIN_FLUFF_LEFT), SetMinimalSize(15, 12), EndContainer(),
+			NWidget(WWT_DROPDOWN, Colours::Grey, TRW_WIDGET_TRAIN_RAILTYPE_DROPDOWN), SetMinimalSize(150, 12), SetToolTip(STR_REPLACE_RAILTYPE_TOOLTIP), SetResize(1, 0),
+			NWidget(WWT_PANEL, Colours::Grey, TRW_WIDGET_TRAIN_FLUFF_RIGHT), SetMinimalSize(16, 12), EndContainer(),
+			NWidget(WWT_PUSHTXTBTN, Colours::Grey, TRW_WIDGET_STOP), SetMinimalSize(150, 12), SetStringTip(STR_TMPL_RPL_STOP, STR_TMPL_RPL_STOP_TOOLTIP),
+			NWidget(WWT_RESIZEBOX, Colours::Grey),
 		EndContainer(),
 	EndContainer(),
 };
 
 static WindowDesc _template_replace_desc(__FILE__, __LINE__,
-	WDP_AUTO,
+	WindowPosition::Automatic,
 	"template_replace",
 	456, 156,
-	WC_TEMPLATEGUI_MAIN,
-	WC_NONE,                     // parent window class
+	WindowClass::TemplateReplacementGuiMain,
+	WindowClass::None,                     // parent window class
 	WindowDefaultFlag::Construction,
 	_template_replace_widgets
 );
@@ -230,7 +230,7 @@ public:
 		this->vscroll[0] = this->GetScrollbar(TRW_WIDGET_TOP_SCROLLBAR);
 		this->vscroll[1] = this->GetScrollbar(TRW_WIDGET_MIDDLE_SCROLLBAR);
 		this->vscroll[2] = this->GetScrollbar(TRW_WIDGET_BOTTOM_SCROLLBAR);
-		this->FinishInitNested(VEH_TRAIN);
+		this->FinishInitNested(VehicleType::Train);
 
 		this->owner = _local_company;
 
@@ -247,7 +247,7 @@ public:
 	}
 
 	void Close(int data = 0) override {
-		CloseWindowById(WC_CREATE_TEMPLATE, this->window_number);
+		CloseWindowById(WindowClass::TemplateReplacementCreateTemplate, this->window_number);
 		this->Window::Close();
 	}
 
@@ -257,14 +257,14 @@ public:
 			case TRW_WIDGET_TOP_MATRIX: {
 				Dimension fold_dim = maxdim(GetSpriteSize(SPR_CIRCLE_FOLDED), GetSpriteSize(SPR_CIRCLE_UNFOLDED));
 				this->fold_sprite_dim = fold_dim;
-				resize.height = this->top_matrix_step_height = std::max<uint>(GetCharacterHeight(FS_NORMAL), fold_dim.height) + WidgetDimensions::scaled.matrix.Vertical();
+				resize.height = this->top_matrix_step_height = std::max<uint>(GetCharacterHeight(FontSize::Normal), fold_dim.height) + WidgetDimensions::scaled.matrix.Vertical();
 				size.height = 8 * resize.height;
 				break;
 			}
 
 			case TRW_WIDGET_BOTTOM_MATRIX: {
-				int base_resize = GetCharacterHeight(FS_NORMAL) + WidgetDimensions::scaled.matrix.Vertical();
-				int target_resize = WidgetDimensions::scaled.matrix.top + GetCharacterHeight(FS_NORMAL) + ScaleGUITrad(GetVehicleHeight(VEH_TRAIN));
+				int base_resize = GetCharacterHeight(FontSize::Normal) + WidgetDimensions::scaled.matrix.Vertical();
+				int target_resize = WidgetDimensions::scaled.matrix.top + GetCharacterHeight(FontSize::Normal) + ScaleGUITrad(GetVehicleHeight(VehicleType::Train));
 				this->bottom_matrix_item_size = resize.height = CeilT<int>(target_resize, base_resize);
 				size.height = 4 * resize.height;
 
@@ -286,7 +286,7 @@ public:
 
 			case TRW_WIDGET_TRAIN_RAILTYPE_DROPDOWN: {
 				Dimension d = GetStringBoundingBox(STR_REPLACE_ALL_RAILTYPE);
-				for (RailType rt = RAILTYPE_BEGIN; rt != RAILTYPE_END; rt++) {
+				for (RailType rt : EnumRange(RAILTYPE_END)) {
 					const RailTypeInfo *rti = GetRailTypeInfo(rt);
 					// Skip rail type if it has no label
 					if (rti->label == 0) continue;
@@ -298,7 +298,7 @@ public:
 				break;
 			}
 			case TRW_WIDGET_TMPL_CONFIG_HEADER:
-				size.height = GetCharacterHeight(FS_NORMAL) + WidgetDimensions::scaled.framerect.Vertical();
+				size.height = GetCharacterHeight(FontSize::Normal) + WidgetDimensions::scaled.framerect.Vertical();
 				break;
 
 			case TRW_WIDGET_TMPL_BUTTONS_CONFIG_RIGHTPANEL:
@@ -338,7 +338,7 @@ public:
 				auto draw_label = [&](int widget_1, int widget_2, StringID str) {
 					Rect lr = this->GetWidget<NWidgetBase>(widget_1)->GetCurrentRect();
 					if (widget_2 != 0) lr = BoundingRect(lr, this->GetWidget<NWidgetBase>(widget_2)->GetCurrentRect());
-					DrawString(lr.left, lr.right, r.top + WidgetDimensions::scaled.framerect.top, str, TC_FROMSTRING, SA_CENTER);
+					DrawString(lr.left, lr.right, r.top + WidgetDimensions::scaled.framerect.top, str, TextColour::FromString, {AlignmentH::Centre, AlignmentV::Middle});
 				};
 				draw_label(TRW_WIDGET_TMPL_BUTTONS_CONFIGTMPL_REFIT_AS_TEMPLATE, TRW_WIDGET_TMPL_BUTTONS_CONFIGTMPL_REFIT_AS_INCOMING, STR_TMPL_SECTION_REFIT);
 				draw_label(TRW_WIDGET_TMPL_BUTTONS_CONFIGTMPL_REUSE, TRW_WIDGET_TMPL_BUTTONS_CONFIGTMPL_KEEP, STR_TMPL_SECTION_DEPOT_VEHICLES);
@@ -369,22 +369,22 @@ public:
 					TRW_WIDGET_TMPL_BUTTONS_CONFIGTMPL_OLD_ONLY);
 		} else {
 			const TemplateVehicle *tmp = this->templates[this->selected_template_index];
-			uint height = ScaleGUITrad(8) + (3 * GetCharacterHeight(FS_NORMAL));
+			uint height = ScaleGUITrad(8) + (3 * GetCharacterHeight(FontSize::Normal));
 			CargoArray cargo_caps{};
 			uint count_columns = 0;
 			uint max_columns = 2;
 
-			if (tmp->full_weight > tmp->empty_weight || _settings_client.gui.show_train_weight_ratios_in_details) height += GetCharacterHeight(FS_NORMAL);
-			if (_settings_game.vehicle.train_acceleration_model != AM_ORIGINAL) height += GetCharacterHeight(FS_NORMAL);
+			if (tmp->full_weight > tmp->empty_weight || _settings_client.gui.show_train_weight_ratios_in_details) height += GetCharacterHeight(FontSize::Normal);
+			if (_settings_game.vehicle.train_acceleration_model != AccelerationModel::Original) height += GetCharacterHeight(FontSize::Normal);
 
 			for (const TemplateVehicle *u = tmp; u != nullptr; u = u->Next()) {
 				cargo_caps[u->cargo_type] += u->cargo_cap;
 			}
 
-			for (CargoType i = 0; i < NUM_CARGO; ++i) {
+			for (CargoType i{}; i < NUM_CARGO; ++i) {
 				if (cargo_caps[i] > 0) {
 					if (count_columns % max_columns == 0) {
-						height += GetCharacterHeight(FS_NORMAL);
+						height += GetCharacterHeight(FontSize::Normal);
 					}
 
 					++count_columns;
@@ -415,7 +415,7 @@ public:
 				if ((this->selected_template_index >= 0) && (this->selected_template_index < (int)this->templates.size())) {
 					const TemplateVehicle *tv = this->templates[this->selected_template_index];
 
-					Command<CMD_CHANGE_TEMPLATE_FLAG>::Post(STR_ERROR_CAN_T_DO_THIS, tv->index, TemplateReplacementFlag::ReuseDepotVehicles, !tv->IsSetReuseDepotVehicles());
+					Command<Commands::ChangeTemplateFlag>::Post(STR_ERROR_CAN_T_DO_THIS, tv->index, TemplateReplacementFlag::ReuseDepotVehicles, !tv->IsSetReuseDepotVehicles());
 				}
 				break;
 			}
@@ -424,7 +424,7 @@ public:
 				if ((this->selected_template_index >= 0) && (this->selected_template_index < (int)this->templates.size())) {
 					const TemplateVehicle *tv = this->templates[this->selected_template_index];
 
-					Command<CMD_CHANGE_TEMPLATE_FLAG>::Post(STR_ERROR_CAN_T_DO_THIS, tv->index, TemplateReplacementFlag::KeepRemaining, !tv->IsSetKeepRemainingVehicles());
+					Command<Commands::ChangeTemplateFlag>::Post(STR_ERROR_CAN_T_DO_THIS, tv->index, TemplateReplacementFlag::KeepRemaining, !tv->IsSetKeepRemainingVehicles());
 				}
 				break;
 			}
@@ -434,7 +434,7 @@ public:
 				if ((this->selected_template_index >= 0) && (this->selected_template_index < (int)this->templates.size())) {
 					const TemplateVehicle *tv = this->templates[this->selected_template_index];
 
-					Command<CMD_CHANGE_TEMPLATE_FLAG>::Post(STR_ERROR_CAN_T_DO_THIS, tv->index, TemplateReplacementFlag::RefitAsTemplate, widget == TRW_WIDGET_TMPL_BUTTONS_CONFIGTMPL_REFIT_AS_TEMPLATE);
+					Command<Commands::ChangeTemplateFlag>::Post(STR_ERROR_CAN_T_DO_THIS, tv->index, TemplateReplacementFlag::RefitAsTemplate, widget == TRW_WIDGET_TMPL_BUTTONS_CONFIGTMPL_REFIT_AS_TEMPLATE);
 				}
 				break;
 			}
@@ -443,7 +443,7 @@ public:
 				if ((this->selected_template_index >= 0) && (this->selected_template_index < (int)this->templates.size())) {
 					const TemplateVehicle *tv = this->templates[this->selected_template_index];
 
-					Command<CMD_CHANGE_TEMPLATE_FLAG>::Post(STR_ERROR_CAN_T_DO_THIS, tv->index, TemplateReplacementFlag::ReplaceOldOnly, !tv->IsReplaceOldOnly());
+					Command<Commands::ChangeTemplateFlag>::Post(STR_ERROR_CAN_T_DO_THIS, tv->index, TemplateReplacementFlag::ReplaceOldOnly, !tv->IsReplaceOldOnly());
 				}
 				break;
 			}
@@ -480,7 +480,7 @@ public:
 			case TRW_WIDGET_TMPL_BUTTONS_DELETE:
 				if ((this->selected_template_index >= 0) && (this->selected_template_index < (int)this->templates.size()) && !this->edit_in_progress) {
 					TemplateID template_index = ((this->templates)[selected_template_index])->index;
-					bool succeeded = Command<CMD_DELETE_TEMPLATE_VEHICLE>::Post(template_index);
+					bool succeeded = Command<Commands::DeleteTemplateVehicle>::Post(template_index);
 					if (succeeded) {
 						this->templates.ForceRebuild();
 						selected_template_index = -1;
@@ -550,7 +550,7 @@ public:
 				if ((this->selected_template_index >= 0) && (this->selected_template_index < (int)this->templates.size()) && this->selected_group != GroupID::Invalid()) {
 					TemplateID tv_index = ((this->templates)[selected_template_index])->index;
 
-					Command<CMD_ISSUE_TEMPLATE_REPLACEMENT>::Post(STR_ERROR_CAN_T_DO_THIS, this->selected_group, tv_index);
+					Command<Commands::IssueTemplateReplacement>::Post(STR_ERROR_CAN_T_DO_THIS, this->selected_group, tv_index);
 					this->UpdateButtonState();
 				}
 				break;
@@ -558,7 +558,7 @@ public:
 
 			case TRW_WIDGET_STOP: {
 				if (this->selected_group != GroupID::Invalid()) {
-					Command<CMD_DELETE_TEMPLATE_REPLACEMENT>::Post(STR_ERROR_CAN_T_DO_THIS, this->selected_group);
+					Command<Commands::DeleteTemplateReplacement>::Post(STR_ERROR_CAN_T_DO_THIS, this->selected_group);
 					this->UpdateButtonState();
 				}
 				break;
@@ -579,7 +579,7 @@ public:
 
 	virtual bool OnVehicleSelect(const Vehicle *v) override
 	{
-		bool succeeded = Command<CMD_CLONE_TEMPLATE_FROM_TRAIN>::Post(STR_TMPL_CANT_CREATE, v->index);
+		bool succeeded = Command<Commands::CloneTemplateFromTrain>::Post(STR_TMPL_CANT_CREATE, v->index);
 
 		if (!succeeded)	return false;
 
@@ -639,7 +639,7 @@ public:
 	{
 		if (str.has_value() && (this->selected_template_index >= 0) && (this->selected_template_index < (int)this->templates.size()) && !this->edit_in_progress) {
 			const TemplateVehicle *tmp = this->templates[this->selected_template_index];
-			Command<CMD_RENAME_TEMPLATE>::Post(STR_TMPL_CANT_RENAME, tmp->index, *str);
+			Command<Commands::RenameTemplate>::Post(STR_TMPL_CANT_RENAME, tmp->index, *str);
 		}
 	}
 
@@ -665,7 +665,7 @@ public:
 		bool enable_collapse_all = false;
 
 		for (const Group *g : Group::Iterate()) {
-			if (g->owner == owner && g->vehicle_type == VEH_TRAIN && g->parent != GroupID::Invalid()) {
+			if (g->owner == owner && g->vehicle_type == VehicleType::Train && g->parent != GroupID::Invalid()) {
 				if (Group::Get(g->parent)->IsFolded(GroupFoldBits::TemplateReplaceView)) {
 					enable_expand_all = true;
 				} else {
@@ -679,7 +679,7 @@ public:
 
 		this->groups.clear();
 
-		BuildGuiGroupList(this->groups, GroupFoldBits::TemplateReplaceView, this->owner, VEH_TRAIN);
+		BuildGuiGroupList(this->groups, GroupFoldBits::TemplateReplaceView, this->owner, VehicleType::Train);
 
 		this->groups.shrink_to_fit();
 		this->groups.RebuildDone();
@@ -716,7 +716,7 @@ public:
 
 			const int offset = (rtl ? -(int)this->fold_sprite_dim.width : (int)this->fold_sprite_dim.width) / 2;
 			const int level_width = rtl ? -WidgetDimensions::scaled.hsep_indent : WidgetDimensions::scaled.hsep_indent;
-			const PixelColour linecolour = GetColourGradient(COLOUR_ORANGE, SHADE_NORMAL);
+			const PixelColour linecolour = GetColourGradient(Colours::Orange, Shade::Normal);
 
 			if (it->indent > 0) {
 				/* Draw tree continuation lines. */
@@ -738,15 +738,15 @@ public:
 				DrawSprite(g->IsFolded(GroupFoldBits::TemplateReplaceView) ? SPR_CIRCLE_FOLDED : SPR_CIRCLE_UNFOLDED, PAL_NONE, x + it->indent * level_width, y + (this->top_matrix_step_height - this->fold_sprite_dim.height) / 2);
 			}
 
-			const int text_y = y + (this->top_matrix_step_height - GetCharacterHeight(FS_NORMAL)) / 2;
-			auto draw_text_str = [&](int left, int right, std::string_view str, TextColour colour, StringAlignment align) {
+			const int text_y = y + (this->top_matrix_step_height - GetCharacterHeight(FontSize::Normal)) / 2;
+			auto draw_text_str = [&](int left, int right, std::string_view str, TextColour colour, Alignment align) {
 				if (rtl) {
 					DrawString(r.left + (r.right - right), r.right - (left - r.left), text_y, str, colour, align);
 				} else {
 					DrawString(left, right, text_y, str, colour, align);
 				}
 			};
-			auto draw_text = [&](int left, int right, StringID str, TextColour colour, StringAlignment align) {
+			auto draw_text = [&](int left, int right, StringID str, TextColour colour, Alignment align) {
 				draw_text_str(left, right, GetString(str), colour, align);
 			};
 
@@ -754,7 +754,7 @@ public:
 			const int col2 = left + (left + 2 * right) / 3;
 
 			draw_text_str(left + WidgetDimensions::scaled.hsep_normal + this->fold_sprite_dim.width + (it->indent * WidgetDimensions::scaled.hsep_indent),
-					col1 - WidgetDimensions::scaled.hsep_normal, GetString(STR_GROUP_NAME, g_id), g_id == this->selected_group ? TC_WHITE : TC_BLACK, SA_LEFT);
+					col1 - WidgetDimensions::scaled.hsep_normal, GetString(STR_GROUP_NAME, g_id), g_id == this->selected_group ? TextColour::White : TextColour::Black, AlignmentH::Start);
 
 			const TemplateID tid = GetTemplateIDByGroupIDRecursive(g_id);
 			const TemplateID tid_self = GetTemplateIDByGroupID(g_id);
@@ -762,7 +762,7 @@ public:
 			/* Draw the template in use for this group, if there is one */
 			int template_in_use = this->FindTemplateIndex(tid);
 			if (tid != INVALID_TEMPLATE && tid_self == INVALID_TEMPLATE) {
-				draw_text(col1 + WidgetDimensions::scaled.hsep_normal, col2 - WidgetDimensions::scaled.hsep_normal, STR_TMP_TEMPLATE_FROM_PARENT_GROUP, TC_SILVER, SA_HOR_CENTER);
+				draw_text(col1 + WidgetDimensions::scaled.hsep_normal, col2 - WidgetDimensions::scaled.hsep_normal, STR_TMP_TEMPLATE_FROM_PARENT_GROUP, TextColour::Silver, AlignmentH::Centre);
 			} else if (template_in_use >= 0) {
 				const TemplateVehicle *tv = TemplateVehicle::Get(tid);
 				std::string str;
@@ -771,9 +771,9 @@ public:
 				} else {
 					str = GetString(STR_TMPL_GROUP_USES_TEMPLATE, STR_TMPL_NAME, template_in_use, tv->name);
 				}
-				draw_text_str(col1 + WidgetDimensions::scaled.hsep_normal, col2 - WidgetDimensions::scaled.hsep_normal, str, TC_BLACK, SA_HOR_CENTER);
+				draw_text_str(col1 + WidgetDimensions::scaled.hsep_normal, col2 - WidgetDimensions::scaled.hsep_normal, str, TextColour::Black, AlignmentH::Centre);
 			} else if (tid != INVALID_TEMPLATE) { /* If there isn't a template applied from the current group, check if there is one for another rail type */
-				draw_text(col1 + WidgetDimensions::scaled.hsep_normal, col2 - WidgetDimensions::scaled.hsep_normal, STR_TMPL_TMPLRPL_EX_DIFF_RAILTYPE, TC_SILVER, SA_HOR_CENTER);
+				draw_text(col1 + WidgetDimensions::scaled.hsep_normal, col2 - WidgetDimensions::scaled.hsep_normal, STR_TMPL_TMPLRPL_EX_DIFF_RAILTYPE, TextColour::Silver, AlignmentH::Centre);
 			}
 
 			/* Draw the number of trains that still need to be treated by the currently selected template replacement */
@@ -781,8 +781,8 @@ public:
 				const TemplateVehicle *tv = TemplateVehicle::Get(tid);
 				const uint num_trains = CountTrainsNeedingTemplateReplacement(g_id, tv);
 				draw_text_str(col2 + WidgetDimensions::scaled.hsep_normal, right - WidgetDimensions::scaled.hsep_normal,
-						GetString(STR_TMPL_NUM_TRAINS_NEED_RPL, num_trains > 0 ? TC_ORANGE : TC_GREY, num_trains),
-						num_trains > 0 ? TC_BLACK : TC_GREY, SA_RIGHT);
+						GetString(STR_TMPL_NUM_TRAINS_NEED_RPL, num_trains > 0 ? TextColour::Orange : TextColour::Grey, num_trains),
+						num_trains > 0 ? TextColour::Black : TextColour::Grey, AlignmentH::End);
 			}
 
 			y += this->top_matrix_step_height;
@@ -808,35 +808,35 @@ public:
 
 			/* Fill the background of the current cell in a darker tone for the currently selected template */
 			if (this->selected_template_index == (int32_t) i) {
-				GfxFillRect(r.left + 1, y, r.right, y + this->bottom_matrix_item_size, GetColourGradient(COLOUR_GREY, SHADE_DARK));
+				GfxFillRect(r.left + 1, y, r.right, y + this->bottom_matrix_item_size, GetColourGradient(Colours::Grey, Shade::Dark));
 			}
 
 			/* Draw the template */
 			DrawTemplate(v, r.left + ScaleGUITrad(rtl ? TRW_RIGHT_OFFSET : TRW_LEFT_OFFSET), r.right - ScaleGUITrad(rtl ? TRW_LEFT_OFFSET : TRW_RIGHT_OFFSET), y, ScaleGUITrad(15));
 
-			auto draw_text_across = [&](int left_offset, int right_offset, int y_offset, std::string_view str, TextColour colour, StringAlignment align, FontSize fontsize = FS_NORMAL) {
+			auto draw_text_across = [&](int left_offset, int right_offset, int y_offset, std::string_view str, TextColour colour, Alignment align, FontSize fontsize = FontSize::Normal) {
 				DrawString(r.left + (rtl ? right_offset : left_offset), r.right - (rtl ? left_offset : right_offset), y + y_offset, str, colour, align, false, fontsize);
 			};
 
-			auto draw_text_left = [&](int left_offset, int left_offset_end, int y_offset, std::string_view str, TextColour colour, StringAlignment align, FontSize fontsize = FS_NORMAL) {
+			auto draw_text_left = [&](int left_offset, int left_offset_end, int y_offset, std::string_view str, TextColour colour, Alignment align, FontSize fontsize = FontSize::Normal) {
 				int left = (rtl ? (r.right - left_offset_end) : (r.left + left_offset));
 				DrawString(left, left + (left_offset_end - left_offset), y + y_offset, str, colour, align, false, fontsize);
 			};
 
-			auto draw_text_right = [&](int right_offset, int right_offset_end, int y_offset, std::string_view str, TextColour colour, StringAlignment align, FontSize fontsize = FS_NORMAL) {
+			auto draw_text_right = [&](int right_offset, int right_offset_end, int y_offset, std::string_view str, TextColour colour, Alignment align, FontSize fontsize = FontSize::Normal) {
 				int left = (rtl ? (r.left + right_offset_end) : (r.right - right_offset));
 				DrawString(left, left + (right_offset - right_offset_end), y + y_offset, str, colour, align, false, fontsize);
 			};
 
 			/* Draw a notification string for chains that are not runnable */
 			if (v->IsFreeWagonChain()) {
-				draw_text_across(0, ScaleGUITrad(TRW_RIGHT_OFFSET), ScaleGUITrad(2), GetString(STR_TMPL_WARNING_FREE_WAGON), TC_RED, SA_RIGHT);
+				draw_text_across(0, ScaleGUITrad(TRW_RIGHT_OFFSET), ScaleGUITrad(2), GetString(STR_TMPL_WARNING_FREE_WAGON), TextColour::Red, AlignmentH::End);
 			}
 
 			bool buildable = true;
 			RailTypes types = static_cast<RailTypes>(UINT64_MAX);
 			for (const TemplateVehicle *u = v; u != nullptr; u = u->GetNextUnit()) {
-				if (!IsEngineBuildable(u->engine_type, VEH_TRAIN, u->owner)) {
+				if (!IsEngineBuildable(u->engine_type, VehicleType::Train, u->owner)) {
 					buildable = false;
 					break;
 				} else {
@@ -845,27 +845,27 @@ public:
 			}
 			/* Draw a notification string for chains that are not buildable */
 			if (!buildable) {
-				draw_text_across(0, ScaleGUITrad(TRW_RIGHT_OFFSET), ScaleGUITrad(2), GetString(STR_TMPL_WARNING_VEH_UNAVAILABLE), TC_RED, SA_CENTER);
+				draw_text_across(0, ScaleGUITrad(TRW_RIGHT_OFFSET), ScaleGUITrad(2), GetString(STR_TMPL_WARNING_VEH_UNAVAILABLE), TextColour::Red, {AlignmentH::Centre, AlignmentV::Middle});
 			} else if (types.None()) {
-				draw_text_across(0, ScaleGUITrad(TRW_RIGHT_OFFSET), ScaleGUITrad(2), GetString(STR_TMPL_WARNING_VEH_NO_COMPATIBLE_RAIL_TYPE), TC_RED, SA_CENTER);
+				draw_text_across(0, ScaleGUITrad(TRW_RIGHT_OFFSET), ScaleGUITrad(2), GetString(STR_TMPL_WARNING_VEH_NO_COMPATIBLE_RAIL_TYPE), TextColour::Red, {AlignmentH::Centre, AlignmentV::Middle});
 			}
 
 			/* Draw the template's length in tile-units */
-			draw_text_across(0, ScaleGUITrad(4), ScaleGUITrad(2), GetString(STR_JUST_DECIMAL, v->GetRealLength(), 1), TC_BLACK, SA_RIGHT, FS_SMALL);
+			draw_text_across(0, ScaleGUITrad(4), ScaleGUITrad(2), GetString(STR_JUST_DECIMAL, v->GetRealLength(), 1), TextColour::Black, AlignmentH::End, FontSize::Small);
 
-			int bottom_edge = this->bottom_matrix_item_size - GetCharacterHeight(FS_NORMAL) - WidgetDimensions::scaled.framerect.bottom;
+			int bottom_edge = this->bottom_matrix_item_size - GetCharacterHeight(FontSize::Normal) - WidgetDimensions::scaled.framerect.bottom;
 
 			/* Buying cost */
 			draw_text_left(ScaleGUITrad(TRW_LEFT_OFFSET), ScaleGUITrad(TRW_LEFT_OFFSET) + this->buy_cost_width, bottom_edge,
 					GetString(STR_TMPL_TEMPLATE_OVR_VALUE, CalculateOverallTemplateCost(v)),
-					TC_BLUE, SA_LEFT);
+					TextColour::Blue, AlignmentH::Start);
 
 			/* Index of current template vehicle in the list of all templates for its company */
-			draw_text_left(ScaleGUITrad(5), ScaleGUITrad(25), ScaleGUITrad(2), GetString(STR_JUST_INT, i), TC_BLACK, SA_RIGHT);
+			draw_text_left(ScaleGUITrad(5), ScaleGUITrad(25), ScaleGUITrad(2), GetString(STR_JUST_INT, i), TextColour::Black, AlignmentH::End);
 
 			/* Draw whether the current template is in use by any group */
 			if (v->NumGroupsUsingTemplate() > 0) {
-				draw_text_across(ScaleGUITrad(TRW_LEFT_OFFSET), 0, ScaleGUITrad(2), GetString(STR_TMP_TEMPLATE_IN_USE), TC_GREEN, SA_LEFT);
+				draw_text_across(ScaleGUITrad(TRW_LEFT_OFFSET), 0, ScaleGUITrad(2), GetString(STR_TMP_TEMPLATE_IN_USE), TextColour::Green, AlignmentH::Start);
 			}
 
 			/* Draw information about template configuration settings */
@@ -873,23 +873,23 @@ public:
 			int r_offset = ScaleGUITrad(TRW_LEFT_OFFSET);
 
 			TextColour color;
-			color = v->IsReplaceOldOnly() ? TC_LIGHT_BLUE : TC_GREY;
-			draw_text_right(r_offset + this->old_text_width, r_offset, bottom_edge, GetString(STR_TMPL_CONFIG_OLD_ONLY), color, SA_RIGHT);
+			color = v->IsReplaceOldOnly() ? TextColour::LightBlue : TextColour::Grey;
+			draw_text_right(r_offset + this->old_text_width, r_offset, bottom_edge, GetString(STR_TMPL_CONFIG_OLD_ONLY), color, AlignmentH::End);
 			r_offset += this->old_text_width;
 
-			color = v->IsSetKeepRemainingVehicles() ? TC_LIGHT_BLUE : TC_GREY;
-			draw_text_right(r_offset + this->remainder_text_width, r_offset, bottom_edge, GetString(STR_TMPL_CONFIG_KEEPREMAINDERS), color, SA_RIGHT);
+			color = v->IsSetKeepRemainingVehicles() ? TextColour::LightBlue : TextColour::Grey;
+			draw_text_right(r_offset + this->remainder_text_width, r_offset, bottom_edge, GetString(STR_TMPL_CONFIG_KEEPREMAINDERS), color, AlignmentH::End);
 			r_offset += this->remainder_text_width;
 
-			color = v->IsSetReuseDepotVehicles() ? TC_LIGHT_BLUE : TC_GREY;
-			draw_text_right(r_offset + this->depot_text_width, r_offset, bottom_edge, GetString(STR_TMPL_CONFIG_USEDEPOT), color, SA_RIGHT);
+			color = v->IsSetReuseDepotVehicles() ? TextColour::LightBlue : TextColour::Grey;
+			draw_text_right(r_offset + this->depot_text_width, r_offset, bottom_edge, GetString(STR_TMPL_CONFIG_USEDEPOT), color, AlignmentH::End);
 			r_offset += this->depot_text_width;
 
-			draw_text_right(r_offset + this->refit_text_width, r_offset, bottom_edge, GetString(v->IsSetRefitAsTemplate() ? STR_TMPL_CONFIG_REFIT_AS_TEMPLATE : STR_TMPL_CONFIG_REFIT_AS_INCOMING), TC_FROMSTRING, SA_LEFT);
+			draw_text_right(r_offset + this->refit_text_width, r_offset, bottom_edge, GetString(v->IsSetRefitAsTemplate() ? STR_TMPL_CONFIG_REFIT_AS_TEMPLATE : STR_TMPL_CONFIG_REFIT_AS_INCOMING), TextColour::FromString, AlignmentH::Start);
 			r_offset += this->refit_text_width;
 
 			if (!v->name.empty()) {
-				draw_text_across(ScaleGUITrad(TRW_LEFT_OFFSET) + this->buy_cost_width, r_offset + ScaleGUITrad(TRW_GAP), bottom_edge, v->name, TC_BLACK, SA_LEFT);
+				draw_text_across(ScaleGUITrad(TRW_LEFT_OFFSET) + this->buy_cost_width, r_offset + ScaleGUITrad(TRW_GAP), bottom_edge, v->name, TextColour::Black, AlignmentH::Start);
 			}
 
 			y += this->bottom_matrix_item_size;
@@ -917,16 +917,16 @@ public:
 		int right = (r.right - r.left) - left;
 
 		DrawString(left, right, top, GetString(STR_TMPL_TEMPLATE_OVR_RUNNING_COST, CalculateOverallTemplateDisplayRunningCost(tmp)));
-		top += GetCharacterHeight(FS_NORMAL);
+		top += GetCharacterHeight(FontSize::Normal);
 
 		/* Draw vehicle performance info */
-		const bool original_acceleration = (_settings_game.vehicle.train_acceleration_model == AM_ORIGINAL ||
+		const bool original_acceleration = (_settings_game.vehicle.train_acceleration_model == AccelerationModel::Original ||
 				GetAccelerationTypeRailTypes(VehicleAccelerationModel::Maglev).All(tmp->railtypes));
 		DrawString(left, right, top, GetString(original_acceleration ? STR_VEHICLE_INFO_WEIGHT_POWER_MAX_SPEED : STR_VEHICLE_INFO_WEIGHT_POWER_MAX_SPEED_MAX_TE,
 				tmp->empty_weight, tmp->power, tmp->max_speed, tmp->max_te));
 
 		if (tmp->full_weight > tmp->empty_weight || _settings_client.gui.show_train_weight_ratios_in_details) {
-			top += GetCharacterHeight(FS_NORMAL);
+			top += GetCharacterHeight(FontSize::Normal);
 			std::string str;
 			if (_settings_client.gui.show_train_weight_ratios_in_details) {
 				str = GetString(STR_VEHICLE_INFO_FULL_WEIGHT_WITH_RATIOS,
@@ -947,14 +947,14 @@ public:
 			}
 			DrawString(8, right, top, str);
 		}
-		if (_settings_game.vehicle.train_acceleration_model != AM_ORIGINAL) {
-			top += GetCharacterHeight(FS_NORMAL);
+		if (_settings_game.vehicle.train_acceleration_model != AccelerationModel::Original) {
+			top += GetCharacterHeight(FontSize::Normal);
 			DrawString(8, right, top, GetString(STR_VEHICLE_INFO_MAX_SPEED_LOADED,
 					GetTemplateVehicleEstimatedMaxAchievableSpeed(tmp, tmp->full_weight, tmp->max_speed)));
 		}
 
 		/* Draw cargo summary */
-		top += GetCharacterHeight(FS_NORMAL) * 2;
+		top += GetCharacterHeight(FontSize::Normal) * 2;
 		int count_columns = 0;
 		int max_columns = 2;
 
@@ -965,7 +965,7 @@ public:
 		int x = 0;
 		int step = ScaleGUITrad(250);
 		bool rtl = _current_text_dir == TD_RTL;
-		for (CargoType i = 0; i < NUM_CARGO; ++i) {
+		for (CargoType i{}; i < NUM_CARGO; ++i) {
 			if (cargo_caps[i] > 0) {
 				count_columns++;
 				std::string str = GetString(FreightWagonMult(i) > 1 ? STR_TMPL_CARGO_SUMMARY_MULTI : STR_TMPL_CARGO_SUMMARY,
@@ -973,11 +973,11 @@ public:
 						cargo_caps[i],
 						_settings_game.vehicle.freight_trains);
 				int pos = rtl ? right - step - x : left + x;
-				DrawString(pos, pos + step, top, str, TC_LIGHT_BLUE, SA_LEFT);
+				DrawString(pos, pos + step, top, str, TextColour::LightBlue, AlignmentH::Start);
 				x += step;
 				if (count_columns % max_columns == 0) {
 					x = 0;
-					top += GetCharacterHeight(FS_NORMAL);
+					top += GetCharacterHeight(FontSize::Normal);
 				}
 			}
 		}
@@ -1013,7 +1013,7 @@ public:
 	void SetAllGroupsFoldState(bool folded)
 	{
 		for (const Group *g : Group::Iterate()) {
-			if (g->owner == this->owner && g->vehicle_type == VEH_TRAIN) {
+			if (g->owner == this->owner && g->vehicle_type == VehicleType::Train) {
 				if (g->parent != GroupID::Invalid()) {
 					SetFlagState(Group::Get(g->parent)->folded_mask, GroupFoldBits::TemplateReplaceView, folded);
 				}
@@ -1027,7 +1027,7 @@ public:
 
 void ShowTemplateReplaceWindow()
 {
-	if (BringWindowToFrontById(WC_TEMPLATEGUI_MAIN, 0) == nullptr) {
+	if (BringWindowToFrontById(WindowClass::TemplateReplacementGuiMain, 0) == nullptr) {
 		new TemplateReplaceWindow(_template_replace_desc);
 	}
 }

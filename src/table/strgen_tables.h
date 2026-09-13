@@ -9,11 +9,14 @@
 
 #include "../core/enum_type.hpp"
 
+/** Flags describing how to process a string command. */
 enum class CmdFlag : uint8_t {
 	DontCount, ///< These commands aren't counted for comparison
 	Case, ///< These commands support cases
 	Gender, ///< These commands support genders
 };
+
+/** Bitset of \c CmdFlag elements. */
 using CmdFlags = EnumBitSet<CmdFlag, uint8_t>;
 
 class StringBuilder;

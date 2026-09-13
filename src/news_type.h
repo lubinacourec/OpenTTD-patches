@@ -44,6 +44,7 @@ enum class NewsType : uint8_t {
 	Advice, ///< Bits of news about vehicles of the company
 	NewVehicles, ///< New vehicle has become available
 	Acceptance, ///< A type of cargo is (no longer) accepted
+	CargoFlow, ///< Cargo flow warnings (overflowing cargo)
 	Subsidies, ///< News about subsidies (announcements, expirations, acceptance)
 	General, ///< General news (from towns)
 
@@ -62,7 +63,7 @@ enum class AdviceType : uint8_t {
 	VehicleUnprofitable, ///< The vehicle is costing you money.
 	VehicleWaiting, ///< The vehicle is waiting in the depot.
 
-	Invalid
+	Invalid, ///< Invalid marker.
 };
 
 /**
@@ -95,6 +96,8 @@ enum class NewsFlag : uint8_t {
 	Shaded, ///< News item uses shaded colours.
 	VehicleParam0, ///< String param 0 contains a vehicle ID. (special autoreplace behaviour)
 };
+
+/** Bitset of \c NewsFlag elements. */
 using NewsFlags = EnumBitSet<NewsFlag, uint8_t>;
 
 /**
@@ -120,7 +123,7 @@ struct NewsTypeData {
 	 * @param age The maximum age for these messages.
 	 * @param sound The sound to play.
 	 */
-	NewsTypeData(std::string_view name, uint8_t age, SoundFx sound) :
+	constexpr NewsTypeData(std::string_view name, uint8_t age, SoundFx sound) :
 		name(name),
 		age(age),
 		sound(sound)

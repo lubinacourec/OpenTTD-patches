@@ -1489,8 +1489,8 @@ STR_CONFIG_SETTING_CONSTRUCTION_COSTS_HELPTEXT                  :Nustatykite sta
 STR_CONFIG_SETTING_RECESSIONS                                   :Nuosmukiai: {STRING}
 STR_CONFIG_SETTING_RECESSIONS_HELPTEXT                          :Įgalinus šią nusotatą, kas keletą metų gali užklupti ekonomikos nuosmukis. Nuosmukio metų smarkiai smunka gamyba (kuri atsistato nuosmukiai pasibaigus)
 
-STR_CONFIG_SETTING_TRAIN_REVERSING                              :Drausti apsisukimus stotelėse: {STRING}
-STR_CONFIG_SETTING_TRAIN_REVERSING_HELPTEXT                     :Įgalinus šią nuostatą, traukiniai galės apsisukti tik galinėse stotelėse su bendru įvažiavimu ir išvažiavimu.
+
+###length 3
 
 STR_CONFIG_SETTING_DISASTERS                                    :Katastrofos: {STRING}
 STR_CONFIG_SETTING_DISASTERS_HELPTEXT                           :Įgalinti atsitiktines katastrofas, kurių metų gali būti apgadintos ar sunaikintos transporto priemonės bei infrastruktūra
@@ -1513,7 +1513,6 @@ STR_CONFIG_SETTING_CATCHMENT_HELPTEXT                           :Skirtingų tip�
 
 STR_CONFIG_SETTING_SERVE_NEUTRAL_INDUSTRIES                     :Leisti kompanijos stotims aptarnauti pramonės įmones su nuosavomis neutraliomis stotimis: {STRING}
 STR_CONFIG_SETTING_SERVE_NEUTRAL_INDUSTRIES_HELPTEXT            :Įgalinus šią nuostatą, pramonės įmonės su nuosavomis stotimis (pvz, naftos platformos) taip pat galės būti aptarnautos žaidėjų stočių, įrengtų netoliese. Išjungus šią nuostatą, minėtos pramonės įmonės galės būti aptarnautos tik iš nuosavų stočių. Tokiu atveju žaidėjų įrengtos stotys įmonės aptarnauti negalės, o įmonės stotis aptarnaus tik pačią įmonę
-
 
 STR_CONFIG_SETTING_EXTRADYNAMITE                                :Leisti griauti miestams priklausančius tiltus, kelius ir kt.: {STRING}
 STR_CONFIG_SETTING_EXTRADYNAMITE_HELPTEXT                       :Palengvinti miestams priklausančios infrastruktūros (kelių, tiltų, namų ir kitų objektų) pašalinimą
@@ -1682,6 +1681,8 @@ STR_CONFIG_SETTING_MINUTES_PER_YEAR_FROZEN                      :0 (kalendoriaus
 
 STR_CONFIG_SETTING_CARGO_SCALE_VALUE                            :{NUM}%
 
+###setting-zero-is-special
+
 STR_CONFIG_SETTING_AUTORENEW_VEHICLE                            :Automatiškai atnaujinti transporto priemonę, kai ji pasensta: {STRING}
 STR_CONFIG_SETTING_AUTORENEW_VEHICLE_HELPTEXT                   :Transporto priemonė, eksploatacijos laikotarpiui artėjant prie pabaigos, bus automatiškai bus atnaujinta, jei tik atnaujinimo sąlygos bus išpildytos
 
@@ -1749,6 +1750,8 @@ STR_CONFIG_SETTING_ROUGHNESS_OF_TERRAIN_VERY_SMOOTH             :Labai lygus
 STR_CONFIG_SETTING_ROUGHNESS_OF_TERRAIN_SMOOTH                  :Lygus
 STR_CONFIG_SETTING_ROUGHNESS_OF_TERRAIN_ROUGH                   :Kalnuotas
 STR_CONFIG_SETTING_ROUGHNESS_OF_TERRAIN_VERY_ROUGH              :Labai kalnuotas
+
+###length 4
 
 STR_CONFIG_SETTING_VARIETY                                      :Kraštovaizdžio įvairovė: {STRING}
 STR_CONFIG_SETTING_VARIETY_HELPTEXT                             :(Tik TerraGenesis) Tame pačiame žemėlapyje gali būti tiek kalvotų, tiek lygių regionų. Kuo didesnė įvairovė, tuo daugiau skirtingų regionų bus sugeneruota.
@@ -1900,12 +1903,7 @@ STR_CONFIG_SETTING_TIMETABLE_SHOW_ARRIVAL_DEPARTURE_HELPTEXT    :Tvarkaraščiuo
 STR_CONFIG_SETTING_QUICKGOTO                                    :Transporto priemonių užduotys kuriamos sparčiuoju būdu: {STRING}
 STR_CONFIG_SETTING_QUICKGOTO_HELPTEXT                           :Atvėrus transporto priemonės užduočių langą, mygtukas „Vykti į“ jau bus automatiškai nuspaustas
 
-STR_CONFIG_SETTING_DEFAULT_RAIL_TYPE                            :Numatytoji bėgių rūšis (po žaidimo paleidimo): {STRING}
-STR_CONFIG_SETTING_DEFAULT_RAIL_TYPE_HELPTEXT                   :Bėgių rūšis, kuri bus parinkta įkrovus žaidimą
 ###length 3
-STR_CONFIG_SETTING_DEFAULT_RAIL_TYPE_FIRST                      :anksčiausiai atsiradusi
-STR_CONFIG_SETTING_DEFAULT_RAIL_TYPE_LAST                       :vėliausiai atsiradusi
-STR_CONFIG_SETTING_DEFAULT_RAIL_TYPE_MOST_USED                  :daugiausiai naudojama
 
 STR_CONFIG_SETTING_SHOW_TRACK_RESERVATION                       :Rodyti rezervuotus bėgius: {STRING}
 STR_CONFIG_SETTING_SHOW_TRACK_RESERVATION_HELPTEXT              :Įjungus šią nuostatą, rezervuoti bėgiai bus spavinami šiek tiek kitokia spalva, o tai savo ruožtu padės greičiau nustatyti priežastis, kodėl traukinys neįvažiuoja į kai kuriuos bėgių blokus
@@ -2005,6 +2003,7 @@ STR_CONFIG_SETTING_NOSERVICE_HELPTEXT                           :Jeigu įjungta,
 
 STR_CONFIG_SETTING_WAGONSPEEDLIMITS                             :Aktyvinti vagonų greičio apribojimą: {STRING}
 STR_CONFIG_SETTING_WAGONSPEEDLIMITS_HELPTEXT                    :Įgalinus šią nuostatą, vagonų didžiausias leistinas greitis įtakos viso traukinio greitį
+
 
 STR_CONFIG_SETTING_DISABLE_ELRAILS                              :Uždrausti elektrinius bėgius: {STRING}
 STR_CONFIG_SETTING_DISABLE_ELRAILS_HELPTEXT                     :Įjungiant šį nustatymą išjungia elektrifikuotų bėgių reikalavimą padaryti elektrinius variklius veikti ant jų
@@ -2331,7 +2330,7 @@ STR_CONFIG_ERROR_INVALID_BASE_GRAPHICS_NOT_FOUND                :{WHITE}... nera
 STR_CONFIG_ERROR_INVALID_BASE_SOUNDS_NOT_FOUND                  :{WHITE}... nerastas garsų rinkinys „{STRING}“
 STR_CONFIG_ERROR_INVALID_BASE_MUSIC_NOT_FOUND                   :{WHITE}... nerastas muzikos įrašų rinkinys „{STRING}“
 
-# Video initalization errors
+# Video initialization errors
 STR_VIDEO_DRIVER_ERROR                                          :{WHITE}Vaizdo nuostatų klaida...
 STR_VIDEO_DRIVER_ERROR_NO_HARDWARE_ACCELERATION                 :{WHITE}... nepavyko rasti tinkamos vaizdo plokštės. Aparatinis spartinimas buvo išjungtas
 STR_VIDEO_DRIVER_ERROR_HARDWARE_ACCELERATION_CRASH              :{WHITE}...Vaizdo plokštės tvarkyklė sulaužė žaidimą. Aparatinis spartinimas išjungtas
@@ -2582,15 +2581,13 @@ STR_NETWORK_CONNECTING_WAITING                                  :{BLACK}{NUM} va
 STR_NETWORK_CONNECTING_DOWNLOADING_1                            :{BLACK}{BYTES} parsisiųsta iki šiol
 STR_NETWORK_CONNECTING_DOWNLOADING_2                            :{BLACK}{BYTES} / {BYTES} parsiųsta
 
-###length 8
+###length 6
 STR_NETWORK_CONNECTING_1                                        :{BLACK}(1/6) Jungiamasi..
 STR_NETWORK_CONNECTING_2                                        :{BLACK}(2/6) Autorizuoja..
 STR_NETWORK_CONNECTING_3                                        :{BLACK}(3/6) Laukia..
 STR_NETWORK_CONNECTING_4                                        :{BLACK}(4/6) Siunčiamas žemėlapis..
 STR_NETWORK_CONNECTING_5                                        :{BLACK}(5/6) Duomenų apdorojimas...
 STR_NETWORK_CONNECTING_6                                        :{BLACK}(6/6) Registruojamasi..
-STR_NETWORK_CONNECTING_SPECIAL_1                                :{BLACK}Gaunama žaidimo informacija..
-STR_NETWORK_CONNECTING_SPECIAL_2                                :{BLACK}Gaunama kompanijos informacija..
 
 STR_NETWORK_CONNECTION_DISCONNECT                               :{BLACK}Atsijungti
 
@@ -2947,7 +2944,6 @@ STR_STATION_CLASS_WAYP                                          :Keliarodžiai
 
 # Signal window
 STR_BUILD_SIGNAL_CAPTION                                        :{WHITE}Signalo pasirinkimas
-STR_BUILD_SIGNAL_TOGGLE_ADVANCED_SIGNAL_TOOLTIP                 :{BLACK}Perjungti išplėstinių signalų tipų rodymą
 STR_BUILD_SIGNAL_SEMAPHORE_NORM_TOOLTIP                         :{BLACK}Bėgių bloko semaforas{}Paprasčiausias signalo tipas, leidžiantis viename bėgių bloke tuo pačiu metu būti tik vienam traukiniui
 STR_BUILD_SIGNAL_SEMAPHORE_ENTRY_TOOLTIP                        :{BLACK}Įvažiavimo semaforas{}Leidžia įvažiuoti į bėgių bloką, jei bent vienas išvažiavimo signalas leidžia išvažiuoti iš bloko. Kitu atveju traukinių eismas draudžiamas
 STR_BUILD_SIGNAL_SEMAPHORE_EXIT_TOOLTIP                         :{BLACK}Išvažiavimo semaforas{}Veikia lygiai taip pat, kaip ir paprastas bėgių bloko signalas, bet yra reikalingas normaliam įvažiavimo bei kombinuotųjų semaforų darbui
@@ -4041,10 +4037,10 @@ STR_INDUSTRY_DIRECTORY_CAPTION                                  :{WHITE}Gamyklos
 STR_INDUSTRY_DIRECTORY_NONE                                     :{ORANGE}- Nieko -
 STR_INDUSTRY_DIRECTORY_ITEM_INFO                                :{BLACK}{CARGO_LONG}{STRING}{YELLOW} ({COMMA}% transportuota)
 STR_INDUSTRY_DIRECTORY_ITEM_NOPROD                              :{ORANGE}{INDUSTRY}
-STR_INDUSTRY_DIRECTORY_ITEM_PROD1                               :{ORANGE}{INDUSTRY} {STRING}
-STR_INDUSTRY_DIRECTORY_ITEM_PROD2                               :{ORANGE}{INDUSTRY} {STRING}, {STRING}
-STR_INDUSTRY_DIRECTORY_ITEM_PROD3                               :{ORANGE}{INDUSTRY} {STRING}, {STRING}, {STRING}
-STR_INDUSTRY_DIRECTORY_ITEM_PRODMORE                            :{ORANGE}{INDUSTRY} {STRING}, {STRING}, {STRING} ir {NUM} daugiau...
+STR_INDUSTRY_DIRECTORY_ITEM_PROD1                               :{ORANGE}{INDUSTRY} {BLACK}{STRING}
+STR_INDUSTRY_DIRECTORY_ITEM_PROD2                               :{ORANGE}{INDUSTRY} {BLACK}{STRING}, {STRING}
+STR_INDUSTRY_DIRECTORY_ITEM_PROD3                               :{ORANGE}{INDUSTRY} {BLACK}{STRING}, {STRING}, {STRING}
+STR_INDUSTRY_DIRECTORY_ITEM_PRODMORE                            :{ORANGE}{INDUSTRY} {BLACK}{STRING}, {STRING}, {STRING} ir {NUM} daugiau...
 STR_INDUSTRY_DIRECTORY_LIST_TOOLTIP                             :{BLACK}Pramonės pavadinimai - spragtelėjus ant pavadinimo, pramonė rodoma ekrano centre. Spragtelėjus laikant nuspaustą Ctrl klavišą atidarysite naują langą su pramonės vaizdu
 STR_INDUSTRY_DIRECTORY_ACCEPTED_CARGO_FILTER                    :{BLACK}Priimami kroviniai: {SILVER}{STRING}
 STR_INDUSTRY_DIRECTORY_PRODUCED_CARGO_FILTER                    :{BLACK}Tiekiami kroviniai: {SILVER}{STRING}
@@ -4189,6 +4185,8 @@ STR_PURCHASE_INFO_ALL_BUT                                       :visiems krovini
 STR_PURCHASE_INFO_MAX_TE                                        :{BLACK}Didž. traukos jėga: {GOLD}{FORCE}
 STR_PURCHASE_INFO_AIRCRAFT_RANGE                                :{BLACK}Nuotolis: {GOLD}{COMMA} langeliai
 STR_PURCHASE_INFO_AIRCRAFT_TYPE                                 :{BLACK}Tipas: {GOLD}{STRING}
+
+# Vehicle sort details
 
 ###length 3
 STR_CARGO_TYPE_FILTER_ALL                                       :Visų rūšių kroviniai
@@ -4561,7 +4559,6 @@ STR_VEHICLE_INFO_WEIGHT_POWER_MAX_SPEED_MAX_TE                  :{BLACK}Svoris: 
 STR_VEHICLE_INFO_PROFIT_THIS_YEAR_LAST_YEAR                     :{BLACK}Šių metų pelnas: {LTBLUE}{CURRENCY_LONG} (praėjusiųjų: {CURRENCY_LONG})
 STR_VEHICLE_INFO_PROFIT_THIS_YEAR_LAST_YEAR_MIN_PERFORMANCE     :{BLACK}Šių metų pelnas: {LTBLUE}{CURRENCY_LONG} (praeitais metais: {CURRENCY_LONG}) {BLACK}Min. įvykdymas: {LTBLUE}{POWER_TO_WEIGHT}
 STR_VEHICLE_INFO_PROFIT_THIS_PERIOD_LAST_PERIOD                 :{BLACK}Pelnas šį periodą: {LTBLUE}{CURRENCY_LONG} (praeito periodo: {CURRENCY_LONG})
-STR_VEHICLE_INFO_RELIABILITY_BREAKDOWNS                         :{BLACK}Patikimumas: {LTBLUE}{COMMA}%  {BLACK}Gedimų nuo paskutinės apžiūros: {LTBLUE}{COMMA}
 
 STR_VEHICLE_INFO_BUILT_VALUE                                    :{LTBLUE}{ENGINE} {BLACK}Pagamintas: {LTBLUE}{NUM}{BLACK} Vertė: {LTBLUE}{CURRENCY_LONG}
 STR_VEHICLE_INFO_NO_CAPACITY                                    :{BLACK}Talpa: {LTBLUE}Nieko{STRING}
@@ -4694,7 +4691,7 @@ STR_ORDER_DROP_UNBUNCH                                          :Iškrauti
 STR_ORDER_CONDITIONAL_VARIABLE_TOOLTIP                          :{BLACK}Transporto priemonės parametras, kuriuo bus remiamasi vykdant sąlyginę užduotį
 
 # Conditional order variables, must follow order of OrderConditionVariable enum
-###length 8
+###length 9
 STR_ORDER_CONDITIONAL_LOAD_PERCENTAGE                           :krovinio užpilda (proc.)
 STR_ORDER_CONDITIONAL_RELIABILITY                               :patikimumas
 STR_ORDER_CONDITIONAL_MAX_SPEED                                 :didžiausias greitis
@@ -5091,7 +5088,6 @@ STR_ERROR_CAN_T_GENERATE_TOWN                                   :{WHITE}Neįmano
 STR_ERROR_CAN_T_RENAME_TOWN                                     :{WHITE}Miesto pervardinti negalima...
 STR_ERROR_CAN_T_FOUND_TOWN_HERE                                 :{WHITE}Negalima įkurti miesto...
 STR_ERROR_CAN_T_EXPAND_TOWN                                     :{WHITE}Negalima praplėsti miestelio...
-STR_ERROR_TOO_CLOSE_TO_EDGE_OF_MAP_SUB                          :{WHITE}... per arti žemėlapio krašto
 STR_ERROR_TOO_CLOSE_TO_ANOTHER_TOWN                             :{WHITE}... per arti kito miesto
 STR_ERROR_TOO_MANY_TOWNS                                        :{WHITE}... per daug miestų
 STR_ERROR_NO_SPACE_FOR_TOWN                                     :{WHITE}... daugiau nera vietos zemelapyje

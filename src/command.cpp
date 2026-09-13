@@ -44,7 +44,7 @@
 
 #include "safeguards.h"
 
-ClientID _cmd_client_id = INVALID_CLIENT_ID;
+ClientID _cmd_client_id = ClientID::Invalid;
 
 /**
  * List of flags for a command log entry
@@ -240,7 +240,7 @@ bool IsCommandAllowedWhilePaused(Commands cmd)
 	static_assert(std::size(command_type_lookup) == to_underlying(CommandType::End));
 
 	assert(IsValidCommand(cmd));
-	return _game_mode == GM_EDITOR || command_type_lookup[to_underlying(_command_proc_table[cmd].type)] <= _settings_game.construction.command_pause_level;
+	return _game_mode == GameMode::Editor || command_type_lookup[to_underlying(_command_proc_table[cmd].type)] <= _settings_game.construction.command_pause_level;
 }
 
 bool IsCorrectCommandPayloadType(Commands cmd, const CommandPayloadBase &payload)
@@ -430,7 +430,7 @@ bool DoCommandPImplementation(Commands cmd, TileIndex tile, const CommandPayload
 	int y = TileY(tile) * TILE_SIZE;
 
 	if (_pause_mode.Any() && !IsCommandAllowedWhilePaused(cmd) && !estimate_only) {
-		ShowErrorMessage(GetEncodedString(error_msg), GetEncodedString(STR_ERROR_NOT_ALLOWED_WHILE_PAUSED), WL_INFO, x, y);
+		ShowErrorMessage(GetEncodedString(error_msg), GetEncodedString(STR_ERROR_NOT_ALLOWED_WHILE_PAUSED), WarningLevel::Info, x, y);
 		return false;
 	}
 
@@ -441,7 +441,7 @@ bool DoCommandPImplementation(Commands cmd, TileIndex tile, const CommandPayload
 	if (!(intl_flags & DCIF_NETWORK_COMMAND) && GetCommandFlags(cmd).Test(CommandFlag::ClientID)) {
 		modified_payload = orig_payload.Clone();
 		assert(IsCorrectCommandPayloadType(cmd, *modified_payload));
-		SetPreCheckedCommandPayloadClientID(cmd, *modified_payload, CLIENT_ID_SERVER);
+		SetPreCheckedCommandPayloadClientID(cmd, *modified_payload, ClientID::Server);
 		use_payload = modified_payload.get();
 	}
 
@@ -473,7 +473,7 @@ bool DoCommandPImplementation(Commands cmd, TileIndex tile, const CommandPayload
 		}
 	} else if (estimate_only) {
 		ShowEstimatedCostOrIncome(res.GetCost(), x, y);
-	} else if (!only_sending && tile != 0 && IsLocalCompany() && _game_mode != GM_EDITOR && HasBit(_extra_display_opt, XDO_SHOW_MONEY_TEXT_EFFECTS)) {
+	} else if (!only_sending && tile != 0 && IsLocalCompany() && _game_mode != GameMode::Editor && HasBit(_extra_display_opt, XDO_SHOW_MONEY_TEXT_EFFECTS)) {
 		/* Only show the cost animation when we did actually
 		 * execute the command, i.e. we're not sending it to
 		 * the server, when it has cost the local company
@@ -594,7 +594,7 @@ CommandCost DoCommandPInternal(Commands cmd, TileIndex tile, const CommandPayloa
 	/* If the company isn't valid it may only do server command or start a new company!
 	 * The server will ditch any server commands a client sends to it, so effectively
 	 * this guards the server from executing functions for an invalid company. */
-	if (_game_mode == GM_NORMAL && !exec_as_spectator && !Company::IsValidID(_current_company) && !(_current_company == OWNER_DEITY && cmd_flags.Test(CommandFlag::Deity))) {
+	if (_game_mode == GameMode::Normal && !exec_as_spectator && !Company::IsValidID(_current_company) && !(_current_company == OWNER_DEITY && cmd_flags.Test(CommandFlag::Deity))) {
 		return CMD_ERROR;
 	}
 
@@ -682,7 +682,7 @@ CommandCost DoCommandPInternal(Commands cmd, TileIndex tile, const CommandPayloa
 	CommandCost res2 = command.exec({ tile, flags | DoCommandFlag::Execute, payload });
 	BasePersistentStorageArray::SwitchMode(PSM_LEAVE_COMMAND);
 
-	if (cmd == CMD_COMPANY_CTRL) {
+	if (cmd == Commands::CompanyControl) {
 		cur_company.Trash();
 		/* We are a new company                  -> Switch to new local company.
 		 * We were closed down                   -> Switch to spectator
@@ -907,7 +907,7 @@ void SerialisePayload(BufferSerialisationRef buffer, const T &payload)
 
 void SerialisedBaseCommandContainer::Serialise(BufferSerialisationRef buffer) const
 {
-	buffer.Send_uint16(this->cmd);
+	buffer.Send_uint16(to_underlying(this->cmd));
 	buffer.Send_uint16(this->error_msg);
 	buffer.Send_uint32(this->tile.base());
 	SerialisePayload(buffer, this->payload);
@@ -915,7 +915,7 @@ void SerialisedBaseCommandContainer::Serialise(BufferSerialisationRef buffer) co
 
 void DynBaseCommandContainer::Serialise(BufferSerialisationRef buffer) const
 {
-	buffer.Send_uint16(this->cmd);
+	buffer.Send_uint16(to_underlying(this->cmd));
 	buffer.Send_uint16(this->error_msg);
 	buffer.Send_uint32(this->tile.base());
 	SerialisePayload(buffer, *this->payload);

@@ -71,7 +71,7 @@ struct Map {
 	}
 
 	/**
-	 * Gets the maximum X coordinate within the map, including MP_VOID
+	 * Gets the maximum X coordinate within the map, including TileType::Void
 	 * @return the maximum X coordinate
 	 */
 	static inline uint MaxX()
@@ -80,7 +80,7 @@ struct Map {
 	}
 
 	/**
-	 * Gets the maximum Y coordinate within the map, including MP_VOID
+	 * Gets the maximum Y coordinate within the map, including TileType::Void
 	 * @return the maximum Y coordinate
 	 */
 	static inline uint MaxY()
@@ -117,7 +117,8 @@ struct Map {
 	/**
 	 * 'Wraps' the given "tile" so it is within the map.
 	 * It does this by masking the 'high' bits of.
-	 * @param tile the tile to 'wrap'
+	 * @param tile the tile to 'wrap'.
+	 * @return The wrapped tile.
 	 */
 	static inline TileIndex WrapToMap(TileIndex tile)
 	{
@@ -325,7 +326,7 @@ TileIndex TileAddSaturating(TileIndex tile, int addx, int addy);
  */
 inline TileIndexDiffC TileIndexDiffCByDiagDir(DiagDirection dir)
 {
-	extern const TileIndexDiffC _tileoffs_by_diagdir[DIAGDIR_END];
+	extern const DiagDirectionIndexArray<TileIndexDiffC> _tileoffs_by_diagdir;
 
 	assert(IsValidDiagDirection(dir));
 	return _tileoffs_by_diagdir[dir];
@@ -339,7 +340,7 @@ inline TileIndexDiffC TileIndexDiffCByDiagDir(DiagDirection dir)
  */
 inline TileIndexDiffC TileIndexDiffCByDir(Direction dir)
 {
-	extern const TileIndexDiffC _tileoffs_by_dir[DIR_END];
+	extern const DirectionIndexArray<TileIndexDiffC> _tileoffs_by_dir;
 
 	assert(IsValidDirection(dir));
 	return _tileoffs_by_dir[dir];
@@ -412,7 +413,7 @@ uint DistanceFromEdgeDir(TileIndex, DiagDirection); ///< distance from the map e
  */
 inline TileIndexDiff TileOffsByAxis(Axis axis)
 {
-	extern const TileIndexDiffC _tileoffs_by_axis[];
+	extern const AxisIndexArray<TileIndexDiffC> _tileoffs_by_axis;
 
 	assert(IsValidAxis(axis));
 	return ToTileIndexDiff(_tileoffs_by_axis[axis]);
@@ -427,7 +428,7 @@ inline TileIndexDiff TileOffsByAxis(Axis axis)
  */
 inline TileIndexDiff TileOffsByDiagDir(DiagDirection dir)
 {
-	extern const TileIndexDiffC _tileoffs_by_diagdir[DIAGDIR_END];
+	extern const DiagDirectionIndexArray<TileIndexDiffC> _tileoffs_by_diagdir;
 
 	assert(IsValidDiagDirection(dir));
 	return ToTileIndexDiff(_tileoffs_by_diagdir[dir]);
@@ -441,7 +442,7 @@ inline TileIndexDiff TileOffsByDiagDir(DiagDirection dir)
  */
 inline TileIndexDiff TileOffsByDir(Direction dir)
 {
-	extern const TileIndexDiffC _tileoffs_by_dir[DIR_END];
+	extern const DirectionIndexArray<TileIndexDiffC> _tileoffs_by_dir;
 
 	assert(IsValidDirection(dir));
 	return ToTileIndexDiff(_tileoffs_by_dir[dir]);
@@ -483,18 +484,18 @@ inline bool AreTilesAdjacent(TileIndex a, TileIndex b)
  * The tiles do not necessarily have to be adjacent.
  * @param tile_from Origin tile
  * @param tile_to Destination tile
- * @return DiagDirection from tile_from towards tile_to, or INVALID_DIAGDIR if the tiles are not on an axis
+ * @return DiagDirection from tile_from towards tile_to, or DiagDirection::Invalid if the tiles are not on an axis
  */
 inline DiagDirection DiagdirBetweenTiles(TileIndex tile_from, TileIndex tile_to)
 {
 	int dx = (int)TileX(tile_to) - (int)TileX(tile_from);
 	int dy = (int)TileY(tile_to) - (int)TileY(tile_from);
 	if (dx == 0) {
-		if (dy == 0) return INVALID_DIAGDIR;
-		return (dy < 0 ? DIAGDIR_NW : DIAGDIR_SE);
+		if (dy == 0) return DiagDirection::Invalid;
+		return (dy < 0 ? DiagDirection::NW : DiagDirection::SE);
 	} else {
-		if (dy != 0) return INVALID_DIAGDIR;
-		return (dx < 0 ? DIAGDIR_NE : DIAGDIR_SW);
+		if (dy != 0) return DiagDirection::Invalid;
+		return (dx < 0 ? DiagDirection::NE : DiagDirection::SW);
 	}
 }
 

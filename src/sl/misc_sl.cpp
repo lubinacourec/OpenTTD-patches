@@ -22,6 +22,7 @@
 #include "../event_logs.h"
 #include "../timer/timer.h"
 #include "../timer/timer_game_tick.h"
+#include "../session_stats.h"
 
 #include "saveload.h"
 
@@ -42,7 +43,7 @@ ZoomLevel _saved_scrollpos_zoom;
 void SaveViewportBeforeSaveGame()
 {
 	/* Don't use GetMainWindow() in case the window does not exist. */
-	const Window *w = FindWindowById(WC_MAIN_WINDOW, 0);
+	const Window *w = FindWindowById(WindowClass::MainWindow, 0);
 	if (w == nullptr || w->viewport == nullptr) {
 		/* Ensure saved position is clearly invalid. */
 		_saved_scrollpos_x = INT_MAX;
@@ -57,6 +58,8 @@ void SaveViewportBeforeSaveGame()
 
 void ResetViewportAfterLoadGame()
 {
+	if (_saved_scrollpos_x == INT_MAX || _saved_scrollpos_y == INT_MAX) return;
+
 	Window *w = GetMainWindow();
 
 	w->viewport->scrollpos_x = _saved_scrollpos_x;
@@ -210,9 +213,9 @@ static void Load_MISC()
 }
 
 static const ChunkHandler misc_chunk_handlers[] = {
-	{ 'DATE', Save_DATE, Load_DATE, nullptr, Check_DATE, CH_TABLE },
+	{ 'DATE', Save_DATE, Load_DATE, nullptr, Check_DATE, ChunkType::Table },
 	MakeSaveUpstreamFeatureConditionalLoadUpstreamChunkHandler<'VIEW', XSLFI_TABLE_MISC_SL>(Load_VIEW, nullptr, nullptr),
-	{ 'MISC', nullptr, Load_MISC, nullptr, nullptr, CH_READONLY },
+	{ 'MISC', nullptr, Load_MISC, nullptr, nullptr, ChunkType::ReadOnly },
 };
 
 extern const ChunkHandlerTable _misc_chunk_handlers(misc_chunk_handlers);

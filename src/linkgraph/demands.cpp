@@ -74,7 +74,7 @@ public:
 	 * nodes only accept anything if they also supply something. So if
 	 * undelivered_supply == 0 at the node there isn't any demand left either.
 	 * @param to Node to be checked.
-	 * @return If demand is left.
+	 * @return \c true iff demand is left.
 	 */
 	inline bool HasDemandLeft(const Node &to)
 	{
@@ -96,7 +96,6 @@ class AsymmetricScaler : public Scaler {
 public:
 	/**
 	 * Nothing to do here.
-	 * @param unused.
 	 */
 	inline void AddNode(const Node &)
 	{
@@ -104,7 +103,6 @@ public:
 
 	/**
 	 * Nothing to do here.
-	 * @param unused.
 	 */
 	inline void SetDemandPerNode(uint)
 	{
@@ -122,7 +120,7 @@ public:
 	/**
 	 * Get the effective supply of one node towards another one.
 	 * @param from The supplying node.
-	 * @param unused.
+	 * @return Effective supply.
 	 */
 	inline uint EffectiveSupply(const Node &from, const Node &)
 	{
@@ -133,6 +131,7 @@ public:
 	 * Check if there is any acceptance left for this node. In asymmetric distribution
 	 * nodes always accept as long as their demand > 0.
 	 * @param to The node to be checked.
+	 * @return \c true iff demand is left.
 	 */
 	inline bool HasDemandLeft(const Node &to) { return to.Demand() > 0; }
 };
@@ -202,7 +201,7 @@ public:
 private:
 	uint supply_sum;      ///< Sum of all supplies in the component.
 	uint demand_per_node; ///< Mean demand associated with each node.
-	uint missing_supply;  ///< Suppply/demand adjustment for in AdjustDemandNodes.
+	uint missing_supply;  ///< Supply/demand adjustment for in AdjustDemandNodes.
 };
 
 /**
@@ -439,7 +438,7 @@ DemandCalculator::DemandCalculator(LinkGraphJob &job) :
 		this->mod_dist = 100 + ((over100 * over100) / 12);
 	}
 
-	if (settings.GetDistributionType(cargo) == DT_MANUAL) return;
+	if (settings.GetDistributionType(cargo) == DistributionType::Manual) return;
 
 	const uint size = job.Size();
 
@@ -481,16 +480,16 @@ DemandCalculator::DemandCalculator(LinkGraphJob &job) :
 		}
 
 		switch (settings.GetDistributionType(cargo)) {
-			case DT_SYMMETRIC:
+			case DistributionType::Symmetric:
 				this->CalcDemand<SymmetricScaler>(job, reachable_nodes, SymmetricScaler(settings.demand_size));
 				break;
-			case DT_ASYMMETRIC:
+			case DistributionType::Asymmetric:
 				this->CalcDemand<AsymmetricScaler>(job, reachable_nodes, AsymmetricScaler());
 				break;
-			case DT_ASYMMETRIC_EQ:
+			case DistributionType::AsymmetricEqual:
 				this->CalcMinimisedDistanceDemand<AsymmetricScalerEq>(job, reachable_nodes, AsymmetricScalerEq());
 				break;
-			case DT_ASYMMETRIC_NEAR:
+			case DistributionType::AsymmetricNearest:
 				this->CalcMinimisedDistanceDemand<AsymmetricScaler>(job, reachable_nodes, AsymmetricScaler());
 				break;
 			default:

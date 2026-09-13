@@ -36,27 +36,27 @@ enum OrderWidgets : WidgetID {
 /** Nested widget definition for order import errors. */
 static constexpr NWidgetPart _nested_order_import_error_widgets[] = {
 	NWidget(NWID_HORIZONTAL),
-		NWidget(WWT_CLOSEBOX, COLOUR_GREY),
-		NWidget(WWT_CAPTION, COLOUR_GREY, WID_OIE_CAPTION), SetStringTip(STR_ORDER_IMPORT_ERROR_LIST_CAPTION, STR_TOOLTIP_WINDOW_TITLE_DRAG_THIS),
-		NWidget(NWID_SELECTION, INVALID_COLOUR, WID_OIE_TOGGLE_NON_ERROR_SEL),
-			NWidget(WWT_IMGBTN, COLOUR_GREY, WID_OIE_TOGGLE_NON_ERROR), SetSpriteTip(SPR_LARGE_SMALL_WINDOW, STR_ORDER_IMPORT_ERROR_LIST_TOGGLE_SHOW_NON_ERRORS), SetAspect(WidgetDimensions::ASPECT_TOGGLE_SIZE),
+		NWidget(WWT_CLOSEBOX, Colours::Grey),
+		NWidget(WWT_CAPTION, Colours::Grey, WID_OIE_CAPTION), SetStringTip(STR_ORDER_IMPORT_ERROR_LIST_CAPTION, STR_TOOLTIP_WINDOW_TITLE_DRAG_THIS),
+		NWidget(NWID_SELECTION, Colours::Invalid, WID_OIE_TOGGLE_NON_ERROR_SEL),
+			NWidget(WWT_IMGBTN, Colours::Grey, WID_OIE_TOGGLE_NON_ERROR), SetSpriteTip(SPR_LARGE_SMALL_WINDOW, STR_ORDER_IMPORT_ERROR_LIST_TOGGLE_SHOW_NON_ERRORS), SetAspect(WidgetDimensions::ASPECT_TOGGLE_SIZE),
 		EndContainer(),
-		NWidget(WWT_SHADEBOX, COLOUR_GREY),
-		NWidget(WWT_DEFSIZEBOX, COLOUR_GREY),
-		NWidget(WWT_STICKYBOX, COLOUR_GREY),
+		NWidget(WWT_SHADEBOX, Colours::Grey),
+		NWidget(WWT_DEFSIZEBOX, Colours::Grey),
+		NWidget(WWT_STICKYBOX, Colours::Grey),
 	EndContainer(),
 	NWidget(NWID_HORIZONTAL),
-		NWidget(WWT_PANEL, COLOUR_GREY, WID_OIE_ORDER_LIST), SetMinimalSize(372, 72), SetToolTip(STR_ORDERS_LIST_TOOLTIP), SetResize(1, 1), SetScrollbar(WID_OIE_SCROLLBAR), EndContainer(),
+		NWidget(WWT_PANEL, Colours::Grey, WID_OIE_ORDER_LIST), SetMinimalSize(372, 72), SetToolTip(STR_ORDERS_LIST_TOOLTIP), SetResize(1, 1), SetScrollbar(WID_OIE_SCROLLBAR), EndContainer(),
 		NWidget(NWID_VERTICAL),
-			NWidget(NWID_VSCROLLBAR, COLOUR_GREY, WID_OIE_SCROLLBAR),
-			NWidget(WWT_RESIZEBOX, COLOUR_GREY),
+			NWidget(NWID_VSCROLLBAR, Colours::Grey, WID_OIE_SCROLLBAR),
+			NWidget(WWT_RESIZEBOX, Colours::Grey),
 		EndContainer(),
 	EndContainer(),
 };
 
 static WindowDesc _order_list_import_errors_desc(__FILE__, __LINE__,
-	WDP_AUTO, "view_vehicle_order_import_errors", 384, 100,
-	WC_VEHICLE_ORDER_IMPORT_ERRORS, WC_VEHICLE_VIEW,
+	WindowPosition::Automatic, "view_vehicle_order_import_errors", 384, 100,
+	WindowClass::VehicleOrderImportErrors, WindowClass::VehicleView,
 	WindowDefaultFlag::Construction,
 	_nested_order_import_error_widgets
 );
@@ -135,7 +135,7 @@ struct OrderListImportErrorsWindow : GeneralVehicleWindow
 			return res;
 		};
 
-		auto DrawRawString = [&](std::string_view str, TextColour color = TC_BLACK, bool indented = false) -> int {
+		auto DrawRawString = [&](std::string_view str, TextColour color = TextColour::Black, bool indented = false) -> int {
 			int val;
 			if (indented) {
 				val = DrawString(rtl ? left : middle, rtl ? middle : ir.right, y, str, color);
@@ -146,30 +146,30 @@ struct OrderListImportErrorsWindow : GeneralVehicleWindow
 			return val;
 		};
 
-		auto DrawHighlight = [&](Colours c, ColourShade shade) -> void {
+		auto DrawHighlight = [&](Colours c, Shade shade) -> void {
 			GfxFillRect(highlight_ir.left, y, highlight_ir.right, y + line_height, GetColourGradient(c, shade));
 		};
 
-		auto DrawSectionTitle = [&](std::string_view str, TextColour color = TC_BLACK) -> void {
+		auto DrawSectionTitle = [&](std::string_view str, TextColour color = TextColour::Black) -> void {
 			if (!CheckVisibleAndIncrementRow()) return;
 			int middle_height = y + line_height / 2;
 
-			int offset = ir.right - DrawString(ir.left, ir.right, y, str, color, SA_CENTER);
+			int offset = ir.right - DrawString(ir.left, ir.right, y, str, color, {AlignmentH::Centre, AlignmentV::Middle});
 
-			GfxFillRect(ir.left, middle_height - 1, ir.left + offset, middle_height + 1, GetColourGradient(COLOUR_BLUE, SHADE_DARK));
-			GfxFillRect(ir.right - offset, middle_height - 1, ir.right, middle_height + 1, GetColourGradient(COLOUR_BLUE, SHADE_DARK));
+			GfxFillRect(ir.left, middle_height - 1, ir.left + offset, middle_height + 1, GetColourGradient(Colours::Blue, Shade::Dark));
+			GfxFillRect(ir.right - offset, middle_height - 1, ir.right, middle_height + 1, GetColourGradient(Colours::Blue, Shade::Dark));
 
-			DrawString(ir.left, ir.right, y, str, color, SA_CENTER);
+			DrawString(ir.left, ir.right, y, str, color, {AlignmentH::Centre, AlignmentV::Middle});
 
 			y += line_height;
 		};
 
 		auto GetTColorFromError = [&](JsonOrderImportErrorType etype) -> TextColour {
 			switch (OrderErrorTypeToColour(etype)) {
-				case COLOUR_RED: return TC_RED;
-				case COLOUR_ORANGE: return TC_ORANGE;
-				case COLOUR_CREAM: return TC_CREAM;
-				default: return TC_BLACK;
+				case Colours::Red: return TextColour::Red;
+				case Colours::Orange: return TextColour::Orange;
+				case Colours::Cream: return TextColour::Cream;
+				default: return TextColour::Black;
 			}
 		};
 
@@ -214,7 +214,7 @@ struct OrderListImportErrorsWindow : GeneralVehicleWindow
 				}
 
 				if (CheckVisibleAndIncrementRow()) {
-					if (order_has_errors && this->show_non_error_order) DrawHighlight(COLOUR_RED, SHADE_NORMAL);
+					if (order_has_errors && this->show_non_error_order) DrawHighlight(Colours::Red, Shade::Normal);
 					DrawOrderString(this->vehicle, order, order_index, y, false, false, ir.left, middle, ir.right);
 					y += line_height;
 				}
@@ -223,7 +223,7 @@ struct OrderListImportErrorsWindow : GeneralVehicleWindow
 					const std::vector<OrderImportErrors::Error> &errors = this->errs.order.at(order_index);
 					for (const OrderImportErrors::Error &e : errors) {
 						if (CheckVisibleAndIncrementRow()) {
-							if (this->show_non_error_order) DrawHighlight(COLOUR_RED, SHADE_NORMAL);
+							if (this->show_non_error_order) DrawHighlight(Colours::Red, Shade::Normal);
 							DrawRawString(e.msg, GetTColorFromError(e.type), true);
 						}
 					}
@@ -252,7 +252,7 @@ struct OrderListImportErrorsWindow : GeneralVehicleWindow
 	{
 		switch (widget) {
 			case WID_OIE_ORDER_LIST:
-				resize.height = GetCharacterHeight(FS_NORMAL);
+				resize.height = GetCharacterHeight(FontSize::Normal);
 				size.height = 6 * resize.height + padding.height;
 				break;
 		}
@@ -284,6 +284,6 @@ struct OrderListImportErrorsWindow : GeneralVehicleWindow
 
 void ShowOrderListImportErrorsWindow(const Vehicle *v, OrderImportErrors &&errors)
 {
-	CloseWindowById(WC_VEHICLE_ORDER_IMPORT_ERRORS, v->index);
+	CloseWindowById(WindowClass::VehicleOrderImportErrors, v->index);
 	new OrderListImportErrorsWindow(v, std::move(errors));
 }

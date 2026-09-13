@@ -767,7 +767,6 @@ STR_GRAPH_LAST_24_MONTHS                                        :{TINY_FONT}{BLA
 STR_GRAPH_LAST_24_QUARTERS                                      :{TINY_FONT}{BLACK}6 років (щоквартально)
 STR_GRAPH_LAST_24_YEARS                                         :{TINY_FONT}{BLACK}24 роки (щорічно)
 
-STR_GRAPH_TOGGLE_RANGE                                          :Перемкнути графік для цього проміжку даних
 STR_GRAPH_SELECT_SCALE                                          :Змінити горизонтальну шкалу графа
 
 STR_GRAPH_CARGO_PAYMENT_RATES_CAPTION                           :{WHITE}Тарифи доставки вантажів
@@ -1488,8 +1487,8 @@ STR_CONFIG_SETTING_CONSTRUCTION_COSTS_HIGH                      :висока
 STR_CONFIG_SETTING_RECESSIONS                                   :Рецесії: {STRING}
 STR_CONFIG_SETTING_RECESSIONS_HELPTEXT                          :Якщо увімкнено, рецесії можуть відбуватися кожні кілька років. Під час рецессії обсяг виробництва на всіх підприємствах значно знижений (він повертається на попередній рівень, коли рецесія закінчується)
 
-STR_CONFIG_SETTING_TRAIN_REVERSING                              :Заборонити поїздам розвертатися на станціях: {STRING}
-STR_CONFIG_SETTING_TRAIN_REVERSING_HELPTEXT                     :Якщо увімкнено, поїзди не будуть розвертатися на некінцевих станціях, навіть якщо є коротший шлях до їх наступного пункту призначення, який вимагає розвороту
+
+###length 3
 
 STR_CONFIG_SETTING_DISASTERS                                    :Стихійні лиха: {STRING}
 STR_CONFIG_SETTING_DISASTERS_HELPTEXT                           :Перемкнути стихійні лиха, які можуть випадково зруйнувати транспорт або інфраструктуру
@@ -1512,7 +1511,6 @@ STR_CONFIG_SETTING_CATCHMENT_HELPTEXT                           :При вклю
 
 STR_CONFIG_SETTING_SERVE_NEUTRAL_INDUSTRIES                     :Підприємства з власними станціями обслуговують станції гравців: {STRING}
 STR_CONFIG_SETTING_SERVE_NEUTRAL_INDUSTRIES_HELPTEXT            :Якщо увімкнено підприємства, що мають власні станції завантаження (наприклад, нафтові платформ), зможуть обслуговуватися також і збудованими поруч станціями гравців. При відключенні підприємства будуть виконувати завантаження тільки через свої внутрішні станції, а ці станції будуть обслуговувати лише своє підприємство.
-
 
 STR_CONFIG_SETTING_EXTRADYNAMITE                                :Дозволити видаляти більше міських будівель: {STRING}
 STR_CONFIG_SETTING_EXTRADYNAMITE_HELPTEXT                       :При включенні видалення міських будівель та інфраструктури стає біль простішим
@@ -1695,6 +1693,8 @@ STR_CONFIG_SETTING_INDUSTRY_CARGO_SCALE                         :Змінити 
 STR_CONFIG_SETTING_INDUSTRY_CARGO_SCALE_HELPTEXT                :Змінити виробництво вантажів підприємствами на цей відсоток
 STR_CONFIG_SETTING_CARGO_SCALE_VALUE                            :{NUM}%
 
+###setting-zero-is-special
+
 STR_CONFIG_SETTING_AUTORENEW_VEHICLE                            :Автозаміна зношених транспортних засобів: {STRING}
 STR_CONFIG_SETTING_AUTORENEW_VEHICLE_HELPTEXT                   :При включенні транспортні засоби з вичерпаним строком служби автоматично замінюються на нові (при виконанні умов автозаміни).
 
@@ -1763,6 +1763,8 @@ STR_CONFIG_SETTING_ROUGHNESS_OF_TERRAIN_VERY_SMOOTH             :дуже пла
 STR_CONFIG_SETTING_ROUGHNESS_OF_TERRAIN_SMOOTH                  :плавно
 STR_CONFIG_SETTING_ROUGHNESS_OF_TERRAIN_ROUGH                   :грубо
 STR_CONFIG_SETTING_ROUGHNESS_OF_TERRAIN_VERY_ROUGH              :дуже грубо
+
+###length 4
 
 STR_CONFIG_SETTING_VARIETY                                      :Розподіл різноманітності: {STRING}
 STR_CONFIG_SETTING_VARIETY_HELPTEXT                             :Оберіть наявність на мапі гір і рівнин. Чим більша різноманітність, тим більша відмінність у висотах між гірськими і пласкими ділянками
@@ -1922,12 +1924,7 @@ STR_CONFIG_SETTING_TIMETABLE_SHOW_ARRIVAL_DEPARTURE_HELPTEXT    :Відобра�
 STR_CONFIG_SETTING_QUICKGOTO                                    :Прискорене створення завдань для транспорту: {STRING}
 STR_CONFIG_SETTING_QUICKGOTO_HELPTEXT                           :При відображенні списка завдань транспортного засобу автоматично натискається кнопка створення нових завдань
 
-STR_CONFIG_SETTING_DEFAULT_RAIL_TYPE                            :Тип колії на початку нової/завантаженної гри: {STRING}
-STR_CONFIG_SETTING_DEFAULT_RAIL_TYPE_HELPTEXT                   :Тип коліі, що вибирається на початку нової або завантаженної гри:{} - перший доступний: перший тип в списку (найстаріший);{}- останній доступний: останній тип в списку (найновіший);{}- найбільш вживаний: тип колії, що найбільше використовувався у грі.
 ###length 3
-STR_CONFIG_SETTING_DEFAULT_RAIL_TYPE_FIRST                      :перший доступний
-STR_CONFIG_SETTING_DEFAULT_RAIL_TYPE_LAST                       :останній доступний
-STR_CONFIG_SETTING_DEFAULT_RAIL_TYPE_MOST_USED                  :найбільш вживаний
 
 STR_CONFIG_SETTING_SHOW_TRACK_RESERVATION                       :Показувати зарезервований шлях для колій: {STRING}
 STR_CONFIG_SETTING_SHOW_TRACK_RESERVATION_HELPTEXT              :Вмикає відображення зарезервованної потягом ділянки колії, що може допомогти при наявності проблем з маршрутними сигналами.
@@ -2033,6 +2030,7 @@ STR_CONFIG_SETTING_STATION_LENGTH_LOADING_PENALTY_HELPTEXT      :Якщо уві
 
 STR_CONFIG_SETTING_WAGONSPEEDLIMITS                             :Враховувати обмеження швидкості вагонів: {STRING}
 STR_CONFIG_SETTING_WAGONSPEEDLIMITS_HELPTEXT                    :При включенні максимальна швидкість потяга враховує обмеження швидкості вагонів.
+
 
 STR_CONFIG_SETTING_DISABLE_ELRAILS                              :Скасувати електрифіковану залізницю: {STRING}
 STR_CONFIG_SETTING_DISABLE_ELRAILS_HELPTEXT                     :При включенні відпадає необхідність побудови електрифікованої колії для потягів на електричній тязі - вони будуть працювати на звичайній залізниці.
@@ -2357,7 +2355,7 @@ STR_CONFIG_ERROR_INVALID_BASE_GRAPHICS_NOT_FOUND                :{WHITE}... ба
 STR_CONFIG_ERROR_INVALID_BASE_SOUNDS_NOT_FOUND                  :{WHITE}... базовий набір звуків '{STRING}' не знайдено
 STR_CONFIG_ERROR_INVALID_BASE_MUSIC_NOT_FOUND                   :{WHITE}... базовий набір музики '{STRING}' не знайдено
 
-# Video initalization errors
+# Video initialization errors
 STR_VIDEO_DRIVER_ERROR                                          :{WHITE}Помилка з налаштуванням зображення...
 STR_VIDEO_DRIVER_ERROR_NO_HARDWARE_ACCELERATION                 :{WHITE}... не знайдено сумісного графічного процесора. Відключено прискорення апаратного забезпечення
 STR_VIDEO_DRIVER_ERROR_HARDWARE_ACCELERATION_CRASH              :{WHITE}... драйвер графічного процесора спричинив виліт гри. Відключено прискорення апаратного забезпечення
@@ -2615,15 +2613,13 @@ STR_NETWORK_CONNECTING_WAITING                                  :{BLACK}{NUM} к
 STR_NETWORK_CONNECTING_DOWNLOADING_1                            :{BLACK}{BYTES} завантажено
 STR_NETWORK_CONNECTING_DOWNLOADING_2                            :{BLACK}{BYTES} / {BYTES} вже завантажено
 
-###length 8
+###length 6
 STR_NETWORK_CONNECTING_1                                        :{BLACK}(1/6) З'єднання...
 STR_NETWORK_CONNECTING_2                                        :{BLACK}(2/6) Авторизація...
 STR_NETWORK_CONNECTING_3                                        :{BLACK}(3/6) Очікування...
 STR_NETWORK_CONNECTING_4                                        :{BLACK}(4/6) Завантаження карти...
 STR_NETWORK_CONNECTING_5                                        :{BLACK}(5/6) Обробка даних...
 STR_NETWORK_CONNECTING_6                                        :{BLACK}(6/6) Реєстрація...
-STR_NETWORK_CONNECTING_SPECIAL_1                                :{BLACK}Запит інформації про гру...
-STR_NETWORK_CONNECTING_SPECIAL_2                                :{BLACK}Запит інформації про компанію...
 
 STR_NETWORK_CONNECTION_DISCONNECT                               :{BLACK}Роз'єднання
 
@@ -3050,7 +3046,6 @@ STR_STATION_CLASS_WAYP_WAYPOINT                                 :Звичайн�
 
 # Signal window
 STR_BUILD_SIGNAL_CAPTION                                        :{WHITE}Вибір сигналів
-STR_BUILD_SIGNAL_TOGGLE_ADVANCED_SIGNAL_TOOLTIP                 :BLACK}Показувати просунуті типи сигналів
 STR_BUILD_SIGNAL_SEMAPHORE_NORM_TOOLTIP                         :{BLACK}Звичайний сигнал (семафор){}Найпростіший тип сигналу, який дозволяє перебувати у сигнальному блоці тільки одному поїзду. Сигнали необхідні для того, щоб уникнути зіткнень поїздів на залізницях, де більше одного поїзда
 STR_BUILD_SIGNAL_SEMAPHORE_ENTRY_TOOLTIP                        :{BLACK}Вхідний сигнал (семафор){}Зелений, доки один або більше зелених вихідних сигналів з наступної блок-ділянки. Інакше червоний
 STR_BUILD_SIGNAL_SEMAPHORE_EXIT_TOOLTIP                         :{BLACK}Вихідний сигнал (семафор){}Працює як звичайний сигнал, але необхідний для нормальної роботи вхідного або комбінованого пре-сигналів
@@ -3815,17 +3810,17 @@ STR_NEWGRF_LIST_COMPATIBLE                                      :{YELLOW}Зна�
 STR_NEWGRF_LIST_MISSING                                         :{RED}Відсутні файли
 
 # NewGRF 'it's broken' warnings
-STR_NEWGRF_BROKEN                                               :{WHITE}Поведінка NewGRF '{PUSH_COLOUR}{0:STRING}{POP_COLOUR}' може спричинити розсинхронізацію та/або аварійне завершення
-STR_NEWGRF_BROKEN_POWERED_WAGON                                 :{WHITE}Змінено стан моторвагону '{PUSH_COLOUR}{1:ENGINE}{POP_COLOUR}', коли він не у депо
-STR_NEWGRF_BROKEN_VEHICLE_LENGTH                                :{WHITE}Змінено довжину транспорту для '{PUSH_COLOUR}{1:ENGINE}{POP_COLOUR}', якщо він не в депо
-STR_NEWGRF_BROKEN_CAPACITY                                      :{WHITE}Вантажність транспорту змінено для '{PUSH_COLOUR}{1:ENGINE}{POP_COLOUR}' поза гаражем чи рембазою
+STR_NEWGRF_BROKEN                                               :{WHITE}Поведінка NewGRF '{0:STRING}'  може спричинити розсинхронізацію та/або аварійне завершення
+STR_NEWGRF_BROKEN_POWERED_WAGON                                 :{WHITE}Стан моторвагону '{1:ENGINE}' змінено поза депо
+STR_NEWGRF_BROKEN_VEHICLE_LENGTH                                :{WHITE}Довжину транспорту '{1:ENGINE}' змінено поза депо
+STR_NEWGRF_BROKEN_CAPACITY                                      :{WHITE}Вантажність транспорту '{1:ENGINE}' змінено поза гаражем чи переобладнанням
 STR_BROKEN_VEHICLE_LENGTH                                       :{WHITE}Потяг '{VEHICLE}', який належить '{COMPANY}', має неправильну довжину. Можливо, це спричинено проблемами з NewGRFs. Гра може розсинхронізуватись або аварійно завершитись
 
-STR_NEWGRF_BUGGY                                                :{WHITE}NewGRF '{PUSH_COLOUR}{0:STRING}{POP_COLOUR}'  надає хибну інформацію
-STR_NEWGRF_BUGGY_ARTICULATED_CARGO                              :{WHITE}Інформація про вантаж/переобладнання для '{PUSH_COLOUR}{1:ENGINE}{POP_COLOUR}' відрізняється від списку покупки після побудови. Це може спричинити невідповідності під час автооновлення/заміни
-STR_NEWGRF_BUGGY_ENDLESS_PRODUCTION_CALLBACK                    :{WHITE}'{PUSH_COLOUR}{1:STRING}{POP_COLOUR}' спричинив нескінченний цикл у виклику виробництва
+STR_NEWGRF_BUGGY                                                :{WHITE}NewGRF '{0:STRING}' надає хибну інформацію
+STR_NEWGRF_BUGGY_ARTICULATED_CARGO                              :{WHITE}Інформація про вантаж/переобладнання транспорту '{1:ENGINE}' відрізняється від списку покупки після побудови. Це може спричинити проблеми для автооновлення/заміни
+STR_NEWGRF_BUGGY_ENDLESS_PRODUCTION_CALLBACK                    :{WHITE}'{1:STRING}' спричиняє нескінченний цикл у виклику виробництва
 STR_NEWGRF_BUGGY_UNKNOWN_CALLBACK_RESULT                        :{WHITE}Виклик {1:HEX} повернув невідомий/неправильний результат {2:HEX}
-STR_NEWGRF_BUGGY_INVALID_CARGO_PRODUCTION_CALLBACK              :{WHITE}'{PUSH_COLOUR}{1:STRING}{POP_COLOUR}' використовує недійсний тип вантажу на виклик виробництва у {2:HEX}
+STR_NEWGRF_BUGGY_INVALID_CARGO_PRODUCTION_CALLBACK              :{WHITE}'{1:STRING}' використовує недійсний тип вантажу на виклик виробництва у {2:HEX}
 
 # 'User removed essential NewGRFs'-placeholders for stuff without specs
 STR_NEWGRF_INVALID_CARGO                                        :<невідомий вантаж>
@@ -4202,10 +4197,10 @@ STR_INDUSTRY_DIRECTORY_CAPTION                                  :{WHITE}Підп
 STR_INDUSTRY_DIRECTORY_NONE                                     :{ORANGE}- немає -
 STR_INDUSTRY_DIRECTORY_ITEM_INFO                                :{BLACK}{CARGO_LONG}{STRING}{YELLOW} ({COMMA}% перевезено)
 STR_INDUSTRY_DIRECTORY_ITEM_NOPROD                              :{ORANGE}{INDUSTRY}
-STR_INDUSTRY_DIRECTORY_ITEM_PROD1                               :{ORANGE}{INDUSTRY} {STRING}
-STR_INDUSTRY_DIRECTORY_ITEM_PROD2                               :{ORANGE}{INDUSTRY} {STRING}, {STRING}
-STR_INDUSTRY_DIRECTORY_ITEM_PROD3                               :{ORANGE}{INDUSTRY} {STRING}, {STRING}, {STRING}
-STR_INDUSTRY_DIRECTORY_ITEM_PRODMORE                            :{ORANGE}{INDUSTRY} {STRING}, {STRING}, {STRING} і {NUM} ще...
+STR_INDUSTRY_DIRECTORY_ITEM_PROD1                               :{ORANGE}{INDUSTRY} {BLACK}{STRING}
+STR_INDUSTRY_DIRECTORY_ITEM_PROD2                               :{ORANGE}{INDUSTRY} {BLACK}{STRING}, {STRING}
+STR_INDUSTRY_DIRECTORY_ITEM_PROD3                               :{ORANGE}{INDUSTRY} {BLACK}{STRING}, {STRING}, {STRING}
+STR_INDUSTRY_DIRECTORY_ITEM_PRODMORE                            :{ORANGE}{INDUSTRY} {BLACK}{STRING}, {STRING}, {STRING} і {NUM} ще...
 STR_INDUSTRY_DIRECTORY_LIST_TOOLTIP                             :{BLACK}Назви підприємств - клацніть мишею на назву, щоб показати підприємство у центрі екрану. Ctrl+клац мишею відкриє додаткове вікно з підприємством у центрі
 STR_INDUSTRY_DIRECTORY_ACCEPTED_CARGO_FILTER                    :{BLACK}Приймається вантаж: {SILVER}{STRING}
 STR_INDUSTRY_DIRECTORY_PRODUCED_CARGO_FILTER                    :{BLACK}Виробництво: {SILVER}{STRING}
@@ -4358,6 +4353,17 @@ STR_PURCHASE_INFO_MAX_TE                                        :{BLACK}Макс
 STR_PURCHASE_INFO_AIRCRAFT_RANGE                                :{BLACK}Дальність: {GOLD}{COMMA} клітинок
 STR_PURCHASE_INFO_AIRCRAFT_TYPE                                 :{BLACK}Тип літака: {GOLD}{STRING}
 STR_PURCHASE_INFO_RAILTYPES                                     :{BLACK}Залізничні колії: {GOLD}{STRING}
+
+# Vehicle sort details
+STR_PURCHASE_SORT_DETAILS_COST                                  :{CURRENCY_LONG}
+STR_PURCHASE_SORT_DETAILS_SPEED                                 :{VELOCITY}
+STR_PURCHASE_SORT_DETAILS_POWER                                 :{POWER}
+STR_PURCHASE_SORT_DETAILS_MAX_TE                                :{FORCE}
+STR_PURCHASE_SORT_DETAILS_INTRO_DATE                            :{NUM}
+STR_PURCHASE_SORT_DETAILS_RUNNINGCOST_YEAR                      :{CURRENCY_LONG}/рік
+STR_PURCHASE_SORT_DETAILS_RUNNINGCOST_PERIOD                    :{CURRENCY_LONG}/період
+STR_PURCHASE_SORT_DETAILS_RELIABILITY                           :{COMMA}%
+STR_PURCHASE_SORT_DETAILS_POWER_VS_RUNNING_COST                 :{DECIMAL}
 
 ###length 3
 STR_CARGO_TYPE_FILTER_ALL                                       :Всі типи вантажів
@@ -4697,7 +4703,6 @@ STR_VEHICLE_INFO_PROFIT_THIS_YEAR_LAST_YEAR                     :{BLACK}Дохі
 STR_VEHICLE_INFO_PROFIT_THIS_YEAR_LAST_YEAR_MIN_PERFORMANCE     :{BLACK}Дохід цього року: {LTBLUE}{CURRENCY_LONG} (минулого року: {CURRENCY_LONG}) {BLACK}Найгірше: {LTBLUE}{POWER_TO_WEIGHT}
 STR_VEHICLE_INFO_PROFIT_THIS_PERIOD_LAST_PERIOD                 :{BLACK}Прибуток цього періоду: {LTBLUE}{CURRENCY_LONG} (минулого періоду: {CURRENCY_LONG})
 STR_VEHICLE_INFO_PROFIT_THIS_PERIOD_LAST_PERIOD_MIN_PERFORMANCE :{BLACK}Прибуток цього періоду: {LTBLUE}{CURRENCY_LONG} (минулого періоду: {CURRENCY_LONG}) {BLACK}Питома потужність: {LTBLUE}{POWER_TO_WEIGHT}
-STR_VEHICLE_INFO_RELIABILITY_BREAKDOWNS                         :{BLACK}Надійність: {LTBLUE}{COMMA}%  {BLACK}Аварії після останнього техогляду: {LTBLUE}{COMMA}
 
 STR_VEHICLE_INFO_BUILT_VALUE                                    :{LTBLUE}{ENGINE} {BLACK}Побудований: {LTBLUE}{NUM}{BLACK} Вартість: {LTBLUE}{CURRENCY_LONG}
 STR_VEHICLE_INFO_NO_CAPACITY                                    :{BLACK}Місткість: {LTBLUE}нема{STRING}
@@ -4837,7 +4842,7 @@ STR_ORDER_HANGAR_ACTION_TOOLTIP                                 :{BLACK}Вибе
 STR_ORDER_CONDITIONAL_VARIABLE_TOOLTIP                          :{BLACK}Дані транспорту для базування завдання
 
 # Conditional order variables, must follow order of OrderConditionVariable enum
-###length 8
+###length 9
 STR_ORDER_CONDITIONAL_LOAD_PERCENTAGE                           :Процент завантаження
 STR_ORDER_CONDITIONAL_RELIABILITY                               :Надійність
 STR_ORDER_CONDITIONAL_MAX_SPEED                                 :Макс. швидкість
@@ -5248,7 +5253,6 @@ STR_ERROR_CAN_T_GENERATE_TOWN                                   :{WHITE}Немо
 STR_ERROR_CAN_T_RENAME_TOWN                                     :{WHITE}Неможливо перейменувати...
 STR_ERROR_CAN_T_FOUND_TOWN_HERE                                 :{WHITE}Тут не можна будувати місто...
 STR_ERROR_CAN_T_EXPAND_TOWN                                     :{WHITE}Неможливо розширити місто...
-STR_ERROR_TOO_CLOSE_TO_EDGE_OF_MAP_SUB                          :{WHITE}... надто близько до краю карти
 STR_ERROR_TOO_CLOSE_TO_ANOTHER_TOWN                             :{WHITE}... надто близько до іншого міста
 STR_ERROR_TOO_MANY_TOWNS                                        :{WHITE}... забагато міст
 STR_ERROR_NO_SPACE_FOR_TOWN                                     :{WHITE}... на карті немає вільного місця
@@ -6175,4 +6179,3 @@ STR_BADGE_CONFIG_FILTERS                                        :{WHITE}Філь
 STR_BADGE_CONFIG_PREVIEW                                        :Попередній перегляд
 STR_BADGE_CONFIG_NAME                                           :Назва
 STR_BADGE_FILTER_ANY_LABEL                                      :Заголовок: {STRING}
-STR_BADGE_FILTER_IS_LABEL                                       :{STRING} це {STRING}

@@ -8,7 +8,7 @@
 /** @file settings_gui.cpp GUI for settings. */
 
 #include "stdafx.h"
-#include "currency.h"
+#include "currency_func.h"
 #include "error.h"
 #include "settings_gui.h"
 #include "textbuf_gui.h"
@@ -63,7 +63,6 @@
 #include "dropdown_common_type.h"
 
 #include <vector>
-#include <functional>
 #include <iterator>
 
 #include "safeguards.h"
@@ -113,7 +112,7 @@ struct BaseSetTextfileWindow : public TextfileWindow {
 	BaseSetTextfileWindow(Window *parent, TextfileType file_type, const std::string &name, const std::string &textfile, StringID content_type) : TextfileWindow(parent, file_type), name(name), content_type(content_type)
 	{
 		this->ConstructWindow();
-		this->LoadTextfile(textfile, BASESET_DIR);
+		this->LoadTextfile(textfile, Subdirectory::Baseset);
 	}
 
 	std::string GetWidgetString(WidgetID widget, StringID stringid) const override
@@ -128,6 +127,7 @@ struct BaseSetTextfileWindow : public TextfileWindow {
 
 /**
  * Open the BaseSet version of the textfile window.
+ * @param parent The parent of this window,
  * @param file_type The type of textfile to display.
  * @param baseset The BaseSet to use.
  * @param content_type STR_CONTENT_TYPE_xxx for title.
@@ -135,7 +135,7 @@ struct BaseSetTextfileWindow : public TextfileWindow {
 template <class TBaseSet>
 void ShowBaseSetTextfileWindow(Window *parent, TextfileType file_type, const TBaseSet *baseset, StringID content_type)
 {
-	parent->CloseChildWindowById(WC_TEXTFILE, file_type);
+	parent->CloseChildWindowById(WindowClass::Textfile, file_type);
 	auto textfile = baseset->GetTextfile(file_type);
 	if (textfile.has_value()) {
 		new BaseSetTextfileWindow(parent, file_type, baseset->name, textfile.value(), content_type);
@@ -146,6 +146,7 @@ void ShowBaseSetTextfileWindow(Window *parent, TextfileType file_type, const TBa
  * Get string to use when listing this set in the settings window.
  * If there are no invalid files, then this is just the set name,
  * otherwise a string is formatted including the number of invalid files.
+ * @param baseset The selected baseset.
  * @return the string to display.
  */
 template <typename TBaseSet>
@@ -185,8 +186,8 @@ static void AddCustomRefreshRates()
 	}
 }
 
-static const int SCALE_NMARKS = (MAX_INTERFACE_SCALE - MIN_INTERFACE_SCALE) / 25 + 1; // Show marks at 25% increments
-static const int VOLUME_NMARKS = 9; // Show 5 values and 4 empty marks.
+static const int SCALE_NMARKS = (MAX_INTERFACE_SCALE - MIN_INTERFACE_SCALE) / 25 + 1; ///< Show marks at 25% increments.
+static const int VOLUME_NMARKS = 9; ///< Show 5 values and 4 empty marks.
 
 static std::optional<std::string> ScaleMarkFunc(int, int, int value)
 {
@@ -206,26 +207,26 @@ static std::optional<std::string> VolumeMarkFunc(int, int mark, int value)
 }
 
 /** Colour for background of game options. */
-static constexpr Colours GAME_OPTIONS_BACKGROUND = COLOUR_MAUVE;
+static constexpr Colours GAME_OPTIONS_BACKGROUND = Colours::Mauve;
 /** Colour for buttons of game options. */
-static constexpr Colours GAME_OPTIONS_BUTTON = COLOUR_YELLOW;
+static constexpr Colours GAME_OPTIONS_BUTTON = Colours::Yellow;
 /** Colour for frame text of game options. */
-static constexpr TextColour GAME_OPTIONS_FRAME = TC_ORANGE;
+static constexpr TextColour GAME_OPTIONS_FRAME = TextColour::Orange;
 /** Colour for label text of game options. */
-static constexpr TextColour GAME_OPTIONS_LABEL = TC_LIGHT_BLUE;
+static constexpr TextColour GAME_OPTIONS_LABEL = TextColour::LightBlue;
 /** Colour for selected text of game options. */
-static constexpr TextColour GAME_OPTIONS_SELECTED = TC_WHITE;
+static constexpr TextColour GAME_OPTIONS_SELECTED = TextColour::White;
 
 static constexpr std::initializer_list<NWidgetPart> _nested_social_plugins_widgets = {
 	NWidget(NWID_HORIZONTAL),
 		NWidget(WWT_FRAME, GAME_OPTIONS_BACKGROUND, WID_GO_SOCIAL_PLUGIN_TITLE), SetTextStyle(GAME_OPTIONS_FRAME),
 			NWidget(NWID_HORIZONTAL), SetPIP(0, WidgetDimensions::unscaled.hsep_normal, 0),
-				NWidget(WWT_TEXT, INVALID_COLOUR), SetResize(1, 0), SetFill(1, 0), SetStringTip(STR_GAME_OPTIONS_SOCIAL_PLUGIN_PLATFORM), SetTextStyle(GAME_OPTIONS_LABEL),
-				NWidget(WWT_TEXT, INVALID_COLOUR, WID_GO_SOCIAL_PLUGIN_PLATFORM), SetAlignment(SA_RIGHT),
+				NWidget(WWT_TEXT, Colours::Invalid), SetResize(1, 0), SetFill(1, 0), SetStringTip(STR_GAME_OPTIONS_SOCIAL_PLUGIN_PLATFORM), SetTextStyle(GAME_OPTIONS_LABEL),
+				NWidget(WWT_TEXT, Colours::Invalid, WID_GO_SOCIAL_PLUGIN_PLATFORM), SetAlignment(AlignmentH::End),
 			EndContainer(),
 			NWidget(NWID_HORIZONTAL), SetPIP(0, WidgetDimensions::unscaled.hsep_normal, 0),
-				NWidget(WWT_TEXT, INVALID_COLOUR), SetResize(1, 0), SetFill(1, 0), SetStringTip(STR_GAME_OPTIONS_SOCIAL_PLUGIN_STATE), SetTextStyle(GAME_OPTIONS_LABEL),
-				NWidget(WWT_TEXT, INVALID_COLOUR, WID_GO_SOCIAL_PLUGIN_STATE), SetAlignment(SA_RIGHT),
+				NWidget(WWT_TEXT, Colours::Invalid), SetResize(1, 0), SetFill(1, 0), SetStringTip(STR_GAME_OPTIONS_SOCIAL_PLUGIN_STATE), SetTextStyle(GAME_OPTIONS_LABEL),
+				NWidget(WWT_TEXT, Colours::Invalid, WID_GO_SOCIAL_PLUGIN_STATE), SetAlignment(AlignmentH::End),
 			EndContainer(),
 		EndContainer(),
 	EndContainer(),
@@ -233,7 +234,7 @@ static constexpr std::initializer_list<NWidgetPart> _nested_social_plugins_widge
 
 static constexpr std::initializer_list<NWidgetPart> _nested_social_plugins_none_widgets = {
 	NWidget(NWID_HORIZONTAL),
-		NWidget(WWT_TEXT, INVALID_COLOUR), SetResize(1, 0), SetFill(1, 0), SetStringTip(STR_GAME_OPTIONS_SOCIAL_PLUGINS_NONE), SetTextStyle(GAME_OPTIONS_LABEL),
+		NWidget(WWT_TEXT, Colours::Invalid), SetResize(1, 0), SetFill(1, 0), SetStringTip(STR_GAME_OPTIONS_SOCIAL_PLUGINS_NONE), SetTextStyle(GAME_OPTIONS_LABEL),
 	EndContainer(),
 };
 
@@ -369,7 +370,7 @@ private:
 	std::vector<SocialIntegrationPlugin *> plugins{};
 };
 
-/** Construct nested container widget for managing the list of social plugins. */
+/** Construct nested container widget for managing the list of social plugins. @copydoc NWidgetFunctionType */
 std::unique_ptr<NWidgetBase> MakeNWidgetSocialPlugins()
 {
 	return std::make_unique<NWidgetSocialPlugins>();
@@ -458,7 +459,7 @@ struct GameOptionsWindow : Window {
 		this->vscroll = this->GetScrollbar(WID_GO_SCROLLBAR);
 		this->vscroll_description = this->GetScrollbar(WID_GO_HELP_TEXT_SCROLL);
 		this->vscroll_description->SetCapacity(NUM_DESCRIPTION_LINES);
-		this->FinishInitNested(WN_GAME_OPTIONS_GAME_OPTIONS);
+		this->FinishInitNested(GameOptionsWindowNumber::GameOptions);
 
 		this->querystrings[WID_GO_FILTER] = &this->filter_editbox;
 		this->filter_editbox.cancel_button = QueryString::ACTION_CLEAR;
@@ -473,15 +474,15 @@ struct GameOptionsWindow : Window {
 	void OnInit() override
 	{
 		BaseSettingEntry::circle_size = maxdim(GetSpriteSize(SPR_CIRCLE_FOLDED), GetSpriteSize(SPR_CIRCLE_UNFOLDED));
-		BaseSettingEntry::line_height = std::max({static_cast<int>(BaseSettingEntry::circle_size.height), SETTING_BUTTON_HEIGHT, GetCharacterHeight(FS_NORMAL)}) + WidgetDimensions::scaled.vsep_normal;
+		BaseSettingEntry::line_height = std::max({static_cast<int>(BaseSettingEntry::circle_size.height), SETTING_BUTTON_HEIGHT, GetCharacterHeight(FontSize::Normal)}) + WidgetDimensions::scaled.vsep_normal;
 
 		this->gui_scale = _gui_scale;
 	}
 
 	void Close([[maybe_unused]] int data = 0) override
 	{
-		CloseWindowById(WC_CUSTOM_CURRENCY, 0);
-		if (this->reload) _switch_mode = SM_MENU;
+		CloseWindowById(WindowClass::CustomCurrenty, 0);
+		if (this->reload) _switch_mode = SwitchMode::Menu;
 		this->Window::Close();
 	}
 
@@ -496,24 +497,24 @@ struct GameOptionsWindow : Window {
 		DropDownList list;
 		switch (widget) {
 			case WID_GO_CURRENCY_DROPDOWN: { // Setup currencies dropdown
-				*selected_index = this->opt->locale.currency;
-				uint64_t disabled = _game_mode == GM_MENU ? 0LL : ~GetMaskOfAllowedCurrencies();
+				*selected_index = to_underlying(this->opt->locale.currency);
+				Currencies disabled = _game_mode == GameMode::Menu ? Currencies{} : GetMaskOfAllowedCurrencies().Flip();
 
 				/* Add non-custom currencies; sorted naturally */
-				for (const CurrencySpec &currency : _currency_specs) {
-					int i = &currency - _currency_specs.data();
-					if (i == CURRENCY_CUSTOM) continue;
+				for (Currency i : EnumRange(Currency::End)) {
+					if (i == Currency::Custom) continue;
+					CurrencySpec &currency = _currency_specs[i];
 					if (currency.code.empty()) {
-						list.push_back(MakeDropDownListStringItem(currency.name, i, HasBit(disabled, i)));
+						list.push_back(MakeDropDownListStringItem(currency.name, i, disabled.Test(i)));
 					} else {
-						list.push_back(MakeDropDownListStringItem(GetString(STR_GAME_OPTIONS_CURRENCY_CODE, currency.name, currency.code), i, HasBit(disabled, i)));
+						list.push_back(MakeDropDownListStringItem(GetString(STR_GAME_OPTIONS_CURRENCY_CODE, currency.name, currency.code), i, disabled.Test(i)));
 					}
 				}
 				std::sort(list.begin(), list.end(), DropDownListStringItem::NatSortFunc);
 
 				/* Append custom currency at the end */
 				list.push_back(MakeDropDownListDividerItem()); // separator line
-				list.push_back(MakeDropDownListStringItem(STR_GAME_OPTIONS_CURRENCY_CUSTOM, CURRENCY_CUSTOM, HasBit(disabled, CURRENCY_CUSTOM)));
+				list.push_back(MakeDropDownListStringItem(STR_GAME_OPTIONS_CURRENCY_CUSTOM, Currency::Custom, disabled.Test(Currency::Custom)));
 				break;
 			}
 
@@ -591,7 +592,7 @@ struct GameOptionsWindow : Window {
 				break;
 
 			case WID_GO_RESTRICT_DROPDOWN:
-				for (int mode = 0; mode != RM_END; mode++) {
+				for (RestrictionMode mode : EnumRange(RM_END)) {
 					/* If we are in adv. settings screen for the new game's settings,
 					 * we don't want to allow comparing with new game's settings. */
 					bool disabled = mode == RM_CHANGED_AGAINST_NEW && settings_ptr == &_settings_newgame;
@@ -602,8 +603,8 @@ struct GameOptionsWindow : Window {
 
 			case WID_GO_TYPE_DROPDOWN:
 				list.push_back(MakeDropDownListStringItem(STR_CONFIG_SETTING_TYPE_DROPDOWN_ALL, ST_ALL));
-				list.push_back(MakeDropDownListStringItem(_game_mode == GM_MENU ? STR_CONFIG_SETTING_TYPE_DROPDOWN_GAME_MENU : STR_CONFIG_SETTING_TYPE_DROPDOWN_GAME_INGAME, ST_GAME));
-				list.push_back(MakeDropDownListStringItem(_game_mode == GM_MENU ? STR_CONFIG_SETTING_TYPE_DROPDOWN_COMPANY_MENU : STR_CONFIG_SETTING_TYPE_DROPDOWN_COMPANY_INGAME, ST_COMPANY));
+				list.push_back(MakeDropDownListStringItem(_game_mode == GameMode::Menu ? STR_CONFIG_SETTING_TYPE_DROPDOWN_GAME_MENU : STR_CONFIG_SETTING_TYPE_DROPDOWN_GAME_INGAME, ST_GAME));
+				list.push_back(MakeDropDownListStringItem(_game_mode == GameMode::Menu ? STR_CONFIG_SETTING_TYPE_DROPDOWN_COMPANY_MENU : STR_CONFIG_SETTING_TYPE_DROPDOWN_COMPANY_INGAME, ST_COMPANY));
 				list.push_back(MakeDropDownListStringItem(STR_CONFIG_SETTING_TYPE_DROPDOWN_CLIENT, ST_CLIENT));
 				break;
 		}
@@ -664,10 +665,10 @@ struct GameOptionsWindow : Window {
 
 			case WID_GO_TYPE_DROPDOWN:
 				switch (this->filter.type) {
-					case ST_GAME:    return GetString(_game_mode == GM_MENU ? STR_CONFIG_SETTING_TYPE_DROPDOWN_GAME_MENU : STR_CONFIG_SETTING_TYPE_DROPDOWN_GAME_INGAME);
-					case ST_COMPANY: return GetString(_game_mode == GM_MENU ? STR_CONFIG_SETTING_TYPE_DROPDOWN_COMPANY_MENU : STR_CONFIG_SETTING_TYPE_DROPDOWN_COMPANY_INGAME);
-					case ST_CLIENT:  return GetString(STR_CONFIG_SETTING_TYPE_DROPDOWN_CLIENT);
-					default:         return GetString(STR_CONFIG_SETTING_TYPE_DROPDOWN_ALL);
+					case ST_GAME: return GetString(_game_mode == GameMode::Menu ? STR_CONFIG_SETTING_TYPE_DROPDOWN_GAME_MENU : STR_CONFIG_SETTING_TYPE_DROPDOWN_GAME_INGAME);
+					case ST_COMPANY: return GetString(_game_mode == GameMode::Menu ? STR_CONFIG_SETTING_TYPE_DROPDOWN_COMPANY_MENU : STR_CONFIG_SETTING_TYPE_DROPDOWN_COMPANY_INGAME);
+					case ST_CLIENT: return GetString(STR_CONFIG_SETTING_TYPE_DROPDOWN_CLIENT);
+					default: return GetString(STR_CONFIG_SETTING_TYPE_DROPDOWN_ALL);
 				}
 				break;
 
@@ -722,7 +723,7 @@ struct GameOptionsWindow : Window {
 				break;
 
 			case WID_GO_GUI_SCALE:
-				DrawSliderWidget(r, GAME_OPTIONS_BACKGROUND, GAME_OPTIONS_BUTTON, TC_BLACK, MIN_INTERFACE_SCALE, MAX_INTERFACE_SCALE, SCALE_NMARKS, this->gui_scale, ScaleMarkFunc);
+				DrawSliderWidget(r, GAME_OPTIONS_BACKGROUND, GAME_OPTIONS_BUTTON, TextColour::Black, MIN_INTERFACE_SCALE, MAX_INTERFACE_SCALE, SCALE_NMARKS, this->gui_scale, ScaleMarkFunc);
 				break;
 
 			case WID_GO_VIDEO_DRIVER_INFO:
@@ -730,11 +731,11 @@ struct GameOptionsWindow : Window {
 				break;
 
 			case WID_GO_BASE_SFX_VOLUME:
-				DrawSliderWidget(r, GAME_OPTIONS_BACKGROUND, GAME_OPTIONS_BUTTON, TC_BLACK, 0, INT8_MAX, VOLUME_NMARKS, _settings_client.music.effect_vol, VolumeMarkFunc);
+				DrawSliderWidget(r, GAME_OPTIONS_BACKGROUND, GAME_OPTIONS_BUTTON, TextColour::Black, 0, INT8_MAX, VOLUME_NMARKS, _settings_client.music.effect_vol, VolumeMarkFunc);
 				break;
 
 			case WID_GO_BASE_MUSIC_VOLUME:
-				DrawSliderWidget(r, GAME_OPTIONS_BACKGROUND, GAME_OPTIONS_BUTTON, TC_BLACK, 0, INT8_MAX, VOLUME_NMARKS, _settings_client.music.music_vol, VolumeMarkFunc);
+				DrawSliderWidget(r, GAME_OPTIONS_BACKGROUND, GAME_OPTIONS_BUTTON, TextColour::Black, 0, INT8_MAX, VOLUME_NMARKS, _settings_client.music.music_vol, VolumeMarkFunc);
 				break;
 
 			case WID_GO_OPTIONSPANEL: {
@@ -754,13 +755,13 @@ struct GameOptionsWindow : Window {
 					Rect tr = r;
 					std::string str;
 					switch (sd->GetType()) {
-						case ST_COMPANY: str = GetString(STR_CONFIG_SETTING_TYPE, _game_mode == GM_MENU ? STR_CONFIG_SETTING_TYPE_COMPANY_MENU : STR_CONFIG_SETTING_TYPE_COMPANY_INGAME); break;
-						case ST_CLIENT:  str = GetString(STR_CONFIG_SETTING_TYPE, STR_CONFIG_SETTING_TYPE_CLIENT); break;
-						case ST_GAME:    str = GetString(STR_CONFIG_SETTING_TYPE, _game_mode == GM_MENU ? STR_CONFIG_SETTING_TYPE_GAME_MENU : STR_CONFIG_SETTING_TYPE_GAME_INGAME); break;
+						case ST_COMPANY: str = GetString(STR_CONFIG_SETTING_TYPE, _game_mode == GameMode::Menu ? STR_CONFIG_SETTING_TYPE_COMPANY_MENU : STR_CONFIG_SETTING_TYPE_COMPANY_INGAME); break;
+						case ST_CLIENT: str = GetString(STR_CONFIG_SETTING_TYPE, STR_CONFIG_SETTING_TYPE_CLIENT); break;
+						case ST_GAME: str = GetString(STR_CONFIG_SETTING_TYPE, _game_mode == GameMode::Menu ? STR_CONFIG_SETTING_TYPE_GAME_MENU : STR_CONFIG_SETTING_TYPE_GAME_INGAME); break;
 						default: NOT_REACHED();
 					}
 					DrawString(tr, str);
-					tr.top += GetCharacterHeight(FS_NORMAL);
+					tr.top += GetCharacterHeight(FontSize::Normal);
 
 					if (sd->guiproc != nullptr) {
 						SettingOnGuiCtrlData data;
@@ -769,8 +770,8 @@ struct GameOptionsWindow : Window {
 						data.val = sd->Read(ResolveObject(settings_ptr, sd));
 						if (sd->guiproc(data)) {
 							const Dimension warning_dimensions = GetSpriteSize(SPR_WARNING_SIGN);
-							const int step_height = std::max<int>(warning_dimensions.height, GetCharacterHeight(FS_NORMAL));
-							const int text_offset_y = (step_height - GetCharacterHeight(FS_NORMAL)) / 2;
+							const int step_height = std::max<int>(warning_dimensions.height, GetCharacterHeight(FontSize::Normal));
+							const int text_offset_y = (step_height - GetCharacterHeight(FontSize::Normal)) / 2;
 							const int warning_offset_y = (step_height - warning_dimensions.height) / 2;
 							const bool rtl = _current_text_dir == TD_RTL;
 
@@ -782,7 +783,7 @@ struct GameOptionsWindow : Window {
 							} else {
 								left += (warning_dimensions.width + 10);
 							}
-							DrawString(left, right, tr.top + text_offset_y, data.text, TC_RED);
+							DrawString(left, right, tr.top + text_offset_y, data.text, TextColour::Red);
 
 							tr.top += step_height + WidgetDimensions::scaled.vsep_normal;
 						}
@@ -800,8 +801,8 @@ struct GameOptionsWindow : Window {
 					DrawPixelInfo tmp_dpi;
 					if (FillDrawPixelInfo(&tmp_dpi, r)) {
 						AutoRestoreBackup dpi_backup(_cur_dpi, &tmp_dpi);
-						int scrolls_pos = this->vscroll_description->GetPosition() * GetCharacterHeight(FS_NORMAL);
-						DrawStringMultiLine(0, r.Width() - 1, -scrolls_pos, r.Height() - 1, sd->GetHelp(), TC_WHITE);
+						int scrolls_pos = this->vscroll_description->GetPosition() * GetCharacterHeight(FontSize::Normal);
+						DrawStringMultiLine(0, r.Width() - 1, -scrolls_pos, r.Height() - 1, sd->GetHelp(), TextColour::White);
 					}
 				}
 				break;
@@ -825,7 +826,7 @@ struct GameOptionsWindow : Window {
 	void UpdateHelpTextSize()
 	{
 		NWidgetResizeBase *wid = this->GetWidget<NWidgetResizeBase>(WID_GO_HELP_TEXT);
-		this->vscroll_description->SetCount(this->last_clicked ? CeilDiv(this->last_clicked->GetMaxHelpHeight(wid->current_x), GetCharacterHeight(FS_NORMAL)) : 0);
+		this->vscroll_description->SetCount(this->last_clicked ? CeilDiv(this->last_clicked->GetMaxHelpHeight(wid->current_x), GetCharacterHeight(FontSize::Normal)) : 0);
 	}
 
 	void SetTab(WidgetID widget)
@@ -929,12 +930,12 @@ struct GameOptionsWindow : Window {
 				for (const auto &setting_type : setting_types) {
 					size.width = std::max(size.width, GetStringBoundingBox(GetString(STR_CONFIG_SETTING_TYPE, setting_type)).width + padding.width);
 				}
-				size.height = 2 * GetCharacterHeight(FS_NORMAL);
+				size.height = 2 * GetCharacterHeight(FontSize::Normal);
 				break;
 			}
 
 			case WID_GO_HELP_TEXT:
-				size.height = NUM_DESCRIPTION_LINES * GetCharacterHeight(FS_NORMAL);
+				size.height = NUM_DESCRIPTION_LINES * GetCharacterHeight(FontSize::Normal);
 				break;
 
 			case WID_GO_RESTRICT_CATEGORY:
@@ -979,9 +980,9 @@ struct GameOptionsWindow : Window {
 
 		/* Draw the 'some search results are hidden' notice. */
 		if (this->warn_missing != WHR_NONE) {
-			DrawStringMultiLineWithClipping(panel.WithHeight(this->warn_lines * GetCharacterHeight(FS_NORMAL)),
+			DrawStringMultiLineWithClipping(panel.WithHeight(this->warn_lines * GetCharacterHeight(FontSize::Normal)),
 				GetString(warn_str, _game_settings_restrict_dropdown[this->filter.min_cat]),
-				TC_BLACK, SA_CENTER);
+				TextColour::Black, {AlignmentH::Centre, AlignmentV::Middle});
 		}
 	}
 
@@ -1017,17 +1018,17 @@ struct GameOptionsWindow : Window {
 
 			case WID_GO_SURVEY_PARTICIPATE_BUTTON:
 				switch (_settings_client.network.participate_survey) {
-					case PS_ASK:
-					case PS_NO:
-						_settings_client.network.participate_survey = PS_YES;
+					case ParticipateSurvey::Ask:
+					case ParticipateSurvey::No:
+						_settings_client.network.participate_survey = ParticipateSurvey::Yes;
 						break;
 
-					case PS_YES:
-						_settings_client.network.participate_survey = PS_NO;
+					case ParticipateSurvey::Yes:
+						_settings_client.network.participate_survey = ParticipateSurvey::No;
 						break;
 				}
 
-				this->SetWidgetLoweredState(WID_GO_SURVEY_PARTICIPATE_BUTTON, _settings_client.network.participate_survey == PS_YES);
+				this->SetWidgetLoweredState(WID_GO_SURVEY_PARTICIPATE_BUTTON, _settings_client.network.participate_survey == ParticipateSurvey::Yes);
 				this->SetWidgetDirty(WID_GO_SURVEY_PARTICIPATE_BUTTON);
 				this->SetWidgetDirty(WID_GO_SURVEY_PARTICIPATE_TEXT);
 				break;
@@ -1043,7 +1044,7 @@ struct GameOptionsWindow : Window {
 			case WID_GO_FULLSCREEN_BUTTON: // Click fullscreen on/off
 				/* try to toggle full-screen on/off */
 				if (!ToggleFullScreen(!_fullscreen)) {
-					ShowErrorMessage(GetEncodedString(STR_ERROR_FULLSCREEN_FAILED), {}, WL_ERROR);
+					ShowErrorMessage(GetEncodedString(STR_ERROR_FULLSCREEN_FAILED), {}, WarningLevel::Error);
 				}
 				this->SetWidgetLoweredState(WID_GO_FULLSCREEN_BUTTON, _fullscreen);
 				this->SetWidgetDirty(WID_GO_FULLSCREEN_BUTTON);
@@ -1052,7 +1053,7 @@ struct GameOptionsWindow : Window {
 
 			case WID_GO_VIDEO_ACCEL_BUTTON:
 				_video_hw_accel = !_video_hw_accel;
-				ShowErrorMessage(GetEncodedString(STR_GAME_OPTIONS_VIDEO_ACCELERATION_RESTART), {}, WL_INFO);
+				ShowErrorMessage(GetEncodedString(STR_GAME_OPTIONS_VIDEO_ACCELERATION_RESTART), {}, WarningLevel::Info);
 				this->SetWidgetLoweredState(WID_GO_VIDEO_ACCEL_BUTTON, _video_hw_accel);
 				this->SetWidgetDirty(WID_GO_VIDEO_ACCEL_BUTTON);
 				this->SetWidgetDirty(WID_GO_VIDEO_ACCEL_TEXT);
@@ -1128,7 +1129,7 @@ struct GameOptionsWindow : Window {
 				this->SetWidgetLoweredState(WID_GO_GUI_TRAD_INTRO_TOOLBAR, _settings_client.gui.traditional_intro_menu);
 				this->SetDirty();
 
-				InvalidateWindowClassesData(WC_SELECT_GAME);
+				InvalidateWindowClassesData(WindowClass::SelectGame);
 				break;
 			}
 
@@ -1173,8 +1174,8 @@ struct GameOptionsWindow : Window {
 				if (used_set == nullptr || !used_set->IsConfigurable()) break;
 				GRFConfig &extra_cfg = used_set->GetOrCreateExtraConfig();
 				if (extra_cfg.param.empty()) extra_cfg.SetParameterDefaults();
-				OpenGRFParameterWindow(true, extra_cfg, _game_mode == GM_MENU);
-				if (_game_mode == GM_MENU) this->reload = true;
+				OpenGRFParameterWindow(true, extra_cfg, _game_mode == GameMode::Menu);
+				if (_game_mode == GameMode::Menu) this->reload = true;
 				break;
 			}
 
@@ -1188,7 +1189,7 @@ struct GameOptionsWindow : Window {
 						SetEffectVolume(vol);
 					}
 					this->SetWidgetDirty(widget);
-					SetWindowClassesDirty(WC_MUSIC_WINDOW);
+					SetWindowClassesDirty(WindowClass::Music);
 				}
 
 				if (click_count > 0) this->mouse_capture_widget = widget;
@@ -1216,31 +1217,41 @@ struct GameOptionsWindow : Window {
 				break;
 
 			case WID_GO_BASE_GRF_CONTENT_DOWNLOAD:
-				ShowNetworkContentListWindow(nullptr, CONTENT_TYPE_BASE_GRAPHICS);
+				ShowNetworkContentListWindow(nullptr, ContentType::BaseGraphics);
 				break;
 
 			case WID_GO_BASE_SFX_CONTENT_DOWNLOAD:
-				ShowNetworkContentListWindow(nullptr, CONTENT_TYPE_BASE_SOUNDS);
+				ShowNetworkContentListWindow(nullptr, ContentType::BaseSounds);
 				break;
 
 			case WID_GO_BASE_MUSIC_CONTENT_DOWNLOAD:
-				ShowNetworkContentListWindow(nullptr, CONTENT_TYPE_BASE_MUSIC);
+				ShowNetworkContentListWindow(nullptr, ContentType::BaseMusic);
 				break;
 
-			case WID_GO_CURRENCY_DROPDOWN:
 			case WID_GO_AUTOSAVE_DROPDOWN:
-			case WID_GO_LANG_DROPDOWN:
 			case WID_GO_RESOLUTION_DROPDOWN:
-			case WID_GO_REFRESH_RATE_DROPDOWN:
+			case WID_GO_REFRESH_RATE_DROPDOWN: {
+				int selected;
+				DropDownList list = this->BuildDropDownList(widget, &selected);
+				if (!list.empty()) {
+					ShowDropDownList(this, std::move(list), selected, widget);
+				} else {
+					if (widget == WID_GO_RESOLUTION_DROPDOWN) ShowErrorMessage(GetEncodedString(STR_ERROR_RESOLUTION_LIST_FAILED), {}, WarningLevel::Error);
+				}
+				break;
+			}
+
+			case WID_GO_CURRENCY_DROPDOWN:
+			case WID_GO_LANG_DROPDOWN:
 			case WID_GO_BASE_GRF_DROPDOWN:
 			case WID_GO_BASE_SFX_DROPDOWN:
 			case WID_GO_BASE_MUSIC_DROPDOWN: {
 				int selected;
 				DropDownList list = this->BuildDropDownList(widget, &selected);
 				if (!list.empty()) {
-					ShowDropDownList(this, std::move(list), selected, widget);
+					ShowDropDownList(this, std::move(list), selected, widget, 0, DropDownOption::Filterable);
 				} else {
-					if (widget == WID_GO_RESOLUTION_DROPDOWN) ShowErrorMessage(GetEncodedString(STR_ERROR_RESOLUTION_LIST_FAILED), {}, WL_ERROR);
+					if (widget == WID_GO_RESOLUTION_DROPDOWN) ShowErrorMessage(GetEncodedString(STR_ERROR_RESOLUTION_LIST_FAILED), {}, WarningLevel::Error);
 				}
 				break;
 			}
@@ -1378,7 +1389,7 @@ struct GameOptionsWindow : Window {
 						}
 					}
 
-					ShowDropDownListAt(this, std::move(list), value, WID_GO_SETTING_DROPDOWN, wi_rect, COLOUR_ORANGE);
+					ShowDropDownListAt(this, std::move(list), value, WID_GO_SETTING_DROPDOWN, wi_rect, Colours::Orange);
 				}
 			}
 			this->SetDirty();
@@ -1439,7 +1450,7 @@ struct GameOptionsWindow : Window {
 				int64_t value64 = value;
 				/* Show the correct currency or velocity translated value */
 				if (sd->flags.Test(SettingFlag::GuiCurrency)) value64 *= GetCurrency().rate;
-				if (sd->flags.Test(SettingFlag::GuiVelocity)) value64 = ConvertKmhishSpeedToDisplaySpeed((uint)value64, VEH_TRAIN);
+				if (sd->flags.Test(SettingFlag::GuiVelocity)) value64 = ConvertKmhishSpeedToDisplaySpeed((uint)value64, VehicleType::Train);
 
 				this->valuewindow_entry = pe;
 				if (sd->flags.Test(SettingFlag::GuiVelocity) && GetGameSettings().locale.units_velocity == 3) {
@@ -1506,7 +1517,7 @@ struct GameOptionsWindow : Window {
 			value = ClampTo<int32_t>(llvalue);
 
 			/* Save the correct velocity-translated value */
-			if (sd->flags.Test(SettingFlag::GuiVelocity)) value = ConvertDisplaySpeedToKmhishSpeed(value, VEH_TRAIN);
+			if (sd->flags.Test(SettingFlag::GuiVelocity)) value = ConvertDisplaySpeedToKmhishSpeed(value, VehicleType::Train);
 		} else {
 			value = sd->GetDefaultValue();
 		}
@@ -1532,11 +1543,13 @@ struct GameOptionsWindow : Window {
 	void OnDropdownSelect(WidgetID widget, int index, int) override
 	{
 		switch (widget) {
-			case WID_GO_CURRENCY_DROPDOWN: // Currency
-				if (index == CURRENCY_CUSTOM) ShowCustCurrency();
-				this->opt->locale.currency = index;
+			case WID_GO_CURRENCY_DROPDOWN: { // Currency
+				Currency currency = static_cast<Currency>(index);
+				if (currency == Currency::Custom) ShowCustCurrency();
+				this->opt->locale.currency = currency;
 				ReInitAllWindows(false);
 				break;
+			}
 
 			case WID_GO_AUTOSAVE_DROPDOWN: // Autosave options
 				if (index == 5) {
@@ -1551,7 +1564,7 @@ struct GameOptionsWindow : Window {
 
 			case WID_GO_LANG_DROPDOWN: // Change interface language
 				ReadLanguagePack(&_languages[index]);
-				CloseWindowByClass(WC_QUERY_STRING);
+				CloseWindowByClass(WindowClass::QueryString);
 				CheckForMissingGlyphs();
 				ClearAllCachedNames();
 				UpdateAllVirtCoords();
@@ -1571,14 +1584,14 @@ struct GameOptionsWindow : Window {
 				if (_settings_client.gui.refresh_rate > 60) {
 					/* Show warning to the user that this refresh rate might not be suitable on
 					 * larger maps with many NewGRFs and vehicles. */
-					ShowErrorMessage(GetEncodedString(STR_GAME_OPTIONS_REFRESH_RATE_WARNING), {}, WL_INFO);
+					ShowErrorMessage(GetEncodedString(STR_GAME_OPTIONS_REFRESH_RATE_WARNING), {}, WarningLevel::Info);
 				}
 				break;
 			}
 
 			case WID_GO_BASE_GRF_DROPDOWN:
-				if (_game_mode == GM_MENU) {
-					CloseWindowByClass(WC_GRF_PARAMETERS);
+				if (_game_mode == GameMode::Menu) {
+					CloseWindowByClass(WindowClass::NewGRFParameters);
 					auto set = BaseGraphics::GetSet(index);
 					BaseGraphics::SetSet(set);
 					this->reload = true;
@@ -1655,7 +1668,7 @@ struct GameOptionsWindow : Window {
 	void OnInvalidateData([[maybe_unused]] int data = 0, [[maybe_unused]] bool gui_scope = true) override
 	{
 		if (!gui_scope) return;
-		this->SetWidgetLoweredState(WID_GO_SURVEY_PARTICIPATE_BUTTON, _settings_client.network.participate_survey == PS_YES);
+		this->SetWidgetLoweredState(WID_GO_SURVEY_PARTICIPATE_BUTTON, _settings_client.network.participate_survey == ParticipateSurvey::Yes);
 		this->SetWidgetLoweredState(WID_GO_FULLSCREEN_BUTTON, _fullscreen);
 		this->SetWidgetLoweredState(WID_GO_VIDEO_ACCEL_BUTTON, _video_hw_accel);
 		this->SetWidgetDisabledState(WID_GO_REFRESH_RATE_DROPDOWN, _video_vsync);
@@ -1676,7 +1689,7 @@ struct GameOptionsWindow : Window {
 		this->SetWidgetLoweredState(WID_GO_GUI_SCALE_MAIN_TOOLBAR, _settings_client.gui.bigger_main_toolbar);
 		this->SetWidgetLoweredState(WID_GO_GUI_TRAD_INTRO_TOOLBAR, _settings_client.gui.traditional_intro_menu);
 
-		this->SetWidgetDisabledState(WID_GO_BASE_GRF_DROPDOWN, _game_mode != GM_MENU);
+		this->SetWidgetDisabledState(WID_GO_BASE_GRF_DROPDOWN, _game_mode != GameMode::Menu);
 
 		this->SetWidgetDisabledState(WID_GO_BASE_GRF_PARAMETERS, BaseGraphics::GetUsedSet() == nullptr || !BaseGraphics::GetUsedSet()->IsConfigurable());
 
@@ -1684,7 +1697,7 @@ struct GameOptionsWindow : Window {
 		this->SetWidgetDisabledState(WID_GO_BASE_SFX_OPEN_URL, BaseSounds::GetUsedSet() == nullptr || BaseSounds::GetUsedSet()->url.empty());
 		this->SetWidgetDisabledState(WID_GO_BASE_MUSIC_OPEN_URL, BaseMusic::GetUsedSet() == nullptr || BaseMusic::GetUsedSet()->url.empty());
 
-		for (TextfileType tft = TFT_CONTENT_BEGIN; tft < TFT_CONTENT_END; tft++) {
+		for (TextfileType tft : EnumRange(TFT_CONTENT_BEGIN, TFT_CONTENT_END)) {
 			this->SetWidgetDisabledState(WID_GO_BASE_GRF_TEXTFILE + tft, BaseGraphics::GetUsedSet() == nullptr || !BaseGraphics::GetUsedSet()->GetTextfile(tft).has_value());
 			this->SetWidgetDisabledState(WID_GO_BASE_SFX_TEXTFILE + tft, BaseSounds::GetUsedSet() == nullptr || !BaseSounds::GetUsedSet()->GetTextfile(tft).has_value());
 			this->SetWidgetDisabledState(WID_GO_BASE_MUSIC_TEXTFILE + tft, BaseMusic::GetUsedSet() == nullptr || !BaseMusic::GetUsedSet()->GetTextfile(tft).has_value());
@@ -1748,7 +1761,7 @@ static constexpr std::initializer_list<NWidgetPart> _nested_game_options_widgets
 		EndContainer(),
 	EndContainer(),
 	NWidget(WWT_PANEL, GAME_OPTIONS_BACKGROUND),
-		NWidget(NWID_SELECTION, INVALID_COLOUR, WID_GO_TAB_SELECTION),
+		NWidget(NWID_SELECTION, Colours::Invalid, WID_GO_TAB_SELECTION),
 			/* General tab */
 			NWidget(NWID_VERTICAL), SetPadding(WidgetDimensions::unscaled.sparse_resize),
 				NWidget(NWID_VERTICAL), SetPIP(0, WidgetDimensions::unscaled.vsep_wide, 0),
@@ -1764,11 +1777,11 @@ static constexpr std::initializer_list<NWidgetPart> _nested_game_options_widgets
 						NWidget(WWT_DROPDOWN, GAME_OPTIONS_BUTTON, WID_GO_CURRENCY_DROPDOWN), SetToolTip(STR_GAME_OPTIONS_CURRENCY_UNITS_DROPDOWN_TOOLTIP), SetFill(1, 0), SetResize(1, 0),
 					EndContainer(),
 
-					NWidget(NWID_SELECTION, INVALID_COLOUR, WID_GO_SURVEY_SEL),
+					NWidget(NWID_SELECTION, Colours::Invalid, WID_GO_SURVEY_SEL),
 						NWidget(WWT_FRAME, GAME_OPTIONS_BACKGROUND), SetStringTip(STR_GAME_OPTIONS_PARTICIPATE_SURVEY_FRAME), SetTextStyle(GAME_OPTIONS_FRAME), SetPIP(0, WidgetDimensions::unscaled.vsep_sparse, 0),
 							NWidget(NWID_HORIZONTAL), SetPIP(0, WidgetDimensions::unscaled.hsep_wide, 0),
 								NWidget(WWT_BOOLBTN, GAME_OPTIONS_BACKGROUND, WID_GO_SURVEY_PARTICIPATE_BUTTON), SetAlternateColourTip(GAME_OPTIONS_BUTTON, STR_GAME_OPTIONS_PARTICIPATE_SURVEY_TOOLTIP),
-								NWidget(WWT_TEXT, INVALID_COLOUR, WID_GO_SURVEY_PARTICIPATE_TEXT), SetFill(1, 0), SetResize(1, 0), SetTextStyle(GAME_OPTIONS_LABEL),
+								NWidget(WWT_TEXT, Colours::Invalid, WID_GO_SURVEY_PARTICIPATE_TEXT), SetFill(1, 0), SetResize(1, 0), SetTextStyle(GAME_OPTIONS_LABEL),
 							EndContainer(),
 							NWidget(NWID_HORIZONTAL, NWidContainerFlag::EqualSize),
 								NWidget(WWT_TEXTBTN, GAME_OPTIONS_BUTTON, WID_GO_SURVEY_PREVIEW_BUTTON), SetFill(1, 0), SetResize(1, 0), SetStringTip(STR_GAME_OPTIONS_PARTICIPATE_SURVEY_PREVIEW, STR_GAME_OPTIONS_PARTICIPATE_SURVEY_PREVIEW_TOOLTIP),
@@ -1786,33 +1799,33 @@ static constexpr std::initializer_list<NWidgetPart> _nested_game_options_widgets
 					NWidget(WWT_FRAME, GAME_OPTIONS_BACKGROUND), SetStringTip(STR_GAME_OPTIONS_INTERFACE), SetTextStyle(GAME_OPTIONS_FRAME),
 						NWidget(NWID_VERTICAL), SetPIP(0, WidgetDimensions::unscaled.vsep_normal, 0),
 							NWidget(NWID_HORIZONTAL), SetPIP(0, WidgetDimensions::unscaled.hsep_wide, 0),
-								NWidget(WWT_TEXT, INVALID_COLOUR), SetStringTip(STR_GAME_OPTIONS_GUI_SCALE_FRAME), SetTextStyle(GAME_OPTIONS_LABEL),
-								NWidget(WWT_EMPTY, INVALID_COLOUR, WID_GO_GUI_SCALE), SetMinimalTextLines(1, 12 + WidgetDimensions::unscaled.vsep_normal, FS_SMALL), SetFill(1, 0), SetResize(1, 0), SetToolTip(STR_GAME_OPTIONS_GUI_SCALE_TOOLTIP),
+								NWidget(WWT_TEXT, Colours::Invalid), SetStringTip(STR_GAME_OPTIONS_GUI_SCALE_FRAME), SetTextStyle(GAME_OPTIONS_LABEL),
+								NWidget(WWT_EMPTY, Colours::Invalid, WID_GO_GUI_SCALE), SetMinimalTextLines(1, 12 + WidgetDimensions::unscaled.vsep_normal, FontSize::Small), SetFill(1, 0), SetResize(1, 0), SetToolTip(STR_GAME_OPTIONS_GUI_SCALE_TOOLTIP),
 							EndContainer(),
 							NWidget(NWID_HORIZONTAL), SetPIP(0, WidgetDimensions::unscaled.hsep_wide, 0),
 								NWidget(WWT_BOOLBTN, GAME_OPTIONS_BACKGROUND, WID_GO_GUI_SCALE_AUTO), SetAlternateColourTip(GAME_OPTIONS_BUTTON, STR_GAME_OPTIONS_GUI_SCALE_AUTO_TOOLTIP),
-								NWidget(WWT_TEXT, INVALID_COLOUR, WID_GO_GUI_SCALE_AUTO_TEXT), SetFill(1, 0), SetResize(1, 0), SetTextStyle(GAME_OPTIONS_LABEL),
+								NWidget(WWT_TEXT, Colours::Invalid, WID_GO_GUI_SCALE_AUTO_TEXT), SetFill(1, 0), SetResize(1, 0), SetTextStyle(GAME_OPTIONS_LABEL),
 							EndContainer(),
 							NWidget(NWID_HORIZONTAL), SetPIP(0, WidgetDimensions::unscaled.hsep_wide, 0),
 								NWidget(WWT_BOOLBTN, GAME_OPTIONS_BACKGROUND, WID_GO_GUI_SCALE_BEVEL_BUTTON), SetAlternateColourTip(GAME_OPTIONS_BUTTON, STR_GAME_OPTIONS_GUI_SCALE_BEVELS_TOOLTIP),
-								NWidget(WWT_TEXT, INVALID_COLOUR, WID_GO_GUI_SCALE_BEVEL_TEXT), SetFill(1, 0), SetResize(1, 0), SetTextStyle(GAME_OPTIONS_LABEL),
+								NWidget(WWT_TEXT, Colours::Invalid, WID_GO_GUI_SCALE_BEVEL_TEXT), SetFill(1, 0), SetResize(1, 0), SetTextStyle(GAME_OPTIONS_LABEL),
 							EndContainer(),
 							NWidget(NWID_HORIZONTAL), SetPIP(0, WidgetDimensions::unscaled.hsep_wide, 0),
 								NWidget(WWT_BOOLBTN, GAME_OPTIONS_BACKGROUND, WID_GO_GUI_SCALE_MAIN_TOOLBAR), SetAlternateColourTip(GAME_OPTIONS_BUTTON, STR_GAME_OPTIONS_GUI_SCALE_MAIN_TOOLBAR_TOOLTIP),
-								NWidget(WWT_TEXT, INVALID_COLOUR, WID_GO_GUI_SCALE_MAIN_TOOLBAR_TEXT), SetFill(1, 0), SetResize(1, 0), SetTextStyle(GAME_OPTIONS_LABEL),
+								NWidget(WWT_TEXT, Colours::Invalid, WID_GO_GUI_SCALE_MAIN_TOOLBAR_TEXT), SetFill(1, 0), SetResize(1, 0), SetTextStyle(GAME_OPTIONS_LABEL),
 							EndContainer(),
 							NWidget(NWID_HORIZONTAL), SetPIP(0, WidgetDimensions::unscaled.hsep_wide, 0),
 								NWidget(WWT_BOOLBTN, GAME_OPTIONS_BACKGROUND, WID_GO_GUI_TRAD_INTRO_TOOLBAR), SetAlternateColourTip(GAME_OPTIONS_BUTTON, STR_GAME_OPTIONS_GUI_TRADITIONAL_INTRO_MENU_TOOLTIP),
-								NWidget(WWT_TEXT, INVALID_COLOUR, WID_GO_GUI_TRAD_INTRO_TOOLBAR_TEXT), SetFill(1, 0), SetResize(1, 0), SetTextStyle(GAME_OPTIONS_LABEL),
+								NWidget(WWT_TEXT, Colours::Invalid, WID_GO_GUI_TRAD_INTRO_TOOLBAR_TEXT), SetFill(1, 0), SetResize(1, 0), SetTextStyle(GAME_OPTIONS_LABEL),
 							EndContainer(),
 #ifdef HAS_TRUETYPE_FONT
 							NWidget(NWID_HORIZONTAL), SetPIP(0, WidgetDimensions::unscaled.hsep_wide, 0),
 								NWidget(WWT_BOOLBTN, GAME_OPTIONS_BACKGROUND, WID_GO_GUI_FONT_SPRITE), SetAlternateColourTip(GAME_OPTIONS_BUTTON, STR_GAME_OPTIONS_GUI_FONT_SPRITE_TOOLTIP),
-								NWidget(WWT_TEXT, INVALID_COLOUR, WID_GO_GUI_FONT_SPRITE_TEXT), SetFill(1, 0), SetResize(1, 0), SetTextStyle(GAME_OPTIONS_LABEL),
+								NWidget(WWT_TEXT, Colours::Invalid, WID_GO_GUI_FONT_SPRITE_TEXT), SetFill(1, 0), SetResize(1, 0), SetTextStyle(GAME_OPTIONS_LABEL),
 							EndContainer(),
 							NWidget(NWID_HORIZONTAL), SetPIP(0, WidgetDimensions::unscaled.hsep_wide, 0),
 								NWidget(WWT_BOOLBTN, GAME_OPTIONS_BACKGROUND, WID_GO_GUI_FONT_AA), SetAlternateColourTip(GAME_OPTIONS_BUTTON, STR_GAME_OPTIONS_GUI_FONT_AA_TOOLTIP),
-								NWidget(WWT_TEXT, INVALID_COLOUR, WID_GO_GUI_FONT_AA_TEXT), SetFill(1, 0), SetResize(1, 0), SetTextStyle(GAME_OPTIONS_LABEL),
+								NWidget(WWT_TEXT, Colours::Invalid, WID_GO_GUI_FONT_AA_TEXT), SetFill(1, 0), SetResize(1, 0), SetTextStyle(GAME_OPTIONS_LABEL),
 							EndContainer(),
 #endif /* HAS_TRUETYPE_FONT */
 						EndContainer(),
@@ -1821,29 +1834,29 @@ static constexpr std::initializer_list<NWidgetPart> _nested_game_options_widgets
 					NWidget(WWT_FRAME, GAME_OPTIONS_BACKGROUND), SetStringTip(STR_GAME_OPTIONS_DISPLAY), SetTextStyle(GAME_OPTIONS_FRAME),
 						NWidget(NWID_VERTICAL), SetPIP(0, WidgetDimensions::unscaled.vsep_normal, 0),
 							NWidget(NWID_HORIZONTAL, NWidContainerFlag::EqualSize), SetPIP(0, WidgetDimensions::unscaled.hsep_normal, 0),
-								NWidget(WWT_TEXT, INVALID_COLOUR), SetFill(1, 0), SetResize(1, 0), SetStringTip(STR_GAME_OPTIONS_RESOLUTION), SetTextStyle(GAME_OPTIONS_LABEL),
+								NWidget(WWT_TEXT, Colours::Invalid), SetFill(1, 0), SetResize(1, 0), SetStringTip(STR_GAME_OPTIONS_RESOLUTION), SetTextStyle(GAME_OPTIONS_LABEL),
 								NWidget(WWT_DROPDOWN, GAME_OPTIONS_BUTTON, WID_GO_RESOLUTION_DROPDOWN), SetFill(1, 0), SetToolTip(STR_GAME_OPTIONS_RESOLUTION_TOOLTIP),
 							EndContainer(),
 							NWidget(NWID_HORIZONTAL, NWidContainerFlag::EqualSize), SetPIP(0, WidgetDimensions::unscaled.hsep_normal, 0),
-								NWidget(WWT_TEXT, INVALID_COLOUR), SetFill(1, 0), SetResize(1, 0), SetStringTip(STR_GAME_OPTIONS_REFRESH_RATE), SetTextStyle(GAME_OPTIONS_LABEL),
+								NWidget(WWT_TEXT, Colours::Invalid), SetFill(1, 0), SetResize(1, 0), SetStringTip(STR_GAME_OPTIONS_REFRESH_RATE), SetTextStyle(GAME_OPTIONS_LABEL),
 								NWidget(WWT_DROPDOWN, GAME_OPTIONS_BUTTON, WID_GO_REFRESH_RATE_DROPDOWN), SetFill(1, 0), SetToolTip(STR_GAME_OPTIONS_REFRESH_RATE_TOOLTIP),
 							EndContainer(),
 							NWidget(NWID_HORIZONTAL), SetPIP(0, WidgetDimensions::unscaled.hsep_wide, 0),
 								NWidget(WWT_BOOLBTN, GAME_OPTIONS_BACKGROUND, WID_GO_FULLSCREEN_BUTTON), SetAlternateColourTip(GAME_OPTIONS_BUTTON, STR_GAME_OPTIONS_FULLSCREEN_TOOLTIP),
-								NWidget(WWT_TEXT, INVALID_COLOUR, WID_GO_FULLSCREEN_TEXT), SetFill(1, 0), SetResize(1, 0), SetTextStyle(GAME_OPTIONS_LABEL),
+								NWidget(WWT_TEXT, Colours::Invalid, WID_GO_FULLSCREEN_TEXT), SetFill(1, 0), SetResize(1, 0), SetTextStyle(GAME_OPTIONS_LABEL),
 							EndContainer(),
 							NWidget(NWID_HORIZONTAL), SetPIP(0, WidgetDimensions::unscaled.hsep_wide, 0),
 								NWidget(WWT_BOOLBTN, GAME_OPTIONS_BACKGROUND, WID_GO_VIDEO_ACCEL_BUTTON), SetAlternateColourTip(GAME_OPTIONS_BUTTON, STR_GAME_OPTIONS_VIDEO_ACCELERATION_TOOLTIP),
-								NWidget(WWT_TEXT, INVALID_COLOUR,WID_GO_VIDEO_ACCEL_TEXT), SetFill(1, 0), SetResize(1, 0), SetTextStyle(GAME_OPTIONS_LABEL),
+								NWidget(WWT_TEXT, Colours::Invalid,WID_GO_VIDEO_ACCEL_TEXT), SetFill(1, 0), SetResize(1, 0), SetTextStyle(GAME_OPTIONS_LABEL),
 							EndContainer(),
 #ifndef __APPLE__
 							NWidget(NWID_HORIZONTAL), SetPIP(0, WidgetDimensions::unscaled.hsep_wide, 0),
 								NWidget(WWT_BOOLBTN, GAME_OPTIONS_BACKGROUND, WID_GO_VIDEO_VSYNC_BUTTON), SetAlternateColourTip(GAME_OPTIONS_BUTTON, STR_GAME_OPTIONS_VIDEO_VSYNC_TOOLTIP),
-								NWidget(WWT_TEXT, INVALID_COLOUR, WID_GO_VIDEO_VSYNC_TEXT), SetFill(1, 0), SetResize(1, 0), SetTextStyle(GAME_OPTIONS_LABEL),
+								NWidget(WWT_TEXT, Colours::Invalid, WID_GO_VIDEO_VSYNC_TEXT), SetFill(1, 0), SetResize(1, 0), SetTextStyle(GAME_OPTIONS_LABEL),
 							EndContainer(),
 #endif
 							NWidget(NWID_HORIZONTAL),
-								NWidget(WWT_EMPTY, INVALID_COLOUR, WID_GO_VIDEO_DRIVER_INFO), SetMinimalTextLines(1, 0), SetFill(1, 0), SetResize(1, 0),
+								NWidget(WWT_EMPTY, Colours::Invalid, WID_GO_VIDEO_DRIVER_INFO), SetMinimalTextLines(1, 0), SetFill(1, 0), SetResize(1, 0),
 							EndContainer(),
 						EndContainer(),
 					EndContainer(),
@@ -1854,7 +1867,7 @@ static constexpr std::initializer_list<NWidgetPart> _nested_game_options_widgets
 							NWidget(WWT_PUSHTXTBTN, GAME_OPTIONS_BUTTON, WID_GO_BASE_GRF_PARAMETERS), SetStringTip(STR_NEWGRF_SETTINGS_SET_PARAMETERS),
 							NWidget(WWT_PUSHTXTBTN, GAME_OPTIONS_BUTTON, WID_GO_BASE_GRF_CONTENT_DOWNLOAD), SetStringTip(STR_GAME_OPTIONS_ONLINE_CONTENT, STR_GAME_OPTIONS_ONLINE_CONTENT_TOOLTIP),
 						EndContainer(),
-						NWidget(WWT_TEXT, INVALID_COLOUR, WID_GO_BASE_GRF_DESCRIPTION), SetStringTip(STR_EMPTY, STR_GAME_OPTIONS_BASE_GRF_DESCRIPTION_TOOLTIP), SetFill(1, 0), SetResize(1, 0),
+						NWidget(WWT_TEXT, Colours::Invalid, WID_GO_BASE_GRF_DESCRIPTION), SetStringTip(STR_EMPTY, STR_GAME_OPTIONS_BASE_GRF_DESCRIPTION_TOOLTIP), SetFill(1, 0), SetResize(1, 0),
 						NWidget(NWID_VERTICAL),
 							NWidget(NWID_HORIZONTAL, NWidContainerFlag::EqualSize),
 								NWidget(WWT_PUSHTXTBTN, GAME_OPTIONS_BUTTON, WID_GO_BASE_GRF_OPEN_URL), SetResize(1, 0), SetFill(1, 0), SetStringTip(STR_CONTENT_OPEN_URL, STR_CONTENT_OPEN_URL_TOOLTIP),
@@ -1875,12 +1888,12 @@ static constexpr std::initializer_list<NWidgetPart> _nested_game_options_widgets
 				NWidget(NWID_VERTICAL), SetPIP(0, WidgetDimensions::unscaled.vsep_wide, 0),
 					NWidget(WWT_FRAME, GAME_OPTIONS_BACKGROUND), SetStringTip(STR_GAME_OPTIONS_VOLUME), SetTextStyle(GAME_OPTIONS_FRAME), SetPIP(0, WidgetDimensions::unscaled.vsep_wide, 0),
 						NWidget(NWID_HORIZONTAL), SetPIP(0, WidgetDimensions::unscaled.hsep_wide, 0),
-							NWidget(WWT_TEXT, INVALID_COLOUR, WID_GO_TEXT_SFX_VOLUME), SetStringTip(STR_GAME_OPTIONS_SFX_VOLUME), SetTextStyle(GAME_OPTIONS_LABEL),
-							NWidget(WWT_EMPTY, INVALID_COLOUR, WID_GO_BASE_SFX_VOLUME), SetMinimalTextLines(1, 12 + WidgetDimensions::unscaled.vsep_normal, FS_SMALL), SetFill(1, 0), SetResize(1, 0), SetToolTip(STR_MUSIC_TOOLTIP_DRAG_SLIDERS_TO_SET_MUSIC),
+							NWidget(WWT_TEXT, Colours::Invalid, WID_GO_TEXT_SFX_VOLUME), SetStringTip(STR_GAME_OPTIONS_SFX_VOLUME), SetTextStyle(GAME_OPTIONS_LABEL),
+							NWidget(WWT_EMPTY, Colours::Invalid, WID_GO_BASE_SFX_VOLUME), SetMinimalTextLines(1, 12 + WidgetDimensions::unscaled.vsep_normal, FontSize::Small), SetFill(1, 0), SetResize(1, 0), SetToolTip(STR_MUSIC_TOOLTIP_DRAG_SLIDERS_TO_SET_MUSIC),
 						EndContainer(),
 						NWidget(NWID_HORIZONTAL), SetPIP(0, WidgetDimensions::unscaled.hsep_wide, 0),
-							NWidget(WWT_TEXT, INVALID_COLOUR, WID_GO_TEXT_MUSIC_VOLUME), SetStringTip(STR_GAME_OPTIONS_MUSIC_VOLUME), SetTextStyle(GAME_OPTIONS_LABEL),
-							NWidget(WWT_EMPTY, INVALID_COLOUR, WID_GO_BASE_MUSIC_VOLUME), SetMinimalTextLines(1, 12 + WidgetDimensions::unscaled.vsep_normal, FS_SMALL), SetFill(1, 0), SetResize(1, 0), SetToolTip(STR_MUSIC_TOOLTIP_DRAG_SLIDERS_TO_SET_MUSIC),
+							NWidget(WWT_TEXT, Colours::Invalid, WID_GO_TEXT_MUSIC_VOLUME), SetStringTip(STR_GAME_OPTIONS_MUSIC_VOLUME), SetTextStyle(GAME_OPTIONS_LABEL),
+							NWidget(WWT_EMPTY, Colours::Invalid, WID_GO_BASE_MUSIC_VOLUME), SetMinimalTextLines(1, 12 + WidgetDimensions::unscaled.vsep_normal, FontSize::Small), SetFill(1, 0), SetResize(1, 0), SetToolTip(STR_MUSIC_TOOLTIP_DRAG_SLIDERS_TO_SET_MUSIC),
 						EndContainer(),
 					EndContainer(),
 
@@ -1889,7 +1902,7 @@ static constexpr std::initializer_list<NWidgetPart> _nested_game_options_widgets
 							NWidget(WWT_DROPDOWN, GAME_OPTIONS_BUTTON, WID_GO_BASE_SFX_DROPDOWN), SetToolTip(STR_GAME_OPTIONS_BASE_SFX_TOOLTIP), SetFill(1, 0), SetResize(1, 0),
 							NWidget(WWT_PUSHTXTBTN, GAME_OPTIONS_BUTTON, WID_GO_BASE_SFX_CONTENT_DOWNLOAD), SetStringTip(STR_GAME_OPTIONS_ONLINE_CONTENT, STR_GAME_OPTIONS_ONLINE_CONTENT_TOOLTIP),
 						EndContainer(),
-						NWidget(WWT_EMPTY, INVALID_COLOUR, WID_GO_BASE_SFX_DESCRIPTION), SetMinimalTextLines(1, 0), SetToolTip(STR_GAME_OPTIONS_BASE_SFX_DESCRIPTION_TOOLTIP), SetFill(1, 0), SetResize(1, 0),
+						NWidget(WWT_EMPTY, Colours::Invalid, WID_GO_BASE_SFX_DESCRIPTION), SetMinimalTextLines(1, 0), SetToolTip(STR_GAME_OPTIONS_BASE_SFX_DESCRIPTION_TOOLTIP), SetFill(1, 0), SetResize(1, 0),
 						NWidget(NWID_VERTICAL),
 							NWidget(NWID_HORIZONTAL, NWidContainerFlag::EqualSize),
 								NWidget(WWT_PUSHTXTBTN, GAME_OPTIONS_BUTTON, WID_GO_BASE_SFX_OPEN_URL), SetResize(1, 0), SetFill(1, 0), SetStringTip(STR_CONTENT_OPEN_URL, STR_CONTENT_OPEN_URL_TOOLTIP),
@@ -1908,7 +1921,7 @@ static constexpr std::initializer_list<NWidgetPart> _nested_game_options_widgets
 							NWidget(WWT_PUSHTXTBTN, GAME_OPTIONS_BUTTON, WID_GO_BASE_MUSIC_CONTENT_DOWNLOAD), SetStringTip(STR_GAME_OPTIONS_ONLINE_CONTENT, STR_GAME_OPTIONS_ONLINE_CONTENT_TOOLTIP),
 						EndContainer(),
 						NWidget(NWID_HORIZONTAL), SetPIP(0, WidgetDimensions::unscaled.hsep_wide, 0),
-							NWidget(WWT_EMPTY, INVALID_COLOUR, WID_GO_BASE_MUSIC_DESCRIPTION), SetMinimalTextLines(1, 0), SetToolTip(STR_GAME_OPTIONS_BASE_MUSIC_DESCRIPTION_TOOLTIP), SetFill(1, 0), SetResize(1, 0),
+							NWidget(WWT_EMPTY, Colours::Invalid, WID_GO_BASE_MUSIC_DESCRIPTION), SetMinimalTextLines(1, 0), SetToolTip(STR_GAME_OPTIONS_BASE_MUSIC_DESCRIPTION_TOOLTIP), SetFill(1, 0), SetResize(1, 0),
 							NWidget(NWID_VERTICAL), SetPIPRatio(0, 0, 1),
 								NWidget(WWT_PUSHIMGBTN, GAME_OPTIONS_BUTTON, WID_GO_BASE_MUSIC_JUKEBOX), SetToolbarMinimalSize(1), SetSpriteTip(SPR_IMG_MUSIC, STR_TOOLBAR_TOOLTIP_SHOW_SOUND_MUSIC_WINDOW),
 							EndContainer(),
@@ -1938,15 +1951,15 @@ static constexpr std::initializer_list<NWidgetPart> _nested_game_options_widgets
 			NWidget(NWID_VERTICAL), SetPadding(WidgetDimensions::unscaled.sparse_resize), SetPIP(0, WidgetDimensions::unscaled.vsep_sparse, 0),
 				NWidget(NWID_VERTICAL), SetPIP(0, WidgetDimensions::unscaled.vsep_normal, 0),
 					NWidget(NWID_HORIZONTAL), SetPIP(0, WidgetDimensions::unscaled.hsep_wide, 0),
-						NWidget(WWT_TEXT, INVALID_COLOUR, WID_GO_RESTRICT_CATEGORY), SetStringTip(STR_CONFIG_SETTING_RESTRICT_CATEGORY), SetTextStyle(GAME_OPTIONS_LABEL),
+						NWidget(WWT_TEXT, Colours::Invalid, WID_GO_RESTRICT_CATEGORY), SetStringTip(STR_CONFIG_SETTING_RESTRICT_CATEGORY), SetTextStyle(GAME_OPTIONS_LABEL),
 						NWidget(WWT_DROPDOWN, GAME_OPTIONS_BUTTON, WID_GO_RESTRICT_DROPDOWN), SetToolTip(STR_CONFIG_SETTING_RESTRICT_DROPDOWN_HELPTEXT), SetFill(1, 0), SetResize(1, 0),
 					EndContainer(),
 					NWidget(NWID_HORIZONTAL), SetPIP(0, WidgetDimensions::unscaled.hsep_wide, 0),
-						NWidget(WWT_TEXT, INVALID_COLOUR, WID_GO_RESTRICT_TYPE), SetStringTip(STR_CONFIG_SETTING_RESTRICT_TYPE), SetTextStyle(GAME_OPTIONS_LABEL),
+						NWidget(WWT_TEXT, Colours::Invalid, WID_GO_RESTRICT_TYPE), SetStringTip(STR_CONFIG_SETTING_RESTRICT_TYPE), SetTextStyle(GAME_OPTIONS_LABEL),
 						NWidget(WWT_DROPDOWN, GAME_OPTIONS_BUTTON, WID_GO_TYPE_DROPDOWN), SetToolTip(STR_CONFIG_SETTING_TYPE_DROPDOWN_HELPTEXT), SetFill(1, 0), SetResize(1, 0),
 					EndContainer(),
 					NWidget(NWID_HORIZONTAL), SetPIP(0, WidgetDimensions::unscaled.hsep_wide, 0),
-						NWidget(WWT_TEXT, INVALID_COLOUR), SetFill(0, 1), SetStringTip(STR_CONFIG_SETTING_FILTER_TITLE), SetTextStyle(GAME_OPTIONS_LABEL),
+						NWidget(WWT_TEXT, Colours::Invalid), SetFill(0, 1), SetStringTip(STR_CONFIG_SETTING_FILTER_TITLE), SetTextStyle(GAME_OPTIONS_LABEL),
 						NWidget(WWT_EDITBOX, GAME_OPTIONS_BACKGROUND, WID_GO_FILTER), SetStringTip(STR_LIST_FILTER_OSKTITLE, STR_LIST_FILTER_TOOLTIP), SetFill(1, 0), SetResize(1, 0),
 					EndContainer(),
 				EndContainer(),
@@ -1963,9 +1976,9 @@ static constexpr std::initializer_list<NWidgetPart> _nested_game_options_widgets
 					NWidget(WWT_PUSHTXTBTN, GAME_OPTIONS_BUTTON, WID_GO_RESET_ALL), SetStringTip(STR_CONFIG_SETTING_RESET_ALL), SetFill(1, 0), SetResize(1, 0),
 				EndContainer(),
 
-				NWidget(WWT_EMPTY, INVALID_COLOUR, WID_GO_SETTING_PROPERTIES), SetFill(1, 0), SetResize(1, 0),
+				NWidget(WWT_EMPTY, Colours::Invalid, WID_GO_SETTING_PROPERTIES), SetFill(1, 0), SetResize(1, 0),
 				NWidget(NWID_HORIZONTAL),
-					NWidget(WWT_EMPTY, INVALID_COLOUR, WID_GO_HELP_TEXT), SetFill(1, 0), SetResize(1, 0), SetScrollbar(WID_GO_HELP_TEXT_SCROLL),
+					NWidget(WWT_EMPTY, Colours::Invalid, WID_GO_HELP_TEXT), SetFill(1, 0), SetResize(1, 0), SetScrollbar(WID_GO_HELP_TEXT_SCROLL),
 					NWidget(NWID_VSCROLLBAR, GAME_OPTIONS_BACKGROUND, WID_GO_HELP_TEXT_SCROLL),
 				EndContainer(),
 			EndContainer(),
@@ -1973,14 +1986,15 @@ static constexpr std::initializer_list<NWidgetPart> _nested_game_options_widgets
 
 		NWidget(NWID_HORIZONTAL),
 			NWidget(NWID_SPACER), SetFill(1, 0), SetResize(1, 0),
-			NWidget(WWT_RESIZEBOX, GAME_OPTIONS_BACKGROUND), SetResizeWidgetTypeTip(RWV_HIDE_BEVEL, STR_TOOLTIP_RESIZE),
+			NWidget(WWT_RESIZEBOX, GAME_OPTIONS_BACKGROUND), SetResizeWidgetTypeTip(ResizeWidgetType::HideBevel, STR_TOOLTIP_RESIZE),
 		EndContainer(),
 	EndContainer(),
 };
 
+/** Window definition for the game options window. */
 static WindowDesc _game_options_desc(__FILE__, __LINE__,
-	WDP_CENTER, "game_options", 510, 450,
-	WC_GAME_OPTIONS, WC_NONE,
+	WindowPosition::Center, "game_options", 510, 450,
+	WindowClass::GameOptions, WindowClass::None,
 	{},
 	_nested_game_options_widgets
 );
@@ -1988,7 +2002,7 @@ static WindowDesc _game_options_desc(__FILE__, __LINE__,
 /** Open the game options window. */
 void ShowGameOptions()
 {
-	CloseWindowByClass(WC_GAME_OPTIONS);
+	CloseWindowByClass(WindowClass::GameOptions);
 	new GameOptionsWindow(_game_options_desc);
 }
 
@@ -2003,7 +2017,7 @@ void ShowGameOptions()
  */
 void DrawArrowButtons(int x, int y, Colours button_colour, uint8_t state, bool clickable_left, bool clickable_right)
 {
-	PixelColour colour = GetColourGradient(button_colour, SHADE_DARKER);
+	PixelColour colour = GetColourGradient(button_colour, Shade::Darker);
 	Dimension dim = NWidgetScrollbar::GetHorizontalDimension();
 
 	Rect lr = {x,                  y, x + (int)dim.width     - 1, y + (int)dim.height - 1};
@@ -2011,16 +2025,16 @@ void DrawArrowButtons(int x, int y, Colours button_colour, uint8_t state, bool c
 
 	DrawFrameRect(lr, button_colour, (state == 1) ? FrameFlag::Lowered : FrameFlags{});
 	DrawFrameRect(rr, button_colour, (state == 2) ? FrameFlag::Lowered : FrameFlags{});
-	DrawSpriteIgnorePadding(SPR_ARROW_LEFT,  PAL_NONE, lr, SA_CENTER);
-	DrawSpriteIgnorePadding(SPR_ARROW_RIGHT, PAL_NONE, rr, SA_CENTER);
+	DrawSpriteIgnorePadding(SPR_ARROW_LEFT,  PAL_NONE, lr, {AlignmentH::Centre, AlignmentV::Middle});
+	DrawSpriteIgnorePadding(SPR_ARROW_RIGHT, PAL_NONE, rr, {AlignmentH::Centre, AlignmentV::Middle});
 
 	/* Grey out the buttons that aren't clickable */
 	bool rtl = _current_text_dir == TD_RTL;
 	if (rtl ? !clickable_right : !clickable_left) {
-		GfxFillRect(lr.Shrink(WidgetDimensions::scaled.bevel), colour, FILLRECT_CHECKER);
+		GfxFillRect(lr.Shrink(WidgetDimensions::scaled.bevel), colour, FillRectMode::Checker);
 	}
 	if (rtl ? !clickable_left : !clickable_right) {
-		GfxFillRect(rr.Shrink(WidgetDimensions::scaled.bevel), colour, FILLRECT_CHECKER);
+		GfxFillRect(rr.Shrink(WidgetDimensions::scaled.bevel), colour, FillRectMode::Checker);
 	}
 }
 
@@ -2035,7 +2049,7 @@ void DrawArrowButtons(int x, int y, Colours button_colour, uint8_t state, bool c
  */
 void DrawUpDownButtons(int x, int y, Colours button_colour, uint8_t state, bool clickable_up, bool clickable_down)
 {
-	PixelColour colour = GetColourGradient(button_colour, SHADE_DARKER);
+	PixelColour colour = GetColourGradient(button_colour, Shade::Darker);
 
 	Rect r = {x, y, x + SETTING_BUTTON_WIDTH - 1, y + SETTING_BUTTON_HEIGHT - 1};
 	Rect ur = r.WithWidth(SETTING_BUTTON_WIDTH / 2, (_current_text_dir == TD_RTL));
@@ -2043,12 +2057,12 @@ void DrawUpDownButtons(int x, int y, Colours button_colour, uint8_t state, bool 
 
 	DrawFrameRect(ur, button_colour, (state == 1) ? FrameFlag::Lowered : FrameFlags{});
 	DrawFrameRect(dr, button_colour, (state == 2) ? FrameFlag::Lowered : FrameFlags{});
-	DrawSpriteIgnorePadding(SPR_ARROW_UP, PAL_NONE, ur, SA_CENTER);
-	DrawSpriteIgnorePadding(SPR_ARROW_DOWN, PAL_NONE, dr, SA_CENTER);
+	DrawSpriteIgnorePadding(SPR_ARROW_UP, PAL_NONE, ur, {AlignmentH::Centre, AlignmentV::Middle});
+	DrawSpriteIgnorePadding(SPR_ARROW_DOWN, PAL_NONE, dr, {AlignmentH::Centre, AlignmentV::Middle});
 
 	/* Grey out the buttons that aren't clickable */
-	if (!clickable_up) GfxFillRect(ur.Shrink(WidgetDimensions::scaled.bevel), colour, FILLRECT_CHECKER);
-	if (!clickable_down) GfxFillRect(dr.Shrink(WidgetDimensions::scaled.bevel), colour, FILLRECT_CHECKER);
+	if (!clickable_up) GfxFillRect(ur.Shrink(WidgetDimensions::scaled.bevel), colour, FillRectMode::Checker);
+	if (!clickable_down) GfxFillRect(dr.Shrink(WidgetDimensions::scaled.bevel), colour, FillRectMode::Checker);
 }
 
 /**
@@ -2061,15 +2075,15 @@ void DrawUpDownButtons(int x, int y, Colours button_colour, uint8_t state, bool 
  */
 void DrawDropDownButton(int x, int y, Colours button_colour, bool state, bool clickable)
 {
-	PixelColour colour = GetColourGradient(button_colour, SHADE_DARKER);
+	PixelColour colour = GetColourGradient(button_colour, Shade::Darker);
 
 	Rect r = {x, y, x + SETTING_BUTTON_WIDTH - 1, y + SETTING_BUTTON_HEIGHT - 1};
 
 	DrawFrameRect(r, button_colour, state ? FrameFlag::Lowered : FrameFlags{});
-	DrawSpriteIgnorePadding(SPR_ARROW_DOWN, PAL_NONE, r, SA_CENTER);
+	DrawSpriteIgnorePadding(SPR_ARROW_DOWN, PAL_NONE, r, {AlignmentH::Centre, AlignmentV::Middle});
 
 	if (!clickable) {
-		GfxFillRect(r.Shrink(WidgetDimensions::scaled.bevel), colour, FILLRECT_CHECKER);
+		GfxFillRect(r.Shrink(WidgetDimensions::scaled.bevel), colour, FillRectMode::Checker);
 	}
 }
 
@@ -2085,15 +2099,15 @@ void DrawDropDownButton(int x, int y, Colours button_colour, bool state, bool cl
 void DrawBoolButton(int x, int y, Colours button_colour, Colours background, bool state, bool clickable)
 {
 	Rect r = {x, y, x + SETTING_BUTTON_WIDTH - 1, y + SETTING_BUTTON_HEIGHT - 1};
-	DrawFrameRect(r, state ? COLOUR_GREEN : background, state ? FrameFlags{FrameFlag::Lowered} : FrameFlags{FrameFlag::Lowered, FrameFlag::BorderOnly});
+	DrawFrameRect(r, state ? Colours::Green : background, state ? FrameFlags{FrameFlag::Lowered} : FrameFlags{FrameFlag::Lowered, FrameFlag::BorderOnly});
 	if (!clickable) {
-		GfxFillRect(r.Shrink(WidgetDimensions::scaled.bevel), GetColourGradient(state ? COLOUR_GREEN : background, SHADE_DARKER), FILLRECT_CHECKER);
+		GfxFillRect(r.Shrink(WidgetDimensions::scaled.bevel), GetColourGradient(state ? Colours::Green : background, Shade::Darker), FillRectMode::Checker);
 	}
 
 	Rect button_rect = r.WithWidth(SETTING_BUTTON_WIDTH / 3, state ^ (_current_text_dir == TD_RTL));
 	DrawFrameRect(button_rect, button_colour, {});
 	if (!clickable) {
-		GfxFillRect(button_rect.Shrink(WidgetDimensions::scaled.bevel), GetColourGradient(button_colour, SHADE_DARKER), FILLRECT_CHECKER);
+		GfxFillRect(button_rect.Shrink(WidgetDimensions::scaled.bevel), GetColourGradient(button_colour, Shade::Darker), FillRectMode::Checker);
 	}
 }
 
@@ -2282,48 +2296,49 @@ struct CustomCurrencyWindow : Window {
 
 static constexpr std::initializer_list<NWidgetPart> _nested_cust_currency_widgets = {
 	NWidget(NWID_HORIZONTAL),
-		NWidget(WWT_CLOSEBOX, COLOUR_GREY),
-		NWidget(WWT_CAPTION, COLOUR_GREY), SetStringTip(STR_CURRENCY_WINDOW, STR_TOOLTIP_WINDOW_TITLE_DRAG_THIS),
+		NWidget(WWT_CLOSEBOX, Colours::Grey),
+		NWidget(WWT_CAPTION, Colours::Grey), SetStringTip(STR_CURRENCY_WINDOW, STR_TOOLTIP_WINDOW_TITLE_DRAG_THIS),
 	EndContainer(),
-	NWidget(WWT_PANEL, COLOUR_GREY),
+	NWidget(WWT_PANEL, Colours::Grey),
 		NWidget(NWID_VERTICAL), SetPIP(0, WidgetDimensions::unscaled.vsep_wide, 0), SetPadding(WidgetDimensions::unscaled.sparse),
 			NWidget(NWID_VERTICAL, NWidContainerFlag::EqualSize), SetPIP(0, WidgetDimensions::unscaled.vsep_normal, 0),
 				NWidget(NWID_HORIZONTAL), SetPIP(0, WidgetDimensions::unscaled.hsep_wide, 0),
 					NWidget(NWID_HORIZONTAL, NWidContainerFlag::EqualSize),
-						NWidget(WWT_PUSHARROWBTN, COLOUR_YELLOW, WID_CC_RATE_DOWN), SetArrowWidgetTypeTip(AWV_DECREASE, STR_CURRENCY_DECREASE_EXCHANGE_RATE_TOOLTIP),
-						NWidget(WWT_PUSHARROWBTN, COLOUR_YELLOW, WID_CC_RATE_UP), SetArrowWidgetTypeTip(AWV_INCREASE, STR_CURRENCY_INCREASE_EXCHANGE_RATE_TOOLTIP),
+						NWidget(WWT_PUSHARROWBTN, Colours::Yellow, WID_CC_RATE_DOWN), SetArrowWidgetTypeTip(ArrowWidgetType::Decrease, STR_CURRENCY_DECREASE_EXCHANGE_RATE_TOOLTIP),
+						NWidget(WWT_PUSHARROWBTN, Colours::Yellow, WID_CC_RATE_UP), SetArrowWidgetTypeTip(ArrowWidgetType::Increase, STR_CURRENCY_INCREASE_EXCHANGE_RATE_TOOLTIP),
 					EndContainer(),
-					NWidget(WWT_TEXT, INVALID_COLOUR, WID_CC_RATE), SetToolTip(STR_CURRENCY_SET_EXCHANGE_RATE_TOOLTIP), SetFill(1, 0),
+					NWidget(WWT_TEXT, Colours::Invalid, WID_CC_RATE), SetToolTip(STR_CURRENCY_SET_EXCHANGE_RATE_TOOLTIP), SetFill(1, 0),
 				EndContainer(),
 				NWidget(NWID_HORIZONTAL), SetPIP(0, WidgetDimensions::unscaled.hsep_wide, 0),
-					NWidget(WWT_PUSHBTN, COLOUR_DARK_BLUE, WID_CC_SEPARATOR_EDIT), SetToolTip(STR_CURRENCY_SET_CUSTOM_CURRENCY_SEPARATOR_TOOLTIP), SetFill(0, 1),
-					NWidget(WWT_TEXT, INVALID_COLOUR, WID_CC_SEPARATOR), SetToolTip(STR_CURRENCY_SET_CUSTOM_CURRENCY_SEPARATOR_TOOLTIP), SetFill(1, 0),
+					NWidget(WWT_PUSHBTN, Colours::DarkBlue, WID_CC_SEPARATOR_EDIT), SetToolTip(STR_CURRENCY_SET_CUSTOM_CURRENCY_SEPARATOR_TOOLTIP), SetFill(0, 1),
+					NWidget(WWT_TEXT, Colours::Invalid, WID_CC_SEPARATOR), SetToolTip(STR_CURRENCY_SET_CUSTOM_CURRENCY_SEPARATOR_TOOLTIP), SetFill(1, 0),
 				EndContainer(),
 				NWidget(NWID_HORIZONTAL), SetPIP(0, WidgetDimensions::unscaled.hsep_wide, 0),
-					NWidget(WWT_PUSHBTN, COLOUR_DARK_BLUE, WID_CC_PREFIX_EDIT), SetToolTip(STR_CURRENCY_SET_CUSTOM_CURRENCY_PREFIX_TOOLTIP), SetFill(0, 1),
-					NWidget(WWT_TEXT, INVALID_COLOUR, WID_CC_PREFIX), SetToolTip(STR_CURRENCY_SET_CUSTOM_CURRENCY_PREFIX_TOOLTIP), SetFill(1, 0),
+					NWidget(WWT_PUSHBTN, Colours::DarkBlue, WID_CC_PREFIX_EDIT), SetToolTip(STR_CURRENCY_SET_CUSTOM_CURRENCY_PREFIX_TOOLTIP), SetFill(0, 1),
+					NWidget(WWT_TEXT, Colours::Invalid, WID_CC_PREFIX), SetToolTip(STR_CURRENCY_SET_CUSTOM_CURRENCY_PREFIX_TOOLTIP), SetFill(1, 0),
 				EndContainer(),
 				NWidget(NWID_HORIZONTAL), SetPIP(0, WidgetDimensions::unscaled.hsep_wide, 0),
-					NWidget(WWT_PUSHBTN, COLOUR_DARK_BLUE, WID_CC_SUFFIX_EDIT), SetToolTip(STR_CURRENCY_SET_CUSTOM_CURRENCY_SUFFIX_TOOLTIP), SetFill(0, 1),
-					NWidget(WWT_TEXT, INVALID_COLOUR, WID_CC_SUFFIX), SetToolTip(STR_CURRENCY_SET_CUSTOM_CURRENCY_SUFFIX_TOOLTIP), SetFill(1, 0),
+					NWidget(WWT_PUSHBTN, Colours::DarkBlue, WID_CC_SUFFIX_EDIT), SetToolTip(STR_CURRENCY_SET_CUSTOM_CURRENCY_SUFFIX_TOOLTIP), SetFill(0, 1),
+					NWidget(WWT_TEXT, Colours::Invalid, WID_CC_SUFFIX), SetToolTip(STR_CURRENCY_SET_CUSTOM_CURRENCY_SUFFIX_TOOLTIP), SetFill(1, 0),
 				EndContainer(),
 				NWidget(NWID_HORIZONTAL), SetPIP(0, WidgetDimensions::unscaled.hsep_wide, 0),
 					NWidget(NWID_HORIZONTAL, NWidContainerFlag::EqualSize),
-						NWidget(WWT_PUSHARROWBTN, COLOUR_YELLOW, WID_CC_YEAR_DOWN), SetArrowWidgetTypeTip(AWV_DECREASE, STR_CURRENCY_DECREASE_CUSTOM_CURRENCY_TO_EURO_TOOLTIP),
-						NWidget(WWT_PUSHARROWBTN, COLOUR_YELLOW, WID_CC_YEAR_UP), SetArrowWidgetTypeTip(AWV_INCREASE, STR_CURRENCY_INCREASE_CUSTOM_CURRENCY_TO_EURO_TOOLTIP),
+						NWidget(WWT_PUSHARROWBTN, Colours::Yellow, WID_CC_YEAR_DOWN), SetArrowWidgetTypeTip(ArrowWidgetType::Decrease, STR_CURRENCY_DECREASE_CUSTOM_CURRENCY_TO_EURO_TOOLTIP),
+						NWidget(WWT_PUSHARROWBTN, Colours::Yellow, WID_CC_YEAR_UP), SetArrowWidgetTypeTip(ArrowWidgetType::Increase, STR_CURRENCY_INCREASE_CUSTOM_CURRENCY_TO_EURO_TOOLTIP),
 					EndContainer(),
-					NWidget(WWT_TEXT, INVALID_COLOUR, WID_CC_YEAR), SetToolTip(STR_CURRENCY_SET_CUSTOM_CURRENCY_TO_EURO_TOOLTIP), SetFill(1, 0),
+					NWidget(WWT_TEXT, Colours::Invalid, WID_CC_YEAR), SetToolTip(STR_CURRENCY_SET_CUSTOM_CURRENCY_TO_EURO_TOOLTIP), SetFill(1, 0),
 				EndContainer(),
 			EndContainer(),
-			NWidget(WWT_LABEL, INVALID_COLOUR, WID_CC_PREVIEW),
+			NWidget(WWT_LABEL, Colours::Invalid, WID_CC_PREVIEW),
 					SetToolTip(STR_CURRENCY_CUSTOM_CURRENCY_PREVIEW_TOOLTIP),
 		EndContainer(),
 	EndContainer(),
 };
 
+/** Window definition for the custom currency window. */
 static WindowDesc _cust_currency_desc(__FILE__, __LINE__,
-	WDP_CENTER, nullptr, 0, 0,
-	WC_CUSTOM_CURRENCY, WC_NONE,
+	WindowPosition::Center, nullptr, 0, 0,
+	WindowClass::CustomCurrenty, WindowClass::None,
 	{},
 	_nested_cust_currency_widgets
 );
@@ -2331,6 +2346,6 @@ static WindowDesc _cust_currency_desc(__FILE__, __LINE__,
 /** Open custom currency window. */
 static void ShowCustCurrency()
 {
-	CloseWindowById(WC_CUSTOM_CURRENCY, 0);
+	CloseWindowById(WindowClass::CustomCurrenty, 0);
 	new CustomCurrencyWindow(_cust_currency_desc);
 }

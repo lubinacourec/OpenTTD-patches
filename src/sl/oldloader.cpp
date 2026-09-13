@@ -9,7 +9,7 @@
 
 #include "../stdafx.h"
 #include "../debug.h"
-#include "../strings_type.h"
+#include "../strings_id_type.h"
 #include "../string_func.h"
 #include "../settings_type.h"
 #include "../fileio_func.h"
@@ -53,9 +53,9 @@ static inline uint8_t CalcOldVarLen(OldChunkType type)
 }
 
 /**
- *
- * Reads a byte from a file (do not call yourself, use ReadByte())
- *
+ * Reads a byte from a file (do not call yourself, use ReadByte()).
+ * @param ls The state for loading the save game.
+ * @return A single byte.
  */
 static uint8_t ReadByteFromFile(LoadgameState &ls)
 {
@@ -80,9 +80,9 @@ static uint8_t ReadByteFromFile(LoadgameState &ls)
 }
 
 /**
- *
- * Reads a byte from the buffer and decompress if needed
- *
+ * Reads a byte from the buffer and decompress if needed.
+ * @param ls The state for loading the save game.
+ * @return A single byte.
  */
 uint8_t ReadByte(LoadgameState &ls)
 {
@@ -114,17 +114,19 @@ uint8_t ReadByte(LoadgameState &ls)
 }
 
 /**
- *
- * Loads a chunk from the old savegame
- *
+ * Loads a chunk from the old savegame.
+ * @param ls The state for loading the save game.
+ * @param base The pointer to the object to load the data into, or \c nullptr for global objects.
+ * @param chunks The definition of the elements to load for this object.
+ * @return \c true if the chunk was loaded without problems.
  */
 bool LoadChunk(LoadgameState &ls, void *base, const OldChunks *chunks)
 {
 	uint8_t *base_ptr = (uint8_t*)base;
 
 	for (const OldChunks *chunk = chunks; chunk->type != OC_END; chunk++) {
-		if (((chunk->type & OC_TTD) && _savegame_type == SGT_TTO) ||
-				((chunk->type & OC_TTO) && _savegame_type != SGT_TTO)) {
+		if (((chunk->type & OC_TTD) && _savegame_type == SavegameType::TTO) ||
+				((chunk->type & OC_TTO) && _savegame_type != SavegameType::TTO)) {
 			/* TTD(P)-only chunk, but TTO savegame || TTO-only chunk, but TTD/TTDP savegame */
 			continue;
 		}
@@ -234,23 +236,23 @@ static SavegameType DetermineOldSavegameType(FileHandle &f, char *title, const c
 	static_assert(TTD_HEADER_SIZE >= TTO_HEADER_SIZE);
 	char temp[TTD_HEADER_SIZE] = "Unknown";
 
-	SavegameType type = SGT_TTO;
+	SavegameType type = SavegameType::TTO;
 
 	/* Can't fseek to 0 as in tar files that is not correct */
 	long pos = ftell(f);
 	if (pos >= 0 && !CheckOldSavegameType(f, temp, lastof(temp), TTO_HEADER_SIZE)) {
-		type = SGT_TTD;
+		type = SavegameType::TTD;
 		if (fseek(f, pos, SEEK_SET) < 0 || !CheckOldSavegameType(f, temp, lastof(temp), TTD_HEADER_SIZE)) {
-			type = SGT_INVALID;
+			type = SavegameType::Invalid;
 		}
 	}
 
 	if (title != nullptr) {
 		format_to_fixed_z title_buf(title, last);
 		switch (type) {
-			case SGT_TTO: title_buf.append("(TTO) ");    break;
-			case SGT_TTD: title_buf.append("(TTD) ");    break;
-			default:      title_buf.append("(broken) "); break;
+			case SavegameType::TTO: title_buf.append("(TTO) ");    break;
+			case SavegameType::TTD: title_buf.append("(TTD) ");    break;
+			default:                title_buf.append("(broken) "); break;
 		}
 		AppendStrMakeValidInPlace(title_buf, temp);
 		title_buf.finalise();
@@ -271,7 +273,7 @@ bool LoadOldSaveGame(const std::string &file)
 	_settings_game.construction.freeform_edges = false; // disable so we can convert map array (SetTileType is still used)
 
 	/* Open file */
-	ls.file = FioFOpenFile(file, "rb", NO_DIRECTORY);
+	ls.file = FioFOpenFile(file, "rb", Subdirectory::None);
 
 	if (!ls.file.has_value()) {
 		Debug(oldloader, 0, "Cannot open file '{}'", file);
@@ -284,8 +286,8 @@ bool LoadOldSaveGame(const std::string &file)
 	LoadOldMainProc *proc = nullptr;
 
 	switch (type) {
-		case SGT_TTO: proc = &LoadTTOMain; break;
-		case SGT_TTD: proc = &LoadTTDMain; break;
+		case SavegameType::TTO: proc = &LoadTTOMain; break;
+		case SavegameType::TTD: proc = &LoadTTDMain; break;
 		default: break;
 	}
 
@@ -312,7 +314,7 @@ bool LoadOldSaveGame(const std::string &file)
 
 void GetOldSaveGameName(const std::string &file, char *title, const char *last)
 {
-	auto f = FioFOpenFile(file, "rb", NO_DIRECTORY);
+	auto f = FioFOpenFile(file, "rb", Subdirectory::None);
 
 	if (!f.has_value()) {
 		*title = '\0';

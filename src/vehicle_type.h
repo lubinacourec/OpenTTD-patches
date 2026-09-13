@@ -10,6 +10,8 @@
 #ifndef VEHICLE_TYPE_H
 #define VEHICLE_TYPE_H
 
+#include "strings_type_trait.h"
+#include "window_type_trait.h"
 #include "core/enum_type.hpp"
 #include "core/pool_type.hpp"
 
@@ -20,27 +22,30 @@ using VehicleID = PoolID<VehicleIDTag>;
 static const int GROUND_ACCELERATION = 9800; ///< Acceleration due to gravity, 9.8 m/s^2
 
 /** Available vehicle types. It needs to be 8bits, because we save and load it as such */
-enum VehicleType : uint8_t {
-	VEH_BEGIN,
+enum class VehicleType : uint8_t {
+	Begin, ///< Begin marker.
 
-	VEH_TRAIN = VEH_BEGIN,        ///< %Train vehicle type.
-	VEH_ROAD,                     ///< Road vehicle type.
-	VEH_SHIP,                     ///< %Ship vehicle type.
-	VEH_AIRCRAFT,                 ///< %Aircraft vehicle type.
+	Train = VehicleType::Begin, ///< %Train vehicle type.
+	Road, ///< Road vehicle type.
+	Ship, ///< %Ship vehicle type.
+	Aircraft, ///< %Aircraft vehicle type.
 
-	VEH_COMPANY_END,              ///< Last company-ownable type.
+	CompanyEnd, ///< Last company-ownable type.
 
-	VEH_EFFECT = VEH_COMPANY_END, ///< Effect vehicle type (smoke, explosions, sparks, bubbles)
-	VEH_DISASTER,                 ///< Disaster vehicle type.
+	Effect = VehicleType::CompanyEnd, ///< Effect vehicle type (smoke, explosions, sparks, bubbles)
+	Disaster, ///< Disaster vehicle type.
+	End, ///< End marker.
 
-	VEH_END,
-	VEH_INVALID = 0xFF,           ///< Non-existing type of vehicle.
+	Invalid = 0xFF, ///< Non-existing type of vehicle.
 };
 DECLARE_INCREMENT_DECREMENT_OPERATORS(VehicleType)
 DECLARE_ENUM_AS_ADDABLE(VehicleType)
+DECLARE_CONVERTIBLE_TO_WINDOW_NUMBER(VehicleType)
+DECLARE_CONVERTIBLE_TO_WINDOW_INVALIDATION_DATA(VehicleType)
+DECLARE_SCOPED_ENUM_CONVERTIBLE_TO_STRING_PARAMETER(VehicleType)
 
 using VehicleTypeMask = uint8_t;
-static_assert(VEH_END <= 8);
+static_assert(to_underlying(VehicleType::End) <= 8);
 
 struct Vehicle;
 struct Train;
@@ -52,7 +57,7 @@ struct DisasterVehicle;
 
 /** Base vehicle class. */
 struct BaseVehicle {
-	VehicleType type = VEH_INVALID; ///< Type of vehicle
+	VehicleType type = VehicleType::Invalid; ///< Type of vehicle
 };
 
 /** Flags for goto depot commands. */
@@ -63,6 +68,8 @@ enum class DepotCommandFlag : uint8_t {
 	Specific,    ///< Send vehicle to specific depot
 	Sell,        ///< Go to depot and sell order
 };
+
+/** Bitset of \c DepotCommandFlag elements. */
 using DepotCommandFlags = EnumBitSet<DepotCommandFlag, uint8_t>;
 
 static const uint MAX_LENGTH_VEHICLE_NAME_CHARS = 128; ///< The maximum length of a vehicle name in characters including '\0'
@@ -89,9 +96,9 @@ enum BreakdownType {
 };
 
 /** Vehicle acceleration models. */
-enum AccelerationModel : uint8_t {
-	AM_ORIGINAL,
-	AM_REALISTIC,
+enum class AccelerationModel : uint8_t {
+	Original, ///< Original acceleration model.
+	Realistic, ///< "Realistic" acceleration model.
 };
 
 /** Train braking models. */
@@ -107,13 +114,13 @@ enum TrainRealisticBrakingAspectLimitedMode {
 };
 
 /** Visualisation contexts of vehicles and engines. */
-enum EngineImageType : uint8_t {
-	EIT_ON_MAP     = 0x00,  ///< Vehicle drawn in viewport.
-	EIT_IN_DEPOT   = 0x10,  ///< Vehicle drawn in depot.
-	EIT_IN_DETAILS = 0x11,  ///< Vehicle drawn in vehicle details, refit window, ...
-	EIT_IN_LIST    = 0x12,  ///< Vehicle drawn in vehicle list, group list, ...
-	EIT_PURCHASE   = 0x20,  ///< Vehicle drawn in purchase list, autoreplace gui, ...
-	EIT_PREVIEW    = 0x21,  ///< Vehicle drawn in preview window, news, ...
+enum class EngineImageType : uint8_t {
+	OnMap = 0x00, ///< Vehicle drawn in viewport.
+	InDepot = 0x10, ///< Vehicle drawn in depot.
+	InDetails = 0x11, ///< Vehicle drawn in vehicle details, refit window, ...
+	InList = 0x12, ///< Vehicle drawn in vehicle list, group list, ...
+	Purchase = 0x20, ///< Vehicle drawn in purchase list, autoreplace gui, ...
+	Preview = 0x21, ///< Vehicle drawn in preview window, news, ...
 };
 
 /** Randomisation triggers for vehicles */
@@ -124,8 +131,29 @@ enum class VehicleRandomTrigger : uint8_t {
 	AnyNewCargo, ///< All vehicles in consist: Any vehicle in the consist received new cargo.
 	Callback32, ///< All vehicles in consist: 32 day callback requested rerandomisation
 };
+
+/** Bitset of \c VehicleRandomTrigger elements. */
 using VehicleRandomTriggers = EnumBitSet<VehicleRandomTrigger, uint8_t>;
 
+/**
+ * Array with \c VehicleType as index.
+ * @tparam T the type contained within the array.
+ * @tparam Tend the number of elements in the array.
+ */
+template <typename T, VehicleType Tend = VehicleType::CompanyEnd>
+using VehicleTypeIndexArray = EnumClassIndexContainer<std::array<T, to_underlying(Tend)>, VehicleType>;
+
 static const uint32_t VEHICLE_NAME_NO_GROUP = 0x80000000; ///< String constant to not include the vehicle's group name, if using the long name format
+
+/** Ground vehicle flags. */
+enum class GroundVehicleFlag : uint8_t {
+	GoingUp                = 0, ///< Vehicle is currently going uphill. (Cached track information for acceleration)
+	GoingDown              = 1, ///< Vehicle is currently going downhill. (Cached track information for acceleration)
+	SuppressImplicitOrders = 2, ///< Disable insertion and removal of automatic orders until the vehicle completes the real order.
+	Chunnel                = 3, ///< Vehicle may currently be in a chunnel. (Cached track information for inclination changes)
+};
+
+/** Bitset of \c GroundVehicleFlag elements. */
+using GroundVehicleFlags = EnumBitSet<GroundVehicleFlag, uint16_t>;
 
 #endif /* VEHICLE_TYPE_H */

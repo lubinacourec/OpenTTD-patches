@@ -10,8 +10,17 @@
 #ifndef BRIDGE_H
 #define BRIDGE_H
 
-#include "gfx_type.h"
-#include "tile_cmd.h"
+#include "command_type_fwd_declare.h"
+#include "date_type.h"
+#include "direction_type.h"
+#include "slope_type.h"
+#include "sprite_id_type.h"
+#include "strings_id_type.h"
+#include "tile_type.h"
+#include "transport_type.h"
+#include <vector>
+
+struct TileInfo;
 
 /**
  * This enum is related to the definition of bridge pieces,
@@ -107,6 +116,20 @@ struct BridgePieceDebugInfo {
 	uint pillar_index;
 };
 BridgePieceDebugInfo GetBridgePieceDebugInfo(TileIndex tile);
+
+struct BridgeAboveInfo {
+	TileIndex northern_end;
+	TileIndex southern_end;
+	int height;
+	BridgeType bridge_type;
+	TransportType transport_type;
+};
+BridgeAboveInfo GetBridgeAboveInfo(TileIndex tile);
+
+inline BridgePiecePillarFlags GetBridgeTilePillarFlags(TileIndex tile, const BridgeAboveInfo &bridge_above)
+{
+	return GetBridgeTilePillarFlags(tile, bridge_above.northern_end, bridge_above.southern_end, bridge_above.bridge_type, bridge_above.transport_type);
+}
 
 void ResetBridges();
 

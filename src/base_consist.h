@@ -42,6 +42,7 @@ enum class VehicleFlag : uint8_t {
 	PathfinderLost              = 7, ///< Vehicle's pathfinder is lost.
 	ServiceIntervalIsCustom     = 8, ///< Service interval is custom.
 	ServiceIntervalIsPercent    = 9, ///< Service interval is percent.
+	DrivingBackwards            = 10, ///< Vehicle is driving backwards.
 	/* gap, above are common with upstream */
 	SeparationActive            = 11, ///< Whether timetable auto-separation is currently active.
 	ScheduledDispatch           = 12, ///< Whether the vehicle should follow a timetabled dispatching schedule.
@@ -52,6 +53,8 @@ enum class VehicleFlag : uint8_t {
 	ConditionalOrderWait        = 17, ///< Vehicle is waiting due to conditional order loop.
 	ReplacementPending          = 18, ///< Autoreplace or template replacement is pending, vehicle should visit the depot.
 };
+
+/** Bitset of \c VehicleFlag elements. */
 using VehicleFlags = EnumBitSet<VehicleFlag, uint32_t>;
 
 /** Various front vehicle properties that are preserved when autoreplacing, using order-backup or switching front engines within a consist. */

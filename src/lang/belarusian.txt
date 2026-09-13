@@ -1618,8 +1618,8 @@ STR_CONFIG_SETTING_CONSTRUCTION_COSTS_HELPTEXT                  :Усталюй�
 STR_CONFIG_SETTING_RECESSIONS                                   :Спады: {STRING}
 STR_CONFIG_SETTING_RECESSIONS_HELPTEXT                          :Калі ўключана, у гульні часам адбываюцца эканамічныя крызісы. Падчас крызісу аб'ёмы вытворчасьці значна змяншаюцца (і вяртаюцца да ранейшага ўзроўня, калі крызіс сканчаецца).
 
-STR_CONFIG_SETTING_TRAIN_REVERSING                              :Забараніць разварот цягнікоў на станцыях: {STRING}
-STR_CONFIG_SETTING_TRAIN_REVERSING_HELPTEXT                     :Калі ўключана, цягнікі ня будуць разварочвацца на прахадных станцыях, нават калі гэта дазволіць скараціць шлях да наступнага пункта прызначэньня.
+
+###length 3
 
 STR_CONFIG_SETTING_DISASTERS                                    :Бедствы: {STRING}
 STR_CONFIG_SETTING_DISASTERS_HELPTEXT                           :Пераключыце бедствы, якія могуць час ад часу блякаваць ці зьнішчаць транспартныя сродкі ды інфраструктуру
@@ -1642,7 +1642,6 @@ STR_CONFIG_SETTING_CATCHMENT_HELPTEXT                           :Мець роз
 
 STR_CONFIG_SETTING_SERVE_NEUTRAL_INDUSTRIES                     :Прадпрыемствы з уласнымі станцыямі выкарыстоўваюць станцыі гульцоў: {STRING}
 STR_CONFIG_SETTING_SERVE_NEUTRAL_INDUSTRIES_HELPTEXT            :Пры ўключэнні - прадпрыемствы, якія маюць уласныя станцыі пагрузкі (напрыклад, нафтавыя платформы), змогуць абслугоўвацца таксама і станцыямі гульцоў, пабудаванымі паблізу.{}Пры адключэнні - прадпрыемствы будуць рабіць пагрузку толькі праз свае ўнутраныя станцыі, і гэтыя станцыі будуць абслугоўваць толькі сваё прадпрыемства.
-
 
 STR_CONFIG_SETTING_EXTRADYNAMITE                                :Дазволіць знос амаль усіх гарадзкіх аб'ектаў: {STRING}
 STR_CONFIG_SETTING_EXTRADYNAMITE_HELPTEXT                       :Спрасьціць знос гарадзкіх будынкаў ды інфраструктуры
@@ -1823,6 +1822,8 @@ STR_CONFIG_SETTING_INDUSTRY_CARGO_SCALE                         :Множнік 
 STR_CONFIG_SETTING_INDUSTRY_CARGO_SCALE_HELPTEXT                :Памножыць прадуктыўнасьць прадпрыемстваў на паказанае значэнне.
 STR_CONFIG_SETTING_CARGO_SCALE_VALUE                            :{NUM}%
 
+###setting-zero-is-special
+
 STR_CONFIG_SETTING_AUTORENEW_VEHICLE                            :Аўтазамена старых транспартных сродкаў: {STRING}
 STR_CONFIG_SETTING_AUTORENEW_VEHICLE_HELPTEXT                   :Калі ўключана, транспарт напрыканцы свайго пэўнага тэрміна службы будзе аўтаматычна заменены, калі ўмовы замены будуць выкананыя.
 
@@ -1891,6 +1892,8 @@ STR_CONFIG_SETTING_ROUGHNESS_OF_TERRAIN_VERY_SMOOTH             :Вельмі г
 STR_CONFIG_SETTING_ROUGHNESS_OF_TERRAIN_SMOOTH                  :Гладкі
 STR_CONFIG_SETTING_ROUGHNESS_OF_TERRAIN_ROUGH                   :Грубы
 STR_CONFIG_SETTING_ROUGHNESS_OF_TERRAIN_VERY_ROUGH              :Вельмі грубы
+
+###length 4
 
 STR_CONFIG_SETTING_VARIETY                                      :Разнастайнасць ландшафту: {STRING}
 STR_CONFIG_SETTING_VARIETY_HELPTEXT                             :Вызначае наяўнасць на карце як горных, так і раўнінных абласцей. Чым вышэй разнастайнасць, тым вышэй розніца ў вышыні паміж гэтымі зонамі.
@@ -2048,12 +2051,7 @@ STR_CONFIG_SETTING_TIMETABLE_SHOW_ARRIVAL_DEPARTURE_HELPTEXT    :Паказва�
 STR_CONFIG_SETTING_QUICKGOTO                                    :Хуткае стварэньне заданьняў транспарту: {STRING}
 STR_CONFIG_SETTING_QUICKGOTO_HELPTEXT                           :Пры адкрыцьці вакна заданьняў курсор аўтаматычна будзе ўключаны ў рэжым "Ісьці да".
 
-STR_CONFIG_SETTING_DEFAULT_RAIL_TYPE                            :Тып чыгункі па змоўчанні (пасьля старту/загрузкі): {STRING}
-STR_CONFIG_SETTING_DEFAULT_RAIL_TYPE_HELPTEXT                   :Тып чыгункі, якая аўтаматычна выбіраецца на пачатку гульні. "Першыя даступныя" выбірае найстарэйшы тып чыгункі, "апошнія даступныя" выбірае найноўшы, а "найбольш ужывальныя" выбірае чыгунку, якая найчасьцей выкарыстоўваецца.
 ###length 3
-STR_CONFIG_SETTING_DEFAULT_RAIL_TYPE_FIRST                      :першыя даступныя
-STR_CONFIG_SETTING_DEFAULT_RAIL_TYPE_LAST                       :апошнія даступныя
-STR_CONFIG_SETTING_DEFAULT_RAIL_TYPE_MOST_USED                  :найбольш ужывальныя
 
 STR_CONFIG_SETTING_SHOW_TRACK_RESERVATION                       :Паказваць зарэзерваваныя каляiны: {STRING}
 STR_CONFIG_SETTING_SHOW_TRACK_RESERVATION_HELPTEXT              :Зарэзэрваваныя рэйкі будуць мець адрозны колер. Дапамагае вырашыць праблему, калі цягнік адмаўляецца заехаць у блёк з маршрутнымі сьветлафорамі.
@@ -2156,6 +2154,7 @@ STR_CONFIG_SETTING_STATION_LENGTH_LOADING_PENALTY_HELPTEXT      :Пры ўклю
 
 STR_CONFIG_SETTING_WAGONSPEEDLIMITS                             :Уключыць абмежаваньне хуткасьці ваґонаў: {STRING}
 STR_CONFIG_SETTING_WAGONSPEEDLIMITS_HELPTEXT                    :Калі ўключана, выкарыстоўваць таксама й ліміты хуткасьці ў асобных ваґонаў для вызначэньня максымальнай хуткасьці ўсяго цягніка.
+
 
 STR_CONFIG_SETTING_DISABLE_ELRAILS                              :Адключыць электрыфікаваную чыгунку: {STRING}
 STR_CONFIG_SETTING_DISABLE_ELRAILS_HELPTEXT                     :Уключэньне гэтай наладкі скасуе неабходнасьць электрыфікаваць чыгунку для запуску цягнікоў на электрычнай цязе.
@@ -2471,7 +2470,7 @@ STR_CONFIG_ERROR_INVALID_BASE_GRAPHICS_NOT_FOUND                :{WHITE}... на
 STR_CONFIG_ERROR_INVALID_BASE_SOUNDS_NOT_FOUND                  :{WHITE}... набор гукаў "{STRING}" ня знойдзены
 STR_CONFIG_ERROR_INVALID_BASE_MUSIC_NOT_FOUND                   :{WHITE}... набор музыкі "{STRING}" ня знойдзены
 
-# Video initalization errors
+# Video initialization errors
 STR_VIDEO_DRIVER_ERROR                                          :{WHITE}Памылка ў наладках графікі...
 STR_VIDEO_DRIVER_ERROR_NO_HARDWARE_ACCELERATION                 :{WHITE}... не знойдзена сумяшчальнага графічнага працэсара. Апаратнае паскарэньне адключана.
 STR_VIDEO_DRIVER_ERROR_HARDWARE_ACCELERATION_CRASH              :{WHITE}... драйвер відэакарты выклікаў крытычную памылку. Апаратнае паскарэньне адключана.
@@ -2724,15 +2723,13 @@ STR_NETWORK_CONNECTING_WAITING                                  :{BLACK}{NUM} к
 STR_NETWORK_CONNECTING_DOWNLOADING_1                            :{BLACK}{BYTES} запампавана
 STR_NETWORK_CONNECTING_DOWNLOADING_2                            :{BLACK}Запампавана {BYTES} / {BYTES}
 
-###length 8
+###length 6
 STR_NETWORK_CONNECTING_1                                        :{BLACK}(1/6) Злучэньне...
 STR_NETWORK_CONNECTING_2                                        :{BLACK}(2/6) Аўтарызацыя...
 STR_NETWORK_CONNECTING_3                                        :{BLACK}(3/6) Чаканьне...
 STR_NETWORK_CONNECTING_4                                        :{BLACK}(4/6) Запампоўваньне мапы...
 STR_NETWORK_CONNECTING_5                                        :{BLACK}(5/6) Апрацоўка даных...
 STR_NETWORK_CONNECTING_6                                        :{BLACK}(6/6) Рэґістрацыя...
-STR_NETWORK_CONNECTING_SPECIAL_1                                :{BLACK}Здабыцьцё інфармацыі аб гульні...
-STR_NETWORK_CONNECTING_SPECIAL_2                                :{BLACK}Здабыцьцё інфармацыі пра кампаніі...
 
 STR_NETWORK_CONNECTION_DISCONNECT                               :{BLACK}Адлучыцца
 
@@ -3113,7 +3110,6 @@ STR_STATION_CLASS_WAYP_WAYPOINT                                 :Стандар�
 
 # Signal window
 STR_BUILD_SIGNAL_CAPTION                                        :{WHITE}Выбар сыґналаў
-STR_BUILD_SIGNAL_TOGGLE_ADVANCED_SIGNAL_TOOLTIP                 :{BLACK}Пераключыць адлюстраваньне пашыранага сьпісу сыґналаў
 STR_BUILD_SIGNAL_SEMAPHORE_NORM_TOOLTIP                         :{BLACK}Звычайны сэмафор.{}Не дазваляе некалькім цягнікам адначасова знаходзіцца на адным блёк-участку.
 STR_BUILD_SIGNAL_SEMAPHORE_ENTRY_TOOLTIP                        :{BLACK}Уваходны сэмафор (прэсыґнал).{}Адкрыты, калі хаця б адзін з выхадных сыґналаў на наступнай сэкцыі каляіны адкрыты. У астатніх выпадках закрыты.
 STR_BUILD_SIGNAL_SEMAPHORE_EXIT_TOOLTIP                         :{BLACK}Выхадны сэмафор (прэсыґнал).{}Працуе як звычайны сэмафор, але яго стан улічваецца ў працы ўваходных і камбінаваных сыґналаў.
@@ -4216,10 +4212,10 @@ STR_COMPANY_INFRASTRUCTURE_VIEW_TOTAL_PERIOD                    :{WHITE}{CURRENC
 STR_INDUSTRY_DIRECTORY_NONE                                     :{ORANGE}- Няма -
 STR_INDUSTRY_DIRECTORY_ITEM_INFO                                :{BLACK}{CARGO_LONG}{STRING}{YELLOW} ({COMMA}% перавезена)
 STR_INDUSTRY_DIRECTORY_ITEM_NOPROD                              :{ORANGE}{INDUSTRY}
-STR_INDUSTRY_DIRECTORY_ITEM_PROD1                               :{ORANGE}{INDUSTRY} {STRING}
-STR_INDUSTRY_DIRECTORY_ITEM_PROD2                               :{ORANGE}{INDUSTRY} {STRING}, {STRING}
-STR_INDUSTRY_DIRECTORY_ITEM_PROD3                               :{ORANGE}{INDUSTRY} {STRING}, {STRING}, {STRING}
-STR_INDUSTRY_DIRECTORY_ITEM_PRODMORE                            :{ORANGE}{INDUSTRY} {STRING}, {STRING}, {STRING} і яшчэ {NUM}...
+STR_INDUSTRY_DIRECTORY_ITEM_PROD1                               :{ORANGE}{INDUSTRY} {BLACK}{STRING}
+STR_INDUSTRY_DIRECTORY_ITEM_PROD2                               :{ORANGE}{INDUSTRY} {BLACK}{STRING}, {STRING}
+STR_INDUSTRY_DIRECTORY_ITEM_PROD3                               :{ORANGE}{INDUSTRY} {BLACK}{STRING}, {STRING}, {STRING}
+STR_INDUSTRY_DIRECTORY_ITEM_PRODMORE                            :{ORANGE}{INDUSTRY} {BLACK}{STRING}, {STRING}, {STRING} і яшчэ {NUM}...
 STR_INDUSTRY_DIRECTORY_LIST_TOOLTIP                             :{BLACK}Сьпіс прадпрыемстваў: пстрычка па назьве паказвае прадпрыемства ў асноўным вакне. Ctrl+клік - у дадатковым вакне.
 STR_INDUSTRY_DIRECTORY_ACCEPTED_CARGO_FILTER                    :{BLACK}Прыманы груз: {SILVER}{STRING}
 STR_INDUSTRY_DIRECTORY_PRODUCED_CARGO_FILTER                    :{BLACK}Выраблены груз: {SILVER}{STRING}
@@ -4365,6 +4361,8 @@ STR_PURCHASE_INFO_ALL_BUT                                       :Усё, акр�
 STR_PURCHASE_INFO_MAX_TE                                        :{BLACK}Макс. цягавае намаганьне: {GOLD}{FORCE}
 STR_PURCHASE_INFO_AIRCRAFT_RANGE                                :{BLACK}Далёкасьць: {GOLD}{COMMA} клет{P ка кi ак}
 STR_PURCHASE_INFO_AIRCRAFT_TYPE                                 :{BLACK}Тып паветр. судна: {GOLD}{STRING}
+
+# Vehicle sort details
 
 ###length 3
 STR_CARGO_TYPE_FILTER_ALL                                       :Усе тыпы грузаў
@@ -4725,7 +4723,6 @@ STR_VEHICLE_INFO_PROFIT_THIS_YEAR_LAST_YEAR                     :{BLACK}Прыб
 STR_VEHICLE_INFO_PROFIT_THIS_YEAR_LAST_YEAR_MIN_PERFORMANCE     :{BLACK}Прыбытак сёлета: {LTBLUE}{CURRENCY_LONG} (летась: {CURRENCY_LONG}) {BLACK}Мін. удзельная магутн.: {LTBLUE}{POWER_TO_WEIGHT}
 STR_VEHICLE_INFO_PROFIT_THIS_PERIOD_LAST_PERIOD                 :{BLACK}Прыбытак у бягучым цыкле: {LTBLUE}{CURRENCY_LONG} (у мінулым: {CURRENCY_LONG})
 STR_VEHICLE_INFO_PROFIT_THIS_PERIOD_LAST_PERIOD_MIN_PERFORMANCE :{BLACK}Прыбытак у бягучым цыкле: {LTBLUE}{CURRENCY_LONG} (у мінулым: {CURRENCY_LONG}) {BLACK}Мін. удзельная магут.: {LTBLUE}{POWER_TO_WEIGHT}
-STR_VEHICLE_INFO_RELIABILITY_BREAKDOWNS                         :{BLACK}Надзейнасьць: {LTBLUE}{COMMA}%  {BLACK}Паломак з апошняга агляду: {LTBLUE}{COMMA}
 
 STR_VEHICLE_INFO_BUILT_VALUE                                    :{LTBLUE}{ENGINE} {BLACK}Пабудаваны ў: {LTBLUE}{NUM} г.{BLACK} Кошт: {LTBLUE}{CURRENCY_LONG}
 STR_VEHICLE_INFO_NO_CAPACITY                                    :{BLACK}Ёмiстасьць: {LTBLUE}адсутнiчае{STRING}
@@ -4865,7 +4862,7 @@ STR_ORDER_HANGAR_ACTION_TOOLTIP                                 :{BLACK}Выбе
 STR_ORDER_CONDITIONAL_VARIABLE_TOOLTIP                          :{BLACK}Парамэтр транспарту для параўнаньня
 
 # Conditional order variables, must follow order of OrderConditionVariable enum
-###length 8
+###length 9
 STR_ORDER_CONDITIONAL_LOAD_PERCENTAGE                           :Адсотак пагрузкі
 STR_ORDER_CONDITIONAL_RELIABILITY                               :Надзейнасьць
 STR_ORDER_CONDITIONAL_MAX_SPEED                                 :Макс. хуткасьць
@@ -5264,7 +5261,6 @@ STR_ERROR_CAN_T_GENERATE_TOWN                                   :{WHITE}Нема
 STR_ERROR_CAN_T_RENAME_TOWN                                     :{WHITE}Немагчыма перайменаваць горад...
 STR_ERROR_CAN_T_FOUND_TOWN_HERE                                 :{WHITE}Тут немагчыма пабудаваць горад...
 STR_ERROR_CAN_T_EXPAND_TOWN                                     :{WHITE}Немагчыма пашырыць горад...
-STR_ERROR_TOO_CLOSE_TO_EDGE_OF_MAP_SUB                          :{WHITE}... занадта блізка да краю мапы
 STR_ERROR_TOO_CLOSE_TO_ANOTHER_TOWN                             :{WHITE}... занадта блізка да іншага горада
 STR_ERROR_TOO_MANY_TOWNS                                        :{WHITE}... занадта шмат гарадоў
 STR_ERROR_NO_SPACE_FOR_TOWN                                     :{WHITE}... няма месца на мапе

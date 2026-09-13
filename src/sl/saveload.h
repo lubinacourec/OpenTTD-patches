@@ -13,10 +13,9 @@
 #include "saveload_types.h"
 #include "../fileio_type.h"
 #include "../fios.h"
-#include "../strings_type.h"
+#include "../strings_id_type.h"
 #include "../scope.h"
 #include "../3rdparty/cpp-ring-buffer/ring_buffer.hpp"
-#include "../core/tinystring_type.hpp"
 #include "../core/type_util.hpp"
 #include "../core/strong_typedef_type.hpp"
 
@@ -26,57 +25,20 @@
 #include <string>
 #include <type_traits>
 
-/** Save or load result codes. */
-enum SaveOrLoadResult {
-	SL_OK     = 0, ///< completed successfully
-	SL_ERROR  = 1, ///< error that was caught before internal structures were modified
-	SL_REINIT = 2, ///< error that was caught in the middle of updating game state, need to clear it. (can only happen during load)
-};
-
-/** Deals with the type of the savegame, independent of extension */
-struct FileToSaveLoad {
-	SaveLoadOperation file_op;       ///< File operation to perform.
-	FiosType ftype;                  ///< File type.
-	std::string name;                ///< Name of the file.
-	EncodedString title;             ///< Internal name of the game.
-
-	void SetMode(const FiosType &ft, SaveLoadOperation fop = SLO_LOAD);
-	void Set(const FiosItem &item);
-};
+class TinyString;
 
 /** Types of save games. */
-enum SavegameType {
-	SGT_TTD,    ///< TTD  savegame (can be detected incorrectly)
-	SGT_TTDP1,  ///< TTDP savegame ( -//- ) (data at NW border)
-	SGT_TTDP2,  ///< TTDP savegame in new format (data at SE border)
-	SGT_OTTD,   ///< OTTD savegame
-	SGT_TTO,    ///< TTO savegame
-	SGT_INVALID = 0xFF, ///< broken savegame (used internally)
+enum class SavegameType : uint8_t {
+	TTD,            ///< TTD savegame (can be detected incorrectly)
+	TTDP1,          ///< TTDP savegame ( -//- ) (data at NW border)
+	TTDP2,          ///< TTDP savegame in new format (data at SE border)
+	OTTD,           ///< OTTD savegame
+	TTO,            ///< TTO savegame
+	Invalid = 0xFF, ///< broken savegame (used internally)
 };
 
-enum SaveModeFlags : uint8_t {
-	SMF_NONE             = 0,
-	SMF_NET_SERVER       = 1 << 0, ///< Network server save
-	SMF_ZSTD_OK          = 1 << 1, ///< Zstd OK
-	SMF_SCENARIO         = 1 << 2, ///< Scenario save
-};
-DECLARE_ENUM_AS_BIT_SET(SaveModeFlags);
-
-extern FileToSaveLoad _file_to_saveload;
-
-std::string GenerateDefaultSaveName();
 void SetSaveLoadError(StringID str);
-EncodedString GetSaveLoadErrorType();
-EncodedString GetSaveLoadErrorMessage();
-SaveOrLoadResult SaveOrLoad(const std::string &filename, SaveLoadOperation fop, DetailedFileType dft, Subdirectory sb, bool threaded = true, SaveModeFlags flags = SMF_NONE);
-void WaitTillSaved();
-void ProcessAsyncSaveFinish();
-void DoExitSave();
 
-void DoAutoOrNetsave(FiosNumberedSaveName &counter, bool threaded, FiosNumberedSaveName *lt_counter = nullptr);
-
-SaveOrLoadResult SaveWithFilter(std::shared_ptr<struct SaveFilter> writer, bool threaded, SaveModeFlags flags);
-SaveOrLoadResult LoadWithFilter(std::shared_ptr<struct LoadFilter> reader);
 bool IsNetworkServerSave();
 bool IsScenarioSave();
 
@@ -101,15 +63,15 @@ enum ChunkSaveLoadSpecialOpResult {
 typedef ChunkSaveLoadSpecialOpResult ChunkSaveLoadSpecialProc(uint32_t, ChunkSaveLoadSpecialOp);
 
 /** Type of a chunk. */
-enum ChunkType {
-	CH_RIFF         = 0,
-	CH_ARRAY        = 1,
-	CH_SPARSE_ARRAY = 2,
-	CH_TABLE        = 3,
-	CH_SPARSE_TABLE = 4,
-	CH_EXT_HDR      = 15, ///< Extended chunk header
+enum class ChunkType : uint8_t {
+	Riff           = 0,  ///< 4 bits store the chunk type, 28 bits the number of bytes.
+	Array          = 1,  ///< Contiguous array of elements starting at index 0.
+	SparseArray    = 2,  ///< Array of elements with index for each element.
+	Table          = 3,  ///< An \c Array with a header describing the elements.
+	SparseTable    = 4,  ///< A \c SparseArray with a header describing the elements.
+	ExtendedHeader = 15, ///< Extended chunk header
 
-	CH_READONLY = 0x80,
+	ReadOnly       = 0x80,
 };
 
 /** Handlers and description of chunk. */
@@ -163,13 +125,23 @@ struct SaveUpstreamFeatureConditionalLoadUpstreamChunkInfo
 	}
 };
 
+inline ChunkId ChunkIdAsLabel(uint32_t id)
+{
+	ChunkId label{};
+	label[0] = static_cast<uint8_t>(id >> 24);
+	label[1] = static_cast<uint8_t>(id >> 16);
+	label[2] = static_cast<uint8_t>(id >> 8);
+	label[3] = static_cast<uint8_t>(id);
+	return label;
+}
+
 namespace upstream_sl {
 	template <uint32_t id, typename F>
 	ChunkHandler MakeUpstreamChunkHandler()
 	{
-		extern void SlLoadChunkByID(uint32_t);
-		extern void SlLoadCheckChunkByID(uint32_t);
-		extern void SlFixPointerChunkByID(uint32_t);
+		extern void SlLoadChunkByID(ChunkId);
+		extern void SlLoadCheckChunkByID(ChunkId);
+		extern void SlFixPointerChunkByID(ChunkId);
 
 		ChunkHandler ch = {
 			id,
@@ -177,24 +149,24 @@ namespace upstream_sl {
 			SlUnreachablePlaceholder,
 			SlUnreachablePlaceholder,
 			SlUnreachablePlaceholder,
-			CH_READONLY
+			ChunkType::ReadOnly
 		};
 		ch.special_proc = [](uint32_t chunk_id, ChunkSaveLoadSpecialOp op) -> ChunkSaveLoadSpecialOpResult {
 			assert(id == chunk_id);
 			switch (op) {
 				case CSLSO_PRE_LOAD:
 					SlExecWithSlVersion(F::GetLoadVersion(), []() {
-						SlLoadChunkByID(id);
+						SlLoadChunkByID(ChunkIdAsLabel(id));
 					});
 					return CSLSOR_LOAD_CHUNK_CONSUMED;
 				case CSLSO_PRE_LOADCHECK:
 					SlExecWithSlVersion(F::GetLoadVersion(), []() {
-						SlLoadCheckChunkByID(id);
+						SlLoadCheckChunkByID(ChunkIdAsLabel(id));
 					});
 					return CSLSOR_LOAD_CHUNK_CONSUMED;
 				case CSLSO_PRE_PTRS:
 					SlExecWithSlVersion(F::GetLoadVersion(), []() {
-						SlFixPointerChunkByID(id);
+						SlFixPointerChunkByID(ChunkIdAsLabel(id));
 					});
 					return CSLSOR_LOAD_CHUNK_CONSUMED;
 				case CSLSO_PRE_NULL_PTRS:
@@ -211,9 +183,9 @@ namespace upstream_sl {
 	template <uint32_t id, typename F>
 	ChunkHandler MakeConditionallyUpstreamChunkHandler(ChunkSaveLoadProc *save_proc, ChunkSaveLoadProc *load_proc, ChunkSaveLoadProc *ptrs_proc, ChunkSaveLoadProc *load_check_proc, ChunkType type)
 	{
-		extern void SlLoadChunkByID(uint32_t);
-		extern void SlLoadCheckChunkByID(uint32_t);
-		extern void SlFixPointerChunkByID(uint32_t);
+		extern void SlLoadChunkByID(ChunkId);
+		extern void SlLoadCheckChunkByID(ChunkId);
+		extern void SlFixPointerChunkByID(ChunkId);
 
 		ChunkHandler ch = {
 			id,
@@ -229,19 +201,19 @@ namespace upstream_sl {
 				case CSLSO_PRE_LOAD:
 					if (!F::LoadUpstream()) return CSLSOR_NONE;
 					SlExecWithSlVersion(F::GetLoadVersion(), []() {
-						SlLoadChunkByID(id);
+						SlLoadChunkByID(ChunkIdAsLabel(id));
 					});
 					return CSLSOR_LOAD_CHUNK_CONSUMED;
 				case CSLSO_PRE_LOADCHECK:
 					if (!F::LoadUpstream()) return CSLSOR_NONE;
 					SlExecWithSlVersion(F::GetLoadVersion(), []() {
-						SlLoadCheckChunkByID(id);
+						SlLoadCheckChunkByID(ChunkIdAsLabel(id));
 					});
 					return CSLSOR_LOAD_CHUNK_CONSUMED;
 				case CSLSO_PRE_PTRS:
 					if (!F::LoadUpstream()) return CSLSOR_NONE;
 					SlExecWithSlVersion(F::GetLoadVersion(), []() {
-						SlFixPointerChunkByID(id);
+						SlFixPointerChunkByID(ChunkIdAsLabel(id));
 					});
 					return CSLSOR_LOAD_CHUNK_CONSUMED;
 				case CSLSO_PRE_NULL_PTRS:
@@ -259,7 +231,7 @@ namespace upstream_sl {
 	template <uint32_t id, SlXvFeatureIndex feature, uint16_t min_version = 1, uint16_t max_version = 0xFFFF>
 	ChunkHandler MakeSaveUpstreamFeatureConditionalLoadUpstreamChunkHandler(ChunkSaveLoadProc *load_proc, ChunkSaveLoadProc *ptrs_proc, ChunkSaveLoadProc *load_check_proc)
 	{
-		return MakeConditionallyUpstreamChunkHandler<id, SaveUpstreamFeatureConditionalLoadUpstreamChunkInfo<feature, min_version, max_version>>(nullptr, load_proc, ptrs_proc, load_check_proc, CH_READONLY);
+		return MakeConditionallyUpstreamChunkHandler<id, SaveUpstreamFeatureConditionalLoadUpstreamChunkInfo<feature, min_version, max_version>>(nullptr, load_proc, ptrs_proc, load_check_proc, ChunkType::ReadOnly);
 	}
 }
 
@@ -477,6 +449,9 @@ inline constexpr bool SlCheckVar(SaveLoadType cmd, VarType type, size_t length)
 				return SlCheckPrimitiveTypeVar<typename T::value_type>(type);
 			}
 			return false;
+
+		case SL_WRITEBYTE:
+			return sizeof(T) == 1;
 
 		default:
 			return true;
@@ -1225,8 +1200,6 @@ inline void SlLoadTableOrRiffFiltered(const NamedSaveLoadTable &slt, void *objec
 	SlLoadTableOrRiffFiltered(SlTableHeaderOrRiff(slt), object);
 }
 
-bool SaveloadCrashWithMissingNewGRFs();
-
 void SlResetVENC();
 void SlProcessVENC();
 
@@ -1236,6 +1209,5 @@ void SlResetERNC();
 void SlProcessERNC();
 
 extern std::string _savegame_format;
-extern bool _do_autosave;
 
 #endif /* SL_SAVELOAD_H */

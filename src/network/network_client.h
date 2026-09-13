@@ -22,22 +22,22 @@ private:
 	NetworkSharedSecrets last_rcon_shared_secrets{}; ///< Keys for last rcon (and incoming replies)
 
 	/** Status of the connection with the server. */
-	enum ServerStatus : uint8_t {
-		STATUS_INACTIVE,      ///< The client is not connected nor active.
-		STATUS_JOIN,          ///< We are trying to join a server.
-		STATUS_AUTH_GAME,     ///< Last action was requesting game (server) password.
-		STATUS_ENCRYPTED,     ///< The game authentication has completed and from here on the connection to the server is encrypted.
-		STATUS_NEWGRFS_CHECK, ///< Last action was checking NewGRFs.
-		STATUS_AUTH_COMPANY,  ///< Last action was requesting company password.
-		STATUS_AUTHORIZED,    ///< The client is authorized at the server.
-		STATUS_MAP_WAIT,      ///< The client is waiting as someone else is downloading the map.
-		STATUS_MAP,           ///< The client is downloading the map.
-		STATUS_ACTIVE,        ///< The client is active within in the game.
-		STATUS_CLOSING,       ///< The client connection is in the process of being closed.
-		STATUS_END,           ///< Must ALWAYS be on the end of this list!! (period)
+	enum class ServerStatus : uint8_t {
+		Inactive,     ///< The client is not connected nor active.
+		Join,         ///< We are trying to join a server.
+		AuthGame,     ///< Last action was requesting game (server) password.
+		Encrypted,    ///< The game authentication has completed and from here on the connection to the server is encrypted.
+		NewGRFsCheck, ///< Last action was checking NewGRFs.
+		AuthCompany,  ///< Last action was requesting company password.
+		Authorized,   ///< The client is authorized at the server.
+		MapWait,      ///< The client is waiting as someone else is downloading the map.
+		Map,          ///< The client is downloading the map.
+		Active,       ///< The client is active within in the game.
+		Closing,      ///< The client connection is in the process of being closed.
+		End,          ///< Must ALWAYS be on the end of this list!! (period)
 	};
 
-	ServerStatus status = STATUS_INACTIVE; ///< Status of the connection with the server.
+	ServerStatus status = ServerStatus::Inactive; ///< Status of the connection with the server.
 
 	std::optional<FileHandle> desync_log_file;
 	std::string server_desync_log;
@@ -52,36 +52,36 @@ protected:
 	friend void NetworkClose(bool close_admins);
 	static ClientNetworkGameSocketHandler *my_client; ///< This is us!
 
-	NetworkRecvStatus Receive_SERVER_FULL(Packet &p) override;
-	NetworkRecvStatus Receive_SERVER_BANNED(Packet &p) override;
-	NetworkRecvStatus Receive_SERVER_ERROR(Packet &p) override;
-	NetworkRecvStatus Receive_SERVER_CLIENT_INFO(Packet &p) override;
-	NetworkRecvStatus Receive_SERVER_AUTH_REQUEST(Packet &p) override;
-	NetworkRecvStatus Receive_SERVER_ENABLE_ENCRYPTION(Packet &p) override;
-	NetworkRecvStatus Receive_SERVER_NEED_COMPANY_PASSWORD(Packet &p) override;
-	NetworkRecvStatus Receive_SERVER_SETTINGS_ACCESS(Packet &p) override;
-	NetworkRecvStatus Receive_SERVER_WELCOME(Packet &p) override;
-	NetworkRecvStatus Receive_SERVER_WAIT(Packet &p) override;
-	NetworkRecvStatus Receive_SERVER_MAP_BEGIN(Packet &p) override;
-	NetworkRecvStatus Receive_SERVER_MAP_SIZE(Packet &p) override;
-	NetworkRecvStatus Receive_SERVER_MAP_DATA(Packet &p) override;
-	NetworkRecvStatus Receive_SERVER_MAP_DONE(Packet &p) override;
-	NetworkRecvStatus Receive_SERVER_JOIN(Packet &p) override;
-	NetworkRecvStatus Receive_SERVER_FRAME(Packet &p) override;
-	NetworkRecvStatus Receive_SERVER_SYNC(Packet &p) override;
-	NetworkRecvStatus Receive_SERVER_COMMAND(Packet &p) override;
-	NetworkRecvStatus Receive_SERVER_CHAT(Packet &p) override;
-	NetworkRecvStatus Receive_SERVER_EXTERNAL_CHAT(Packet &p) override;
-	NetworkRecvStatus Receive_SERVER_QUIT(Packet &p) override;
-	NetworkRecvStatus Receive_SERVER_ERROR_QUIT(Packet &p) override;
-	NetworkRecvStatus Receive_SERVER_DESYNC_LOG(Packet &p) override;
-	NetworkRecvStatus Receive_SERVER_SHUTDOWN(Packet &p) override;
-	NetworkRecvStatus Receive_SERVER_NEWGAME(Packet &p) override;
-	NetworkRecvStatus Receive_SERVER_RCON(Packet &p) override;
-	NetworkRecvStatus Receive_SERVER_CHECK_NEWGRFS(Packet &p) override;
-	NetworkRecvStatus Receive_SERVER_MOVE(Packet &p) override;
-	NetworkRecvStatus Receive_SERVER_COMPANY_UPDATE(Packet &p) override;
-	NetworkRecvStatus Receive_SERVER_CONFIG_UPDATE(Packet &p) override;
+	NetworkRecvStatus ReceiveServerFull(Packet &p) override;
+	NetworkRecvStatus ReceiveServerBanned(Packet &p) override;
+	NetworkRecvStatus ReceiveServerError(Packet &p) override;
+	NetworkRecvStatus ReceiveServerClientInfo(Packet &p) override;
+	NetworkRecvStatus ReceiveServerAuthenticationRequest(Packet &p) override;
+	NetworkRecvStatus ReceiveServerEnableEncryption(Packet &p) override;
+	NetworkRecvStatus ReceiveServerNeedCompanyPassword(Packet &p) override;
+	NetworkRecvStatus ReceiveServerSettingsAccess(Packet &p) override;
+	NetworkRecvStatus ReceiveServerWelcome(Packet &p) override;
+	NetworkRecvStatus ReceiveServerWaitForMap(Packet &p) override;
+	NetworkRecvStatus ReceiveServerMapBegin(Packet &p) override;
+	NetworkRecvStatus ReceiveServerMapSize(Packet &p) override;
+	NetworkRecvStatus ReceiveServerMapData(Packet &p) override;
+	NetworkRecvStatus ReceiveServerMapDone(Packet &p) override;
+	NetworkRecvStatus ReceiveServerClientJoined(Packet &p) override;
+	NetworkRecvStatus ReceiveServerFrame(Packet &p) override;
+	NetworkRecvStatus ReceiveServerSync(Packet &p) override;
+	NetworkRecvStatus ReceiveServerCommand(Packet &p) override;
+	NetworkRecvStatus ReceiveServerChat(Packet &p) override;
+	NetworkRecvStatus ReceiveServerExternalChat(Packet &p) override;
+	NetworkRecvStatus ReceiveServerQuit(Packet &p) override;
+	NetworkRecvStatus ReceiveServerErrorQuit(Packet &p) override;
+	NetworkRecvStatus ReceiveServerDesyncLog(Packet &p) override;
+	NetworkRecvStatus ReceiveServerShutdown(Packet &p) override;
+	NetworkRecvStatus ReceiveServerNewGame(Packet &p) override;
+	NetworkRecvStatus ReceiveServerRemoteConsoleCommand(Packet &p) override;
+	NetworkRecvStatus ReceiveServerCheckNewGRFs(Packet &p) override;
+	NetworkRecvStatus ReceiveServerMove(Packet &p) override;
+	NetworkRecvStatus ReceiveServerCompanyUpdate(Packet &p) override;
+	NetworkRecvStatus ReceiveServerConfigurationUpdate(Packet &p) override;
 
 	static NetworkRecvStatus SendNewGRFsOk();
 	static NetworkRecvStatus SendGetMap();
@@ -90,6 +90,11 @@ protected:
 	void CheckConnection();
 
 	NetworkRecvStatus SendKeyPasswordPacket(PacketType packet_type, NetworkSharedSecrets &ss, std::string_view password, std::optional<std::string_view> payload);
+
+	inline NetworkRecvStatus SendKeyPasswordPacket(PacketGameType packet_type, NetworkSharedSecrets &ss, std::string_view password, std::optional<std::string_view> payload)
+	{
+		return this->SendKeyPasswordPacket(static_cast<PacketType>(packet_type), ss, password, payload);
+	}
 
 public:
 	ClientNetworkGameSocketHandler(SOCKET s, std::string connection_string);
@@ -108,7 +113,7 @@ public:
 
 	static NetworkRecvStatus SendJoin();
 	static NetworkRecvStatus SendCommand(const OutgoingCommandPacket &cp);
-	static NetworkRecvStatus SendError(NetworkErrorCode errorno, NetworkRecvStatus recvstatus = NETWORK_RECV_STATUS_OKAY);
+	static NetworkRecvStatus SendError(NetworkErrorCode errorno, NetworkRecvStatus recvstatus = NetworkRecvStatus::Okay);
 	static NetworkRecvStatus SendDesyncLog(std::string_view log);
 	static NetworkRecvStatus SendDesyncMessage(std::string_view msg);
 	static NetworkRecvStatus SendDesyncSyncData();
@@ -119,7 +124,7 @@ public:
 	static NetworkRecvStatus SendCompanyPassword(std::string_view password);
 	static NetworkRecvStatus SendSettingsPassword(std::string_view password);
 
-	static NetworkRecvStatus SendChat(NetworkAction action, DestType type, int dest, std::string_view msg, NetworkTextMessageData data);
+	static NetworkRecvStatus SendChat(NetworkAction action, NetworkChatDestinationType type, int dest, std::string_view msg, NetworkTextMessageData data);
 	static NetworkRecvStatus SendSetPassword(std::string_view password);
 	static NetworkRecvStatus SendSetName(std::string_view name);
 	static NetworkRecvStatus SendRCon(std::string_view password, std::string_view command);

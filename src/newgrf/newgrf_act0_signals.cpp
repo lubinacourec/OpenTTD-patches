@@ -29,7 +29,7 @@
 static ChangeInfoResult SignalsChangeInfo(uint first, uint last, int prop, const GRFFilePropertyRemapEntry *mapping_entry, ByteReader &buf)
 {
 	/* Properties which are handled per item */
-	ChangeInfoResult ret = CIR_SUCCESS;
+	ChangeInfoResult ret = ChangeInfoResult::Success;
 	for (uint id = first; id < last; ++id) {
 		switch (prop) {
 			case A0RPI_SIGNALS_ENABLE_PROGRAMMABLE_SIGNALS:
@@ -129,7 +129,7 @@ static ChangeInfoResult SignalsChangeInfo(uint first, uint last, int prop, const
 				if (MappedPropertyLengthMismatch(buf, 4, mapping_entry)) break;
 				uint32_t mask = buf.ReadDWord();
 				if (_cur_gps.grffile->current_new_signal_style != nullptr) {
-					_cur_gps.grffile->current_new_signal_style->semaphore_mask = (uint8_t)mask;
+					_cur_gps.grffile->current_new_signal_style->semaphore_mask = static_cast<SignalTypeMask>(mask);
 				}
 				break;
 			}
@@ -138,7 +138,7 @@ static ChangeInfoResult SignalsChangeInfo(uint first, uint last, int prop, const
 				if (MappedPropertyLengthMismatch(buf, 4, mapping_entry)) break;
 				uint32_t mask = buf.ReadDWord();
 				if (_cur_gps.grffile->current_new_signal_style != nullptr) {
-					_cur_gps.grffile->current_new_signal_style->electric_mask = (uint8_t)mask;
+					_cur_gps.grffile->current_new_signal_style->electric_mask = static_cast<SignalTypeMask>(mask);
 				}
 				break;
 			}
@@ -188,5 +188,5 @@ static ChangeInfoResult SignalsChangeInfo(uint first, uint last, int prop, const
 	return ret;
 }
 
-template <> ChangeInfoResult GrfChangeInfoHandler<GSF_SIGNALS>::Reserve(uint, uint, int, const GRFFilePropertyRemapEntry *, ByteReader &) { return CIR_UNHANDLED; }
-template <> ChangeInfoResult GrfChangeInfoHandler<GSF_SIGNALS>::Activation(uint first, uint last, int prop, const GRFFilePropertyRemapEntry *mapping_entry, ByteReader &buf) { return SignalsChangeInfo(first, last, prop, mapping_entry, buf); }
+template <> ChangeInfoResult GrfChangeInfoHandler<GrfSpecFeature::Signals>::Reserve(uint, uint, int, const GRFFilePropertyRemapEntry *, ByteReader &) { return ChangeInfoResult::Unhandled; }
+template <> ChangeInfoResult GrfChangeInfoHandler<GrfSpecFeature::Signals>::Activation(uint first, uint last, int prop, const GRFFilePropertyRemapEntry *mapping_entry, ByteReader &buf) { return SignalsChangeInfo(first, last, prop, mapping_entry, buf); }

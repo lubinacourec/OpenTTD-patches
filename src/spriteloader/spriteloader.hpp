@@ -23,8 +23,10 @@ enum class SpriteComponent : uint8_t {
 	RGB     = 0, ///< Sprite has RGB.
 	Alpha   = 1, ///< Sprite has alpha.
 	Palette = 2, ///< Sprite has palette data.
-	End,
+	End, ///< End marker.
 };
+
+/** Bitset of \c SpriteComponent elements. */
 using SpriteComponents = EnumBitSet<SpriteComponent, uint8_t, SpriteComponent::End>;
 
 struct SpriteLoaderResult {
@@ -45,13 +47,13 @@ struct SpriteLoaderResult {
  */
 template <class T>
 class SpriteCollMap {
-	std::array<T, to_underlying(ZoomLevel::SpriteEnd)> data;
+	EnumIndexArray<T, ZoomLevel, ZoomLevel::SpriteEnd> data{};
 public:
-	inline constexpr T &operator[](const ZoomLevel &zoom) { return this->data[to_underlying(zoom)]; }
-	inline constexpr const T &operator[](const ZoomLevel &zoom) const { return this->data[to_underlying(zoom)]; }
+	inline constexpr T &operator[](const ZoomLevel &zoom) { return this->data[zoom]; }
+	inline constexpr const T &operator[](const ZoomLevel &zoom) const { return this->data[zoom]; }
 
-	T &Root() { return this->data[to_underlying(ZoomLevel::Min)]; }
-	const T &Root() const { return this->data[to_underlying(ZoomLevel::Min)]; }
+	T &Root() { return this->data[ZoomLevel::Min]; }
+	const T &Root() const { return this->data[ZoomLevel::Min]; }
 };
 
 /** Interface for the loader of our sprites. */
@@ -175,6 +177,7 @@ public:
 
 	/**
 	 * Can the sprite encoder make use of RGBA sprites?
+	 * @return \c true iff RGBA sprites are supported.
 	 */
 	inline bool Is32BppSupported() const
 	{
@@ -183,6 +186,10 @@ public:
 
 	/**
 	 * Convert a sprite from the loader to our own format.
+	 * @param sprite_type The type of sprite to load.
+	 * @param sprite The sprites to load.
+	 * @param allocator The allocator for the sprite's memory.
+	 * @return The encoded sprite.
 	 */
 	virtual Sprite *Encode(SpriteType sprite_type, const SpriteLoader::SpriteCollection &sprite, SpriteAllocator &allocator) = 0;
 

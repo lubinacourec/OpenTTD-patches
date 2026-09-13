@@ -38,7 +38,7 @@
 /** GUI for accessing waypoints and buoys. */
 struct WaypointWindow : Window {
 private:
-	VehicleType vt = VEH_INVALID; ///< Vehicle type using the waypoint.
+	VehicleType vt = VehicleType::Invalid; ///< Vehicle type using the waypoint.
 	Waypoint *wp = nullptr; ///< Waypoint displayed by the window.
 	bool show_hide_label = false; ///< Show hide label button
 	bool place_object_active = false;
@@ -53,15 +53,15 @@ private:
 
 		StationType type;
 		switch (this->vt) {
-			case VEH_TRAIN:
+			case VehicleType::Train:
 				type = StationType::RailWaypoint;
 				break;
 
-			case VEH_ROAD:
+			case VehicleType::Road:
 				type = StationType::RoadWaypoint;
 				break;
 
-			case VEH_SHIP:
+			case VehicleType::Ship:
 				type = StationType::Buoy;
 				break;
 
@@ -82,19 +82,19 @@ public:
 		this->invalidation_policy = WindowInvalidationPolicy::QueueSingle;
 		this->wp = Waypoint::Get(window_number);
 		if (wp->string_id == STR_SV_STNAME_WAYPOINT) {
-			this->vt = HasBit(this->wp->waypoint_flags, WPF_ROAD) ? VEH_ROAD : VEH_TRAIN;
+			this->vt = HasBit(this->wp->waypoint_flags, WPF_ROAD) ? VehicleType::Road : VehicleType::Train;
 		} else {
-			this->vt = VEH_SHIP;
+			this->vt = VehicleType::Ship;
 		}
 
 		this->CreateNestedTree();
-		if (this->vt == VEH_TRAIN) {
+		if (this->vt == VehicleType::Train) {
 			this->GetWidget<NWidgetCore>(WID_W_SHOW_VEHICLES)->SetStringTip(STR_TRAIN, STR_STATION_VIEW_SCHEDULED_TRAINS_TOOLTIP);
 		}
-		if (this->vt == VEH_ROAD) {
+		if (this->vt == VehicleType::Road) {
 			this->GetWidget<NWidgetCore>(WID_W_SHOW_VEHICLES)->SetStringTip(STR_LORRY, STR_STATION_VIEW_SCHEDULED_ROAD_VEHICLES_TOOLTIP);
 		}
-		if (this->vt != VEH_SHIP) {
+		if (this->vt != VehicleType::Ship) {
 			this->GetWidget<NWidgetCore>(WID_W_CENTER_VIEW)->SetToolTip(STR_WAYPOINT_VIEW_CENTER_TOOLTIP);
 			this->GetWidget<NWidgetCore>(WID_W_RENAME)->SetToolTip(STR_WAYPOINT_VIEW_EDIT_TOOLTIP);
 		}
@@ -113,7 +113,7 @@ public:
 
 	void Close([[maybe_unused]] int data = 0) override
 	{
-		CloseWindowById(GetWindowClassForVehicleType(this->vt), VehicleListIdentifier(VL_STATION_LIST, this->vt, this->owner, this->window_number).ToWindowNumber(), false);
+		CloseWindowById(GetWindowClassForVehicleType(this->vt), VehicleListIdentifier(VehicleListType::Station, this->vt, this->owner, this->window_number).ToWindowNumber(), false);
 		SetViewportCatchmentWaypoint(Waypoint::Get(this->window_number), false);
 		this->Window::Close();
 	}
@@ -147,7 +147,7 @@ public:
 
 	void OnClick([[maybe_unused]] Point pt, WidgetID widget, [[maybe_unused]] int click_count) override
 	{
-		Window *w = FindWindowByClass(WC_QUERY_STRING);
+		Window *w = FindWindowByClass(WindowClass::QueryString);
 
 		switch (widget) {
 			case WID_W_CENTER_VIEW: // scroll to location
@@ -186,21 +186,21 @@ public:
 				SetViewportCatchmentWaypoint(Waypoint::Get(this->window_number), !this->IsWidgetLowered(WID_W_CATCHMENT));
 
 				if (w != nullptr && this->IsWidgetLowered(WID_W_CATCHMENT)) {
-					if (w->parent->window_class == WC_STATION_VIEW && w->IsWidgetLowered(WID_QS_MOVE)) SetViewportStationRect(Station::Get(w->parent->window_number), true);
-					if (w->parent->window_class == WC_WAYPOINT_VIEW && w->IsWidgetLowered(WID_QS_MOVE)) SetViewportWaypointRect(Waypoint::Get(w->parent->window_number), true);
+					if (w->parent->window_class == WindowClass::StationView && w->IsWidgetLowered(WID_QS_MOVE)) SetViewportStationRect(Station::Get(w->parent->window_number), true);
+					if (w->parent->window_class == WindowClass::WaypointView && w->IsWidgetLowered(WID_QS_MOVE)) SetViewportWaypointRect(Waypoint::Get(w->parent->window_number), true);
 				}
 				break;
 
 			case WID_W_TOGGLE_HIDDEN:
-				Command<CMD_SET_WAYPOINT_LABEL_HIDDEN>::Post(STR_ERROR_CAN_T_DO_THIS, this->window_number, !HasBit(this->wp->waypoint_flags, WPF_HIDE_LABEL));
+				Command<Commands::SetWaypointLabelHidden>::Post(STR_ERROR_CAN_T_DO_THIS, this->window_number, !HasBit(this->wp->waypoint_flags, WPF_HIDE_LABEL));
 				break;
 		}
 	}
 
 	void OnPlaceObject(Point pt, TileIndex tile) override
 	{
-		if (IsTileType(tile, MP_STATION)) {
-			Command<CMD_EXCHANGE_WAYPOINT_NAMES>::Post(STR_ERROR_CAN_T_EXCHANGE_WAYPOINT_NAMES, this->window_number, GetStationIndex(tile));
+		if (IsTileType(tile, TileType::Station)) {
+			Command<Commands::ExchangeWaypointNames>::Post(STR_ERROR_CAN_T_EXCHANGE_WAYPOINT_NAMES, this->window_number, GetStationIndex(tile));
 			ResetObjectToPlace();
 		}
 	}
@@ -262,52 +262,52 @@ public:
 	{
 		if (!str.has_value()) return;
 
-		Command<CMD_RENAME_WAYPOINT>::Post(STR_ERROR_CAN_T_CHANGE_WAYPOINT_NAME, this->window_number, *str);
+		Command<Commands::RenameWaypoint>::Post(STR_ERROR_CAN_T_CHANGE_WAYPOINT_NAME, this->window_number, *str);
 	}
 
 	bool IsNewGRFInspectable() const override
 	{
-		return ::IsNewGRFInspectable(GSF_FAKE_STATION_STRUCT, this->window_number);
+		return ::IsNewGRFInspectable(GrfSpecFeature::FakeStationStruct, this->window_number);
 	}
 
 	void ShowNewGRFInspectWindow() const override
 	{
-		::ShowNewGRFInspectWindow(GSF_FAKE_STATION_STRUCT, this->window_number);
+		::ShowNewGRFInspectWindow(GrfSpecFeature::FakeStationStruct, this->window_number);
 	}
 };
 
 /** The widgets of the waypoint view. */
 static constexpr std::initializer_list<NWidgetPart> _nested_waypoint_view_widgets = {
 	NWidget(NWID_HORIZONTAL),
-		NWidget(WWT_CLOSEBOX, COLOUR_GREY),
-		NWidget(WWT_IMGBTN, COLOUR_GREY, WID_W_RENAME), SetAspect(WidgetDimensions::ASPECT_RENAME), SetSpriteTip(SPR_RENAME, STR_BUOY_VIEW_RENAME_TOOLTIP),
-		NWidget(WWT_CAPTION, COLOUR_GREY, WID_W_CAPTION),
-		NWidget(WWT_PUSHIMGBTN, COLOUR_GREY, WID_W_CENTER_VIEW), SetAspect(WidgetDimensions::ASPECT_LOCATION), SetSpriteTip(SPR_GOTO_LOCATION, STR_BUOY_VIEW_CENTER_TOOLTIP),
-		NWidget(WWT_DEBUGBOX, COLOUR_GREY),
-		NWidget(WWT_SHADEBOX, COLOUR_GREY),
-		NWidget(WWT_DEFSIZEBOX, COLOUR_GREY),
-		NWidget(WWT_STICKYBOX, COLOUR_GREY),
+		NWidget(WWT_CLOSEBOX, Colours::Grey),
+		NWidget(WWT_IMGBTN, Colours::Grey, WID_W_RENAME), SetAspect(WidgetDimensions::ASPECT_RENAME), SetSpriteTip(SPR_RENAME, STR_BUOY_VIEW_RENAME_TOOLTIP),
+		NWidget(WWT_CAPTION, Colours::Grey, WID_W_CAPTION),
+		NWidget(WWT_PUSHIMGBTN, Colours::Grey, WID_W_CENTER_VIEW), SetAspect(WidgetDimensions::ASPECT_LOCATION), SetSpriteTip(SPR_GOTO_LOCATION, STR_BUOY_VIEW_CENTER_TOOLTIP),
+		NWidget(WWT_DEBUGBOX, Colours::Grey),
+		NWidget(WWT_SHADEBOX, Colours::Grey),
+		NWidget(WWT_DEFSIZEBOX, Colours::Grey),
+		NWidget(WWT_STICKYBOX, Colours::Grey),
 	EndContainer(),
-	NWidget(WWT_PANEL, COLOUR_GREY),
-		NWidget(WWT_INSET, COLOUR_GREY), SetPadding(2, 2, 2, 2),
-			NWidget(NWID_VIEWPORT, COLOUR_GREY, WID_W_VIEWPORT), SetMinimalSize(256, 88), SetResize(1, 1),
+	NWidget(WWT_PANEL, Colours::Grey),
+		NWidget(WWT_INSET, Colours::Grey), SetPadding(2, 2, 2, 2),
+			NWidget(NWID_VIEWPORT, Colours::Grey, WID_W_VIEWPORT), SetMinimalSize(256, 88), SetResize(1, 1),
 		EndContainer(),
 	EndContainer(),
 	NWidget(NWID_HORIZONTAL),
-		NWidget(WWT_PUSHTXTBTN, COLOUR_GREY, WID_W_DEPARTURES), SetMinimalSize(50, 12), SetResize(1, 0), SetFill(1, 0), SetStringTip(STR_STATION_VIEW_DEPARTURES_BUTTON, STR_STATION_VIEW_DEPARTURES_TOOLTIP),
-		NWidget(WWT_TEXTBTN, COLOUR_GREY, WID_W_CATCHMENT), SetMinimalSize(50, 12), SetResize(1, 0), SetFill(1, 1), SetStringTip(STR_BUTTON_CATCHMENT, STR_TOOLTIP_CATCHMENT),
-		NWidget(NWID_SELECTION, INVALID_COLOUR, WID_W_TOGGLE_HIDDEN_SEL),
-			NWidget(WWT_IMGBTN, COLOUR_GREY, WID_W_TOGGLE_HIDDEN), SetMinimalSize(15, 12), SetSpriteTip(SPR_MISC_GUI_BASE, STR_WAYPOINT_VIEW_HIDE_VIEWPORT_LABEL),
+		NWidget(WWT_PUSHTXTBTN, Colours::Grey, WID_W_DEPARTURES), SetMinimalSize(50, 12), SetResize(1, 0), SetFill(1, 0), SetStringTip(STR_STATION_VIEW_DEPARTURES_BUTTON, STR_STATION_VIEW_DEPARTURES_TOOLTIP),
+		NWidget(WWT_TEXTBTN, Colours::Grey, WID_W_CATCHMENT), SetMinimalSize(50, 12), SetResize(1, 0), SetFill(1, 1), SetStringTip(STR_BUTTON_CATCHMENT, STR_TOOLTIP_CATCHMENT),
+		NWidget(NWID_SELECTION, Colours::Invalid, WID_W_TOGGLE_HIDDEN_SEL),
+			NWidget(WWT_IMGBTN, Colours::Grey, WID_W_TOGGLE_HIDDEN), SetMinimalSize(15, 12), SetSpriteTip(SPR_MISC_GUI_BASE, STR_WAYPOINT_VIEW_HIDE_VIEWPORT_LABEL),
 		EndContainer(),
-		NWidget(WWT_PUSHTXTBTN, COLOUR_GREY, WID_W_SHOW_VEHICLES), SetAspect(WidgetDimensions::ASPECT_VEHICLE_ICON), SetStringTip(STR_SHIP, STR_STATION_VIEW_SCHEDULED_SHIPS_TOOLTIP),
-		NWidget(WWT_RESIZEBOX, COLOUR_GREY),
+		NWidget(WWT_PUSHTXTBTN, Colours::Grey, WID_W_SHOW_VEHICLES), SetAspect(WidgetDimensions::ASPECT_VEHICLE_ICON), SetStringTip(STR_SHIP, STR_STATION_VIEW_SCHEDULED_SHIPS_TOOLTIP),
+		NWidget(WWT_RESIZEBOX, Colours::Grey),
 	EndContainer(),
 };
 
 /** The description of the waypoint view. */
 static WindowDesc _waypoint_view_desc(__FILE__, __LINE__,
-	WDP_AUTO, "view_waypoint", 260, 118,
-	WC_WAYPOINT_VIEW, WC_NONE,
+	WindowPosition::Automatic, "view_waypoint", 260, 118,
+	WindowClass::WaypointView, WindowClass::None,
 	{},
 	_nested_waypoint_view_widgets
 );

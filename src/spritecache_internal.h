@@ -13,7 +13,7 @@
 #include "core/alloc_func.hpp"
 #include "core/arena_alloc.hpp"
 #include "core/math_func.hpp"
-#include "gfx_type.h"
+#include "sprite_id_type.h"
 #include "spriteloader/sprite_file_type.hpp"
 #include "3rdparty/robin_hood/robin_hood.h"
 
@@ -84,6 +84,7 @@ private:
 		if (!this->ptr) return;
 
 		if (this->GetType() == SpriteType::Recolour) {
+			this->ptr.reset();
 			return;
 		}
 
@@ -141,9 +142,7 @@ public:
 
 	void AssignRecolourSpriteData(void *data)
 	{
-		this->Clear();
-
-		assert(this->GetType() == SpriteType::Recolour);
+		assert(this->GetType() == SpriteType::Recolour && !this->ptr);
 
 		this->ptr.reset(data);
 	}

@@ -19,6 +19,7 @@
 #include "vehicle_base.h"
 #include "base_media_func.h"
 #include "base_media_sounds.h"
+#include "settings_type.h"
 
 #include "safeguards.h"
 
@@ -37,7 +38,7 @@ static void OpenBankFile(const std::string &filename)
 	/* If there is no sound file (nosound set), don't load anything */
 	if (filename.empty()) return;
 
-	original_sound_file = std::make_unique<RandomAccessFile>(filename, BASESET_DIR);
+	original_sound_file = std::make_unique<RandomAccessFile>(filename, Subdirectory::Baseset);
 	size_t pos = original_sound_file->GetPos();
 	uint count = original_sound_file->ReadDword();
 
@@ -120,9 +121,8 @@ static void StartSound(SoundID sound_id, float pan, uint volume)
 	MxActivateChannel(mc);
 }
 
-
-static const uint8_t _vol_factor_by_zoom[] = {255, 255, 255, 190, 134, 87, 10, 1, 1, 1};
-static_assert(lengthof(_vol_factor_by_zoom) == to_underlying(ZoomLevel::End));
+/** Volume scaling for each zoom level. */
+static constexpr EnumIndexArray<uint8_t, ZoomLevel, ZoomLevel::End> _vol_factor_by_zoom{255, 255, 255, 190, 134, 87, 10, 1, 1, 1};
 
 static const uint8_t _sound_base_vol[] = {
 	128,  90, 128, 128, 128, 128, 128, 128,
@@ -169,6 +169,7 @@ void ChangeSoundSet(int index)
 	if (BaseSounds::GetIndexOfUsedSet() == index) return;
 
 	auto set = BaseSounds::GetSet(index);
+	if (set->name != "NoSound") InitSoundDriver();
 	BaseSounds::ini_set = set->name;
 	BaseSounds::SetSet(set);
 
@@ -187,7 +188,7 @@ void ChangeSoundSet(int index)
 		sound->priority = 0;
 	}
 
-	InvalidateWindowData(WC_GAME_OPTIONS, WN_GAME_OPTIONS_GAME_OPTIONS, 0, true);
+	InvalidateWindowData(WindowClass::GameOptions, GameOptionsWindowNumber::GameOptions, 0, true);
 }
 
 /**
@@ -215,7 +216,7 @@ static void SndPlayScreenCoordFx(SoundID sound, int left, int right, int top, in
 			StartSound(
 				sound,
 				panning,
-				_vol_factor_by_zoom[to_underlying(vp->zoom)]
+				_vol_factor_by_zoom[vp->zoom]
 			);
 			return;
 		}
@@ -270,18 +271,21 @@ void SndConfirmBeep()
 /** Names corresponding to the sound set's files */
 static const std::string_view _sound_file_names[] = { "samples" };
 
+/** @copydoc BaseSet::GetFilenames */
 template <>
 /* static */ std::span<const std::string_view> BaseSet<SoundsSet>::GetFilenames()
 {
 	return _sound_file_names;
 }
 
+/** @copydoc BaseMedia::GetExtension */
 template <>
 /* static */ std::string_view BaseMedia<SoundsSet>::GetExtension()
 {
 	return ".obs"; // OpenTTD Base Sounds
 }
 
+/** @copydoc BaseMedia::DetermineBestSet */
 template <>
 /* static */ bool BaseMedia<SoundsSet>::DetermineBestSet()
 {

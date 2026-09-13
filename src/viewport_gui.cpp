@@ -28,34 +28,35 @@
 
 #include "safeguards.h"
 
-/* Extra Viewport Window Stuff */
+/** Extra viewport window widgets. */
 static constexpr std::initializer_list<NWidgetPart> _nested_extra_viewport_widgets = {
 	NWidget(NWID_HORIZONTAL),
-		NWidget(WWT_CLOSEBOX, COLOUR_GREY),
-		NWidget(WWT_CAPTION, COLOUR_GREY, WID_EV_CAPTION),
-		NWidget(WWT_SHADEBOX, COLOUR_GREY),
-		NWidget(WWT_DEFSIZEBOX, COLOUR_GREY),
-		NWidget(WWT_STICKYBOX, COLOUR_GREY),
+		NWidget(WWT_CLOSEBOX, Colours::Grey),
+		NWidget(WWT_CAPTION, Colours::Grey, WID_EV_CAPTION),
+		NWidget(WWT_SHADEBOX, Colours::Grey),
+		NWidget(WWT_DEFSIZEBOX, Colours::Grey),
+		NWidget(WWT_STICKYBOX, Colours::Grey),
 	EndContainer(),
-	NWidget(WWT_PANEL, COLOUR_GREY),
-		NWidget(NWID_VIEWPORT, INVALID_COLOUR, WID_EV_VIEWPORT), SetPadding(2, 2, 2, 2), SetResize(1, 1), SetFill(1, 1),
+	NWidget(WWT_PANEL, Colours::Grey),
+		NWidget(NWID_VIEWPORT, Colours::Invalid, WID_EV_VIEWPORT), SetPadding(2, 2, 2, 2), SetResize(1, 1), SetFill(1, 1),
 	EndContainer(),
 	NWidget(NWID_HORIZONTAL),
-		NWidget(WWT_PUSHIMGBTN, COLOUR_GREY, WID_EV_ZOOM_IN), SetSpriteTip(SPR_IMG_ZOOMIN, STR_TOOLBAR_TOOLTIP_ZOOM_THE_VIEW_IN),
-		NWidget(WWT_PUSHIMGBTN, COLOUR_GREY, WID_EV_ZOOM_OUT), SetSpriteTip(SPR_IMG_ZOOMOUT, STR_TOOLBAR_TOOLTIP_ZOOM_THE_VIEW_OUT),
+		NWidget(WWT_PUSHIMGBTN, Colours::Grey, WID_EV_ZOOM_IN), SetSpriteTip(SPR_IMG_ZOOMIN, STR_TOOLBAR_TOOLTIP_ZOOM_THE_VIEW_IN),
+		NWidget(WWT_PUSHIMGBTN, Colours::Grey, WID_EV_ZOOM_OUT), SetSpriteTip(SPR_IMG_ZOOMOUT, STR_TOOLBAR_TOOLTIP_ZOOM_THE_VIEW_OUT),
 		NWidget(NWID_HORIZONTAL, NWidContainerFlag::EqualSize),
-			NWidget(WWT_PUSHTXTBTN, COLOUR_GREY, WID_EV_MAIN_TO_VIEW), SetFill(1, 1), SetResize(1, 0),
+			NWidget(WWT_PUSHTXTBTN, Colours::Grey, WID_EV_MAIN_TO_VIEW), SetFill(1, 1), SetResize(1, 0),
 										SetStringTip(STR_EXTRA_VIEW_MOVE_MAIN_TO_VIEW, STR_EXTRA_VIEW_MOVE_MAIN_TO_VIEW_TOOLTIP),
-			NWidget(WWT_PUSHTXTBTN, COLOUR_GREY, WID_EV_VIEW_TO_MAIN), SetFill(1, 1), SetResize(1, 0),
+			NWidget(WWT_PUSHTXTBTN, Colours::Grey, WID_EV_VIEW_TO_MAIN), SetFill(1, 1), SetResize(1, 0),
 										SetStringTip(STR_EXTRA_VIEW_MOVE_VIEW_TO_MAIN, STR_EXTRA_VIEW_MOVE_VIEW_TO_MAIN_TOOLTIP),
 		EndContainer(),
 	EndContainer(),
 	NWidget(NWID_HORIZONTAL),
-		NWidget(WWT_PANEL, COLOUR_GREY), SetFill(1, 1), SetResize(1, 0), EndContainer(),
-		NWidget(WWT_RESIZEBOX, COLOUR_GREY),
+		NWidget(WWT_PANEL, Colours::Grey), SetFill(1, 1), SetResize(1, 0), EndContainer(),
+		NWidget(WWT_RESIZEBOX, Colours::Grey),
 	EndContainer(),
 };
 
+/** Extra viewport window. */
 class ExtraViewportWindow : public Window {
 public:
 	ExtraViewportWindow(WindowDesc &desc, int window_number, TileIndex tile) : Window(desc)
@@ -156,7 +157,7 @@ public:
 			/* Cycle through the drawing modes */
 			ChangeRenderMode(this->viewport, wheel < 0);
 			this->SetDirty();
-		} else if (_settings_client.gui.scrollwheel_scrolling != SWS_OFF) {
+		} else if (_settings_client.gui.scrollwheel_scrolling != ScrollWheelScrolling::Off) {
 			ZoomInOrOutToCursorWindow(wheel < 0, this);
 		}
 	}
@@ -185,8 +186,8 @@ public:
 };
 
 static WindowDesc _extra_viewport_desc(__FILE__, __LINE__,
-	WDP_AUTO, "extra_viewport", 300, 268,
-	WC_EXTRA_VIEWPORT, WC_NONE,
+	WindowPosition::Automatic, "extra_viewport", 300, 268,
+	WindowClass::ExtraViewport, WindowClass::None,
 	{},
 	_nested_extra_viewport_widgets
 );
@@ -200,7 +201,7 @@ void ShowExtraViewportWindow(TileIndex tile)
 	int i = 0;
 
 	/* find next free window number for extra viewport */
-	while (FindWindowById(WC_EXTRA_VIEWPORT, i) != nullptr) i++;
+	while (FindWindowById(WindowClass::ExtraViewport, i) != nullptr) i++;
 
 	new ExtraViewportWindow(_extra_viewport_desc, i, tile);
 }
@@ -245,7 +246,7 @@ enum StationTooltipNameMode : uint8_t {
 void ShowTownNameTooltip(Window *w, const TileIndex tile)
 {
 	if (_settings_client.gui.town_name_tooltip_mode == TNTM_OFF) return;
-	if (HasBit(_display_opt, DO_SHOW_TOWN_NAMES) && _settings_client.gui.town_name_tooltip_mode == TNTM_ON_IF_HIDDEN) return; // No need for a town name tooltip when it is already displayed
+	if (_display_opt.Test(DisplayOption::ShowTownNames) && _settings_client.gui.town_name_tooltip_mode == TNTM_ON_IF_HIDDEN) return; // No need for a town name tooltip when it is already displayed
 
 	TownID town_id = GetTownIndex(tile);
 	const Town *town = Town::Get(town_id);
@@ -262,7 +263,7 @@ void ShowTownNameTooltip(Window *w, const TileIndex tile)
 	}
 
 	EncodedString tooltip_string;
-	if (_game_mode == GM_NORMAL && _local_company < MAX_COMPANIES && town->have_ratings.Test(_local_company)) {
+	if (_game_mode == GameMode::Normal && _local_company < MAX_COMPANIES && town->have_ratings.Test(_local_company)) {
 		const int local_authority_rating_thresholds[] = { RATING_APPALLING, RATING_VERYPOOR, RATING_POOR, RATING_MEDIOCRE, RATING_GOOD, RATING_VERYGOOD,
 													RATING_EXCELLENT, RATING_OUTSTANDING };
 		constexpr size_t threshold_count = lengthof(local_authority_rating_thresholds);
@@ -275,15 +276,15 @@ void ShowTownNameTooltip(Window *w, const TileIndex tile)
 	} else {
 		tooltip_string = GetEncodedString(tooltip_prefix, params[0], params[1]);
 	}
-	GuiShowTooltips(w, std::move(tooltip_string), TCC_HOVER_VIEWPORT);
+	GuiShowTooltips(w, std::move(tooltip_string), TooltipCloseCondition::HoverViewport);
 }
 
 void ShowWaypointViewportTooltip(Window *w, const TileIndex tile)
 {
 	if (_settings_client.gui.waypoint_viewport_tooltip_name == WTNM_OFF ||
-			(_settings_client.gui.waypoint_viewport_tooltip_name == WTNM_ON_IF_HIDDEN && HasBit(_display_opt, DO_SHOW_WAYPOINT_NAMES))) return;
+			(_settings_client.gui.waypoint_viewport_tooltip_name == WTNM_ON_IF_HIDDEN && _display_opt.Test(DisplayOption::ShowWaypointNames))) return;
 
-	GuiShowTooltips(w, GetEncodedString(STR_WAYPOINT_NAME, GetStationIndex(tile)), TCC_HOVER_VIEWPORT);
+	GuiShowTooltips(w, GetEncodedString(STR_WAYPOINT_NAME, GetStationIndex(tile)), TooltipCloseCondition::HoverViewport);
 }
 
 void ShowStationViewportTooltip(Window *w, const TileIndex tile)
@@ -296,7 +297,7 @@ void ShowStationViewportTooltip(Window *w, const TileIndex tile)
 	format_buffer msg;
 
 	if ( _settings_client.gui.station_viewport_tooltip_name == STNM_ALWAYS_ON ||
-			(_settings_client.gui.station_viewport_tooltip_name == STNM_ON_IF_HIDDEN && !HasBit(_display_opt, DO_SHOW_STATION_NAMES))) {
+			(_settings_client.gui.station_viewport_tooltip_name == STNM_ON_IF_HIDDEN && !_display_opt.Test(DisplayOption::ShowStationNames))) {
 		AppendStringInPlace(msg, STR_STATION_VIEW_NAME_TOOLTIP, station_id, station->facilities);
 	}
 
@@ -312,7 +313,7 @@ void ShowStationViewportTooltip(Window *w, const TileIndex tile)
 	}
 
 	if (!msg.empty()) {
-		GuiShowTooltips(w, GetEncodedRawString(msg), TCC_HOVER_VIEWPORT);
+		GuiShowTooltips(w, GetEncodedRawString(msg), TooltipCloseCondition::HoverViewport);
 	}
 }
 
@@ -322,31 +323,31 @@ void ShowTooltipForTile(Window *w, const TileIndex tile)
 	extern void ShowIndustryTooltip(Window *w, const TileIndex tile);
 
 	switch (GetTileType(tile)) {
-		case MP_ROAD:
+		case TileType::Road:
 			if (IsRoadDepot(tile)) {
 				ShowDepotTooltip(w, tile);
 				return;
 			}
 			/* FALL THROUGH */
-		case MP_HOUSE: {
+		case TileType::House: {
 			ShowTownNameTooltip(w, tile);
 			break;
 		}
-		case MP_INDUSTRY: {
+		case TileType::Industry: {
 			ShowIndustryTooltip(w, tile);
 			break;
 		}
-		case MP_RAILWAY: {
+		case TileType::Railway: {
 			if (!IsRailDepot(tile)) return;
 			ShowDepotTooltip(w, tile);
 			break;
 		}
-		case MP_WATER: {
+		case TileType::Water: {
 			if (!IsShipDepot(tile)) return;
 			ShowDepotTooltip(w, tile);
 			break;
 		}
-		case MP_STATION: {
+		case TileType::Station: {
 			if (IsHangar(tile)) {
 				ShowDepotTooltip(w, tile);
 			} else if (IsBuoy(tile) || IsRailWaypoint(tile) || IsRoadWaypoint(tile)) {

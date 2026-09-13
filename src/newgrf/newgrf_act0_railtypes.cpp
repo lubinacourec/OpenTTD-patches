@@ -28,19 +28,19 @@
  */
 static ChangeInfoResult RailTypeChangeInfo(uint first, uint last, int prop, const GRFFilePropertyRemapEntry *mapping_entry, ByteReader &buf)
 {
-	ChangeInfoResult ret = CIR_SUCCESS;
+	ChangeInfoResult ret = ChangeInfoResult::Success;
 
 	extern RailTypeInfo _railtypes[RAILTYPE_END];
 	const auto &type_map = _cur_gps.grffile->railtype_map;
 
 	if (last > std::size(type_map)) {
 		GrfMsg(1, "RailTypeChangeInfo: Rail type {} is invalid, max {}, ignoring", last, std::size(type_map));
-		return CIR_INVALID_ID;
+		return ChangeInfoResult::InvalidId;
 	}
 
 	for (uint id = first; id < last; ++id) {
 		RailType rt = type_map[id];
-		if (rt == INVALID_RAILTYPE) return CIR_INVALID_ID;
+		if (rt == INVALID_RAILTYPE) return ChangeInfoResult::InvalidId;
 
 		RailTypeInfo *rti = &_railtypes[rt];
 
@@ -149,7 +149,7 @@ static ChangeInfoResult RailTypeChangeInfo(uint first, uint last, int prop, cons
 				break;
 
 			case 0x1E: // Badge list
-				rti->badges = ReadBadgeList(buf, GSF_RAILTYPES);
+				rti->badges = ReadBadgeList(buf, GrfSpecFeature::RailTypes);
 				break;
 
 			case A0RPI_RAILTYPE_ENABLE_PROGRAMMABLE_SIGNALS:
@@ -193,14 +193,14 @@ static ChangeInfoResult RailTypeChangeInfo(uint first, uint last, int prop, cons
 
 static ChangeInfoResult RailTypeReserveInfo(uint first, uint last, int prop, const GRFFilePropertyRemapEntry *mapping_entry, ByteReader &buf)
 {
-	ChangeInfoResult ret = CIR_SUCCESS;
+	ChangeInfoResult ret = ChangeInfoResult::Success;
 
 	extern RailTypeInfo _railtypes[RAILTYPE_END];
 	auto &type_map = _cur_gps.grffile->railtype_map;
 
 	if (last > std::size(type_map)) {
 		GrfMsg(1, "RailTypeReserveInfo: Rail type {} is invalid, max {}, ignoring", last, std::size(type_map));
-		return CIR_INVALID_ID;
+		return ChangeInfoResult::InvalidId;
 	}
 
 	for (uint id = first; id < last; ++id) {
@@ -285,5 +285,5 @@ static ChangeInfoResult RailTypeReserveInfo(uint first, uint last, int prop, con
 	return ret;
 }
 
-template <> ChangeInfoResult GrfChangeInfoHandler<GSF_RAILTYPES>::Reserve(uint first, uint last, int prop, const GRFFilePropertyRemapEntry *mapping_entry, ByteReader &buf) { return RailTypeReserveInfo(first, last, prop, mapping_entry, buf); }
-template <> ChangeInfoResult GrfChangeInfoHandler<GSF_RAILTYPES>::Activation(uint first, uint last, int prop, const GRFFilePropertyRemapEntry *mapping_entry, ByteReader &buf) { return RailTypeChangeInfo(first, last, prop, mapping_entry, buf); }
+template <> ChangeInfoResult GrfChangeInfoHandler<GrfSpecFeature::RailTypes>::Reserve(uint first, uint last, int prop, const GRFFilePropertyRemapEntry *mapping_entry, ByteReader &buf) { return RailTypeReserveInfo(first, last, prop, mapping_entry, buf); }
+template <> ChangeInfoResult GrfChangeInfoHandler<GrfSpecFeature::RailTypes>::Activation(uint first, uint last, int prop, const GRFFilePropertyRemapEntry *mapping_entry, ByteReader &buf) { return RailTypeChangeInfo(first, last, prop, mapping_entry, buf); }

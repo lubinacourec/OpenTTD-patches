@@ -45,7 +45,7 @@ void AfterLoadCompanyStats()
 	Company *c;
 	for (TileIndex tile(0); tile < Map::Size(); ++tile) {
 		switch (GetTileType(tile)) {
-			case MP_RAILWAY:
+			case TileType::Railway:
 				c = Company::GetIfValid(GetTileOwner(tile));
 				if (c != nullptr) {
 					uint pieces = 1;
@@ -64,14 +64,14 @@ void AfterLoadCompanyStats()
 				}
 				break;
 
-			case MP_ROAD: {
+			case TileType::Road: {
 				if (IsLevelCrossing(tile)) {
 					c = Company::GetIfValid(GetTileOwner(tile));
 					if (c != nullptr) c->infrastructure.rail[GetRailType(tile)] += LEVELCROSSING_TRACKBIT_FACTOR;
 				}
 
 				/* Iterate all present road types as each can have a different owner. */
-				for (RoadTramType rtt : _roadtramtypes) {
+				for (RoadTramType rtt : ROADTRAMTYPES_ALL) {
 					RoadType rt = GetRoadType(tile, rtt);
 					if (rt == INVALID_ROADTYPE) continue;
 					c = Company::GetIfValid(IsRoadDepot(tile) ? GetTileOwner(tile) : GetRoadOwner(tile, rtt));
@@ -81,7 +81,7 @@ void AfterLoadCompanyStats()
 				break;
 			}
 
-			case MP_STATION:
+			case TileType::Station:
 				c = Company::GetIfValid(GetTileOwner(tile));
 				if (c != nullptr && GetStationType(tile) != StationType::Airport && !IsBuoy(tile)) c->infrastructure.station++;
 
@@ -95,7 +95,7 @@ void AfterLoadCompanyStats()
 					case StationType::Truck:
 					case StationType::RoadWaypoint: {
 						/* Iterate all present road types as each can have a different owner. */
-						for (RoadTramType rtt : _roadtramtypes) {
+						for (RoadTramType rtt : ROADTRAMTYPES_ALL) {
 							RoadType rt = GetRoadType(tile, rtt);
 							if (rt == INVALID_ROADTYPE) continue;
 							c = Company::GetIfValid(GetRoadOwner(tile, rtt));
@@ -116,7 +116,7 @@ void AfterLoadCompanyStats()
 				}
 				break;
 
-			case MP_WATER:
+			case TileType::Water:
 				if (IsShipDepot(tile) || IsLock(tile)) {
 					c = Company::GetIfValid(GetTileOwner(tile));
 					if (c != nullptr) {
@@ -130,16 +130,16 @@ void AfterLoadCompanyStats()
 				}
 				[[fallthrough]];
 
-			case MP_OBJECT:
+			case TileType::Object:
 				if (GetWaterClass(tile) == WaterClass::Canal) {
 					c = Company::GetIfValid(GetTileOwner(tile));
 					if (c != nullptr) c->infrastructure.water++;
 				}
 				break;
 
-			case MP_TUNNELBRIDGE: {
+			case TileType::TunnelBridge: {
 				/* Only count the tunnel/bridge if we're on the western end tile. */
-				if (GetTunnelBridgeDirection(tile) < DIAGDIR_SW) {
+				if (GetTunnelBridgeDirection(tile) < DiagDirection::SW) {
 					TileIndex other_end = GetOtherTunnelBridgeEnd(tile);
 
 					/* Count each tunnel/bridge TUNNELBRIDGE_TRACKBIT_FACTOR times to simulate
@@ -147,16 +147,16 @@ void AfterLoadCompanyStats()
 					const uint middle_len = GetTunnelBridgeLength(tile, other_end) * TUNNELBRIDGE_TRACKBIT_FACTOR;
 
 					switch (GetTunnelBridgeTransportType(tile)) {
-						case TRANSPORT_RAIL:
+						case TransportType::Rail:
 							AddRailTunnelBridgeInfrastructure(tile, other_end);
 							break;
 
-						case TRANSPORT_ROAD: {
+						case TransportType::Road: {
 							AddRoadTunnelBridgeInfrastructure(tile, other_end);
 							break;
 						}
 
-						case TRANSPORT_WATER:
+						case TransportType::Water:
 							c = Company::GetIfValid(GetTileOwner(tile));
 							if (c != nullptr) c->infrastructure.water += middle_len + (2 * TUNNELBRIDGE_TRACKBIT_FACTOR);
 							break;
@@ -263,28 +263,29 @@ static void LoadLiveries(CompanyProperties *c, uint num_liveries, const SaveLoad
 	bool update_in_use = IsSavegameVersionBefore(SLV_GROUP_LIVERIES);
 
 	for (uint i = 0; i < num_liveries; i++) {
-		SlObjectLoadFiltered(&c->livery[i], slt);
-		if (update_in_use && i != LS_DEFAULT) {
-			if (c->livery[i].in_use.base() == 0) {
-				c->livery[i].colour1 = c->livery[LS_DEFAULT].colour1;
-				c->livery[i].colour2 = c->livery[LS_DEFAULT].colour2;
+		Livery &livery = c->livery[static_cast<LiveryScheme>(i)];
+		SlObjectLoadFiltered(&livery, slt);
+		if (update_in_use && i != to_underlying(LiveryScheme::Default)) {
+			if (livery.in_use.base() == 0) {
+				livery.colour1 = c->livery[LiveryScheme::Default].colour1;
+				livery.colour2 = c->livery[LiveryScheme::Default].colour2;
 			} else {
-				c->livery[i].in_use = {Livery::Flag::Primary, Livery::Flag::Secondary};
+				livery.in_use = {Livery::Flag::Primary, Livery::Flag::Secondary};
 			}
 		}
 	}
 
-	if (num_liveries < LS_END) {
+	if (num_liveries < to_underlying(LiveryScheme::End)) {
 		/* We want to insert some liveries somewhere in between. This means some have to be moved. */
-		memmove(&c->livery[LS_FREIGHT_WAGON], &c->livery[LS_PASSENGER_WAGON_MONORAIL], (LS_END - LS_FREIGHT_WAGON) * sizeof(c->livery[0]));
-		c->livery[LS_PASSENGER_WAGON_MONORAIL] = c->livery[LS_MONORAIL];
-		c->livery[LS_PASSENGER_WAGON_MAGLEV]   = c->livery[LS_MAGLEV];
+		memmove(&c->livery[LiveryScheme::FreightWagon], &c->livery[LiveryScheme::PassengerWagonMonorail], (to_underlying(LiveryScheme::End) - to_underlying(LiveryScheme::FreightWagon)) * sizeof(c->livery[LiveryScheme::Begin]));
+		c->livery[LiveryScheme::PassengerWagonMonorail] = c->livery[LiveryScheme::Monorail];
+		c->livery[LiveryScheme::PassengerWagonMaglev]   = c->livery[LiveryScheme::Maglev];
 	}
 
-	if (num_liveries == LS_END - 4) {
+	if (num_liveries == to_underlying(LiveryScheme::End) - 4) {
 		/* Copy bus/truck liveries over to trams */
-		c->livery[LS_PASSENGER_TRAM] = c->livery[LS_BUS];
-		c->livery[LS_FREIGHT_TRAM]   = c->livery[LS_TRUCK];
+		c->livery[LiveryScheme::PassengerTram] = c->livery[LiveryScheme::Bus];
+		c->livery[LiveryScheme::FreightTram] = c->livery[LiveryScheme::Truck];
 	}
 }
 
@@ -392,15 +393,15 @@ struct CompanyLiveriesStructHandler final : public TypedSaveLoadStructHandler<Co
 
 	void Save(CompanyProperties *cprops) const override
 	{
-		SlSetStructListLength(LS_END);
-		for (int i = 0; i < LS_END; i++) {
-			SlObjectSaveFiltered(&cprops->livery[i], this->GetLoadDescription());
+		SlSetStructListLength(to_underlying(LiveryScheme::End));
+		for (int i = 0; i < to_underlying(LiveryScheme::End); i++) {
+			SlObjectSaveFiltered(&cprops->livery[static_cast<LiveryScheme>(i)], this->GetLoadDescription());
 		}
 	}
 
 	void Load(CompanyProperties *cprops) const override
 	{
-		uint num_liveries = static_cast<uint>(SlGetStructListLength(LS_END));
+		uint num_liveries = static_cast<uint>(SlGetStructListLength(to_underlying(LiveryScheme::End)));
 		LoadLiveries(cprops, num_liveries, this->GetLoadDescription());
 	}
 
@@ -512,6 +513,7 @@ static const NamedSaveLoad _company_desc[] = {
 	NSLT_STRUCTLIST<CompanyOldEconomyStructHandler>("old_economy"),
 	NSLT_STRUCTLIST<CompanyLiveriesStructHandler>("liveries"),
 	NSLT_STRUCTLIST<CompanyAllowListStructHandler>("allow_list"),
+	NSLT("allow_any", SLE_VAR(CompanyProperties, allow_any, SLE_BOOL)),
 };
 
 struct PLYRNonTableHelper {
@@ -554,7 +556,8 @@ void PLYRNonTableHelper::Load_PLYR_common(Company *c, CompanyProperties *cprops)
 	}
 
 	/* Write each livery entry. */
-	uint num_liveries = IsSavegameVersionBefore(SLV_63) ? LS_END - 4 : (IsSavegameVersionBefore(SLV_85) ? LS_END - 2: LS_END);
+	static_assert(to_underlying(LiveryScheme::End) == 23);
+	uint num_liveries = IsSavegameVersionBefore(SLV_63) ? to_underlying(LiveryScheme::End) - 4 : (IsSavegameVersionBefore(SLV_85) ? to_underlying(LiveryScheme::End) - 2 : to_underlying(LiveryScheme::End));
 
 	if (c != nullptr) {
 		LoadLiveries(cprops, num_liveries, this->liveries_desc);
@@ -792,9 +795,9 @@ static void Save_PLYP()
 }
 
 static const ChunkHandler company_chunk_handlers[] = {
-	{ 'PLYR', Save_PLYR, Load_PLYR, Ptrs_PLYR, Check_PLYR, CH_TABLE },
-	{ 'PLYX', nullptr,   Load_PLYX, nullptr,   Check_PLYX, CH_READONLY },
-	{ 'PLYP', Save_PLYP, Load_PLYP, nullptr,      nullptr, CH_RIFF  },
+	{ 'PLYR', Save_PLYR, Load_PLYR, Ptrs_PLYR, Check_PLYR, ChunkType::Table },
+	{ 'PLYX', nullptr,   Load_PLYX, nullptr,   Check_PLYX, ChunkType::ReadOnly },
+	{ 'PLYP', Save_PLYP, Load_PLYP, nullptr,      nullptr, ChunkType::Riff  },
 };
 
 extern const ChunkHandlerTable _company_chunk_handlers(company_chunk_handlers);

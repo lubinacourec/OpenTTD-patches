@@ -11,6 +11,7 @@
 #define DROPDOWN_TYPE_H
 
 #include "core/enum_type.hpp"
+#include "stringfilter_type.h"
 #include "window_type.h"
 #include "gfx_func.h"
 #include "gfx_type.h"
@@ -35,29 +36,68 @@ public:
 	int result; ///< Result value to return to window on selection.
 	bool masked; ///< Masked and unselectable item.
 	bool shaded; ///< Shaded item, affects text colour.
-	TextColour colour_flags = TC_BEGIN;
+	ExtendedTextColourFlags colour_flags{};
 
 	explicit DropDownListItem(int result, bool masked = false, bool shaded = false) : result(result), masked(masked), shaded(shaded) {}
 	virtual ~DropDownListItem() = default;
 
+	/**
+	 * Add text from this dropdown item to a string filter.
+	 * @param string_filter String filter to add text to.
+	 */
+	virtual void FilterText([[maybe_unused]] StringFilter &string_filter) const {}
+
+	/**
+	 * Can this dropdown item be selected?
+	 * @return Whether this item can be selected.
+	 */
 	virtual bool Selectable() const { return true; }
+
+	/**
+	 * The height of this item.
+	 * @return The height.
+	 */
 	virtual uint Height() const { return 0; }
+
+	/**
+	 * The width of this item.
+	 * @return The width.
+	 */
 	virtual uint Width() const { return 0; }
 
-	virtual int OnClick(const Rect &, const Point &) const
+	/**
+	 * Callback when this item is clicked.
+	 * @param r The bounds of this item.
+	 * @param pt The location within the bounds where the item is clicked.
+	 * @return The 'click_result' for the OnDropdownClose callback on the dropdown's parent.
+	 */
+	virtual int OnClick([[maybe_unused]] const Rect &r, [[maybe_unused]] const Point &pt) const
 	{
 		return -1;
 	}
 
-	virtual void Draw(const Rect &full, const Rect &, bool, int, Colours bg_colour) const
+	/**
+	 * Callback for drawing this item.
+	 * @param full The full bounds of the item including padding.
+	 * @param r The bounds to draw the item in.
+	 * @param sel Whether the item is elected or not.
+	 * @param click_result When selected, the previously set 'click_result' otherwise -1.
+	 * @param bg_colour The background color for the item.
+	 */
+	virtual void Draw(const Rect &full, [[maybe_unused]] const Rect &r, [[maybe_unused]] bool sel, [[maybe_unused]] int click_result, Colours bg_colour) const
 	{
-		if (this->masked) GfxFillRect(full, GetColourGradient(bg_colour, SHADE_LIGHT), FILLRECT_CHECKER);
+		if (this->masked) GfxFillRect(full, GetColourGradient(bg_colour, Shade::Light), FillRectMode::Checker);
 	}
 
-	TextColour GetColour(bool sel) const
+	/**
+	 * Get the colour of the text.
+	 * @param sel Whether the item is selected or not.
+	 * @return The text colour.
+	 */
+	ExtendedTextColour GetColour(bool sel) const
 	{
-		if (this->shaded) return (sel ? TC_SILVER : TC_GREY) | TC_NO_SHADE;
-		return (sel ? TC_WHITE : TC_BLACK) | this->colour_flags;
+		if (this->shaded) return ExtendedTextColour{sel ? TextColour::Silver : TextColour::Grey, ExtendedTextColourFlag::NoShade};
+		return ExtendedTextColour{sel ? TextColour::White : TextColour::Black, this->colour_flags};
 	}
 };
 
@@ -79,15 +119,29 @@ public:
  */
 typedef std::vector<std::unique_ptr<const DropDownListItem>> DropDownList;
 
+/** Configuration options for the created DropDownLists. */
 enum class DropDownOption : uint8_t {
 	InstantClose, ///< Set if releasing mouse button should close the list regardless of where the cursor is.
 	Persist, ///< Set if this dropdown should stay open after an option is selected.
+	Filterable, ///< Set if the dropdown is filterable.
 };
+
+/** Bitset of \c DropDownOption elements. */
 using DropDownOptions = EnumBitSet<DropDownOption, uint8_t>;
 
-void ShowDropDownListAt(Window *w, DropDownList &&list, int selected, WidgetID button, Rect wi_rect, Colours wi_colour, DropDownOptions options = {}, DropDownSyncFocus sync_parent_focus = DDSF_NONE);
+void ShowDropDownListAt(Window *w, DropDownList &&list, int selected, WidgetID button, Rect wi_rect, Colours wi_colour, DropDownOptions options = {}, DropDownSyncFocus sync_parent_focus = DDSF_NONE, std::string * const persistent_filter_text = nullptr);
 
-void ShowDropDownList(Window *w, DropDownList &&list, int selected, WidgetID button, uint width = 0, DropDownOptions options = {}, DropDownSyncFocus sync_parent_focus = DDSF_NONE);
+inline void ShowDropDownListAt(Window *w, DropDownList &&list, int selected, WidgetID button, Rect wi_rect, Colours wi_colour, DropDownOptions options, std::string * const persistent_filter_text)
+{
+	ShowDropDownListAt(w, std::move(list), selected, button, wi_rect, wi_colour, options, DDSF_NONE, persistent_filter_text);
+}
+
+void ShowDropDownList(Window *w, DropDownList &&list, int selected, WidgetID button, uint width = 0, DropDownOptions options = {}, DropDownSyncFocus sync_parent_focus = DDSF_NONE, std::string * const persistent_filter_text = nullptr);
+
+inline void ShowDropDownList(Window *w, DropDownList &&list, int selected, WidgetID button, uint width, DropDownOptions options, std::string * const persistent_filter_text)
+{
+	ShowDropDownList(w, std::move(list), selected, button, width, options, DDSF_NONE, persistent_filter_text);
+}
 
 Dimension GetDropDownListDimension(const DropDownList &list);
 

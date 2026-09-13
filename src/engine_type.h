@@ -11,7 +11,7 @@
 #define ENGINE_TYPE_H
 
 #include "core/pool_id_type.hpp"
-#include "economy_type.h"
+#include "money_type.h"
 #include "landscape_type.h"
 #include "newgrf_callbacks.h"
 #include "rail_type.h"
@@ -19,7 +19,7 @@
 #include "cargo_type.h"
 #include "date_type.h"
 #include "sound_type.h"
-#include "strings_type.h"
+#include "strings_id_type.h"
 #include "newgrf_badge_type.h"
 #include <variant>
 
@@ -30,19 +30,19 @@ using EngineID = PoolID<EngineIDTag>;
 struct Engine;
 
 /** Available types of rail vehicles. */
-enum RailVehicleTypes : uint8_t {
-	RAILVEH_SINGLEHEAD,  ///< indicates a "standalone" locomotive
-	RAILVEH_MULTIHEAD,   ///< indicates a combination of two locomotives
-	RAILVEH_WAGON,       ///< simple wagon, not motorized
+enum class RailVehicleType : uint8_t {
+	Singlehead, ///< indicates a "standalone" locomotive
+	Multihead, ///< indicates a combination of two locomotives
+	Wagon, ///< simple wagon, not motorized
 };
 
 /** Type of rail engine. */
-enum EngineClass : uint8_t {
-	EC_STEAM,    ///< Steam rail engine.
-	EC_DIESEL,   ///< Diesel rail engine.
-	EC_ELECTRIC, ///< Electric rail engine.
-	EC_MONORAIL, ///< Mono rail engine.
-	EC_MAGLEV,   ///< Maglev engine.
+enum class EngineClass : uint8_t {
+	Steam, ///< Steam rail engine.
+	Diesel, ///< Diesel rail engine.
+	Electric, ///< Electric rail engine.
+	Monorail, ///< Mono rail engine.
+	Maglev, ///< Maglev engine.
 };
 
 /** Acceleration model of a vehicle. */
@@ -75,8 +75,8 @@ enum VisualEffect : uint8_t {
 /** Information about a rail vehicle. */
 struct RailVehicleInfo {
 	uint8_t image_index = 0;
-	RailVehicleTypes railveh_type = RAILVEH_WAGON;
-	uint8_t cost_factor = 0;            ///< Purchase cost factor;      For multiheaded engines the sum of both engine prices.
+	RailVehicleType railveh_type = RailVehicleType::Wagon;
+	uint8_t cost_factor = 0;                     ///< Purchase cost factor. For multiheaded engines the sum of both engine prices.
 	RailTypes railtypes{RAILTYPE_RAIL};          ///< Railtypes, mangled if elrail is disabled.
 	RailTypes intended_railtypes{RAILTYPE_RAIL}; ///< Intended railtypes, regardless of elrail being enabled or disabled.
 	uint8_t ai_passenger_only = 0;      ///< Bit value to tell AI that this engine is for passenger use only
@@ -111,7 +111,12 @@ struct ShipVehicleInfo {
 	uint8_t ocean_speed_frac = 0;       ///< Fraction of maximum speed for ocean tiles.
 	uint8_t canal_speed_frac = 0;       ///< Fraction of maximum speed for canal/river tiles.
 
-	/** Apply ocean/canal speed fraction to a velocity */
+	/**
+	 * Apply ocean/canal speed fraction to a velocity.
+	 * @param raw_speed The original speed.
+	 * @param is_ocean Whether to apply the ocean or canal/river speed fraction.
+	 * @return The actual maximum speed of the ship.
+	 */
 	uint ApplyWaterClassSpeedFrac(uint raw_speed, bool is_ocean) const
 	{
 		/* speed_frac == 0 means no reduction while 0xFF means reduction to 1/256. */
@@ -171,7 +176,10 @@ enum class ExtraEngineFlag : uint8_t {
 	NoPreview       = 1, ///< No exclusive preview will be offered.
 	JoinPreview     = 2, ///< Engine will join exclusive preview with variant parent.
 	SyncReliability = 3, ///< Engine reliability will be synced with variant parent.
+	HasCab          = 4, ///< Train wagon has a cab and can lead a train when backing up, without any speed reduction.
 };
+
+/** Bitset of \c ExtraEngineFlag elements. */
 using ExtraEngineFlags = EnumBitSet<ExtraEngineFlag, uint8_t>;
 
 /**
@@ -191,6 +199,8 @@ enum class EngineMiscFlag : uint8_t {
 	NoBreakdownSmoke         = 6, ///< Do not show black smoke during a breakdown.
 	SpriteStack              = 7, ///< Draw vehicle by stacking multiple sprites.
 };
+
+/** Bitset of \c EngineMiscFlag elements. */
 using EngineMiscFlags = EnumBitSet<EngineMiscFlag, uint8_t>;
 
 /**
@@ -224,6 +234,8 @@ enum class EngineFlag : uint8_t {
 	Available        = 0, ///< This vehicle is available to everyone.
 	ExclusivePreview = 1, ///< This vehicle is in the exclusive preview stage, either being used or being offered to a company.
 };
+
+/** Bitset of \c EngineFlag elements. */
 using EngineFlags = EnumBitSet<EngineFlag, uint8_t>;
 
 /**
@@ -237,7 +249,13 @@ enum class EngineNameContext : uint8_t {
 	AutoreplaceVehicleInUse = 0x22, ///< Name is show in the autoreplace window 'Vehicles in use' panel.
 };
 
-/** Combine an engine ID and a name context to an engine name dparam. */
+/**
+ * Combine an engine ID and a name context to an engine name StringParameter.
+ * @param engine_id The engine's ID.
+ * @param context The context for the name.
+ * @param extra_data Arbitrary extra data.
+ * @return The packed StringParameter.
+ */
 inline uint64_t PackEngineNameDParam(EngineID engine_id, EngineNameContext context, uint32_t extra_data = 0)
 {
 	return engine_id.base() | (static_cast<uint64_t>(context) << 32) | (static_cast<uint64_t>(extra_data) << 40);

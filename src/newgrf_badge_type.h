@@ -25,6 +25,7 @@ template <> struct std::hash<BadgeClassID> {
 	}
 };
 
+/** Configuration flags for badges. */
 enum class BadgeFlag : uint8_t {
 	Copy = 0, ///< Copy badge to related things.
 	NameListStop = 1, ///< Stop adding names to the name list after this badge.
@@ -34,6 +35,8 @@ enum class BadgeFlag : uint8_t {
 
 	HasText, ///< Internal flag set if the badge has text.
 };
+
+/** Bitset of \c BridgeFlag elements. */
 using BadgeFlags = EnumBitSet<BadgeFlag, uint8_t>;
 
 #endif /* NEWGRF_BADGE_TYPE_H */

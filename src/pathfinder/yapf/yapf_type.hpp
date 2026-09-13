@@ -12,7 +12,7 @@
 
 #include "../../core/enum_type.hpp"
 
-/* Enum used in PfCalcCost() to see why was the segment closed. */
+/** Enum used in PfCalcCost() to see why was the segment closed. */
 enum class EndSegmentReason : uint8_t {
 	/* The following reasons can be saved into cached segment */
 	DeadEnd, ///< track ends here
@@ -34,9 +34,11 @@ enum class EndSegmentReason : uint8_t {
 	TargetReached, ///< we have just reached the destination
 	Reverse, ///< we should reverse after this point
 };
+
+/** Bitset of \c EndSegmentReason elements. */
 using EndSegmentReasons = EnumBitSet<EndSegmentReason, uint16_t>;
 
-/* What reasons mean that the target can be found and needs to be detected. */
+/** What reasons mean that the target can be found and needs to be detected. */
 static constexpr EndSegmentReasons ESRF_POSSIBLE_TARGET = {
 	EndSegmentReason::Depot,
 	EndSegmentReason::Waypoint,
@@ -44,7 +46,7 @@ static constexpr EndSegmentReasons ESRF_POSSIBLE_TARGET = {
 	EndSegmentReason::SafeTile,
 };
 
-/* What reasons can be stored back into cached segment. */
+/** What reasons can be stored back into cached segment. */
 static constexpr EndSegmentReasons ESRF_CACHED_MASK = {
 	EndSegmentReason::DeadEnd,
 	EndSegmentReason::DeadEndEol,
@@ -59,7 +61,7 @@ static constexpr EndSegmentReasons ESRF_CACHED_MASK = {
 	EndSegmentReason::Reverse,
 };
 
-/* Reasons to abort pathfinding in this direction. */
+/** Reasons to abort pathfinding in this direction. */
 static constexpr EndSegmentReasons ESRF_ABORT_PF_MASK = {
 	EndSegmentReason::DeadEnd,
 	EndSegmentReason::PathTooLong,

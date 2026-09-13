@@ -22,11 +22,11 @@
 #include "bitmap_type.h"
 #include "core/alignment.hpp"
 #include "core/alloc_func.hpp"
-#include "strings_type.h"
+#include "strings_id_type.h"
+#include "vehicle_type.h"
 #include <vector>
 #include <array>
 #include <iterator>
-#include <functional>
 #include <algorithm>
 
 static const uint8_t INITIAL_STATION_RATING = 175;
@@ -577,12 +577,14 @@ struct GoodsEntry {
 		 */
 		NoCargoSupply = 7,
 	};
+
+	/** Bitset of \c State elements. */
 	using States = EnumBitSet<State, uint8_t>;
 
 	GoodsEntry() :
 		status(0),
 		time_since_pickup(255),
-		last_vehicle_type(VEH_INVALID),
+		last_vehicle_type(VehicleType::Invalid),
 		rating(INITIAL_STATION_RATING),
 		last_speed(0),
 		last_age(255),
@@ -601,7 +603,7 @@ struct GoodsEntry {
 	 */
 	uint8_t time_since_pickup;
 
-	uint8_t last_vehicle_type;
+	VehicleType last_vehicle_type = VehicleType::Invalid;
 
 	uint8_t rating;         ///< %Station rating for this cargo.
 
@@ -735,10 +737,10 @@ struct GoodsEntry {
 struct Airport : public TileArea {
 	Airport() : TileArea(INVALID_TILE, 0, 0) {}
 
-	AirportBlocks blocks{};           ///< stores which blocks on the airport are taken. was 16 bit earlier on, then 32
-	uint8_t type = 0;                 ///< Type of this airport, @see AirportTypes
-	uint8_t layout = 0;               ///< Airport layout number.
-	Direction rotation = INVALID_DIR; ///< How this airport is rotated.
+	AirportBlocks blocks{};                  ///< stores which blocks on the airport are taken. was 16 bit earlier on, then 32
+	uint8_t type = 0;                        ///< Type of this airport, @see AirportTypes
+	uint8_t layout = 0;                      ///< Airport layout number.
+	Direction rotation = Direction::Invalid; ///< How this airport is rotated.
 
 	PersistentStorage *psa = nullptr; ///< Persistent storage for NewGRF airports.
 
@@ -764,7 +766,10 @@ struct Airport : public TileArea {
 		return this->GetSpec()->fsm;
 	}
 
-	/** Check if this airport has at least one hangar. */
+	/**
+	 * Check if this airport has at least one hangar.
+	 * @return \c true iff there are one or more hangars.
+	 */
 	inline bool HasHangar() const
 	{
 		return !this->GetSpec()->depots.empty();
@@ -782,13 +787,13 @@ struct Airport : public TileArea {
 	{
 		const AirportSpec *as = this->GetSpec();
 		switch (this->rotation) {
-			case DIR_N: return this->tile + ToTileIndexDiff(tidc);
+			case Direction::N: return this->tile + ToTileIndexDiff(tidc);
 
-			case DIR_E: return this->tile + TileDiffXY(tidc.y, as->size_x - 1 - tidc.x);
+			case Direction::E: return this->tile + TileDiffXY(tidc.y, as->size_x - 1 - tidc.x);
 
-			case DIR_S: return this->tile + TileDiffXY(as->size_x - 1 - tidc.x, as->size_y - 1 - tidc.y);
+			case Direction::S: return this->tile + TileDiffXY(as->size_x - 1 - tidc.x, as->size_y - 1 - tidc.y);
 
-			case DIR_W: return this->tile + TileDiffXY(as->size_y - 1 - tidc.y, tidc.x);
+			case Direction::W: return this->tile + TileDiffXY(as->size_y - 1 - tidc.y, tidc.x);
 
 			default: NOT_REACHED();
 		}
@@ -835,7 +840,10 @@ struct Airport : public TileArea {
 		return htt->hangar_num;
 	}
 
-	/** Get the number of hangars on this airport. */
+	/**
+	 * Get the number of hangars on this airport.
+	 * @return The number of unique hangars.
+	 */
 	inline uint GetNumHangars() const
 	{
 		uint num = 0;
@@ -907,7 +915,7 @@ public:
 	BitmapTileArea catchment_tiles{};       ///< NOSAVE: Set of individual tiles covered by catchment area
 	uint station_tiles = 0;                 ///< NOSAVE: Count of station tiles owned by this station
 
-	StationHadVehicleOfType had_vehicle_of_type{};
+	StationVehicleTypes had_vehicle_of_type{};
 
 	uint8_t time_since_load = 0;
 	uint8_t time_since_unload = 0;
@@ -921,7 +929,7 @@ public:
 	IndustryList industries_near{};            ///< Cached list of industries near the station that can accept cargo, @see DeliverGoodsToIndustry()
 	Industry *industry = nullptr;              ///< NOSAVE: Associated industry for neutral stations. (Rebuilt on load from Industry->st)
 
-	CargoTypes station_cargo_history_cargoes = 0;                                            ///< Bitmask of cargoes in station_cargo_history
+	CargoTypes station_cargo_history_cargoes{};                                              ///< Bitmask of cargoes in station_cargo_history
 	std::vector<std::array<uint16_t, MAX_STATION_CARGO_HISTORY_DAYS>> station_cargo_history; ///< Station history of waiting cargo, dynamic range compressed (see RXCompressUint)
 
 	Station(StationID index, TileIndex tile = INVALID_TILE);
@@ -934,6 +942,8 @@ public:
 	void UpdateVirtCoord() override;
 
 	void UpdateCargoHistory();
+
+	void CheckCargoOverflow() const;
 
 	void MoveSign(TileIndex new_xy) override;
 
@@ -1015,10 +1025,13 @@ public:
 
 void RebuildStationKdtree();
 
+using ForAllStationsAroundTilesFunc = bool(Station *, TileIndex);
+using ForAllStationsAroundTilesIntlFunc = void(Station *, const TileArea &, uintptr_t);
+
 /**
  * Call a function on all stations that have any part of the requested area within their catchment.
  * @tparam Func The type of function to call
- * @param area The TileArea to check
+ * @param ta The TileArea to check.
  * @param func The function to call, must take two parameters: Station* and TileIndex and return true
  *             if coverage of that tile is acceptable for a given station or false if search should continue
  */
@@ -1028,31 +1041,29 @@ void ForAllStationsAroundTiles(const TileArea &ta, Func func)
 	/* There are no stations, so we will never find anything. */
 	if (Station::GetNumItems() == 0) return;
 
-	/* Not using, or don't have a nearby stations list, so we need to scan. */
-	btree::btree_set<StationID> seen_stations;
+	extern void ForAllStationsAroundTilesIntl(const TileArea &ta, ForAllStationsAroundTilesIntlFunc *func, uintptr_t data);
 
-	/* Scan an area around the building covering the maximum possible station
-	 * to find the possible nearby stations. */
-	uint max_c = _settings_game.station.modified_catchment ? MAX_CATCHMENT : CA_UNMODIFIED;
-	max_c += _settings_game.station.catchment_increase;
-	TileArea ta_ext = TileArea(ta).Expand(max_c);
-	for (TileIndex tile : ta_ext) {
-		if (IsTileType(tile, MP_STATION)) seen_stations.insert(GetStationIndex(tile));
-	}
-
-	for (StationID stationid : seen_stations) {
-		Station *st = Station::GetIfValid(stationid);
-		if (st == nullptr) continue; /* Waypoint */
-
-		/* Check if station is attached to an industry */
-		if (!_settings_game.station.serve_neutral_industries && st->industry != nullptr) continue;
-
-		/* Test if the tile is within the station's catchment */
-		for (TileIndex tile : ta) {
-			if (st->TileIsInCatchment(tile)) {
-				if (func(st, tile)) break;
+	struct Helper {
+		static void Exec(Station *st, const TileArea &ta, Func &f) {
+			/* Test if the tile is within the station's catchment */
+			for (TileIndex tile : ta) {
+				if (st->TileIsInCatchment(tile)) {
+					if (f(st, tile)) break;
+				}
 			}
-		}
+		};
+	};
+
+	if constexpr (std::is_convertible_v<Func, ForAllStationsAroundTilesFunc *>) {
+		ForAllStationsAroundTilesIntl(ta, [](Station *st, const TileArea &ta, uintptr_t data) {
+			Func f;
+			Helper::Exec(st, ta, f);
+		}, 0);
+	} else {
+		Func *ptr = &func;
+		ForAllStationsAroundTilesIntl(ta, [](Station *st, const TileArea &ta, uintptr_t data) {
+			Helper::Exec(st, ta, *reinterpret_cast<Func *>(data));
+		}, reinterpret_cast<uintptr_t>(ptr));
 	}
 }
 

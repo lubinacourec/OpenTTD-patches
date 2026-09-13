@@ -35,6 +35,7 @@ enum class EngineDisplayFlag : uint8_t {
 	Shaded, ///< Set if engine should be masked.
 };
 
+/** Bitset of \c EngineDisplayFlag elements. */
 using EngineDisplayFlags = EnumBitSet<EngineDisplayFlag, uint8_t>;
 
 typedef Pool<Engine, EngineID, 64> EnginePool;
@@ -68,7 +69,7 @@ struct Engine : EnginePool::PoolItem<&_engine_pool> {
 	CompanyID preview_company = CompanyID::Invalid();    ///< Company which is currently being offered a preview \c CompanyID::Invalid() means no company.
 	uint8_t preview_wait = 0;                            ///< Daily countdown timer for timeout of offering the engine to the #preview_company company.
 	uint8_t original_image_index = 0;                    ///< Original vehicle image index, thus the image index of the overridden vehicle
-	VehicleType type = VEH_INVALID;                      ///< %Vehicle type, ie #VEH_ROAD, #VEH_TRAIN, etc.
+	VehicleType type = VehicleType::Invalid;             ///< %Vehicle type, ie #VehicleType::Road, #VehicleType::Train, etc.
 
 	EngineDisplayFlags display_flags{};                  ///< NOSAVE client-side-only display flags for build engine list.
 	EngineID display_last_variant = EngineID::Invalid(); ///< NOSAVE client-side-only last variant selected.
@@ -94,7 +95,7 @@ struct Engine : EnginePool::PoolItem<&_engine_pool> {
 	std::unique_ptr<EngineRefitCapacityValue[], FreeDeleter> refit_capacity_values;
 
 private:
-	/* Vehicle-type specific information. */
+	/** Vehicle-type specific information. */
 	std::variant<std::monostate, RailVehicleInfo, RoadVehicleInfo, ShipVehicleInfo, AircraftVehicleInfo> vehicle_info{};
 
 public:
@@ -178,7 +179,7 @@ public:
 	 */
 	inline bool IsGroundVehicle() const
 	{
-		return this->type == VEH_TRAIN || this->type == VEH_ROAD;
+		return this->type == VehicleType::Train || this->type == VehicleType::Road;
 	}
 
 	/**
@@ -187,7 +188,7 @@ public:
 	 */
 	inline bool IsArticulatedCallbackVehicleType() const
 	{
-		return this->type == VEH_TRAIN || this->type == VEH_ROAD || this->type == VEH_SHIP;
+		return this->type == VehicleType::Train || this->type == VehicleType::Road || this->type == VehicleType::Ship;
 	}
 
 	/**
@@ -200,7 +201,7 @@ public:
 		return this->grf_prop.grffile;
 	}
 
-	uint32_t GetGRFID() const;
+	GrfID GetGRFID() const;
 
 	struct EngineTypeFilter {
 		VehicleType vt;

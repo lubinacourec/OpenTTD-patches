@@ -27,12 +27,12 @@
 ChangeInfoResult HandleAction0PropertyDefault(ByteReader &buf, int prop)
 {
 	if (prop == A0RPI_UNKNOWN_ERROR) {
-		return CIR_DISABLED;
+		return ChangeInfoResult::Disabled;
 	} else if (prop < A0RPI_UNKNOWN_IGNORE) {
-		return CIR_UNKNOWN;
+		return ChangeInfoResult::Unknown;
 	} else {
 		buf.Skip(buf.ReadExtendedByte());
-		return CIR_SUCCESS;
+		return ChangeInfoResult::Success;
 	}
 }
 
@@ -61,7 +61,7 @@ struct GRFFilePropertyDescriptor {
 			: prop(prop), entry(entry) {}
 };
 
-static GRFFilePropertyDescriptor ReadAction0PropertyID(ByteReader &buf, uint8_t feature)
+static GRFFilePropertyDescriptor ReadAction0PropertyID(ByteReader &buf, GrfSpecFeature feature)
 {
 	uint8_t raw_prop = buf.ReadByte();
 	const GRFFilePropertyRemapSet &remap = _cur_gps.grffile->action0_property_remaps[feature];
@@ -74,7 +74,7 @@ static GRFFilePropertyDescriptor ReadAction0PropertyID(ByteReader &buf, uint8_t 
 			GrfMsg(0, "Error: Unimplemented mapped property: {}, feature: {}, mapped to: {:X}", def.name, GetFeatureString(def.feature), raw_prop);
 			GRFError *error = DisableGrf(STR_NEWGRF_ERROR_UNIMPLEMETED_MAPPED_PROPERTY);
 			error->data = stredup(def.name);
-			error->param_value[1] = def.feature;
+			error->param_value[1] = to_underlying(def.feature);
 			error->param_value[2] = raw_prop;
 		} else if (prop == A0RPI_UNKNOWN_IGNORE) {
 			GrfMsg(2, "Ignoring unimplemented mapped property: {}, feature: {}, mapped to: {:X}", def.name, GetFeatureString(def.feature), raw_prop);
@@ -99,7 +99,7 @@ static GRFFilePropertyDescriptor ReadAction0PropertyID(ByteReader &buf, uint8_t 
 					GrfMsg(0, "Error: Unimplemented mapped extended ID property: {}, feature: {}, mapped to: {:X} (via {:X})", ext_def.name, GetFeatureString(ext_def.feature), mapped_id, raw_prop);
 					GRFError *error = DisableGrf(STR_NEWGRF_ERROR_UNIMPLEMETED_MAPPED_PROPERTY);
 					error->data = stredup(ext_def.name);
-					error->param_value[1] = ext_def.feature;
+					error->param_value[1] = to_underlying(ext_def.feature);
 					error->param_value[2] = 0xE0000 | mapped_id;
 				} else if (prop == A0RPI_UNKNOWN_IGNORE) {
 					GrfMsg(2, "Ignoring unimplemented mapped extended ID property: {}, feature: {}, mapped to: {:X} (via {:X})", ext_def.name, GetFeatureString(ext_def.feature), mapped_id, raw_prop);
@@ -156,7 +156,7 @@ ChangeInfoResult CommonVehicleChangeInfo(EngineInfo *ei, int prop, const GRFFile
 			return HandleAction0PropertyDefault(buf, prop);
 	}
 
-	return CIR_SUCCESS;
+	return ChangeInfoResult::Success;
 }
 
 /**
@@ -208,25 +208,25 @@ bool HandleChangeInfoResult(std::string_view caller, ChangeInfoResult cir, GrfSp
 	switch (cir) {
 		default: NOT_REACHED();
 
-		case CIR_DISABLED:
+		case ChangeInfoResult::Disabled:
 			/* Error has already been printed; just stop parsing */
 			return true;
 
-		case CIR_SUCCESS:
+		case ChangeInfoResult::Success:
 			return false;
 
-		case CIR_UNHANDLED:
+		case ChangeInfoResult::Unhandled:
 			GrfMsg(1, "{}: Ignoring property 0x{:02X} of feature {} (not implemented)", caller, property, GetFeatureString(feature));
 			return false;
 
-		case CIR_UNKNOWN:
+		case ChangeInfoResult::Unknown:
 			GrfMsg(0, "{}: Unknown property 0x{:02X} of feature {}, disabling", caller, property, GetFeatureString(feature));
 			[[fallthrough]];
 
-		case CIR_INVALID_ID: {
+		case ChangeInfoResult::InvalidId: {
 			/* No debug message for an invalid ID, as it has already been output */
-			GRFError *error = DisableGrf(cir == CIR_INVALID_ID ? STR_NEWGRF_ERROR_INVALID_ID : STR_NEWGRF_ERROR_UNKNOWN_PROPERTY);
-			if (cir != CIR_INVALID_ID) error->param_value[1] = property;
+			GRFError *error = DisableGrf(cir == ChangeInfoResult::InvalidId ? STR_NEWGRF_ERROR_INVALID_ID : STR_NEWGRF_ERROR_UNKNOWN_PROPERTY);
+			if (cir != ChangeInfoResult::InvalidId) error->param_value[1] = property;
 			return true;
 		}
 	}
@@ -234,30 +234,50 @@ bool HandleChangeInfoResult(std::string_view caller, ChangeInfoResult cir, GrfSp
 
 /** Helper class to invoke a GrfChangeInfoHandler. */
 struct InvokeGrfChangeInfoHandler {
+	/**
+	 * Invoke the change info handler for a specific feature.
+	 * @tparam TFeature The feature.
+	 * @param first The first id of the feature instance (engine, station, ...) to activate for.
+	 * @param last The id to stop iterating at (exclusive).
+	 * @param prop The property to activate for.
+	 * @param buf The buffer containing the sprite data.
+	 * @param stage The current loading stage.
+	 * @return Whether it was successful, or why it wasn't.
+	 */
 	template <GrfSpecFeature TFeature>
 	static ChangeInfoResult Invoke(uint first, uint last, int prop, const GRFFilePropertyRemapEntry *mapping_entry, ByteReader &buf, GrfLoadingStage stage)
 	{
 		switch (stage) {
-			case GLS_RESERVE: return GrfChangeInfoHandler<TFeature>::Reserve(first, last, prop, mapping_entry, buf);
-			case GLS_ACTIVATION: return GrfChangeInfoHandler<TFeature>::Activation(first, last, prop, mapping_entry, buf);
+			case GrfLoadingStage::Reserve: return GrfChangeInfoHandler<TFeature>::Reserve(first, last, prop, mapping_entry, buf);
+			case GrfLoadingStage::Activation: return GrfChangeInfoHandler<TFeature>::Activation(first, last, prop, mapping_entry, buf);
 			default: NOT_REACHED();
 		}
 	}
 
 	using Invoker = ChangeInfoResult(*)(uint first, uint last, int prop, const GRFFilePropertyRemapEntry *mapping_entry, ByteReader &buf, GrfLoadingStage stage);
-	static constexpr Invoker funcs[] { // Must be listed in feature order.
-		Invoke<GSF_TRAINS>,    Invoke<GSF_ROADVEHICLES>,  Invoke<GSF_SHIPS>,         Invoke<GSF_AIRCRAFT>,
-		Invoke<GSF_STATIONS>,  Invoke<GSF_CANALS>,        Invoke<GSF_BRIDGES>,       Invoke<GSF_HOUSES>,
-		Invoke<GSF_GLOBALVAR>, Invoke<GSF_INDUSTRYTILES>, Invoke<GSF_INDUSTRIES>,    Invoke<GSF_CARGOES>,
-		Invoke<GSF_SOUNDFX>,   Invoke<GSF_AIRPORTS>,      Invoke<GSF_SIGNALS>,       Invoke<GSF_OBJECTS>,
-		Invoke<GSF_RAILTYPES>, Invoke<GSF_AIRPORTTILES>,  Invoke<GSF_ROADTYPES>,     Invoke<GSF_TRAMTYPES>,
-		Invoke<GSF_ROADSTOPS>, Invoke<GSF_BADGES>,        Invoke<GSF_NEWLANDSCAPE>,  nullptr /* GSF_FAKE_TOWNS */
+	static constexpr EnumIndexArray<Invoker, GrfSpecFeature, GrfSpecFeature::End> funcs{ // Must be listed in feature order.
+		Invoke<GrfSpecFeature::Trains>,       Invoke<GrfSpecFeature::RoadVehicles>,  Invoke<GrfSpecFeature::Ships>,         Invoke<GrfSpecFeature::Aircraft>,
+		Invoke<GrfSpecFeature::Stations>,     Invoke<GrfSpecFeature::Canals>,        Invoke<GrfSpecFeature::Bridges>,       Invoke<GrfSpecFeature::Houses>,
+		Invoke<GrfSpecFeature::GlobalVar>,    Invoke<GrfSpecFeature::IndustryTiles>, Invoke<GrfSpecFeature::Industries>,    Invoke<GrfSpecFeature::Cargoes>,
+		Invoke<GrfSpecFeature::SoundEffects>, Invoke<GrfSpecFeature::Airports>,      Invoke<GrfSpecFeature::Signals>,       Invoke<GrfSpecFeature::Objects>,
+		Invoke<GrfSpecFeature::RailTypes>,    Invoke<GrfSpecFeature::AirportTiles>,  Invoke<GrfSpecFeature::RoadTypes>,     Invoke<GrfSpecFeature::TramTypes>,
+		Invoke<GrfSpecFeature::RoadStops>,    Invoke<GrfSpecFeature::Badges>,        Invoke<GrfSpecFeature::NewLandscape>,  nullptr /* GrfSpecFeature::FakeTowns */
 	};
 
+	/**
+	 * Invoke the change info handler for a specific feature.
+	 * @param feature The feature.
+	 * @param first The first id of the feature instance (engine, station, ...) to activate for.
+	 * @param last The id to stop iterating at (exclusive).
+	 * @param prop The property to activate for.
+	 * @param buf The buffer containing the sprite data.
+	 * @param stage The current loading stage.
+	 * @return Whether it was successful, or why it wasn't.
+	 */
 	static ChangeInfoResult Invoke(GrfSpecFeature feature, uint first, uint last, int prop, const GRFFilePropertyRemapEntry *mapping_entry, ByteReader &buf, GrfLoadingStage stage)
 	{
-		Invoker func = feature < std::size(funcs) ? funcs[feature] : nullptr;
-		if (func == nullptr) return CIR_UNKNOWN;
+		Invoker func = to_underlying(feature) < std::size(funcs) ? funcs[feature] : nullptr;
+		if (func == nullptr) return ChangeInfoResult::Unknown;
 		return func(first, last, prop, mapping_entry, buf, stage);
 	}
 };
@@ -282,7 +302,7 @@ static void FeatureChangeInfo(ByteReader &buf)
 	uint numinfo  = buf.ReadByte();
 	uint engine   = buf.ReadExtendedByte();
 
-	if (feature >= GSF_END) {
+	if (feature >= GrfSpecFeature::End) {
 		GrfMsg(1, "FeatureChangeInfo: Unsupported feature {} skipping", GetFeatureString(feature_ref));
 		return;
 	}
@@ -291,9 +311,9 @@ static void FeatureChangeInfo(ByteReader &buf)
 	               GetFeatureString(feature_ref), numprops, engine, numinfo);
 
 	/* Test if feature handles change. */
-	ChangeInfoResult cir_test = InvokeGrfChangeInfoHandler::Invoke(feature, 0, 0, 0, nullptr, buf, GLS_ACTIVATION);
-	if (cir_test == CIR_UNHANDLED) return;
-	if (cir_test == CIR_UNKNOWN) {
+	ChangeInfoResult cir_test = InvokeGrfChangeInfoHandler::Invoke(feature, 0, 0, 0, nullptr, buf, GrfLoadingStage::Activation);
+	if (cir_test == ChangeInfoResult::Unhandled) return;
+	if (cir_test == ChangeInfoResult::Unknown) {
 		GrfMsg(1, "FeatureChangeInfo: Unsupported feature {}, skipping", GetFeatureString(feature_ref));
 		return;
 	}
@@ -304,12 +324,12 @@ static void FeatureChangeInfo(ByteReader &buf)
 	while (numprops-- && buf.HasData()) {
 		GRFFilePropertyDescriptor desc = ReadAction0PropertyID(buf, feature);
 
-		ChangeInfoResult cir = InvokeGrfChangeInfoHandler::Invoke(feature, engine, engine + numinfo, desc.prop, desc.entry, buf, GLS_ACTIVATION);
+		ChangeInfoResult cir = InvokeGrfChangeInfoHandler::Invoke(feature, engine, engine + numinfo, desc.prop, desc.entry, buf, GrfLoadingStage::Activation);
 		if (HandleChangeInfoResult("FeatureChangeInfo", cir, feature, desc.prop)) return;
 	}
 }
 
-/* Action 0x00 (GLS_SAFETYSCAN) */
+/* Action 0x00 (GrfLoadingStage::SafetyScan) */
 static void SafeChangeInfo(ByteReader &buf)
 {
 	GrfSpecFeatureRef feature = ReadFeature(buf.ReadByte());
@@ -317,19 +337,19 @@ static void SafeChangeInfo(ByteReader &buf)
 	uint numinfo = buf.ReadByte();
 	buf.ReadExtendedByte(); // id
 
-	if (feature.id == GSF_BRIDGES && numprops == 1) {
+	if (feature.id == GrfSpecFeature::Bridges && numprops == 1) {
 		GRFFilePropertyDescriptor desc = ReadAction0PropertyID(buf, feature.id);
 
 		/* Bridge property 0x0D is redefinition of sprite layout tables, which
 		 * is considered safe. */
 		if (desc.prop == 0x0D) return;
-	} else if (feature.id == GSF_GLOBALVAR && numprops == 1) {
+	} else if (feature.id == GrfSpecFeature::GlobalVar && numprops == 1) {
 		GRFFilePropertyDescriptor desc = ReadAction0PropertyID(buf, feature.id);
 		/* Engine ID Mappings are safe, if the source is static */
 		if (desc.prop == 0x11) {
 			bool is_safe = true;
 			for (uint i = 0; i < numinfo; i++) {
-				uint32_t s = buf.ReadDWord();
+				GrfID s = buf.ReadDWord();
 				buf.ReadDWord(); // dest
 				const GRFConfig *grfconfig = GetGRFConfig(s);
 				if (grfconfig != nullptr && !grfconfig->flags.Test(GRFConfigFlag::Static)) {
@@ -344,16 +364,16 @@ static void SafeChangeInfo(ByteReader &buf)
 	GRFUnsafe(buf);
 }
 
-/* Action 0x00 (GLS_RESERVE) */
+/* Action 0x00 (GrfLoadingStage::Reserve) */
 static void ReserveChangeInfo(ByteReader &buf)
 {
 	GrfSpecFeatureRef feature_ref = ReadFeature(buf.ReadByte());
 	GrfSpecFeature feature = feature_ref.id;
 
 	/* Test if feature handles reservation. */
-	ChangeInfoResult cir_test = InvokeGrfChangeInfoHandler::Invoke(feature, 0, 0, 0, nullptr, buf, GLS_RESERVE);
-	if (cir_test == CIR_UNHANDLED) return;
-	if (cir_test == CIR_UNKNOWN) {
+	ChangeInfoResult cir_test = InvokeGrfChangeInfoHandler::Invoke(feature, 0, 0, 0, nullptr, buf, GrfLoadingStage::Reserve);
+	if (cir_test == ChangeInfoResult::Unhandled) return;
+	if (cir_test == ChangeInfoResult::Unknown) {
 		GrfMsg(1, "ReserveChangeInfo: Unsupported feature {}, skipping", GetFeatureString(feature_ref));
 		return;
 	}
@@ -365,14 +385,20 @@ static void ReserveChangeInfo(ByteReader &buf)
 	while (numprops-- && buf.HasData()) {
 		GRFFilePropertyDescriptor desc = ReadAction0PropertyID(buf, feature);
 
-		ChangeInfoResult cir = InvokeGrfChangeInfoHandler::Invoke(feature, index, index + numinfo, desc.prop, desc.entry, buf, GLS_RESERVE);
+		ChangeInfoResult cir = InvokeGrfChangeInfoHandler::Invoke(feature, index, index + numinfo, desc.prop, desc.entry, buf, GrfLoadingStage::Reserve);
 		if (HandleChangeInfoResult("ReserveChangeInfo", cir, feature, desc.prop)) return;
 	}
 }
 
+/** @copybrief GrfActionHandler::FileScan */
 template <> void GrfActionHandler<0x00>::FileScan(ByteReader &) { }
+/** @copydoc GrfActionHandler::SafetyScan */
 template <> void GrfActionHandler<0x00>::SafetyScan(ByteReader &buf) { SafeChangeInfo(buf); }
+/** @copybrief GrfActionHandler::LabelScan */
 template <> void GrfActionHandler<0x00>::LabelScan(ByteReader &) { }
+/** @copybrief GrfActionHandler::Init */
 template <> void GrfActionHandler<0x00>::Init(ByteReader &) { }
+/** @copydoc GrfActionHandler::Reserve */
 template <> void GrfActionHandler<0x00>::Reserve(ByteReader &buf) { ReserveChangeInfo(buf); }
+/** @copydoc GrfActionHandler::Activation */
 template <> void GrfActionHandler<0x00>::Activation(ByteReader &buf) { FeatureChangeInfo(buf); }

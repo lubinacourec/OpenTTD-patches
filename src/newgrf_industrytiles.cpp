@@ -21,6 +21,7 @@
 #include "newgrf_animation_base.h"
 #include "newgrf_analysis.h"
 #include "newgrf_industrytiles_analysis.h"
+#include "tile_cmd.h"
 
 #include "table/strings.h"
 
@@ -38,7 +39,7 @@
 uint32_t GetNearbyIndustryTileInformation(uint8_t parameter, TileIndex tile, IndustryID index, bool signed_offsets, bool grf_version8, uint32_t mask)
 {
 	if (parameter != 0) tile = GetNearbyTile(parameter, tile, signed_offsets); // only perform if it is required
-	bool is_same_industry = (IsTileType(tile, MP_INDUSTRY) && GetIndustryIndex(tile) == index);
+	bool is_same_industry = (IsTileType(tile, TileType::Industry) && GetIndustryIndex(tile) == index);
 
 	uint32_t result = (is_same_industry ? 1 : 0) << 8;
 	if (mask & ~0x100) result |= GetNearbyTileInformation(tile, grf_version8, mask);
@@ -55,6 +56,7 @@ uint32_t GetNearbyIndustryTileInformation(uint8_t parameter, TileIndex tile, Ind
  * YY        same, but stored in a byte instead of a nibble
  * @param tile TileIndex of the tile to evaluate
  * @param ind_tile northernmost tile of the industry
+ * @return The relative position.
  */
 uint32_t GetRelativePosition(TileIndex tile, TileIndex ind_tile)
 {
@@ -68,7 +70,7 @@ uint32_t GetRelativePosition(TileIndex tile, TileIndex ind_tile)
 {
 	switch (variable) {
 		/* Construction state of the tile: a value between 0 and 3 */
-		case 0x40: return (IsTileType(this->tile, MP_INDUSTRY)) ? GetIndustryConstructionStage(this->tile) : 0;
+		case 0x40: return (IsTileType(this->tile, TileType::Industry)) ? GetIndustryConstructionStage(this->tile) : 0;
 
 		/* Terrain type */
 		case 0x41: return GetTerrainType(this->tile);
@@ -80,7 +82,7 @@ uint32_t GetRelativePosition(TileIndex tile, TileIndex ind_tile)
 		case 0x43: return GetRelativePosition(this->tile, this->industry->location.tile);
 
 		/* Animation frame. Like house variable 46 but can contain anything 0..FF. */
-		case 0x44: return IsTileType(this->tile, MP_INDUSTRY) ? GetAnimationFrame(this->tile) : 0;
+		case 0x44: return IsTileType(this->tile, TileType::Industry) ? GetAnimationFrame(this->tile) : 0;
 
 		/* Land info of nearby tiles */
 		case 0x60: return GetNearbyIndustryTileInformation(parameter, this->tile,
@@ -89,7 +91,7 @@ uint32_t GetRelativePosition(TileIndex tile, TileIndex ind_tile)
 		/* Animation stage of nearby tiles */
 		case 0x61: {
 			TileIndex tile = GetNearbyTile(parameter, this->tile);
-			if (IsTileType(tile, MP_INDUSTRY) && Industry::GetByTile(tile) == this->industry) {
+			if (IsTileType(tile, TileType::Industry) && Industry::GetByTile(tile) == this->industry) {
 				return GetAnimationFrame(tile);
 			}
 			return UINT_MAX;
@@ -110,7 +112,7 @@ uint32_t GetRelativePosition(TileIndex tile, TileIndex ind_tile)
 /* virtual */ uint32_t IndustryTileScopeResolver::GetRandomBits() const
 {
 	assert_tile(this->industry != nullptr && IsValidTile(this->tile), this->tile);
-	assert_tile(this->industry->index == IndustryID::Invalid() || IsTileType(this->tile, MP_INDUSTRY), this->tile);
+	assert_tile(this->industry->index == IndustryID::Invalid() || IsTileType(this->tile, TileType::Industry), this->tile);
 
 	return (this->industry->index != IndustryID::Invalid()) ? GetIndustryRandomBits(this->tile) : 0;
 }
@@ -118,7 +120,7 @@ uint32_t GetRelativePosition(TileIndex tile, TileIndex ind_tile)
 /* virtual */ uint32_t IndustryTileScopeResolver::GetRandomTriggers() const
 {
 	assert_tile(this->industry != nullptr && IsValidTile(this->tile), this->tile);
-	assert_tile(this->industry->index == IndustryID::Invalid() || IsTileType(this->tile, MP_INDUSTRY), this->tile);
+	assert_tile(this->industry->index == IndustryID::Invalid() || IsTileType(this->tile, TileType::Industry), this->tile);
 	if (this->industry->index == IndustryID::Invalid()) return 0;
 	return GetIndustryRandomTriggers(this->tile).base();
 }
@@ -155,7 +157,7 @@ IndustryTileResolverObject::IndustryTileResolverObject(IndustryGfx gfx, TileInde
 
 GrfSpecFeature IndustryTileResolverObject::GetFeature() const
 {
-	return GSF_INDUSTRYTILES;
+	return GrfSpecFeature::IndustryTiles;
 }
 
 uint32_t IndustryTileResolverObject::GetDebugID() const
@@ -184,13 +186,13 @@ static void IndustryDrawTileLayout(const TileInfo *ti, const TileLayoutSpriteGro
 		}
 	}
 
-	DrawNewGRFTileSeq(ti, &dts, TO_INDUSTRIES, stage, GetColourPalette(rnd_colour));
+	DrawNewGRFTileSeq(ti, &dts, TransparencyOption::Industries, stage, GetColourPalette(rnd_colour));
 }
 
 uint16_t GetIndustryTileCallback(CallbackID callback, uint32_t param1, uint32_t param2, IndustryGfx gfx_id, Industry *industry, TileIndex tile)
 {
 	assert_tile(industry != nullptr && IsValidTile(tile), tile);
-	assert_tile(industry->index == IndustryID::Invalid() || IsTileType(tile, MP_INDUSTRY), tile);
+	assert_tile(industry->index == IndustryID::Invalid() || IsTileType(tile, TileType::Industry), tile);
 
 	IndustryTileResolverObject object(gfx_id, tile, industry, callback, param1, param2);
 	return object.ResolveCallback();
@@ -206,7 +208,7 @@ bool DrawNewIndustryTile(TileInfo *ti, Industry *i, IndustryGfx gfx, const Indus
 			if (callback_res != CALLBACK_FAILED) draw_old_one = ConvertBooleanCallback(inds->grf_prop.grffile, CBID_INDTILE_DRAW_FOUNDATIONS, callback_res);
 		}
 
-		if (draw_old_one) DrawFoundation(ti, FOUNDATION_LEVELED);
+		if (draw_old_one) DrawFoundation(ti, Foundation::Leveled);
 	}
 
 	IndustryTileResolverObject object(gfx, ti->tile, i);
@@ -245,7 +247,7 @@ CommandCost PerformIndustryTileSlopeCheck(TileIndex ind_base_tile, TileIndex ind
 	ind.random = initial_random_bits;
 	ind.founder = founder;
 
-	uint16_t callback_res = GetIndustryTileCallback(CBID_INDTILE_SHAPE_CHECK, 0, creation_type << 8 | static_cast<uint32_t>(layout_index), gfx, &ind, ind_tile);
+	uint16_t callback_res = GetIndustryTileCallback(CBID_INDTILE_SHAPE_CHECK, 0, to_underlying(creation_type) << 8 | static_cast<uint32_t>(layout_index), gfx, &ind, ind_tile);
 	if (callback_res == CALLBACK_FAILED) {
 		if (!IsSlopeRefused(GetTileSlope(ind_tile), its->slopes_refused)) return CommandCost();
 		return CommandCost(STR_ERROR_SITE_UNSUITABLE);
@@ -296,7 +298,7 @@ static bool DoTriggerIndustryTileAnimation(TileIndex tile, IndustryAnimationTrig
 			const uint64_t mask = spec->layout_anim_masks[ind->selected_layout - 1];
 			uint idx = 0;
 			for (IndustryTileLayoutTile it : spec->layouts[ind->selected_layout - 1]) {
-				if (it.gfx == 0xFF) continue;
+				if (it.gfx == GFX_WATERTILE_SPECIALCHECK) continue;
 
 				if (it.ti == tile_delta) {
 					IndustryGfx gfx = GetTranslatedIndustryTileID(it.gfx);
@@ -366,7 +368,7 @@ uint8_t GetNewIndustryTileAnimationSpeed(TileIndex tile)
  */
 static void DoTriggerIndustryTileRandomisation(TileIndex tile, IndustryRandomTrigger trigger, Industry *ind, uint32_t &reseed_industry)
 {
-	assert_tile(IsValidTile(tile) && IsTileType(tile, MP_INDUSTRY), tile);
+	assert_tile(IsValidTile(tile) && IsTileType(tile, TileType::Industry), tile);
 
 	IndustryGfx gfx = GetIndustryGfx(tile);
 	const IndustryTileSpec *itspec = GetIndustryTileSpec(gfx);
@@ -388,12 +390,12 @@ static void DoTriggerIndustryTileRandomisation(TileIndex tile, IndustryRandomTri
 	/* Rerandomise tile bits */
 	uint8_t new_random_bits = Random();
 	uint8_t random_bits = GetIndustryRandomBits(tile);
-	random_bits &= ~object.reseed[VSG_SCOPE_SELF];
-	random_bits |= new_random_bits & object.reseed[VSG_SCOPE_SELF];
+	random_bits &= ~object.reseed[VarSpriteGroupScope::Self];
+	random_bits |= new_random_bits & object.reseed[VarSpriteGroupScope::Self];
 	SetIndustryRandomBits(tile, random_bits);
 	MarkTileDirtyByTile(tile, VMDF_NOT_MAP_MODE);
 
-	reseed_industry |= object.reseed[VSG_SCOPE_PARENT];
+	reseed_industry |= object.reseed[VarSpriteGroupScope::Parent];
 }
 
 /**
@@ -451,7 +453,7 @@ void AnalyseIndustryTileSpriteGroups()
 			btree::btree_set<IndustryGfx> seen_gfx;
 			layout.clear();
 			for (IndustryTileLayoutTile it : spec.layouts[idx]) {
-				if (it.gfx == 0xFF) continue;
+				if (it.gfx == GFX_WATERTILE_SPECIALCHECK) continue;
 
 				IndustryGfx gfx = GetTranslatedIndustryTileID(it.gfx);
 				layout.push_back({ it.ti, gfx });
@@ -511,7 +513,7 @@ void ApplyIndustryTileAnimMasking()
 
 		uint idx = 0;
 		for (IndustryTileLayoutTile it : spec->layouts[ind->selected_layout - 1]) {
-			if (it.gfx == 0xFF) continue;
+			if (it.gfx == GFX_WATERTILE_SPECIALCHECK) continue;
 
 			TileIndex tile = AddTileIndexDiffCWrap(ind->location.tile, it.ti);
 			if (!IsValidTile(tile) || !ind->TileBelongsToIndustry(tile)) break;

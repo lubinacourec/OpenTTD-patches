@@ -12,8 +12,7 @@
 
 #include "newgrf_commons.h"
 #include "newgrf_spritegroup.h"
-#include "tunnel_map.h"
-#include "gfx_type.h"
+#include "rail.h"
 
 #include <vector>
 #include <array>
@@ -44,10 +43,10 @@ struct NewSignalStyle {
 	uint8_t grf_local_id;
 	uint8_t style_flags;
 	uint8_t lookahead_extra_aspects;
-	uint8_t semaphore_mask;
-	uint8_t electric_mask;
+	SignalTypeMask semaphore_mask;
+	SignalTypeMask electric_mask;
 
-	PalSpriteID signals[SIGTYPE_END][2][2];
+	RailTypeInfo::SignalSprites signals;
 };
 extern std::array<NewSignalStyle, MAX_NEW_SIGNAL_STYLES> _new_signal_styles;
 extern uint8_t _default_signal_style_lookahead_extra_aspects;
@@ -94,10 +93,10 @@ struct NewSignalsResolverObject : public ResolverObject {
 	NewSignalsResolverObject(const GRFFile *grffile, TileIndex tile, TileContext context, uint32_t param1, uint32_t param2,
 			CustomSignalSpriteContext signal_context, uint8_t signal_style, const TraceRestrictProgram *prog = nullptr, uint z = 0);
 
-	ScopeResolver *GetScope(VarSpriteGroupScope scope = VSG_SCOPE_SELF, VarSpriteGroupScopeOffset relative = 0) override
+	ScopeResolver *GetScope(VarSpriteGroupScope scope = VarSpriteGroupScope::Self, VarSpriteGroupScopeOffset relative = 0) override
 	{
 		switch (scope) {
-			case VSG_SCOPE_SELF: return &this->newsignals_scope;
+			case VarSpriteGroupScope::Self: return &this->newsignals_scope;
 			default:             return ResolverObject::GetScope(scope, relative);
 		}
 	}

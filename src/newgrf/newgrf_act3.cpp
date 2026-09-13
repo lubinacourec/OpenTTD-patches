@@ -11,6 +11,7 @@
 
 #include "../debug.h"
 #include "../house.h"
+#include "../newgrf.h"
 #include "../newgrf_engine.h"
 #include "../newgrf_badge.h"
 #include "../newgrf_badge_type.h"
@@ -38,7 +39,7 @@
 static CargoType TranslateCargo(GrfSpecFeature feature, uint8_t ctype)
 {
 	/* Special cargo types for purchase list and stations */
-	if ((feature == GSF_STATIONS || feature == GSF_ROADSTOPS) && ctype == 0xFE) return CargoGRFFileProps::SG_DEFAULT_NA;
+	if ((feature == GrfSpecFeature::Stations || feature == GrfSpecFeature::RoadStops) && ctype == 0xFE) return CargoGRFFileProps::SG_DEFAULT_NA;
 	if (ctype == 0xFF) return CargoGRFFileProps::SG_PURCHASE;
 
 	auto cargo_list = GetCargoTranslationTable(*_cur_gps.grffile);
@@ -107,12 +108,12 @@ static void VehicleMapSpriteGroup(ByteReader &buf, GrfSpecFeature feature, uint8
 
 	TempBufferST<EngineID> engines(idcount);
 	for (uint i = 0; i < idcount; i++) {
-		Engine *e = GetNewEngine(_cur_gps.grffile, (VehicleType)feature, buf.ReadExtendedByte());
+		Engine *e = GetNewEngine(_cur_gps.grffile, GetVehicleType(feature), buf.ReadExtendedByte());
 		if (e == nullptr) {
 			/* No engine could be allocated?!? Deal with it. Okay,
 			 * this might look bad. Also make sure this NewGRF
 			 * gets disabled, as a half loaded one is bad. */
-			HandleChangeInfoResult("VehicleMapSpriteGroup", CIR_INVALID_ID, feature, 0);
+			HandleChangeInfoResult("VehicleMapSpriteGroup", ChangeInfoResult::InvalidId, feature, 0);
 			return;
 		}
 
@@ -178,13 +179,14 @@ static void CanalMapSpriteGroup(ByteReader &buf, uint8_t idcount)
 	for (uint i = 0; i < idcount; i++) {
 		uint16_t cf = cfs[i];
 
-		if (cf >= CF_END) {
+		if (cf >= to_underlying(CanalFeature::End)) {
 			GrfMsg(1, "CanalMapSpriteGroup: Canal subset {} out of range, skipping", cf);
 			continue;
 		}
 
-		_water_feature[cf].grffile = _cur_gps.grffile;
-		_water_feature[cf].group = GetGroupByID(groupid);
+		auto &feature = _water_feature[static_cast<CanalFeature>(cf)];
+		feature.grffile = _cur_gps.grffile;
+		feature.group = GetGroupByID(groupid);
 	}
 }
 
@@ -207,7 +209,7 @@ static void StationMapSpriteGroup(ByteReader &buf, uint8_t idcount)
 		uint16_t groupid = buf.ReadWord();
 		if (!IsValidGroupID(groupid, "StationMapSpriteGroup")) continue;
 
-		CargoType cargo_type = TranslateCargo(GSF_STATIONS, ctype);
+		CargoType cargo_type = TranslateCargo(GrfSpecFeature::Stations, ctype);
 		if (!IsValidCargoType(cargo_type)) continue;
 
 		for (uint i = 0; i < idcount; i++) {
@@ -495,11 +497,11 @@ static void RailTypeMapSpriteGroup(ByteReader &buf, uint8_t idcount)
 
 	uint8_t cidcount = buf.ReadByte();
 	for (uint c = 0; c < cidcount; c++) {
-		uint8_t ctype = buf.ReadByte();
+		RailSpriteType ctype{buf.ReadByte()};
 		uint16_t groupid = buf.ReadWord();
 		if (!IsValidGroupID(groupid, "RailTypeMapSpriteGroup")) continue;
 
-		if (ctype >= RTSG_END) continue;
+		if (ctype >= RailSpriteType::End) continue;
 
 		extern RailTypeInfo _railtypes[RAILTYPE_END];
 		for (uint i = 0; i < idcount; i++) {
@@ -518,7 +520,7 @@ static void RailTypeMapSpriteGroup(ByteReader &buf, uint8_t idcount)
 
 static void RoadTypeMapSpriteGroup(ByteReader &buf, uint8_t idcount, RoadTramType rtt)
 {
-	std::array<RoadType, ROADTYPE_END> &type_map = (rtt == RTT_TRAM) ? _cur_gps.grffile->tramtype_map : _cur_gps.grffile->roadtype_map;
+	std::array<RoadType, ROADTYPE_END> &type_map = (rtt == RoadTramType::Tram) ? _cur_gps.grffile->tramtype_map : _cur_gps.grffile->roadtype_map;
 
 	TempBufferST<uint8_t> roadtypes(idcount);
 	for (uint i = 0; i < idcount; i++) {
@@ -528,11 +530,11 @@ static void RoadTypeMapSpriteGroup(ByteReader &buf, uint8_t idcount, RoadTramTyp
 
 	uint8_t cidcount = buf.ReadByte();
 	for (uint c = 0; c < cidcount; c++) {
-		uint8_t ctype = buf.ReadByte();
+		RoadSpriteType ctype{buf.ReadByte()};
 		uint16_t groupid = buf.ReadWord();
 		if (!IsValidGroupID(groupid, "RoadTypeMapSpriteGroup")) continue;
 
-		if (ctype >= ROTSG_END) continue;
+		if (ctype >= RoadSpriteType::End) continue;
 
 		extern RoadTypeInfo _roadtypes[ROADTYPE_END];
 		for (uint i = 0; i < idcount; i++) {
@@ -642,7 +644,7 @@ static void RoadStopMapSpriteGroup(ByteReader &buf, uint8_t idcount)
 		uint16_t groupid = buf.ReadWord();
 		if (!IsValidGroupID(groupid, "RoadStopMapSpriteGroup")) continue;
 
-		CargoType cargo_type = TranslateCargo(GSF_ROADSTOPS, ctype);
+		CargoType cargo_type = TranslateCargo(GrfSpecFeature::RoadStops, ctype);
 		if (!IsValidCargoType(cargo_type)) continue;
 
 		for (uint i = 0; i < idcount; i++) {
@@ -704,7 +706,7 @@ static void BadgeMapSpriteGroup(ByteReader &buf, uint8_t idcount)
 		uint16_t groupid = buf.ReadWord();
 		if (!IsValidGroupID(groupid, "BadgeMapSpriteGroup")) continue;
 
-		if (ctype >= GSF_END) continue;
+		if (ctype >= to_underlying(GrfSpecFeature::End)) continue;
 
 		for (const auto &local_id : local_ids) {
 			auto found = _cur_gps.grffile->badge_map.find(local_id);
@@ -729,7 +731,7 @@ static void BadgeMapSpriteGroup(ByteReader &buf, uint8_t idcount)
 		}
 
 		auto &badge = *GetBadge(found->second);
-		badge.grf_prop.SetSpriteGroup(GSF_DEFAULT, _cur_gps.spritegroups[groupid]);
+		badge.grf_prop.SetSpriteGroup(GrfSpecFeature::Default, _cur_gps.spritegroups[groupid]);
 		badge.grf_prop.SetGRFFile(_cur_gps.grffile);
 		badge.grf_prop.local_id = local_id;
 	}
@@ -789,7 +791,7 @@ static void FeatureMapSpriteGroup(ByteReader &buf)
 	GrfSpecFeature feature = feature_ref.id;
 	uint8_t idcount = buf.ReadByte();
 
-	if (feature >= GSF_END) {
+	if (feature >= GrfSpecFeature::End) {
 		GrfMsg(1, "FeatureMapSpriteGroup: Unsupported feature {}, skipping", GetFeatureString(feature_ref));
 		return;
 	}
@@ -813,74 +815,74 @@ static void FeatureMapSpriteGroup(ByteReader &buf)
 	GrfMsg(6, "FeatureMapSpriteGroup: Feature {}, {} ids", GetFeatureString(feature_ref), idcount);
 
 	switch (feature) {
-		case GSF_TRAINS:
-		case GSF_ROADVEHICLES:
-		case GSF_SHIPS:
-		case GSF_AIRCRAFT:
+		case GrfSpecFeature::Trains:
+		case GrfSpecFeature::RoadVehicles:
+		case GrfSpecFeature::Ships:
+		case GrfSpecFeature::Aircraft:
 			VehicleMapSpriteGroup(buf, feature, idcount);
 			return;
 
-		case GSF_CANALS:
+		case GrfSpecFeature::Canals:
 			CanalMapSpriteGroup(buf, idcount);
 			return;
 
-		case GSF_STATIONS:
+		case GrfSpecFeature::Stations:
 			StationMapSpriteGroup(buf, idcount);
 			return;
 
-		case GSF_HOUSES:
+		case GrfSpecFeature::Houses:
 			TownHouseMapSpriteGroup(buf, idcount);
 			return;
 
-		case GSF_INDUSTRIES:
+		case GrfSpecFeature::Industries:
 			IndustryMapSpriteGroup(buf, idcount);
 			return;
 
-		case GSF_INDUSTRYTILES:
+		case GrfSpecFeature::IndustryTiles:
 			IndustrytileMapSpriteGroup(buf, idcount);
 			return;
 
-		case GSF_CARGOES:
+		case GrfSpecFeature::Cargoes:
 			CargoMapSpriteGroup(buf, idcount);
 			return;
 
-		case GSF_AIRPORTS:
+		case GrfSpecFeature::Airports:
 			AirportMapSpriteGroup(buf, idcount);
 			return;
 
-		case GSF_SIGNALS:
+		case GrfSpecFeature::Signals:
 			SignalsMapSpriteGroup(buf, idcount);
 			break;
 
-		case GSF_OBJECTS:
+		case GrfSpecFeature::Objects:
 			ObjectMapSpriteGroup(buf, idcount);
 			break;
 
-		case GSF_RAILTYPES:
+		case GrfSpecFeature::RailTypes:
 			RailTypeMapSpriteGroup(buf, idcount);
 			break;
 
-		case GSF_ROADTYPES:
-			RoadTypeMapSpriteGroup(buf, idcount, RTT_ROAD);
+		case GrfSpecFeature::RoadTypes:
+			RoadTypeMapSpriteGroup(buf, idcount, RoadTramType::Road);
 			break;
 
-		case GSF_TRAMTYPES:
-			RoadTypeMapSpriteGroup(buf, idcount, RTT_TRAM);
+		case GrfSpecFeature::TramTypes:
+			RoadTypeMapSpriteGroup(buf, idcount, RoadTramType::Tram);
 			break;
 
-		case GSF_AIRPORTTILES:
+		case GrfSpecFeature::AirportTiles:
 			AirportTileMapSpriteGroup(buf, idcount);
 			return;
 
-		case GSF_ROADSTOPS:
+		case GrfSpecFeature::RoadStops:
 			RoadStopMapSpriteGroup(buf, idcount);
 			return;
 
-		case GSF_BADGES:
+		case GrfSpecFeature::Badges:
 			BadgeMapSpriteGroup(buf, idcount);
 			break;
 
-		case GSF_NEWLANDSCAPE:
+		case GrfSpecFeature::NewLandscape:
 			NewLandscapeMapSpriteGroup(buf, idcount);
 			return;
 
@@ -890,9 +892,15 @@ static void FeatureMapSpriteGroup(ByteReader &buf)
 	}
 }
 
+/** @copybrief GrfActionHandler::FileScan */
 template <> void GrfActionHandler<0x03>::FileScan(ByteReader &) { }
+/** @copydoc GrfActionHandler::SafetyScan */
 template <> void GrfActionHandler<0x03>::SafetyScan(ByteReader &buf) { GRFUnsafe(buf); }
+/** @copybrief GrfActionHandler::LabelScan */
 template <> void GrfActionHandler<0x03>::LabelScan(ByteReader &) { }
+/** @copybrief GrfActionHandler::Init */
 template <> void GrfActionHandler<0x03>::Init(ByteReader &) { }
+/** @copybrief GrfActionHandler::Reserve */
 template <> void GrfActionHandler<0x03>::Reserve(ByteReader &) { }
+/** @copydoc GrfActionHandler::Activation */
 template <> void GrfActionHandler<0x03>::Activation(ByteReader &buf) { FeatureMapSpriteGroup(buf); }

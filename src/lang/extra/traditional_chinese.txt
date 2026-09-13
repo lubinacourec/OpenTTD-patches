@@ -13,24 +13,9 @@ STR_CONFIG_SETTING_ZOOM_LVL_OUT_32X                             :32 倍
 STR_CONFIG_SETTING_ZOOM_LVL_OUT_64X                             :64 倍
 STR_CONFIG_SETTING_ZOOM_LVL_OUT_128X                            :128 倍
 
-STR_CONFIG_SETTING_DEFAULT_ROAD_TYPE_DEFAULT                    :預設
-
-STR_ORDER_CONDITIONAL_CARGO_WAITING                             :等待貨物
-STR_ORDER_CONDITIONAL_ACCEPTANCE_DROPDOWN                       :接受貨物
-STR_ORDER_CONDITIONAL_FREE_PLATFORMS                            :未使用月台
-STR_ORDER_CONDITIONAL_PERCENT                                   :概率
-STR_ORDER_CONDITIONAL_SLOT_OCCUPANCY                            :路牌使用率
-STR_ORDER_CONDITIONAL_TRAIN_IN_SLOT                             :持有路牌
-STR_ORDER_CONDITIONAL_CARGO_LOAD_PERCENTAGE                     :貨物裝載百分比
-STR_ORDER_CONDITIONAL_CARGO_WAITING_AMOUNT                      :等待貨物數量
-STR_ORDER_CONDITIONAL_COUNTER_VALUE                             :計數器值
-STR_ORDER_CONDITIONAL_TIME_DATE_VALUE                           :目前時間/日期
-STR_ORDER_CONDITIONAL_TIMETABLE_STATE                           :時刻表狀態
-STR_ORDER_CONDITIONAL_DISPATCH_SLOT                             :發車時間
-STR_ORDER_CONDITIONAL_CARGO_WAITING_AMOUNT_PERCENTAGE           :等待中貨物/容量
-STR_ORDER_CONDITIONAL_TRAIN_IN_SLOT_GROUP                       :持有路牌群組路牌
-
 STR_ORDER_STOP_LOCATION_THROUGH                                 :［通過式裝載］
+
+STR_CONFIG_SETTING_STOP_LOCATION_THROUGH                        :通過式裝載
 
 STR_CONFIG_SETTING_TOWN_GROWTH_EXTREME_SLOW                     :極慢
 STR_CONFIG_SETTING_TOWN_GROWTH_VERY_SLOW                        :很慢
@@ -365,9 +350,6 @@ STR_CONFIG_SETTING_RIVER_MIN_LENGTH_HELPTEXT                    :河流的最短
 STR_CONFIG_SETTING_RIVER_ROUTE_RANDOM                           :河流路徑隨機性：{STRING}
 STR_CONFIG_SETTING_RIVER_ROUTE_RANDOM_HELPTEXT                  :更改河流路徑的隨機性
 
-STR_CONFIG_SETTING_RIVERS_TOP_OF_HILL                           :從丘陵頂部水源處開始產生河流：{STRING}
-STR_CONFIG_SETTING_RIVERS_TOP_OF_HILL_HELPTEXT                  :選擇河流是否從山頂開始產生。
-
 STR_CONFIG_SETTING_RIVER_TROPICS_WIDTH                          :河岸濕潤區域寬度：{STRING}
 STR_CONFIG_SETTING_RIVER_TROPICS_WIDTH_HELPTEXT                 :控制在亞熱帶景觀中圍繞河流兩岸產生的濕潤區域的寬度{}本設定調整河流兩岸的總寬度。
 
@@ -528,9 +510,6 @@ STR_CONFIG_SETTING_SCHEDULED_DISPATCH_DEFAULT_DURATION          :排程調度時
 STR_CONFIG_SETTING_SCHEDULED_DISPATCH_DEFAULT_DURATION_HELPTEXT :本項設定新排程調度的預設時間。預設值為 24 小時（1440 分鐘）。在使用「日」作為計時單位時，預設時間為一年
 STR_CONFIG_SETTING_SCHEDULED_DISPATCH_DEFAULT_DURATION_VALUE    :{COMMA}{NBSP}分
 STR_CONFIG_SETTING_SCHEDULED_DISPATCH_DEFAULT_DURATION_DEFAULT  :預設
-
-STR_CONFIG_SETTING_DEFAULT_ROAD_TYPE                            :預設道路與電車軌道（開始新遊戲或載入遊戲後）：{STRING}
-STR_CONFIG_SETTING_DEFAULT_ROAD_TYPE_HELPTEXT                   :在開始或載入遊戲後選擇的道路與電車軌道。「最先可用」選擇最舊的道路與電車軌道，「最後可用」選擇最舊的道路與電車軌道，「最常使用」選擇目前使用最多的類型，「預設」選擇預設類型
 
 STR_CONFIG_SETTING_ENABLE_BUILD_RIVER                           :允許製作河流：{STRING}
 STR_CONFIG_SETTING_ENABLE_BUILD_RIVER_HELPTEXT                  :允許在場景編輯器外製作河流
@@ -813,6 +792,7 @@ STR_LINKGRAPH_STATS_TOOLTIP_PRODUCTION_INTERVAL                 :{BLACK}每個�
 
 STR_RAIL_TOOLBAR_TOOLTIP_BUILD_POLYRAIL                         :{BLACK}使用多段線模式建設鐵道。按住 <Ctrl> 鍵點擊以移除鐵道，按住 <Shift> 鍵點擊以顯示預計成本
 
+STR_BUILD_SIGNAL_TOGGLE_ADVANCED_SIGNAL_TOOLTIP                 :{BLACK}是否顯示進階號誌類型
 STR_BUILD_SIGNAL_SEMAPHORE_PROG_TOOLTIP                         :{BLACK}可編程邏輯號誌（臂木）{}可編程邏輯號誌是一種綜合號誌，允許制定複雜的通行規則
 STR_BUILD_SIGNAL_SEMAPHORE_NO_ENTRY_TOOLTIP                     :{BLACK}禁止進入號誌（臂木）{}路徑號誌燈為列車預留一條到安全停車位的路徑，而其它路徑仍然可以使用，從而允許一列以上的列車同時進入一個號誌區間。禁止進入號誌不允許列車逆行
 STR_BUILD_SIGNAL_ELECTRIC_PROG_TOOLTIP                          :{BLACK}可編程邏輯號誌（電氣）{}可編程邏輯號誌是一種綜合號誌，允許制定複雜的通行規則
@@ -1695,6 +1675,21 @@ STR_ORDER_REVERSE_TOOLTIP                                       :{BLACK}改變�
 
 STR_ORDER_DROP_SELL_DEPOT                                       :賣出車輛
 
+STR_ORDER_CONDITIONAL_CARGO_WAITING                             :等待貨物
+STR_ORDER_CONDITIONAL_ACCEPTANCE_DROPDOWN                       :接受貨物
+STR_ORDER_CONDITIONAL_FREE_PLATFORMS                            :未使用月台
+STR_ORDER_CONDITIONAL_PERCENT                                   :概率
+STR_ORDER_CONDITIONAL_SLOT_OCCUPANCY                            :路牌使用率
+STR_ORDER_CONDITIONAL_TRAIN_IN_SLOT                             :持有路牌
+STR_ORDER_CONDITIONAL_CARGO_LOAD_PERCENTAGE                     :貨物裝載百分比
+STR_ORDER_CONDITIONAL_CARGO_WAITING_AMOUNT                      :等待貨物數量
+STR_ORDER_CONDITIONAL_COUNTER_VALUE                             :計數器值
+STR_ORDER_CONDITIONAL_TIME_DATE_VALUE                           :目前時間/日期
+STR_ORDER_CONDITIONAL_TIMETABLE_STATE                           :時刻表狀態
+STR_ORDER_CONDITIONAL_DISPATCH_SLOT                             :發車時間
+STR_ORDER_CONDITIONAL_CARGO_WAITING_AMOUNT_PERCENTAGE           :等待中貨物/容量
+STR_ORDER_CONDITIONAL_TRAIN_IN_SLOT_GROUP                       :持有路牌群組路牌
+
 STR_ORDER_CONDITIONAL_VEHICLE_IN_SLOT                           :持有路牌
 STR_ORDER_CONDITIONAL_VEHICLE_IN_SLOT_GROUP                     :持有路牌群組路牌
 
@@ -2206,7 +2201,7 @@ STR_SCHDISPATCH_ADD                                             :{BLACK}增加�
 STR_SCHDISPATCH_ADD_MULTIPLE_SLOTS                              :{BLACK}增加多個發車時間
 STR_SCHDISPATCH_ADD_TOOLTIP                                     :{BLACK}為此時刻表增加發車時間
 STR_SCHDISPATCH_ADD_TOOLTIP_EXTRA                               :{BLACK}{STRING}按住 <Ctrl> 鍵點擊以增加多個發車時間
-STR_SCHDISPATCH_ADD_CAPTION                                     :{BLACK}發車時間
+STR_SCHDISPATCH_ADD_CAPTION                                     :發車時間
 STR_SCHDISPATCH_DURATION                                        :{BLACK}持續長度
 STR_SCHDISPATCH_DURATION_TOOLTIP                                :{BLACK}設定本時刻表的持續時間長度
 STR_SCHDISPATCH_DURATION_CAPTION_MINUTE                         :{BLACK}持續長度（分鐘）

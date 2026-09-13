@@ -11,7 +11,7 @@
 #define VEHICLE_GUI_BASE_H
 
 #include "date_type.h"
-#include "economy_type.h"
+#include "money_type.h"
 #include "sortlist_type.h"
 #include "vehicle_base.h"
 #include "vehiclelist.h"
@@ -131,9 +131,8 @@ public:
 		ADI_TRACERESTRICT_COUNTER_MGMT,
 	};
 
-	static const StringID vehicle_depot_name[];
-	static const StringID vehicle_depot_sell_name[];
-
+	static const VehicleTypeIndexArray<const StringID> vehicle_depot_name;
+	static const VehicleTypeIndexArray<const StringID> vehicle_depot_sell_name;
 	static const std::initializer_list<const StringID> vehicle_group_by_names;
 	static const std::initializer_list<const StringID> vehicle_group_none_sorter_names_calendar;
 	static const std::initializer_list<const StringID> vehicle_group_none_sorter_names_wallclock;
@@ -154,7 +153,7 @@ public:
 	void SortVehicleList();
 	void CountOwnVehicles();
 	void BuildVehicleList();
-	void SetCargoFilter(uint8_t index);
+	void SetCargoFilter(CargoType cargo_type);
 	void SetCargoFilterArray();
 	void FilterVehicleList();
 	StringID GetCargoFilterLabel(CargoType cargo_type) const;

@@ -134,7 +134,7 @@ void SetupTemplateVehicleFromVirtual(TemplateVehicle *tmp, TemplateVehicle *prev
 		tmp->air_drag = gcache->cached_air_drag;
 	}
 
-	virt->GetImage(_current_text_dir == TD_RTL ? DIR_E : DIR_W, EIT_IN_DEPOT, &tmp->sprite_seq);
+	virt->GetImage(_current_text_dir == TD_RTL ? Direction::E : Direction::W, EngineImageType::InDepot, &tmp->sprite_seq);
 	tmp->image_dimensions.SetFromTrain(virt);
 	tmp->colourmap = GetUncachedTrainPaletteIgnoringGroup(virt);
 }
@@ -163,11 +163,11 @@ CommandCost CmdSellRailWagon(DoCommandFlags flags, Vehicle *t, bool sell_chain, 
 Train *DeleteVirtualTrain(Train *chain, Train *to_del)
 {
 	if (chain != to_del) {
-		CmdSellRailWagon(DoCommandFlag::Execute, to_del, false, false, INVALID_CLIENT_ID);
+		CmdSellRailWagon(DoCommandFlag::Execute, to_del, false, false, ClientID::Invalid);
 		return chain;
 	} else {
 		chain = chain->GetNextUnit();
-		CmdSellRailWagon(DoCommandFlag::Execute, to_del, false, false, INVALID_CLIENT_ID);
+		CmdSellRailWagon(DoCommandFlag::Execute, to_del, false, false, ClientID::Invalid);
 		return chain;
 	}
 }
@@ -238,7 +238,7 @@ static bool IsTrainUsableAsTemplateReplacementSource(const Train *t)
 
 void TemplateDepotVehicles::Init(TileIndex tile)
 {
-	for (const Train *v : VehiclesOnTile<VEH_TRAIN>(tile)) {
+	for (const Train *v : VehiclesOnTile<VehicleType::Train>(tile)) {
 		this->vehicles.insert(v->index);
 	}
 }
@@ -269,9 +269,9 @@ Train *TemplateDepotVehicles::ContainsEngine(EngineID eid, Train *not_in)
 
 void NeutralizeStatus(Train *t)
 {
-	Command<CMD_ADD_VEHICLE_GROUP>::Do(DoCommandFlag::Execute, DEFAULT_GROUP, t->index, false);
-	Command<CMD_CLONE_ORDER>::Do(DoCommandFlag::Execute, CO_SHARE, t->index, VehicleID::Invalid());
-	Command<CMD_RENAME_VEHICLE>::Do(DoCommandFlag::Execute, t->index, {});
+	Command<Commands::AddVehicleToGroup>::Do(DoCommandFlag::Execute, DEFAULT_GROUP, t->index, false);
+	Command<Commands::CloneOrder>::Do(DoCommandFlag::Execute, CO_SHARE, t->index, VehicleID::Invalid());
+	Command<Commands::RenameVehicle>::Do(DoCommandFlag::Execute, t->index, {});
 }
 
 TBTRDiffFlags TrainTemplateDifference(const Train *t, const TemplateVehicle *tv)
@@ -303,7 +303,7 @@ void BreakUpRemainders(Train *t)
 		if (HasBit(t->subtype, GVSF_ENGINE)) {
 			Train *move = t;
 			t = t->Next();
-			Command<CMD_MOVE_RAIL_VEHICLE>::Do(DoCommandFlag::Execute, move->index, VehicleID::Invalid(), MoveRailVehicleFlags::NewHead);
+			Command<Commands::MoveRailVehicle>::Do(DoCommandFlag::Execute, move->index, VehicleID::Invalid(), MoveRailVehicleFlags::NewHead);
 			NeutralizeStatus(move);
 		} else {
 			t = t->Next();
@@ -331,7 +331,7 @@ CommandCost CmdRefitTrainFromTemplate(Train *t, const TemplateVehicle *tv, DoCom
 
 	while (t != nullptr && tv != nullptr) {
 		/* Refit t as tv */
-		cost.AddCost(Command<CMD_REFIT_VEHICLE>::Do(flags, t->index, tv->cargo_type, tv->cargo_subtype, false, false, 1));
+		cost.AddCost(Command<Commands::RefitVehicle>::Do(flags, t->index, tv->cargo_type, tv->cargo_subtype, false, false, 1));
 
 		t = t->GetNextUnit();
 		tv = tv->GetNextUnit();
@@ -345,7 +345,7 @@ void CmdSetTrainUnitDirectionFromTemplate(Train *t, const TemplateVehicle *tv, D
 	while (t != nullptr && tv != nullptr) {
 		/* Refit t as tv */
 		if (t->flags.Test(VehicleRailFlag::Flipped) != HasBit(tv->ctrl_flags, TVCF_REVERSED)) {
-			Command<CMD_REVERSE_TRAIN_DIRECTION>::Do(flags, t->index, true);
+			Command<Commands::ReverseTrainDirection>::Do(flags, t->index, true);
 		}
 
 		t = t->GetNextUnit();
@@ -359,10 +359,10 @@ void CmdSetTrainUnitDirectionFromTemplate(Train *t, const TemplateVehicle *tv, D
  */
 CommandCost TestBuyAllTemplateVehiclesInChain(const TemplateVehicle *tv, TileIndex tile)
 {
-	CommandCost cost(EXPENSES_NEW_VEHICLES);
+	CommandCost cost(ExpensesType::NewVehicles);
 
 	for (; tv != nullptr; tv = tv->GetNextUnit()) {
-		cost.AddCost(Command<CMD_BUILD_VEHICLE>::Do({}, tile, tv->engine_type, false, INVALID_CARGO, INVALID_CLIENT_ID));
+		cost.AddCost(Command<Commands::BuildVehicle>::Do({}, tile, tv->engine_type, false, INVALID_CARGO, ClientID::Invalid));
 	}
 
 	return cost;
@@ -425,7 +425,7 @@ void UpdateAllTemplateVehicleImages()
 				if (t_len == tv_len) {
 					Train *v = t;
 					for (TemplateVehicle *u = tv; u != nullptr; u = u->Next(), v = v->Next()) {
-						v->GetImage(_current_text_dir == TD_RTL ? DIR_E : DIR_W, EIT_IN_DEPOT, &u->sprite_seq);
+						v->GetImage(_current_text_dir == TD_RTL ? Direction::E : Direction::W, EngineImageType::InDepot, &u->sprite_seq);
 						u->image_dimensions.SetFromTrain(v);
 						u->colourmap = GetVehiclePalette(v);
 					}

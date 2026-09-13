@@ -11,7 +11,8 @@
 #define CARGOPACKET_H
 
 #include "core/pool_type.hpp"
-#include "economy_type.h"
+#include "core/geometry_type.hpp"
+#include "money_type.h"
 #include "station_type.h"
 #include "order_type.h"
 #include "cargo_type.h"
@@ -20,9 +21,11 @@
 #include "company_type.h"
 #include "map_func.h"
 #include "core/multimap.hpp"
-#include "sl/saveload_common.h"
+#include "sl/saveload_common_type.h"
 #include "3rdparty/cpp-ring-buffer/ring_buffer.hpp"
 #include "3rdparty/cpp-btree/btree_map.h"
+
+struct CargoPayment;
 
 /** Unique identifier for a single cargo packet. */
 struct CargoPacketIDTag : public PoolIDTraits<uint32_t, 0xFFF000, 0xFFFFFF> {};
@@ -54,19 +57,13 @@ void ChangeOwnershipOfCargoPacketDeferredPayments(Owner old_owner, Owner new_own
  */
 struct CargoPacket : CargoPacketPool::PoolItem<&_cargopacket_pool> {
 private:
-	/* A mathematical vector from (0,0). */
-	struct Vector {
-		int32_t x;
-		int32_t y;
-	};
-
 	uint16_t count = 0; ///< The amount of cargo in this packet.
 	uint16_t periods_in_transit = 0; ///< Amount of cargo aging periods this packet has been in transit.
 
 	Money feeder_share = 0; ///< Value of feeder pickup to be paid for on delivery of cargo.
 
 	TileIndex source_xy = INVALID_TILE; ///< The origin of the cargo.
-	Vector travelled{0, 0}; ///< If cargo is in station: the vector from the unload tile to the source tile. If in vehicle: an intermediate value.
+	Coord2D<int32_t> travelled{0, 0}; ///< If cargo is in station: the vector from the unload tile to the source tile. If in vehicle: an intermediate value.
 
 	Source source{Source::Invalid, SourceType::Industry}; ///< Source of the cargo
 
@@ -305,14 +302,12 @@ public:
 	typedef typename Tcont::const_reverse_iterator ConstReverseIterator;
 
 	/** Kind of actions that could be done with packets on move. */
-	enum MoveToAction : uint8_t {
-		MTA_BEGIN = 0,
-		MTA_TRANSFER = 0, ///< Transfer the cargo to the station.
-		MTA_DELIVER,      ///< Deliver the cargo to some town or industry.
-		MTA_KEEP,         ///< Keep the cargo in the vehicle.
-		MTA_LOAD,         ///< Load the cargo from the station.
-		MTA_END,
-		NUM_MOVE_TO_ACTION = MTA_END
+	enum class MoveToAction : uint8_t {
+		Transfer, ///< Transfer the cargo to the station.
+		Deliver, ///< Deliver the cargo to some town or industry.
+		Keep, ///< Keep the cargo in the vehicle.
+		Load, ///< Load the cargo from the station.
+		End, ///< End marker.
 	};
 
 protected:
@@ -380,8 +375,8 @@ protected:
 	/** The (direct) parent of this class. */
 	typedef CargoList<VehicleCargoList, CargoPacketList> Parent;
 
-	Money feeder_share;                     ///< Cache for the feeder share.
-	uint action_counts[NUM_MOVE_TO_ACTION]; ///< Counts of cargo to be transferred, delivered, kept and loaded.
+	Money feeder_share; ///< Cache for the feeder share.
+	EnumIndexArray<uint, MoveToAction, MoveToAction::End> action_counts{}; ///< Counts of cargo to be transferred, delivered, kept and loaded.
 
 	template <class Taction>
 	void ShiftCargo(Taction action);
@@ -410,10 +405,10 @@ public:
 	inline void AssertCountConsistency() const
 	{
 #ifdef WITH_ASSERT
-		if (unlikely(this->action_counts[MTA_KEEP] +
-				this->action_counts[MTA_DELIVER] +
-				this->action_counts[MTA_TRANSFER] +
-				this->action_counts[MTA_LOAD] != this->count)) {
+		if (unlikely(this->action_counts[MoveToAction::Keep] +
+				this->action_counts[MoveToAction::Deliver] +
+				this->action_counts[MoveToAction::Transfer] +
+				this->action_counts[MoveToAction::Load] != this->count)) {
 			this->AssertCountConsistencyError();
 		}
 #endif
@@ -481,7 +476,7 @@ public:
 	 */
 	inline uint StoredCount() const
 	{
-		return this->count - this->action_counts[MTA_LOAD];
+		return this->count - this->action_counts[MoveToAction::Load];
 	}
 
 	/**
@@ -490,7 +485,7 @@ public:
 	 */
 	inline uint ReservedCount() const
 	{
-		return this->action_counts[MTA_LOAD];
+		return this->action_counts[MoveToAction::Load];
 	}
 
 	/**
@@ -499,7 +494,7 @@ public:
 	 */
 	inline uint UnloadCount() const
 	{
-		return this->action_counts[MTA_TRANSFER] + this->action_counts[MTA_DELIVER];
+		return this->action_counts[MoveToAction::Transfer] + this->action_counts[MoveToAction::Deliver];
 	}
 
 	/**
@@ -508,16 +503,16 @@ public:
 	 */
 	inline uint RemainingCount() const
 	{
-		return this->action_counts[MTA_KEEP] + this->action_counts[MTA_LOAD];
+		return this->action_counts[MoveToAction::Keep] + this->action_counts[MoveToAction::Load];
 	}
 
-	void Append(CargoPacket *cp, MoveToAction action = MTA_KEEP);
+	void Append(CargoPacket *cp, MoveToAction action = MoveToAction::Keep);
 
 	void AgeCargo();
 
 	void InvalidateCache();
 
-	bool Stage(bool accepted, StationID current_station, std::span<const StationID> next_station, uint8_t order_flags, const GoodsEntry *ge, CargoType cargo, CargoPayment *payment, TileIndex current_tile);
+	bool Stage(bool accepted, StationID current_station, std::span<const StationID> next_station, OrderUnloadType unload_type, const GoodsEntry *ge, CargoType cargo, CargoPayment *payment, TileIndex current_tile);
 
 	/**
 	 * Marks all cargo in the vehicle as to be kept. This is mostly useful for
@@ -526,8 +521,10 @@ public:
 	 */
 	inline void KeepAll()
 	{
-		this->action_counts[MTA_DELIVER] = this->action_counts[MTA_TRANSFER] = this->action_counts[MTA_LOAD] = 0;
-		this->action_counts[MTA_KEEP] = this->count;
+		this->action_counts[MoveToAction::Deliver] = 0;
+		this->action_counts[MoveToAction::Transfer] = 0;
+		this->action_counts[MoveToAction::Load] = 0;
+		this->action_counts[MoveToAction::Keep] = this->count;
 	}
 
 	/* Methods for moving cargo around. First parameter is always maximum

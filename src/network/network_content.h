@@ -80,8 +80,8 @@ protected:
 
 	friend class NetworkContentConnecter;
 
-	bool Receive_SERVER_INFO(Packet &p) override;
-	bool Receive_SERVER_CONTENT(Packet &p) override;
+	bool ReceiveServerInfo(Packet &p) override;
+	bool ReceiveServerContent(Packet &p) override;
 
 	ContentInfo *GetContent(ContentID cid);
 	const ContentInfo *GetContent(ContentID cid) const { return const_cast<ClientNetworkContentSocketHandler *>(this)->GetContent(cid); }
@@ -137,15 +137,22 @@ public:
 
 	void Clear();
 
-	/** Add a callback to this class */
+	/**
+	 * Add a callback to this class, if it doesn't already exist.
+	 * @param cb The callback to add.
+	 */
 	void AddCallback(ContentCallback *cb) { include(this->callbacks, cb); }
-	/** Remove a callback */
+
+	/**
+	 * Remove a callback.
+	 * @param cb The callback to remove.
+	 */
 	void RemoveCallback(ContentCallback *cb) { this->callbacks.erase(std::ranges::find(this->callbacks, cb)); }
 };
 
 extern ClientNetworkContentSocketHandler _network_content_client;
 
-void ShowNetworkContentListWindow(ContentVector *cv = nullptr, ContentType type1 = CONTENT_TYPE_END, ContentType type2 = CONTENT_TYPE_END);
+void ShowNetworkContentListWindow(ContentVector *cv = nullptr, ContentType type1 = ContentType::End, ContentType type2 = ContentType::End);
 
 void ShowMissingContentWindow(const GRFConfigList &list);
 

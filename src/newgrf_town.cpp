@@ -24,6 +24,19 @@ static uint16_t TownHistoryHelper(const Town *t, CargoLabel label, uint period, 
 	return ClampTo<uint16_t>(std::invoke(proj, it->history[period]));
 }
 
+/**
+ * Get information about a nearby tile.
+ * @param parameter Pair of coordinates from callback.
+ * @param tile TileIndex from which the callback was initiated.
+ * @param grf_version8 True, if we are dealing with a new NewGRF which uses GRF version >= 8.
+ * @return a construction of bits obeying the newgrf format.
+ */
+static uint32_t GetNearbyTileInformation(uint8_t parameter, TileIndex tile, bool grf_version8, uint32_t mask)
+{
+	tile = GetNearbyTile(parameter, tile);
+	return GetNearbyTileInformation(tile, grf_version8, mask);
+}
+
 /* virtual */ uint32_t TownScopeResolver::GetVariable(uint16_t variable, uint32_t parameter, GetVariableExtra &extra) const
 {
 	if (this->t == nullptr) {
@@ -41,10 +54,19 @@ static uint16_t TownHistoryHelper(const Town *t, CargoLabel label, uint period, 
 		/* Town index */
 		case 0x41: return this->t->index.base();
 
+		/* Additional town information: (for now just) road layout */
+		case 0x42: return to_underlying(this->t->layout);
+
+		/* Number of nearby stations */
+		case 0x43: return ClampTo<uint16_t>(this->t->stations_near.size());
+
+		/* Land info for nearby tiles. */
+		case 0x60: return GetNearbyTileInformation(parameter, this->t->xy, this->ro.grffile->grf_version >= 8, extra.mask);
+
 		/* Get a variable from the persistent storage */
 		case 0x7C: {
 			/* Check the persistent storage for the GrfID stored in register 100h. */
-			uint32_t grfid = GetRegister(0x100);
+			GrfID grfid = GetRegister(0x100);
 			if (grfid == 0xFFFFFFFF) {
 				if (this->ro.grffile == nullptr) return 0;
 				grfid = this->ro.grffile->grfid;
@@ -113,14 +135,14 @@ static uint16_t TownHistoryHelper(const Town *t, CargoLabel label, uint period, 
 		case 0xC9: return TownHistoryHelper(this->t, CT_MAIL, LAST_MONTH, &Town::SuppliedHistory::transported) >> 8;
 		case 0xCA: return this->t->GetPercentTransported(GetCargoTypeByLabel(CT_PASSENGERS));
 		case 0xCB: return this->t->GetPercentTransported(GetCargoTypeByLabel(CT_MAIL));
-		case 0xCC: return this->t->received[TAE_FOOD].new_act;
-		case 0xCD: return GB(this->t->received[TAE_FOOD].new_act, 8, 8);
-		case 0xCE: return this->t->received[TAE_WATER].new_act;
-		case 0xCF: return GB(this->t->received[TAE_WATER].new_act, 8, 8);
-		case 0xD0: return this->t->received[TAE_FOOD].old_act;
-		case 0xD1: return GB(this->t->received[TAE_FOOD].old_act, 8, 8);
-		case 0xD2: return this->t->received[TAE_WATER].old_act;
-		case 0xD3: return GB(this->t->received[TAE_WATER].old_act, 8, 8);
+		case 0xCC: return this->t->received[TownAcceptanceEffect::Food].new_act;
+		case 0xCD: return GB(this->t->received[TownAcceptanceEffect::Food].new_act, 8, 8);
+		case 0xCE: return this->t->received[TownAcceptanceEffect::Water].new_act;
+		case 0xCF: return GB(this->t->received[TownAcceptanceEffect::Water].new_act, 8, 8);
+		case 0xD0: return this->t->received[TownAcceptanceEffect::Food].old_act;
+		case 0xD1: return GB(this->t->received[TownAcceptanceEffect::Food].old_act, 8, 8);
+		case 0xD2: return this->t->received[TownAcceptanceEffect::Water].old_act;
+		case 0xD3: return GB(this->t->received[TownAcceptanceEffect::Water].old_act, 8, 8);
 		case 0xD4: return this->t->road_build_months;
 		case 0xD5: return this->t->fund_buildings_months;
 		case A2VRI_TOWNS_HOUSE_COUNT: return this->t->cache.num_houses;
@@ -152,7 +174,7 @@ static uint16_t TownHistoryHelper(const Town *t, CargoLabel label, uint period, 
 	if (this->ro.grffile == nullptr) return;
 
 	/* Check the persistent storage for the GrfID stored in register 100h. */
-	uint32_t grfid = GetRegister(0x100);
+	GrfID grfid = GetRegister(0x100);
 
 	/* A NewGRF can only write in the persistent storage associated to its own GRFID. */
 	if (grfid == 0xFFFFFFFF) grfid = this->ro.grffile->grfid;
@@ -168,7 +190,7 @@ static uint16_t TownHistoryHelper(const Town *t, CargoLabel label, uint period, 
 
 	/* Create a new storage. */
 	assert(PersistentStorage::CanAllocateItem());
-	PersistentStorage *psa = PersistentStorage::Create(grfid, GSF_FAKE_TOWNS, this->t->xy);
+	PersistentStorage *psa = PersistentStorage::Create(grfid, GrfSpecFeature::FakeTowns, this->t->xy);
 	psa->StoreValue(pos, value);
 	t->psa_list.push_back(psa);
 }

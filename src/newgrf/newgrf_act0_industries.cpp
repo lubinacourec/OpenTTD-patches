@@ -14,6 +14,7 @@
 #include "../industrytype.h"
 #include "../industry_map.h"
 #include "../newgrf_industries.h"
+#include "../settings_type.h"
 #include "newgrf_bytereader.h"
 #include "newgrf_internal.h"
 #include "newgrf_stringmapping.h"
@@ -32,7 +33,7 @@ extern const IndustrySpec _origin_industry_specs[NEW_INDUSTRYOFFSET];
  */
 static ChangeInfoResult IgnoreIndustryTileProperty(int prop, ByteReader &buf)
 {
-	ChangeInfoResult ret = CIR_SUCCESS;
+	ChangeInfoResult ret = ChangeInfoResult::Success;
 
 	switch (prop) {
 		case 0x09:
@@ -73,11 +74,11 @@ static ChangeInfoResult IgnoreIndustryTileProperty(int prop, ByteReader &buf)
  */
 static ChangeInfoResult IndustrytilesChangeInfo(uint first, uint last, int prop, const GRFFilePropertyRemapEntry *mapping_entry, ByteReader &buf)
 {
-	ChangeInfoResult ret = CIR_SUCCESS;
+	ChangeInfoResult ret = ChangeInfoResult::Success;
 
 	if (last > NUM_INDUSTRYTILES_PER_GRF) {
 		GrfMsg(1, "IndustryTilesChangeInfo: Too many industry tiles loaded ({}), max ({}). Ignoring.", last, NUM_INDUSTRYTILES_PER_GRF);
-		return CIR_INVALID_ID;
+		return ChangeInfoResult::InvalidId;
 	}
 
 	/* Allocate industry tile specs if they haven't been allocated already. */
@@ -175,7 +176,7 @@ static ChangeInfoResult IndustrytilesChangeInfo(uint first, uint last, int prop,
 				if (num_cargoes > std::size(tsp->acceptance)) {
 					GRFError *error = DisableGrf(STR_NEWGRF_ERROR_LIST_PROPERTY_TOO_LONG);
 					error->param_value[1] = prop;
-					return CIR_DISABLED;
+					return ChangeInfoResult::Disabled;
 				}
 				for (uint i = 0; i < std::size(tsp->acceptance); i++) {
 					if (i < num_cargoes) {
@@ -192,7 +193,7 @@ static ChangeInfoResult IndustrytilesChangeInfo(uint first, uint last, int prop,
 			}
 
 			case 0x14: // Badge list
-				tsp->badges = ReadBadgeList(buf, GSF_INDUSTRYTILES);
+				tsp->badges = ReadBadgeList(buf, GrfSpecFeature::IndustryTiles);
 				break;
 
 			default:
@@ -212,7 +213,7 @@ static ChangeInfoResult IndustrytilesChangeInfo(uint first, uint last, int prop,
  */
 static ChangeInfoResult IgnoreIndustryProperty(int prop, ByteReader &buf)
 {
-	ChangeInfoResult ret = CIR_SUCCESS;
+	ChangeInfoResult ret = ChangeInfoResult::Success;
 
 	switch (prop) {
 		case 0x09:
@@ -340,11 +341,11 @@ static bool ValidateIndustryLayout(const IndustryTileLayout &layout)
  */
 static ChangeInfoResult IndustriesChangeInfo(uint first, uint last, int prop, const GRFFilePropertyRemapEntry *mapping_entry, ByteReader &buf)
 {
-	ChangeInfoResult ret = CIR_SUCCESS;
+	ChangeInfoResult ret = ChangeInfoResult::Success;
 
 	if (last > NUM_INDUSTRYTYPES_PER_GRF) {
 		GrfMsg(1, "IndustriesChangeInfo: Too many industries loaded ({}), max ({}). Ignoring.", last, NUM_INDUSTRYTYPES_PER_GRF);
-		return CIR_INVALID_ID;
+		return ChangeInfoResult::InvalidId;
 	}
 
 	/* Allocate industry specs if they haven't been allocated already. */
@@ -386,7 +387,7 @@ static ChangeInfoResult IndustriesChangeInfo(uint first, uint last, int prop, co
 					indsp->grf_prop.SetGRFFile(_cur_gps.grffile);
 					/* If the grf industry needs to check its surrounding upon creation, it should
 					 * rely on callbacks, not on the original placement functions */
-					indsp->check_proc = CHECK_NOTHING;
+					indsp->check_proc = IndustryCheck::None;
 				}
 				break;
 			}
@@ -405,9 +406,9 @@ static ChangeInfoResult IndustriesChangeInfo(uint first, uint last, int prop, co
 			}
 
 			case 0x0A: { // Set industry layout(s)
-				uint8_t new_num_layouts = buf.ReadByte();
-				uint32_t definition_size = buf.ReadDWord();
-				uint32_t bytes_read = 0;
+				const uint8_t new_num_layouts = buf.ReadByte();
+				const uint32_t definition_size = buf.ReadDWord();
+				const uint8_t *definition_end = buf.Data() + definition_size;
 				std::vector<IndustryTileLayout> new_layouts;
 				IndustryTileLayout layout;
 
@@ -415,39 +416,36 @@ static ChangeInfoResult IndustriesChangeInfo(uint first, uint last, int prop, co
 					layout.clear();
 
 					for (uint k = 0;; k++) {
-						if (bytes_read >= definition_size) {
+						if (definition_end != nullptr && definition_end < buf.Data()) {
 							GrfMsg(3, "IndustriesChangeInfo: Incorrect size for industry tile layout definition for industry {}.", id);
 							/* Avoid warning twice */
-							definition_size = UINT32_MAX;
+							definition_end = nullptr;
 						}
 
 						IndustryTileLayoutTile &it = layout.emplace_back();
 
 						it.ti.x = buf.ReadByte(); // Offsets from northernmost tile
-						++bytes_read;
 
 						if (it.ti.x == 0xFE && k == 0) {
 							/* This means we have to borrow the layout from an old industry */
 							IndustryType type = buf.ReadByte();
 							uint8_t laynbr = buf.ReadByte();
-							bytes_read += 2;
 
 							if (type >= lengthof(_origin_industry_specs)) {
 								GrfMsg(1, "IndustriesChangeInfo: Invalid original industry number for layout import, industry {}", id);
 								DisableGrf(STR_NEWGRF_ERROR_INVALID_ID);
-								return CIR_DISABLED;
+								return ChangeInfoResult::Disabled;
 							}
 							if (laynbr >= _origin_industry_specs[type].layouts.size()) {
 								GrfMsg(1, "IndustriesChangeInfo: Invalid original industry layout index for layout import, industry {}", id);
 								DisableGrf(STR_NEWGRF_ERROR_INVALID_ID);
-								return CIR_DISABLED;
+								return ChangeInfoResult::Disabled;
 							}
 							layout = _origin_industry_specs[type].layouts[laynbr];
 							break;
 						}
 
 						it.ti.y = buf.ReadByte(); // Or table definition finalisation
-						++bytes_read;
 
 						if (it.ti.x == 0 && it.ti.y == 0x80) {
 							/* Terminator, remove and finish up */
@@ -456,12 +454,10 @@ static ChangeInfoResult IndustriesChangeInfo(uint first, uint last, int prop, co
 						}
 
 						it.gfx = buf.ReadByte();
-						++bytes_read;
 
 						if (it.gfx == 0xFE) {
 							/* Use a new tile from this GRF */
 							int local_tile_id = buf.ReadWord();
-							bytes_read += 2;
 
 							/* Read the ID from the _industile_mngr. */
 							int tempid = _industile_mngr.GetID(local_tile_id, _cur_gps.grffile->grfid);
@@ -472,7 +468,8 @@ static ChangeInfoResult IndustriesChangeInfo(uint first, uint last, int prop, co
 								/* Declared as been valid, can be used */
 								it.gfx = tempid;
 							}
-						} else if (it.gfx == GFX_WATERTILE_SPECIALCHECK) {
+						} else if (it.gfx == 0xFF) {
+							it.gfx = GFX_WATERTILE_SPECIALCHECK;
 							it.ti.x = (int8_t)GB(it.ti.x, 0, 8);
 							it.ti.y = (int8_t)GB(it.ti.y, 0, 8);
 
@@ -532,7 +529,7 @@ static ChangeInfoResult IndustriesChangeInfo(uint first, uint last, int prop, co
 					indsp->accepts_cargo[j] = GetCargoTranslation(buf.ReadByte(), _cur_gps.grffile);
 					indsp->accepts_cargo_label[j] = CT_INVALID;
 				}
-				buf.ReadByte(); // Unnused, eat it up
+				buf.ReadByte(); // Unused, eat it up
 				break;
 
 			case 0x12: // Production multipliers
@@ -625,7 +622,7 @@ static ChangeInfoResult IndustriesChangeInfo(uint first, uint last, int prop, co
 				if (num_cargoes > std::size(indsp->produced_cargo)) {
 					GRFError *error = DisableGrf(STR_NEWGRF_ERROR_LIST_PROPERTY_TOO_LONG);
 					error->param_value[1] = prop;
-					return CIR_DISABLED;
+					return ChangeInfoResult::Disabled;
 				}
 				for (uint i = 0; i < std::size(indsp->produced_cargo); i++) {
 					if (i < num_cargoes) {
@@ -644,7 +641,7 @@ static ChangeInfoResult IndustriesChangeInfo(uint first, uint last, int prop, co
 				if (num_cargoes > std::size(indsp->accepts_cargo)) {
 					GRFError *error = DisableGrf(STR_NEWGRF_ERROR_LIST_PROPERTY_TOO_LONG);
 					error->param_value[1] = prop;
-					return CIR_DISABLED;
+					return ChangeInfoResult::Disabled;
 				}
 				for (uint i = 0; i < std::size(indsp->accepts_cargo); i++) {
 					if (i < num_cargoes) {
@@ -663,7 +660,7 @@ static ChangeInfoResult IndustriesChangeInfo(uint first, uint last, int prop, co
 				if (num_cargoes > std::size(indsp->production_rate)) {
 					GRFError *error = DisableGrf(STR_NEWGRF_ERROR_LIST_PROPERTY_TOO_LONG);
 					error->param_value[1] = prop;
-					return CIR_DISABLED;
+					return ChangeInfoResult::Disabled;
 				}
 				for (uint i = 0; i < std::size(indsp->production_rate); i++) {
 					if (i < num_cargoes) {
@@ -681,7 +678,7 @@ static ChangeInfoResult IndustriesChangeInfo(uint first, uint last, int prop, co
 				if (num_inputs > std::size(indsp->accepts_cargo) || num_outputs > std::size(indsp->produced_cargo)) {
 					GRFError *error = DisableGrf(STR_NEWGRF_ERROR_LIST_PROPERTY_TOO_LONG);
 					error->param_value[1] = prop;
-					return CIR_DISABLED;
+					return ChangeInfoResult::Disabled;
 				}
 				for (uint i = 0; i < std::size(indsp->accepts_cargo); i++) {
 					for (uint j = 0; j < std::size(indsp->produced_cargo); j++) {
@@ -694,7 +691,7 @@ static ChangeInfoResult IndustriesChangeInfo(uint first, uint last, int prop, co
 			}
 
 			case 0x29: // Badge list
-				indsp->badges = ReadBadgeList(buf, GSF_INDUSTRIES);
+				indsp->badges = ReadBadgeList(buf, GrfSpecFeature::Industries);
 				break;
 
 			default:
@@ -706,8 +703,8 @@ static ChangeInfoResult IndustriesChangeInfo(uint first, uint last, int prop, co
 	return ret;
 }
 
-template <> ChangeInfoResult GrfChangeInfoHandler<GSF_INDUSTRYTILES>::Reserve(uint, uint, int, const GRFFilePropertyRemapEntry *, ByteReader &) { return CIR_UNHANDLED; }
-template <> ChangeInfoResult GrfChangeInfoHandler<GSF_INDUSTRYTILES>::Activation(uint first, uint last, int prop, const GRFFilePropertyRemapEntry *mapping_entry, ByteReader &buf) { return IndustrytilesChangeInfo(first, last, prop, mapping_entry, buf); }
+template <> ChangeInfoResult GrfChangeInfoHandler<GrfSpecFeature::IndustryTiles>::Reserve(uint, uint, int, const GRFFilePropertyRemapEntry *, ByteReader &) { return ChangeInfoResult::Unhandled; }
+template <> ChangeInfoResult GrfChangeInfoHandler<GrfSpecFeature::IndustryTiles>::Activation(uint first, uint last, int prop, const GRFFilePropertyRemapEntry *mapping_entry, ByteReader &buf) { return IndustrytilesChangeInfo(first, last, prop, mapping_entry, buf); }
 
-template <> ChangeInfoResult GrfChangeInfoHandler<GSF_INDUSTRIES>::Reserve(uint, uint, int, const GRFFilePropertyRemapEntry *, ByteReader &) { return CIR_UNHANDLED; }
-template <> ChangeInfoResult GrfChangeInfoHandler<GSF_INDUSTRIES>::Activation(uint first, uint last, int prop, const GRFFilePropertyRemapEntry *mapping_entry, ByteReader &buf) { return IndustriesChangeInfo(first, last, prop, mapping_entry, buf); }
+template <> ChangeInfoResult GrfChangeInfoHandler<GrfSpecFeature::Industries>::Reserve(uint, uint, int, const GRFFilePropertyRemapEntry *, ByteReader &) { return ChangeInfoResult::Unhandled; }
+template <> ChangeInfoResult GrfChangeInfoHandler<GrfSpecFeature::Industries>::Activation(uint first, uint last, int prop, const GRFFilePropertyRemapEntry *mapping_entry, ByteReader &buf) { return IndustriesChangeInfo(first, last, prop, mapping_entry, buf); }

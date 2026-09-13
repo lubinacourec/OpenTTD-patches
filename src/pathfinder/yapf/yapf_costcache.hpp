@@ -10,6 +10,7 @@
 #ifndef YAPF_COSTCACHE_HPP
 #define YAPF_COSTCACHE_HPP
 
+#include "yapf_cache.h"
 #include "../../core/arena_alloc.hpp"
 #include "../../misc/hashtable.hpp"
 #include "../../tile_type.h"
@@ -28,7 +29,7 @@ public:
 
 	/**
 	 * Called by YAPF to attach cached or local segment cost data to the given node.
-	 *  @return true if globally cached data were used or false if local data was used
+	 * @return \c true if globally cached data were used or \c false if local data was used.
 	 */
 	inline bool PfNodeCacheFetch(Node &)
 	{
@@ -71,22 +72,6 @@ public:
 		CacheKey key(n.GetKey());
 		Yapf().ConnectNodeToCachedData(n, *(m_local_cache.New(key)));
 		return false;
-	}
-};
-
-/**
- * Base class for segment cost cache providers. Contains global counter
- *  of track layout changes and static notification function called whenever
- *  the track layout changes. It is implemented as base class because it needs
- *  to be shared between all rail YAPF types (one shared counter, one notification
- *  function.
- */
-struct CSegmentCostCacheBase {
-	static int   s_rail_change_counter;
-
-	static void NotifyTrackLayoutChange(TileIndex, Track)
-	{
-		s_rail_change_counter++;
 	}
 };
 
@@ -152,7 +137,7 @@ protected:
 
 	inline CYapfSegmentCostCacheGlobalT() : global_cache(stGetGlobalCache()) {};
 
-	/** to access inherited path finder */
+	/** @copydoc CYapfBaseT::Yapf */
 	inline Tpf &Yapf()
 	{
 		return *static_cast<Tpf *>(this);
@@ -174,7 +159,8 @@ protected:
 public:
 	/**
 	 * Called by YAPF to attach cached or local segment cost data to the given node.
-	 *  @return true if globally cached data were used or false if local data was used
+	 * @param n The node to get the cache for.
+	 * @return \c true if globally cached data were used or \c false if local data was used
 	 */
 	inline bool PfNodeCacheFetch(Node &n)
 	{

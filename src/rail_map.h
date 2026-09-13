@@ -31,12 +31,12 @@ enum class RailTileType : uint8_t {
  * Returns the RailTileType (normal with or without signals,
  * waypoint or depot).
  * @param t the tile to get the information from
- * @pre IsTileType(t, MP_RAILWAY)
+ * @pre IsTileType(t, TileType::Railway)
  * @return the RailTileType
  */
 [[debug_inline]] inline static RailTileType GetRailTileType(TileIndex t)
 {
-	dbg_assert_tile(IsTileType(t, MP_RAILWAY), t);
+	dbg_assert_tile(IsTileType(t, TileType::Railway), t);
 	return static_cast<RailTileType>(GB(_m[t].m5, 6, 2));
 }
 
@@ -44,7 +44,7 @@ enum class RailTileType : uint8_t {
  * Returns whether this is plain rails, with or without signals. Iow, if this
  * tiles RailTileType is RailTileType::Normal or RailTileType::Signals.
  * @param t the tile to get the information from
- * @pre IsTileType(t, MP_RAILWAY)
+ * @pre IsTileType(t, TileType::Railway)
  * @return true if and only if the tile is normal rail (with or without signals)
  */
 [[debug_inline]] inline static bool IsPlainRail(TileIndex t)
@@ -60,14 +60,14 @@ enum class RailTileType : uint8_t {
  */
 [[debug_inline]] inline static bool IsPlainRailTile(TileIndex t)
 {
-	return IsTileType(t, MP_RAILWAY) && IsPlainRail(t);
+	return IsTileType(t, TileType::Railway) && IsPlainRail(t);
 }
 
 
 /**
  * Checks if a rail tile has signals.
  * @param t the tile to get the information from
- * @pre IsTileType(t, MP_RAILWAY)
+ * @pre IsTileType(t, TileType::Railway)
  * @return true if and only if the tile has signals
  */
 inline bool HasSignals(TileIndex t)
@@ -90,7 +90,7 @@ inline void SetHasSignals(TileIndex tile, bool signals)
 /**
  * Is this rail tile a rail depot?
  * @param t the tile to get the information from
- * @pre IsTileType(t, MP_RAILWAY)
+ * @pre IsTileType(t, TileType::Railway)
  * @return true if and only if the tile is a rail depot
  */
 [[debug_inline]] inline static bool IsRailDepot(TileIndex t)
@@ -105,7 +105,7 @@ inline void SetHasSignals(TileIndex tile, bool signals)
  */
 [[debug_inline]] inline static bool IsRailDepotTile(TileIndex t)
 {
-	return IsTileType(t, MP_RAILWAY) && IsRailDepot(t);
+	return IsTileType(t, TileType::Railway) && IsRailDepot(t);
 }
 
 /**
@@ -313,26 +313,54 @@ inline TrackBits GetDepotReservationTrackBits(TileIndex t)
 	return HasDepotReservation(t) ? TrackToTrackBits(GetRailDepotTrack(t)) : TRACK_BIT_NONE;
 }
 
+/**
+ * Get the signal type for a track on a tile.
+ * In horizontal and vertical orientation there may be two tracks on a tile with a signal.
+ * @param t The tile to query.
+ * @param track The track to query for.
+ * @return The signal type.
+ */
 inline SignalType GetSignalType(TileIndex t, Track track)
 {
 	dbg_assert_tile(GetRailTileType(t) == RailTileType::Signals, t);
 	uint8_t pos = (track == TRACK_LOWER || track == TRACK_RIGHT) ? 4 : 0;
-	return (SignalType)GB(_m[t].m2, pos, 3);
+	return static_cast<SignalType>(GB(_m[t].m2, pos, 3));
 }
 
+/**
+ * Set the signal type for a track on a tile.
+ * In horizontal and vertical orientation there may be two tracks on a tile with a signal.
+ * @param t The tile to update.
+ * @param track The track to update for.
+ * @param s The new signal type.
+ */
 inline void SetSignalType(TileIndex t, Track track, SignalType s)
 {
 	dbg_assert_tile(GetRailTileType(t) == RailTileType::Signals, t);
 	uint8_t pos = (track == TRACK_LOWER || track == TRACK_RIGHT) ? 4 : 0;
-	SB(_m[t].m2, pos, 3, s);
-	if (track == INVALID_TRACK) SB(_m[t].m2, 4, 3, s);
+	SB(_m[t].m2, pos, 3, to_underlying(s));
+	if (track == INVALID_TRACK) SB(_m[t].m2, 4, 3, to_underlying(s));
 }
 
+/**
+ * Is the signal at the given track on a tile a presignal entry signal?
+ * In horizontal and vertical orientation there may be two tracks on a tile with a signal.
+ * @param t The tile to query.
+ * @param track The track to query for.
+ * @return \c true iff it is a presignal entry signal.
+ */
 inline bool IsPresignalEntry(TileIndex t, Track track)
 {
 	return IsEntrySignal(GetSignalType(t, track));
 }
 
+/**
+ * Is the signal at the given track on a tile a presignal exit signal?
+ * In horizontal and vertical orientation there may be two tracks on a tile with a signal.
+ * @param t The tile to query.
+ * @param track The track to query for.
+ * @return \c true iff it is a presignal exit signal.
+ */
 inline bool IsPresignalExit(TileIndex t, Track track)
 {
 	return IsExitSignal(GetSignalType(t, track));
@@ -353,33 +381,44 @@ inline bool IsNoEntrySignal(TileIndex t, Track track)
 	return IsNoEntrySignal(GetSignalType(t, track));
 }
 
-/** One-way signals can't be passed the 'wrong' way. */
+/**
+ * Is the signal at the given track on a tile a one way signal?
+ * One-way signals can't be passed the 'wrong' way.
+ * In horizontal and vertical orientation there may be two tracks on a tile with a signal.
+ * @param t The tile to query.
+ * @param track The track to query for.
+ * @return \c true iff it is an one way signal.
+ */
 inline bool IsOnewaySignal(TileIndex t, Track track)
 {
 	return IsOnewaySignal(GetSignalType(t, track));
 }
 
-inline void CycleSignalSide(TileIndex t, Track track)
-{
-	uint8_t sig;
-	uint8_t pos = (track == TRACK_LOWER || track == TRACK_RIGHT) ? 4 : 6;
-
-	sig = GB(_m[t].m3, pos, 2);
-	if (--sig == 0) sig = (IsPbsSignal(GetSignalType(t, track)) || _settings_game.vehicle.train_braking_model == TBM_REALISTIC) ? 2 : 3;
-	SB(_m[t].m3, pos, 2, sig);
-}
-
+/**
+ * Get the signal variant for a track on a tile.
+ * In horizontal and vertical orientation there may be two tracks on a tile with a signal.
+ * @param t The tile to query.
+ * @param track The track to query for.
+ * @return The signal variant.
+ */
 inline SignalVariant GetSignalVariant(TileIndex t, Track track)
 {
 	uint8_t pos = (track == TRACK_LOWER || track == TRACK_RIGHT) ? 7 : 3;
-	return (SignalVariant)GB(_m[t].m2, pos, 1);
+	return static_cast<SignalVariant>(GB(_m[t].m2, pos, 1));
 }
 
+/**
+ * Set the signal variant for a track on a tile.
+ * In horizontal and vertical orientation there may be two tracks on a tile with a signal.
+ * @param t The tile to update.
+ * @param track The track to update for.
+ * @param v The new signal variant.
+ */
 inline void SetSignalVariant(TileIndex t, Track track, SignalVariant v)
 {
 	uint8_t pos = (track == TRACK_LOWER || track == TRACK_RIGHT) ? 7 : 3;
-	SB(_m[t].m2, pos, 1, v);
-	if (track == INVALID_TRACK) SB(_m[t].m2, 7, 1, v);
+	SB(_m[t].m2, pos, 1, to_underlying(v));
+	if (track == INVALID_TRACK) SB(_m[t].m2, 7, 1, to_underlying(v));
 }
 
 inline uint8_t GetSignalAspect(TileIndex t, Track track)
@@ -411,9 +450,9 @@ inline uint8_t GetSignalStyle(TileIndex t, Track track)
 inline uint8_t GetSignalStyleGeneric(TileIndex t, Track track)
 {
 	switch (GetTileType(t)) {
-		case MP_RAILWAY:
+		case TileType::Railway:
 			return GetSignalStyle(t, track);
-		case MP_TUNNELBRIDGE:
+		case TileType::TunnelBridge:
 			return GetTunnelBridgeSignalStyle(t);
 		default:
 			return 0;
@@ -483,7 +522,7 @@ inline uint GetSignalStates(TileIndex tile)
  */
 inline SignalState GetSingleSignalState(TileIndex t, uint8_t signalbit)
 {
-	return (SignalState)HasBit(GetSignalStates(t), signalbit);
+	return static_cast<SignalState>(HasBit(GetSignalStates(t), signalbit));
 }
 
 /**
@@ -520,6 +559,9 @@ inline bool IsSignalPresent(TileIndex t, uint8_t signalbit)
 /**
  * Checks for the presence of signals (either way) on the given track on the
  * given rail tile.
+ * @param tile The tile to query.
+ * @param track The track to query for.
+ * @return \c true iff there is a signal in any direction.
  */
 inline bool HasSignalOnTrack(TileIndex tile, Track track)
 {
@@ -533,6 +575,9 @@ inline bool HasSignalOnTrack(TileIndex tile, Track track)
  *
  * Along meaning if you are currently driving on the given trackdir, this is
  * the signal that is facing us (for which we stop when it's red).
+ * @param tile The tile to query.
+ * @param trackdir The trackdir to query for.
+ * @return \c true iff there is a signal in the given direction.
  */
 inline bool HasSignalOnTrackdir(TileIndex tile, Trackdir trackdir)
 {
@@ -545,21 +590,27 @@ inline bool HasSignalOnTrackdir(TileIndex tile, Trackdir trackdir)
  *
  * Along meaning if you are currently driving on the given trackdir, this is
  * the signal that is facing us (for which we stop when it's red).
+ * @param tile The tile to query.
+ * @param trackdir The trackdir to query for.
+ * @return The signal state for the given trackdir.
  */
 inline SignalState GetSignalStateByTrackdir(TileIndex tile, Trackdir trackdir)
 {
 	dbg_assert(IsValidTrackdir(trackdir));
 	dbg_assert_tile(HasSignalOnTrack(tile, TrackdirToTrack(trackdir)), tile);
 	return GetSignalStates(tile) & SignalAlongTrackdir(trackdir) ?
-		SIGNAL_STATE_GREEN : SIGNAL_STATE_RED;
+		SignalState::Green : SignalState::Red;
 }
 
 /**
  * Sets the state of the signal along the given trackdir.
+ * @param tile The tile to update.
+ * @param trackdir The trackdir to update for.
+ * @param state The new signal state.
  */
 inline void SetSignalStateByTrackdir(TileIndex tile, Trackdir trackdir, SignalState state)
 {
-	if (state == SIGNAL_STATE_GREEN) { // set 1
+	if (state == SignalState::Green) { // set 1
 		SetSignalStates(tile, GetSignalStates(tile) | SignalAlongTrackdir(trackdir));
 	} else {
 		SetSignalStates(tile, GetSignalStates(tile) & ~SignalAlongTrackdir(trackdir));
@@ -570,10 +621,11 @@ inline void SetSignalStateByTrackdir(TileIndex tile, Trackdir trackdir, SignalSt
  * Is a pbs signal present along the trackdir?
  * @param tile the tile to check
  * @param td the trackdir to check
+ * @return \c true iff there is a path based signal on the trackdir.
  */
 inline bool HasPbsSignalOnTrackdir(TileIndex tile, Trackdir td)
 {
-	return IsTileType(tile, MP_RAILWAY) && HasSignalOnTrackdir(tile, td) &&
+	return IsTileType(tile, TileType::Railway) && HasSignalOnTrackdir(tile, td) &&
 			IsPbsSignal(GetSignalType(tile, TrackdirToTrack(td)));
 }
 
@@ -582,18 +634,19 @@ inline bool HasPbsSignalOnTrackdir(TileIndex tile, Trackdir td)
  * trackdir against will block, but signals on both trackdirs won't.
  * @param tile the tile to check
  * @param td the trackdir to check
+ * @return \c true iff a one way signals blocks the trackdir.
  */
 inline bool HasOnewaySignalBlockingTrackdir(TileIndex tile, Trackdir td)
 {
-	if (IsTileType(tile, MP_RAILWAY) && HasSignalOnTrackdir(tile, ReverseTrackdir(td)) &&
+	if (IsTileType(tile, TileType::Railway) && HasSignalOnTrackdir(tile, ReverseTrackdir(td)) &&
 			!HasSignalOnTrackdir(tile, td) && IsOnewaySignal(tile, TrackdirToTrack(td))) {
 		return true;
 	}
-	if (IsTileType(tile, MP_RAILWAY) && HasSignalOnTrackdir(tile, td) &&
+	if (IsTileType(tile, TileType::Railway) && HasSignalOnTrackdir(tile, td) &&
 			IsNoEntrySignal(tile, TrackdirToTrack(td))) {
 		return true;
 	}
-	if (IsTileType(tile, MP_TUNNELBRIDGE) && IsTunnelBridgeSignalSimulationExitOnly(tile) &&
+	if (IsTileType(tile, TileType::TunnelBridge) && IsTunnelBridgeSignalSimulationExitOnly(tile) &&
 			TrackdirEntersTunnelBridge(tile, td)) {
 		return true;
 	}
@@ -620,6 +673,17 @@ inline void SetRestrictedSignal(TileIndex tile, bool is_restricted)
 	AssignBit(_m[tile].m2, 12, is_restricted);
 }
 
+/**
+ * Check whether a block signal is present along the trackdir.
+ * @param tile The tile to check.
+ * @param td The trackdir to check.
+ * @return \c true iff a block signal present along the trackdir.
+ */
+inline bool HasBlockSignalOnTrackdir(TileIndex tile, Trackdir td)
+{
+	return IsTileType(tile, TileType::Railway) && HasSignalOnTrackdir(tile, td) &&
+		!IsPbsSignal(GetSignalType(tile, TrackdirToTrack(td)));
+}
 
 RailType GetTileRailType(TileIndex tile);
 RailType GenericGetRailTypeByTrack(TileIndex t, Track track, bool return_invalid);
@@ -654,26 +718,48 @@ enum class RailGroundType : uint8_t {
 	HalfTileSnow  = 14, ///< Snow only on higher part of slope (steep or one corner raised)
 };
 
+/**
+ * Set the ground type for rail tiles.
+ * @param t The tile to update.
+ * @param rgt The new ground type.
+ */
 inline void SetRailGroundType(TileIndex t, RailGroundType rgt)
 {
 	SB(_m[t].m4, 0, 4, to_underlying(rgt));
 }
 
+/**
+ * Get the ground type for rail tiles.
+ * @param t The tile to query.
+ * @return The ground type.
+ */
 inline RailGroundType GetRailGroundType(TileIndex t)
 {
 	return static_cast<RailGroundType>(GB(_m[t].m4, 0, 4));
 }
 
-inline bool IsSnowRailGround(TileIndex t)
+/**
+ * Is the given rail tile snowy or deserty.
+ * @param t The tile to query.
+ * @return \c true iff the tile is snowy or deserty.
+ */
+inline bool IsSnowOrDesertRailGround(TileIndex t)
 {
 	return GetRailGroundType(t) == RailGroundType::SnowOrDesert;
 }
 
 RailGroundType GetTunnelBridgeGroundType(TileIndex tile);
 
+/**
+ * Make the given tile a normal rail.
+ * @param t The tile to convert.
+ * @param o The new owner.
+ * @param b The bits/tracks to set.
+ * @param r The new rail type.
+ */
 inline void MakeRailNormal(TileIndex t, Owner o, TrackBits b, RailType r)
 {
-	SetTileType(t, MP_RAILWAY);
+	SetTileType(t, TileType::Railway);
 	SetTileOwner(t, o);
 	SetDockingTile(t, false);
 	_m[t].m2 = 0;
@@ -685,16 +771,26 @@ inline void MakeRailNormal(TileIndex t, Owner o, TrackBits b, RailType r)
 	_me[t].m8 = r;
 }
 
+/**
+ * Sets the exit direction of a rail depot.
+ * @param tile Tile of the depot.
+ * @param dir  Direction of the depot exit.
+ */
+inline void SetRailDepotExitDirection(TileIndex tile, DiagDirection dir)
+{
+	assert(IsRailDepotTile(tile));
+	SB(_m[tile].m5, 0, 2, to_underlying(dir));
+}
 
 inline void MakeRailDepot(TileIndex t, Owner o, DepotID did, DiagDirection d, RailType r)
 {
-	SetTileType(t, MP_RAILWAY);
+	SetTileType(t, TileType::Railway);
 	SetTileOwner(t, o);
 	SetDockingTile(t, false);
 	_m[t].m2 = did.base();
 	_m[t].m3 = 0;
 	_m[t].m4 = 0;
-	_m[t].m5 = to_underlying(RailTileType::Depot) << 6 | d;
+	_m[t].m5 = to_underlying(RailTileType::Depot) << 6 | to_underlying(d);
 	_me[t].m6 = 0;
 	_me[t].m7 = 0;
 	_me[t].m8 = r;

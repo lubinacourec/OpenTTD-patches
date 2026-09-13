@@ -13,7 +13,6 @@
 #include "core/bitmath_func.hpp"
 #include "road.h"
 #include "transparency.h"
-#include "settings_type.h"
 
 /**
  * Whether the given roadtype is valid.
@@ -22,7 +21,7 @@
  */
 inline bool IsValidRoadBits(RoadBits r)
 {
-	return r < ROAD_END;
+	return r.Reset(ROAD_ALL).None();
 }
 
 /**
@@ -37,7 +36,7 @@ inline bool IsValidRoadBits(RoadBits r)
 inline RoadBits ComplementRoadBits(RoadBits r)
 {
 	dbg_assert(IsValidRoadBits(r));
-	return (RoadBits)(ROAD_ALL ^ r);
+	return r.Flip(ROAD_ALL);
 }
 
 /**
@@ -51,25 +50,7 @@ inline RoadBits ComplementRoadBits(RoadBits r)
 inline RoadBits MirrorRoadBits(RoadBits r)
 {
 	dbg_assert(IsValidRoadBits(r));
-	return (RoadBits)(GB(r, 0, 2) << 2 | GB(r, 2, 2));
-}
-
-/**
- * Calculate rotated RoadBits
- *
- * Move the Roadbits clockwise until they are in their final position.
- *
- * @param r The given RoadBits value
- * @param rot The given Rotation angle
- * @return the rotated
- */
-inline RoadBits RotateRoadBits(RoadBits r, DiagDirDiff rot)
-{
-	dbg_assert(IsValidRoadBits(r));
-	for (; rot > (DiagDirDiff)0; rot--) {
-		r = (RoadBits)(GB(r, 0, 1) << 3 | GB(r, 1, 3));
-	}
-	return r;
+	return static_cast<RoadBits>(GB(r.base(), 0, 2) << 2 | GB(r.base(), 2, 2));
 }
 
 /**
@@ -96,7 +77,7 @@ inline bool IsStraightRoad(RoadBits r)
 inline RoadBits DiagDirToRoadBits(DiagDirection d)
 {
 	dbg_assert(IsValidDiagDirection(d));
-	return (RoadBits)(ROAD_NW << (3 ^ d));
+	return static_cast<RoadBits>(RoadBits{RoadBit::NW}.base() << (3 ^ to_underlying(d)));
 }
 
 /**
@@ -111,12 +92,13 @@ inline RoadBits DiagDirToRoadBits(DiagDirection d)
 inline RoadBits AxisToRoadBits(Axis a)
 {
 	dbg_assert(IsValidAxis(a));
-	return a == AXIS_X ? ROAD_X : ROAD_Y;
+	return a == Axis::X ? ROAD_X : ROAD_Y;
 }
 
 /**
  * Test if a road type has catenary
  * @param roadtype Road type to test
+ * @return \c true iff the road should have catenary.
  */
 inline bool HasRoadCatenary(RoadType roadtype)
 {
@@ -127,10 +109,11 @@ inline bool HasRoadCatenary(RoadType roadtype)
 /**
  * Test if we should draw road catenary
  * @param roadtype Road type to test
+ * @return \c true iff the road should have catenary and catenary is visible.
  */
 inline bool HasRoadCatenaryDrawn(RoadType roadtype)
 {
-	return HasRoadCatenary(roadtype) && !IsInvisibilitySet(TO_CATENARY);
+	return HasRoadCatenary(roadtype) && !IsInvisibilitySet(TransparencyOption::Catenary);
 }
 
 bool HasRoadTypeAvail(CompanyID company, RoadType roadtype);
@@ -150,23 +133,5 @@ Money RoadMaintenanceCost(RoadType roadtype, uint32_t num, uint32_t total_num);
 
 struct TileInfo;
 void DrawRoadOverlays(const TileInfo *ti, PaletteID pal, const RoadTypeInfo *road_rti, const RoadTypeInfo *tram_rit, uint road_offset, uint tram_offset, bool draw_underlay = true);
-
-inline bool RoadLayoutChangeNotificationEnabled(bool added)
-{
-	return _settings_game.pf.reroute_rv_on_layout_change >= (added ? 2 : 1);
-}
-
-inline void NotifyRoadLayoutChanged()
-{
-	_road_layout_change_counter++;
-}
-
-inline void NotifyRoadLayoutChanged(bool added)
-{
-	if (RoadLayoutChangeNotificationEnabled(added)) NotifyRoadLayoutChanged();
-}
-
-void NotifyRoadLayoutChangedIfTileNonLeaf(TileIndex tile, RoadTramType rtt, RoadBits present_bits);
-void NotifyRoadLayoutChangedIfSimpleTunnelBridgeNonLeaf(TileIndex start, TileIndex end, DiagDirection start_dir, RoadTramType rtt);
 
 #endif /* ROAD_FUNC_H */

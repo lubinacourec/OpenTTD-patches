@@ -193,7 +193,7 @@ inline constexpr CommandInfo CommandFromTrait() noexcept
 
 template <typename T, T... i>
 inline constexpr auto MakeCommandsFromTraits(std::integer_sequence<T, i...>) noexcept {
-	return std::array<CommandInfo, sizeof...(i)>{{ CommandFromTrait<static_cast<Commands>(i)>()... }};
+	return EnumIndexArray<CommandInfo, Commands, sizeof...(i)>{{ CommandFromTrait<static_cast<Commands>(i)>()... }};
 }
 
 /**
@@ -201,7 +201,7 @@ inline constexpr auto MakeCommandsFromTraits(std::integer_sequence<T, i...>) noe
  *
  * This table contains the CommandInfo for all possible commands.
  */
-const std::array<CommandInfo, to_underlying(CMD_END)> _command_proc_table = MakeCommandsFromTraits(std::make_integer_sequence<std::underlying_type_t<Commands>, CMD_END>{});
+const EnumIndexArray<CommandInfo, Commands, Commands::End> _command_proc_table = MakeCommandsFromTraits(std::make_integer_sequence<std::underlying_type_t<Commands>, to_underlying(Commands::End)>{});
 
 /**
  * Set client ID for this command payload using the field returned by Payload::GetClientIDField().
@@ -210,7 +210,7 @@ const std::array<CommandInfo, to_underlying(CMD_END)> _command_proc_table = Make
  */
 void SetPreCheckedCommandPayloadClientID(Commands cmd, CommandPayloadBase &payload, ClientID client_id)
 {
-	static_assert(INVALID_CLIENT_ID == (ClientID)0);
+	static_assert(ClientID::Invalid == (ClientID)0);
 
 	auto cmd_check = [&]<Commands Tcmd>() -> bool {
 		if constexpr (CommandTraits<Tcmd>::flags.Test(CommandFlag::ClientID)) {
@@ -226,7 +226,7 @@ void SetPreCheckedCommandPayloadClientID(Commands cmd, CommandPayloadBase &paylo
 	auto cmd_loop = [&]<Tseq... Tindices>(std::integer_sequence<Tseq, Tindices...>) {
 		(cmd_check.template operator()<static_cast<Commands>(Tindices)>() || ...);
 	};
-	cmd_loop(std::make_integer_sequence<Tseq, static_cast<Tseq>(CMD_END)>{});
+	cmd_loop(std::make_integer_sequence<Tseq, static_cast<Tseq>(Commands::End)>{});
 }
 
 void TupleCmdDataDetail::FmtSimpleTupleArgs(format_target &output, size_t count, fmt::format_args args)
@@ -823,12 +823,12 @@ struct PayloadOpsBuilder {
 	}
 };
 
-template<typename T>
+template <typename T>
 const CommandPayloadBase::Operations CommandPayloadSerialisable<T>::operations = PayloadOpsBuilder::Build<T>();
 
 template <typename Parent, typename... T>
 const CommandPayloadBase::Operations TupleCmdData<Parent, T...>::operations = PayloadOpsBuilder::Build<TupleCmdData<Parent, T...>::RealParent>();
 
 /* This isn't directly referenced in the command table, so ensure it is instantiated here. */
-template<>
+template <>
 const CommandPayloadBase::Operations CommandPayloadSerialisable<TraceRestrictFollowUpCmdData>::operations = PayloadOpsBuilder::Build<TraceRestrictFollowUpCmdData>();

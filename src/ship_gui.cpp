@@ -28,13 +28,14 @@
  * @param v         Front vehicle
  * @param r         Rect to draw at
  * @param selection Selected vehicle to draw a frame around
+ * @param image_type Context where the image is being drawn.
  */
 void DrawShipImage(const Vehicle *v, const Rect &r, VehicleID selection, EngineImageType image_type)
 {
 	bool rtl = _current_text_dir == TD_RTL;
 
 	VehicleSpriteSeq seq;
-	v->GetImage(rtl ? DIR_E : DIR_W, image_type, &seq);
+	v->GetImage(rtl ? Direction::E : Direction::W, image_type, &seq);
 
 	Rect rect = ConvertRect<Rect16, Rect>(seq.GetBounds());
 
@@ -51,7 +52,7 @@ void DrawShipImage(const Vehicle *v, const Rect &r, VehicleID selection, EngineI
 		x += x_offs;
 		y += UnScaleGUI(rect.top);
 		Rect hr = {x, y, x + width - 1, y + UnScaleGUI(rect.Height()) - 1};
-		DrawFrameRect(hr.Expand(WidgetDimensions::scaled.bevel), COLOUR_WHITE, FrameFlag::BorderOnly);
+		DrawFrameRect(hr.Expand(WidgetDimensions::scaled.bevel), Colours::White, FrameFlag::BorderOnly);
 	}
 }
 
@@ -66,7 +67,7 @@ void DrawShipDetails(const Vehicle *v, const Rect &r)
 	int y = r.top;
 
 	DrawString(r.left, r.right, y, GetString(STR_VEHICLE_INFO_BUILT_VALUE, PackEngineNameDParam(v->engine_type, EngineNameContext::VehicleDetails), v->build_year, v->value));
-	y += GetCharacterHeight(FS_NORMAL);
+	y += GetCharacterHeight(FontSize::Normal);
 
 	Money feeder_share = 0;
 
@@ -89,7 +90,7 @@ void DrawShipDetails(const Vehicle *v, const Rect &r)
 			std::string_view list_separator = GetListSeparator();
 
 			bool first = true;
-			for (CargoType i = 0; i < NUM_CARGO; i++) {
+			for (CargoType i{}; i < NUM_CARGO; i++) {
 				if (max_cargo[i] > 0) {
 					if (!first) capacity.append(list_separator);
 					AppendStringInPlace(capacity, STR_JUST_CARGO, i, max_cargo[i]);
@@ -104,8 +105,8 @@ void DrawShipDetails(const Vehicle *v, const Rect &r)
 
 			format_buffer capacity_str;
 			AppendStringInPlace(capacity_str, STR_VEHICLE_DETAILS_TRAIN_ARTICULATED_RV_CAPACITY, capacity);
-			DrawString(r.left, r.right, y, capacity_str, TC_BLUE);
-			y += GetCharacterHeight(FS_NORMAL) + WidgetDimensions::scaled.vsep_normal;
+			DrawString(r.left, r.right, y, capacity_str, TextColour::Blue);
+			y += GetCharacterHeight(FontSize::Normal) + WidgetDimensions::scaled.vsep_normal;
 		}
 
 		for (const Vehicle *u = v; u != nullptr; u = u->Next()) {
@@ -117,12 +118,12 @@ void DrawShipDetails(const Vehicle *v, const Rect &r)
 			} else {
 				DrawString(r.left, r.right, y, STR_VEHICLE_DETAILS_CARGO_EMPTY);
 			}
-			y += GetCharacterHeight(FS_NORMAL);
+			y += GetCharacterHeight(FontSize::Normal);
 		}
 		y += WidgetDimensions::scaled.vsep_normal;
 	} else {
 		DrawString(r.left, r.right, y, GetString(STR_VEHICLE_INFO_CAPACITY, v->cargo_type, v->cargo_cap, GetCargoSubtypeText(v)));
-		y += GetCharacterHeight(FS_NORMAL) + WidgetDimensions::scaled.vsep_normal;
+		y += GetCharacterHeight(FontSize::Normal) + WidgetDimensions::scaled.vsep_normal;
 
 		if (v->cargo.StoredCount() > 0) {
 			DrawString(r.left, r.right, y, GetString(STR_VEHICLE_DETAILS_CARGO_FROM, v->cargo_type, v->cargo.StoredCount(), v->cargo.GetFirstStation()));
@@ -130,12 +131,12 @@ void DrawShipDetails(const Vehicle *v, const Rect &r)
 		} else {
 			DrawString(r.left, r.right, y, STR_VEHICLE_DETAILS_CARGO_EMPTY);
 		}
-		y += GetCharacterHeight(FS_NORMAL) + WidgetDimensions::scaled.vsep_normal;
+		y += GetCharacterHeight(FontSize::Normal) + WidgetDimensions::scaled.vsep_normal;
 	}
 
 	/* Draw Transfer credits text */
 	DrawString(r.left, r.right, y, GetString(STR_VEHICLE_INFO_FEEDER_CARGO_VALUE, feeder_share));
-	y += GetCharacterHeight(FS_NORMAL) + WidgetDimensions::scaled.vsep_normal;
+	y += GetCharacterHeight(FontSize::Normal) + WidgetDimensions::scaled.vsep_normal;
 
 	if (Ship::From(v)->critical_breakdown_count > 0) {
 		DrawString(r.left, r.right, y, GetString(STR_NEED_REPAIR, Ship::From(v)->GetDisplayEffectiveMaxSpeed()));
